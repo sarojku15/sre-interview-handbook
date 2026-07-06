@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SRE & DevOps Interview Study Guide — Networking, Security, CI/CD, Cloud</title>
+<style>
+  :root{
+    --ink:#14181f; --ink-soft:#48505c; --ink-faint:#7b8492;
+    --paper:#f5f6f8; --card:#ffffff; --line:#e4e7ec; --line-soft:#eef0f3;
+    --azure:#0b5cad; --azure-soft:#e7f0fb; --azure-ink:#0a4a8c;
+    --easy:#0f6e56; --easy-bg:#e1f5ee;
+    --med:#8a5a00; --med-bg:#faeeda;
+    --hard:#a32d2d; --hard-bg:#fbeaea;
+    --radius:12px; --shadow:0 1px 2px rgba(20,24,31,.05),0 8px 24px -16px rgba(20,24,31,.18);
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+  /* ---- Masthead ---- */
+  .mast{max-width:1080px;margin:0 auto;padding:40px 22px 18px}
+  .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--azure);
+    font-weight:700;margin:0 0 10px}
+  h1{font-size:clamp(26px,4.5vw,40px);line-height:1.08;letter-spacing:-.02em;margin:0;font-weight:800}
+  .sub{color:var(--ink-soft);margin:12px 0 0;max-width:62ch;font-size:15px}
+
+  /* ---- Stat row ---- */
+  .stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:9px 14px;display:flex;align-items:baseline;gap:8px;box-shadow:var(--shadow)}
+  .stat b{font-size:18px;font-weight:800;letter-spacing:-.01em}
+  .stat span{font-size:12px;color:var(--ink-faint)}
+  .pwrap{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;box-shadow:var(--shadow)}
+  .plabel{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);margin-bottom:7px}
+  .ptrack{height:7px;background:var(--line-soft);border-radius:99px;overflow:hidden}
+  .pfill{height:100%;width:0;background:linear-gradient(90deg,var(--azure),#3b8be0);
+    border-radius:99px;transition:width .35s ease}
+
+  /* ---- Command bar ---- */
+  .bar{position:sticky;top:0;z-index:20;background:rgba(245,246,248,.86);
+    backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--line)}
+  .bar-in{max-width:1080px;margin:0 auto;padding:12px 22px}
+  .search{width:100%;border:1px solid var(--line);background:var(--card);border-radius:10px;
+    padding:11px 14px 11px 38px;font-size:14px;color:var(--ink);font-family:inherit;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237b8492' stroke-width='2' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><path d='M21 21l-4.3-4.3'/></svg>");
+    background-repeat:no-repeat;background-position:13px center}
+  .search:focus{outline:2px solid var(--azure);outline-offset:1px;border-color:var(--azure)}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;align-items:center}
+  .chip{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
+    font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:99px;cursor:pointer;
+    font-family:inherit;transition:background .12s,color .12s,border-color .12s;display:inline-flex;gap:6px;align-items:center}
+  .chip:hover{border-color:var(--ink-faint)}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chip .ct{font-size:11px;opacity:.65;font-weight:700}
+  .chip.on .ct{opacity:.8}
+  .sep{width:1px;height:20px;background:var(--line);margin:0 3px}
+  .txtbtn{background:none;border:none;color:var(--azure);font-weight:600;font-size:12.5px;
+    cursor:pointer;font-family:inherit;padding:6px 4px}
+  .txtbtn:hover{text-decoration:underline}
+
+  /* ---- Cards ---- */
+  main{max-width:1080px;margin:0 auto;padding:18px 22px 80px}
+  .meta{font-size:12.5px;color:var(--ink-faint);margin:8px 2px 14px}
+  .card{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--spine,var(--azure));
+    border-radius:var(--radius);margin-bottom:11px;box-shadow:var(--shadow);overflow:hidden;
+    transition:border-color .12s}
+  .card.done{border-left-color:var(--easy)}
+  .qrow{display:flex;align-items:flex-start;gap:12px;padding:15px 16px;cursor:pointer}
+  .qrow:hover{background:#fafbfc}
+  .qnum{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:3px;min-width:26px;font-weight:600}
+  .qmain{flex:1;min-width:0}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px}
+  .tag{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 8px;border-radius:99px}
+  .tag.cat{background:var(--azure-soft);color:var(--azure-ink)}
+  .tag.d-easy{background:var(--easy-bg);color:var(--easy)}
+  .tag.d-medium{background:var(--med-bg);color:var(--med)}
+  .tag.d-hard{background:var(--hard-bg);color:var(--hard)}
+  .q{font-weight:650;font-size:15.5px;line-height:1.45;letter-spacing:-.005em}
+  .caret{margin-top:3px;color:var(--ink-faint);transition:transform .2s;flex-shrink:0}
+  .card.open .caret{transform:rotate(90deg)}
+  .star{flex-shrink:0;border:none;background:none;cursor:pointer;padding:2px;color:var(--ink-faint);
+    border-radius:6px;line-height:0}
+  .star:hover{background:var(--line-soft);color:var(--med)}
+  .star.on{color:var(--easy)}
+  .star:focus-visible{outline:2px solid var(--azure);outline-offset:1px}
+
+  .ans{display:none;padding:2px 16px 18px 54px;border-top:1px solid var(--line-soft)}
+  .card.open .ans{display:block}
+  .ans h4{margin:16px 0 7px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--azure);font-weight:700}
+  .ans p{margin:0 0 10px}
+  .ans ul{margin:0 0 10px;padding-left:18px}
+  .ans li{margin:4px 0}
+  .ans code{font-family:var(--mono);font-size:12.5px;background:var(--line-soft);
+    padding:1.5px 5px;border-radius:5px;color:var(--azure-ink)}
+  .ans pre{background:#11151c;color:#e6edf3;font-family:var(--mono);font-size:12.5px;
+    padding:12px 14px;border-radius:9px;overflow-x:auto;margin:0 0 12px;line-height:1.5}
+  .ans pre code{background:none;color:inherit;padding:0}
+  .ans b{color:var(--ink)}
+  .note{background:var(--azure-soft);border-radius:8px;padding:10px 12px;font-size:13.5px;
+    color:var(--azure-ink);margin:4px 0 2px}
+  .note b{color:var(--azure-ink)}
+
+  .empty{text-align:center;color:var(--ink-faint);padding:60px 20px;font-size:15px;display:none}
+  footer{max-width:1080px;margin:0 auto;padding:0 22px 50px;color:var(--ink-faint);font-size:12.5px}
+
+  @media (max-width:560px){
+    .ans{padding-left:16px}
+    .qnum{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;scroll-behavior:auto!important}
+  }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <p class="eyebrow">SRE · DevOps · Platform · Cloud — Interview Preparation</p>
+  <h1>SRE &amp; DevOps Interview Study Guide</h1>
+  <p class="sub">One document, every question, full answers with the details and gotchas an interviewer probes for — built for senior engineers (10+ years). Covers Linux, networking &amp; protocols, containers, Kubernetes, CI/CD pipelines, observability, security &amp; DevSecOps, incident response, and a full Azure cloud track. Filter by topic or difficulty, search any term, and mark questions mastered as you go.</p>
+  <div class="stats" id="stats"></div>
+  <div class="pwrap">
+    <div class="plabel"><span>Mastery</span><span id="pcount">0 of 0 mastered</span></div>
+    <div class="ptrack"><div class="pfill" id="pfill"></div></div>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="bar-in">
+    <input id="search" class="search" type="search" placeholder="Search questions, answers, services (e.g. AKS, NSG, KQL, Entra, GRS)…" autocomplete="off">
+    <div class="chips" id="catchips"></div>
+    <div class="chips" id="diffchips" style="margin-top:8px">
+      <span class="sep" style="margin-left:0"></span>
+      <button class="txtbtn" id="expandAll">Expand all</button>
+      <button class="txtbtn" id="collapseAll">Collapse all</button>
+      <button class="txtbtn" id="resetMastery">Reset mastery</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="meta" id="meta"></div>
+  <div id="list"></div>
+  <div class="empty" id="empty">No questions match your filters. Try clearing the search or selecting “All”.</div>
+</main>
+
+<footer>
+  This guide spans platform-agnostic SRE/DevOps fundamentals (Linux, networking, containers, Kubernetes, CI/CD, observability, security, incident response) plus a dedicated Azure cloud track. Azure renamed <b>Azure Active Directory</b> to <b>Microsoft Entra ID</b> in 2023 — both names appear in interviews; this guide uses Entra ID with the old name noted. Tiers, SLAs, and tool defaults evolve, so confirm current figures before an interview. Mastery progress is saved locally in your browser when you open this file directly.
+</footer>
+
+<script>
+/* ============================== DATA ============================== */
+const CATS = {
+  linux:"Linux & Systems",
+  net2:"Networking & Protocols",
+  containers:"Containers & Docker",
+  k8s:"Kubernetes (Core)",
+  cicd:"CI/CD Pipelines",
+  sre:"SRE & Observability",
+  secops:"Security & DevSecOps",
+  incident:"Incident Response",
+  fund:"Azure · Fundamentals & ARM",
+  id:"Azure · Identity (Entra ID & RBAC)",
+  net:"Azure · Networking",
+  compute:"Azure · Compute",
+  aks:"Azure · Containers & AKS",
+  storage:"Azure · Storage",
+  db:"Azure · Databases",
+  mon:"Azure · Monitoring",
+  sec:"Azure · Security",
+  iac:"Azure · IaC & DevOps",
+  dr:"Azure · Reliability / HA / DR"
+};
+
+const Q = [
+/* ---------- FUNDAMENTALS & ARM ---------- */
+{cat:"fund",diff:"easy",q:"Explain the Azure resource hierarchy: management groups, subscriptions, resource groups, and resources.",
+a:`<p>Azure organizes everything into a four-level hierarchy, and policy/RBAC assignments <b>inherit downward</b> through it:</p>
+<ul>
+<li><b>Management Group</b> — a container for many subscriptions, used to apply governance (Azure Policy, RBAC) across an org. The top is the <i>tenant root</i> management group.</li>
+<li><b>Subscription</b> — the billing and quota boundary; resources in a subscription roll up to one invoice and share service quotas/limits.</li>
+<li><b>Resource Group (RG)</b> — a logical lifecycle container for resources that share a fate (deploy, update, delete together). An RG lives in one region (its metadata), though the resources inside can span regions.</li>
+<li><b>Resource</b> — the actual instance (a VM, a storage account, an AKS cluster).</li>
+</ul>`,
+d:`<p><b>Why it matters:</b> RBAC and Policy assigned at a higher scope flow down — assign Reader at the management-group level and it applies to every subscription beneath it. This is how enterprises enforce guardrails centrally.</p>
+<p><b>Gotchas:</b> deleting an RG deletes everything in it (a common accidental-blast-radius incident). A resource belongs to exactly one RG but can be moved. Some resources are global (not regional) but still live in an RG.</p>
+<p><b>Follow-up:</b> "Where would you assign a 'deny public IP' policy?" → at a management group, so it covers all subscriptions.</p>`},
+
+{cat:"fund",diff:"medium",q:"What is Azure Resource Manager (ARM), and what role does it play in every deployment?",
+a:`<p><b>ARM</b> is the management and deployment control plane for Azure — the single front door that every request goes through, whether it comes from the portal, Azure CLI, PowerShell, an SDK, Bicep, ARM templates, or Terraform.</p>
+<p>When you deploy, ARM: authenticates the caller against <b>Microsoft Entra ID</b>, authorizes the action via <b>RBAC</b>, evaluates <b>Azure Policy</b>, then hands the work to the relevant <b>resource provider</b> (e.g. <code>Microsoft.Compute</code>, <code>Microsoft.Network</code>) which actually creates the resource.</p>`,
+d:`<p><b>Key idea:</b> the portal is just a UI over ARM REST APIs — everything is ultimately an authenticated REST call to <code>management.azure.com</code>. Understanding this explains why RBAC, Policy, and resource providers behave consistently no matter which tool you use.</p>
+<p><b>Resource providers</b> must be registered in a subscription before you can use them (<code>az provider register --namespace Microsoft.ContainerService</code>). A common "why can't I create this?" issue is an unregistered provider.</p>`},
+
+{cat:"fund",diff:"medium",q:"Region, Availability Zone, and region pair — define each and how they differ.",
+a:`<ul>
+<li><b>Region</b> — a geographic area containing one or more datacenters (e.g. <code>East US</code>, <code>Central India</code>). Your data-residency and most service scoping happens here.</li>
+<li><b>Availability Zone (AZ)</b> — a physically separate location <i>within</i> a region with independent power, cooling, and networking. AZ-enabled regions have at least three. Spreading replicas across zones survives a datacenter-level failure and lifts the VM SLA to 99.99%.</li>
+<li><b>Region pair</b> — each region is paired with another in the same geography (e.g. East US ↔ West US). Microsoft sequences platform updates so paired regions are not updated simultaneously, and some services (GRS storage) replicate to the pair for geo-redundancy.</li>
+</ul>`,
+d:`<p><b>HA vs DR mapping:</b> use <b>Availability Zones for high availability</b> within a region, and <b>region pairs for disaster recovery</b> across regions. This is the single most important reliability distinction in Azure.</p>
+<p><b>Gotcha:</b> not every region supports zones, and not every service is zone-redundant — check per service. Some newer regions are "non-paired" and rely on zone redundancy instead.</p>`},
+
+{cat:"fund",diff:"easy",q:"ARM templates vs Bicep vs Terraform — when would you reach for each on Azure?",
+a:`<ul>
+<li><b>ARM templates</b> — native JSON. Powerful but verbose and hard to read. Rarely authored by hand now.</li>
+<li><b>Bicep</b> — Microsoft's domain-specific language that <i>transpiles to ARM JSON</i>. Far cleaner syntax, day-one support for new resources, no state file (state lives in Azure). Best when you are all-in on Azure and want first-party tooling.</li>
+<li><b>Terraform (azurerm provider)</b> — cloud-agnostic, huge module ecosystem, explicit state file, mature plan/apply workflow. Best for multi-cloud shops or teams already standardized on Terraform.</li>
+</ul>`,
+d:`<p><b>Trade-off:</b> Bicep gets new Azure features the instant they ship (it maps directly to ARM); Terraform sometimes lags until the provider is updated. Terraform's explicit <code>plan</code> and reusable modules are a strong operational advantage. Many enterprises run both — Bicep for Azure-only platform teams, Terraform where multi-cloud is in play.</p>
+<p><b>Interview signal:</b> mention that Bicep is stateless (Azure is the source of truth) while Terraform keeps a state file you must store and lock — that distinction trips people up.</p>`},
+
+{cat:"fund",diff:"hard",q:"What is Azure Policy, and how does it differ from RBAC?",
+a:`<p>They answer two different questions:</p>
+<ul>
+<li><b>RBAC</b> controls <i>who can do what</i> — "can this identity create a VM?" It governs <b>actions on the control plane</b>.</li>
+<li><b>Azure Policy</b> controls <i>what is allowed to exist and how it must be configured</i> — "any VM that is created must use an approved SKU, be encrypted, and live in an allowed region." It evaluates resource <b>properties</b> and can <code>deny</code>, <code>audit</code>, <code>append</code>, <code>modify</code>, or <code>deployIfNotExists</code>.</li>
+</ul>`,
+d:`<p><b>Together:</b> RBAC says you <i>may</i> create a storage account; Policy says the storage account you create <i>must</i> deny public blob access and enforce TLS 1.2. You need both — RBAC alone can't stop an authorized user from creating a non-compliant resource.</p>
+<p><b>Initiatives</b> (policy sets) bundle many policies — e.g. a CIS or ISO compliance set assigned at a management group. <code>deployIfNotExists</code> is how Policy auto-remediates (e.g. auto-deploy a diagnostic setting on every new resource).</p>`},
+
+/* ---------- IDENTITY ---------- */
+{cat:"id",diff:"medium",q:"Microsoft Entra ID (Azure AD) roles vs Azure RBAC roles — what's the difference?",
+a:`<p>Two separate role systems that people constantly confuse:</p>
+<ul>
+<li><b>Entra ID directory roles</b> (e.g. Global Administrator, User Administrator) govern the <b>directory/tenant</b> — managing users, groups, app registrations, Conditional Access. Scope is the Entra tenant.</li>
+<li><b>Azure RBAC roles</b> (Owner, Contributor, Reader, plus hundreds of built-ins) govern <b>Azure resources</b> — VMs, storage, networks — and are assigned at management group / subscription / RG / resource scope.</li>
+</ul>`,
+d:`<p><b>Classic trap:</b> being Global Admin in Entra does <i>not</i> automatically give you access to Azure resources. (A Global Admin can elevate to gain User Access Administrator over all subscriptions, but that's a deliberate, audited toggle.)</p>
+<p><b>Best practice:</b> assign RBAC to <b>groups</b>, not individual users; use <b>built-in roles</b> before writing custom ones; grant at the narrowest scope that works (least privilege).</p>`},
+
+{cat:"id",diff:"medium",q:"Explain managed identities. System-assigned vs user-assigned?",
+a:`<p>A <b>managed identity</b> is an Entra ID identity that Azure manages for you so your code can authenticate to Azure services <b>without storing any credentials</b>. The platform rotates the secret automatically; you never see it.</p>
+<ul>
+<li><b>System-assigned</b> — tied to a single resource (one VM, one app). Created and deleted with that resource. One-to-one.</li>
+<li><b>User-assigned</b> — a standalone resource you create once and attach to many resources. Survives independently. One-to-many; ideal when several services need the same identity, or to avoid re-granting RBAC on every redeploy.</li>
+</ul>`,
+d:`<p><b>How it's used:</b> grant the managed identity an RBAC role (e.g. Key Vault Secrets User), then your app uses the Azure SDK / <code>DefaultAzureCredential</code> to get a token transparently — no secrets in config, no secrets in code. This is the single biggest secret-management win on Azure.</p>
+<p><b>On AKS:</b> the modern pattern is <b>Workload Identity</b> (federating a Kubernetes service account to a user-assigned managed identity), which replaced the deprecated AAD Pod Identity.</p>`},
+
+{cat:"id",diff:"hard",q:"What is a service principal, and how does it relate to an app registration and a managed identity?",
+a:`<ul>
+<li><b>App registration</b> — the global definition of an application in your Entra tenant (its identity, redirect URIs, API permissions).</li>
+<li><b>Service principal</b> — the local instance/representation of that app <i>within a tenant</i> that actually holds permissions and can be assigned RBAC. It's the "service account" identity an automation or app uses to sign in, authenticating with a client secret or — better — a certificate or <b>workload identity federation</b> (OIDC, no secret at all).</li>
+<li><b>Managed identity</b> — a <i>special, fully-managed</i> kind of service principal where Azure handles credential lifecycle for you.</li>
+</ul>`,
+d:`<p><b>When to use which:</b> prefer a <b>managed identity</b> for anything running <i>inside</i> Azure (no secret to leak or rotate). Use a <b>service principal with workload identity federation</b> for external systems like GitHub Actions or GitLab — they get short-lived OIDC tokens instead of a stored secret. Fall back to a secret/cert-based SP only when federation isn't possible, and rotate it.</p>
+<p><b>Interview signal:</b> calling out "managed identity to avoid stored secrets" and "OIDC federation for CI/CD instead of a long-lived client secret" shows current, security-aware practice.</p>`},
+
+{cat:"id",diff:"medium",q:"What are Conditional Access and Privileged Identity Management (PIM)?",
+a:`<ul>
+<li><b>Conditional Access</b> — Entra ID policies that allow/block/challenge sign-ins based on signals: user/group, app, device compliance, location/IP, and risk level. Example: "require MFA for admins" or "block sign-in from outside corporate countries unless the device is compliant." It is the policy engine for Zero Trust access.</li>
+<li><b>PIM (Privileged Identity Management)</b> — provides <b>just-in-time</b>, time-bound, approval-gated activation of privileged roles. Instead of standing Global Admin, you are <i>eligible</i> and must activate the role (often with MFA + justification + approval) for a limited window, with full audit.</li>
+</ul>`,
+d:`<p>These are core <b>SC-300</b> topics. PIM's value is eliminating standing privilege — the principle that no one walks around with admin 24/7. Conditional Access + PIM + MFA together are the backbone of a Zero Trust identity posture.</p>
+<p><b>Follow-up:</b> "How do you reduce blast radius of a compromised admin account?" → no standing privilege (PIM), Conditional Access requiring compliant device + MFA, and access reviews.</p>`},
+
+/* ---------- NETWORKING ---------- */
+{cat:"net",diff:"easy",q:"What is a Network Security Group (NSG)? Is it stateful, and where can it be applied?",
+a:`<p>An <b>NSG</b> is a stateful, priority-ordered set of allow/deny rules (5-tuple: source, source port, destination, destination port, protocol) that filters traffic. It can be attached to a <b>subnet</b> and/or a <b>NIC</b>; when both exist, traffic must pass both.</p>
+<p>It is <b>stateful</b>: if you allow an inbound flow, the return traffic is automatically allowed — you don't write a matching outbound rule.</p>`,
+d:`<p><b>Rule processing:</b> lowest priority number wins; the first match stops evaluation. Default rules allow intra-VNet traffic and outbound internet, and deny inbound internet — you layer your rules on top.</p>
+<p><b>ASG (Application Security Group):</b> lets you group NICs by role (e.g. "web", "db") and write NSG rules against the group name instead of IP ranges — far more maintainable as the fleet scales.</p>
+<p><b>Gotcha:</b> NSGs filter but don't do NAT, deep inspection, or FQDN filtering — that's Azure Firewall's job.</p>`},
+
+{cat:"net",diff:"medium",q:"VNet peering — what is it, and why is it non-transitive?",
+a:`<p><b>VNet peering</b> connects two virtual networks so resources communicate over the Azure backbone using private IPs, with low latency and no public internet. It works within a region or across regions (global peering).</p>
+<p>It is <b>non-transitive</b>: if VNet A peers with B, and B peers with C, then A cannot reach C through B. Each pair needs its own peering, or you route through a network virtual appliance / gateway.</p>`,
+d:`<p><b>Hub-and-spoke:</b> the non-transitive rule is exactly why the hub-and-spoke topology exists — spokes peer to a central hub, and the hub runs an Azure Firewall / NVA plus a VPN/ExpressRoute gateway. With <b>gateway transit</b>, spokes can use the hub's gateway. Routing between spokes goes through the hub appliance (often via user-defined routes).</p>
+<p><b>Gotcha:</b> overlapping address spaces cannot be peered. Plan non-overlapping CIDRs across the whole org up front.</p>`},
+
+{cat:"net",diff:"hard",q:"Compare Azure Load Balancer, Application Gateway, Front Door, and Traffic Manager.",
+a:`<ul>
+<li><b>Azure Load Balancer</b> — Layer 4 (TCP/UDP), <b>regional</b>. Distributes flows to backend pool members. Use for high-throughput, non-HTTP, or internal load balancing.</li>
+<li><b>Application Gateway</b> — Layer 7 (HTTP/S), <b>regional</b>. Path/host-based routing, SSL termination, cookie affinity, and a built-in <b>WAF</b>. Use to front regional web apps.</li>
+<li><b>Front Door</b> — Layer 7, <b>global</b>. Anycast edge entry point with global routing, caching/CDN, WAF, and TLS offload at the edge. Use to give a global app one fast, secure front door and fail over across regions.</li>
+<li><b>Traffic Manager</b> — <b>DNS-based</b> global routing (priority, weighted, performance, geographic). It only returns the best endpoint's DNS name — traffic doesn't flow through it. Use for cross-region failover at the DNS layer, including non-HTTP endpoints.</li>
+</ul>`,
+d:`<p><b>Decision shortcut:</b> L4 → Load Balancer; L7 regional + WAF → App Gateway; L7 global + CDN + WAF → Front Door; DNS-level global routing → Traffic Manager.</p>
+<p><b>Common combo:</b> Front Door (global edge + WAF) → regional App Gateway (or directly to AKS ingress) → backend pool across zones. Front Door vs Traffic Manager confuses people: Front Door is a real reverse proxy in the data path with caching and instant failover; Traffic Manager just resolves DNS and is subject to DNS TTL caching on failover.</p>`},
+
+{cat:"net",diff:"medium",q:"Private Endpoint vs Service Endpoint — what problem does each solve?",
+a:`<ul>
+<li><b>Service Endpoint</b> — extends your VNet's identity to an Azure PaaS service over the backbone; the service still has a <b>public IP</b>, but you can restrict it to only accept traffic from specific subnets. Free, simple, but the resource remains publicly addressable.</li>
+<li><b>Private Endpoint</b> — gives the PaaS resource a <b>private IP inside your VNet</b> via Azure Private Link. Traffic never touches the public internet, and you can fully disable the public endpoint. Works across VNets/regions and even on-prem over VPN/ExpressRoute.</li>
+</ul>`,
+d:`<p><b>Prefer Private Endpoint</b> for a true private posture — it's the standard for locking down Storage, Key Vault, SQL, etc., so they have no public exposure at all.</p>
+<p><b>Gotcha:</b> Private Endpoints require <b>private DNS</b> configuration (a Private DNS Zone like <code>privatelink.blob.core.windows.net</code> linked to the VNet) so the service FQDN resolves to the private IP. Mis-configured DNS is the #1 Private Endpoint failure.</p>`},
+
+/* ---------- COMPUTE ---------- */
+{cat:"compute",diff:"medium",q:"Availability Set vs Availability Zone vs VM Scale Set — when do you use each?",
+a:`<ul>
+<li><b>Availability Set</b> — spreads VMs across <b>fault domains</b> (separate power/network) and <b>update domains</b> (patched at different times) <i>within a single datacenter</i>. Protects against rack/hardware failure and host maintenance. SLA 99.95%.</li>
+<li><b>Availability Zone</b> — spreads VMs across <b>physically separate datacenters</b> within a region. Protects against a whole-datacenter failure. SLA 99.99% when spread across ≥2 zones.</li>
+<li><b>VM Scale Set (VMSS)</b> — manages an identical fleet of VMs with <b>autoscaling</b>, rolling upgrades, and integration with load balancers. Can itself be spread across zones.</li>
+</ul>`,
+d:`<p><b>Mental model:</b> Availability Set = resilience within one building; Availability Zone = resilience across buildings; VMSS = how you actually run and autoscale a fleet (and you'd zone-span the VMSS for the best SLA).</p>
+<p><b>Modern note:</b> zones are now generally preferred over availability sets for new designs because they protect against larger failures. VMSS Flexible orchestration combines fleet management with zone spreading.</p>`},
+
+{cat:"compute",diff:"easy",q:"When would you choose Azure App Service over running VMs or containers yourself?",
+a:`<p><b>App Service</b> is a managed PaaS for web apps and APIs: you push code or a container and Azure runs, patches, scales, and load-balances it. You get built-in autoscale, deployment slots (blue/green), custom domains, TLS, and easy CI/CD — without managing OS, patching, or orchestration.</p>`,
+d:`<p><b>Choose App Service</b> when the workload is a standard web app/API and you want minimum operational overhead. <b>Choose AKS</b> when you need fine-grained orchestration, many interdependent microservices, custom networking, or portability. <b>Choose VMs</b> only when you need OS-level control or lift-and-shift of legacy software.</p>
+<p><b>Deployment slots</b> are a standout feature: deploy to a staging slot, warm it up, then <i>swap</i> to production instantly with rollback — true zero-downtime releases.</p>`},
+
+/* ---------- AKS ---------- */
+{cat:"aks",diff:"medium",q:"Describe AKS architecture. What does Microsoft manage vs what do you manage?",
+a:`<p><b>AKS (Azure Kubernetes Service)</b> is managed Kubernetes. Microsoft runs the <b>control plane</b> — API server, etcd, scheduler, controller manager — and you don't pay for or patch it (the control plane is free; you pay for nodes, plus an optional <b>Uptime SLA</b> tier for a financially-backed control-plane SLA).</p>
+<p>You manage the <b>node pools</b> (the worker VMs), your workloads, networking choices, and upgrades (which AKS orchestrates but you trigger/schedule).</p>`,
+d:`<p><b>Node pools:</b> a <b>system</b> node pool runs critical add-ons (CoreDNS, metrics-server); <b>user</b> node pools run your apps. Separating them keeps system components stable. Pools can differ in VM size, zones, and can be spot or GPU.</p>
+<p><b>Integrations to mention:</b> ACR for images, Entra/Workload Identity for pod-to-Azure auth, Azure CNI for networking, Container Insights for monitoring, AGIC or the managed ingress for L7.</p>`},
+
+{cat:"aks",diff:"hard",q:"AKS networking: kubenet vs Azure CNI. What's the trade-off?",
+a:`<ul>
+<li><b>kubenet</b> — nodes get VNet IPs but <b>pods get a separate, NAT'd overlay IP range</b>. Conserves VNet IP space, but pods aren't directly addressable from the VNet and you manage user-defined routes. Simpler IP planning, more limitations.</li>
+<li><b>Azure CNI</b> — <b>every pod gets a real IP from the VNet subnet</b>, so pods are first-class VNet citizens (directly reachable, work cleanly with NSGs, private endpoints, peering). Costs far more VNet IPs and needs careful subnet sizing.</li>
+</ul>`,
+d:`<p><b>Azure CNI Overlay</b> is the modern middle ground: pods get overlay IPs (so you don't burn the VNet range) while keeping CNI's performance and feature set — increasingly the recommended default for large clusters.</p>
+<p><b>Interview gotcha:</b> with classic Azure CNI you must size the subnet for <i>max pods per node × node count</i> up front, or you can't scale. IP exhaustion is a real production incident — show you'd plan subnet CIDRs accordingly or use CNI Overlay.</p>`},
+
+{cat:"aks",diff:"hard",q:"How does autoscaling work in AKS across the three layers (HPA, Cluster Autoscaler, KEDA)?",
+a:`<ul>
+<li><b>Horizontal Pod Autoscaler (HPA)</b> — scales <i>pod replicas</i> based on CPU/memory (or custom metrics). Pure Kubernetes.</li>
+<li><b>Cluster Autoscaler</b> — scales the <i>number of nodes</i> in a node pool when pods can't be scheduled (Pending due to insufficient resources), and scales nodes back down when idle.</li>
+<li><b>KEDA (Kubernetes Event-Driven Autoscaling)</b> — an AKS add-on that scales pods on <b>external event sources</b> — queue length (Service Bus, Storage Queue), Kafka lag, Prometheus metrics, cron — including <b>scale-to-zero</b>.</li>
+</ul>`,
+d:`<p><b>How they stack:</b> KEDA/HPA decide you need more pods → pods go Pending if nodes are full → Cluster Autoscaler adds nodes. They cooperate, not compete.</p>
+<p><b>Production tips:</b> set realistic resource <i>requests</i> (the autoscaler's signal depends on them); use <b>spot node pools</b> for interruptible batch work to cut cost; KEDA scale-to-zero is great for event-driven workloads idle most of the day. Node provisioning takes minutes, so combine with over-provisioning (pause pods) for spiky latency-sensitive workloads.</p>`},
+
+{cat:"aks",diff:"medium",q:"How should pods in AKS authenticate to Azure services like Key Vault?",
+a:`<p>Use <b>Microsoft Entra Workload Identity</b>: you federate a Kubernetes <b>service account</b> with a <b>user-assigned managed identity</b> via OIDC. Pods using that service account get short-lived Entra tokens automatically — <b>no secrets stored in the cluster</b> — and the managed identity holds the RBAC (e.g. Key Vault Secrets User).</p>`,
+d:`<p><b>History to mention:</b> this replaced the deprecated <b>AAD Pod Identity</b>, which had race conditions and scaling problems. Workload Identity is the current best practice.</p>
+<p>For pulling secrets into pods, pair it with the <b>Key Vault Provider for Secrets Store CSI Driver</b>, which mounts Key Vault secrets as files (or syncs to K8s secrets) using that same workload identity. Net result: zero long-lived credentials in the cluster.</p>`},
+
+/* ---------- STORAGE ---------- */
+{cat:"storage",diff:"medium",q:"Explain Azure Storage redundancy: LRS, ZRS, GRS, RA-GRS, GZRS.",
+a:`<ul>
+<li><b>LRS</b> (Locally Redundant) — 3 copies within a single datacenter. Cheapest; survives disk/rack failure, not a datacenter loss.</li>
+<li><b>ZRS</b> (Zone Redundant) — 3 copies across <b>availability zones</b> in the region. Survives a datacenter/zone failure.</li>
+<li><b>GRS</b> (Geo Redundant) — LRS in the primary region <b>plus</b> async replication to the paired region (6 copies total). Survives a regional outage, but the secondary is not readable unless you fail over.</li>
+<li><b>RA-GRS</b> — GRS plus <b>read access</b> to the secondary region at any time.</li>
+<li><b>GZRS / RA-GZRS</b> — ZRS in the primary (zone-redundant) <b>plus</b> geo-replication to the pair — the strongest combo (zone + regional resilience).</li>
+</ul>`,
+d:`<p><b>How to choose:</b> ZRS for in-region HA; GRS/GZRS for DR across regions; add "RA-" when you need to read the secondary during a primary outage without a failover.</p>
+<p><b>Gotcha:</b> GRS replication is <b>asynchronous</b>, so a regional disaster can lose the last few seconds/minutes of writes (non-zero RPO). For zero in-region data loss prefer ZRS/GZRS, which are synchronous across zones.</p>`},
+
+{cat:"storage",diff:"easy",q:"Blob storage access tiers — Hot, Cool, Cold, Archive. How do you pick?",
+a:`<ul>
+<li><b>Hot</b> — frequent access; highest storage cost, lowest access cost.</li>
+<li><b>Cool</b> — infrequent access, stored ≥30 days; lower storage, higher access cost.</li>
+<li><b>Cold</b> — even less frequent, ≥90 days; cheaper storage again.</li>
+<li><b>Archive</b> — offline, rarely accessed; cheapest storage but data must be <b>rehydrated</b> (hours) before reading, and has minimum retention.</li>
+</ul>`,
+d:`<p><b>Automate it</b> with <b>lifecycle management policies</b>: e.g. "move blobs to Cool after 30 days, Archive after 90, delete after 365." This is a major cost lever for log/backup-heavy workloads.</p>
+<p><b>Gotcha:</b> early deletion from Cool/Cold/Archive incurs a penalty, and Archive's rehydration latency makes it unsuitable for anything you might need quickly — don't archive data you may need to restore fast.</p>`},
+
+/* ---------- DATABASES ---------- */
+{cat:"db",diff:"hard",q:"Azure SQL Database vs SQL Managed Instance vs SQL on a VM — what's the difference?",
+a:`<ul>
+<li><b>Azure SQL Database</b> — fully managed PaaS, single database or elastic pool. Best for new/cloud-native apps. Least admin overhead; some surface-area limits (no SQL Agent, no cross-database queries in the classic sense).</li>
+<li><b>SQL Managed Instance</b> — managed but with near-full SQL Server compatibility (SQL Agent, cross-DB queries, CLR, linked servers). Best for <b>lift-and-shift</b> of existing SQL Server estates that need instance-level features. Deploys into your VNet.</li>
+<li><b>SQL Server on an Azure VM</b> — IaaS; you run and patch SQL Server yourself. Full control, full responsibility. Use when you need OS/SQL versions or features the PaaS tiers don't offer.</li>
+</ul>`,
+d:`<p><b>Spectrum:</b> SQL Database (most managed) → Managed Instance (managed + compatibility) → VM (most control). Move left for less ops; move right for more control/compatibility.</p>
+<p><b>Tiers within SQL Database:</b> <b>General Purpose</b> (balanced), <b>Business Critical</b> (low latency, local SSD, built-in HA replicas, zone-redundant option), <b>Hyperscale</b> (scales storage to 100TB+ with fast backups/restores). Know vCore vs DTU purchasing models.</p>`},
+
+{cat:"db",diff:"hard",q:"Cosmos DB consistency levels — name them and explain the trade-off.",
+a:`<p>Cosmos DB offers five tunable consistency levels, trading latency/availability against how fresh/ordered reads are (strongest to weakest):</p>
+<ul>
+<li><b>Strong</b> — linearizable; reads always see the latest committed write. Highest latency; can't be used with multi-region writes.</li>
+<li><b>Bounded Staleness</b> — reads lag by at most K versions or T seconds; ordered.</li>
+<li><b>Session</b> — <b>default</b>; strong consistency <i>within a client session</i> (read-your-own-writes). Best balance for most apps.</li>
+<li><b>Consistent Prefix</b> — never see out-of-order writes, but may see stale data.</li>
+<li><b>Eventual</b> — lowest latency/highest availability; reads may be stale and unordered.</li>
+</ul>`,
+d:`<p><b>Key insight:</b> this is a per-request-tunable knob on the CAP trade-off. Most applications use <b>Session</b> — it gives the intuitive "I can read what I just wrote" behavior with great performance.</p>
+<p><b>Multi-region writes:</b> Cosmos can accept writes in multiple regions (active-active) with automatic conflict resolution, but then Strong consistency is unavailable. Cosmos provides SLAs on latency, availability, throughput, and consistency — a frequent interview talking point.</p>`},
+
+/* ---------- MONITORING ---------- */
+{cat:"mon",diff:"medium",q:"Explain the Azure Monitor stack: metrics, logs, Log Analytics, and Application Insights.",
+a:`<p><b>Azure Monitor</b> is the umbrella observability platform. Its data is two fundamental types:</p>
+<ul>
+<li><b>Metrics</b> — lightweight, numeric, near-real-time time series (CPU%, request count). Cheap, fast, ideal for dashboards and metric alerts.</li>
+<li><b>Logs</b> — structured event/trace records stored in a <b>Log Analytics workspace</b>, queried with <b>KQL</b>. Rich and flexible; powers complex analysis and log alerts.</li>
+</ul>
+<p><b>Application Insights</b> is the APM piece (now part of Azure Monitor): distributed tracing, dependency maps, request/exception telemetry, live metrics — typically storing its data in a Log Analytics workspace.</p>`,
+d:`<p><b>Mental model:</b> metrics for "is it healthy right now / alert fast and cheap"; logs (KQL) for "why did it break / deep investigation"; App Insights for "trace a request across services."</p>
+<p><b>Alerting:</b> alert rules (metric, log, or activity-log) fire to <b>action groups</b> (email, SMS, webhook, Logic App, ITSM, auto-remediation). <b>Container Insights</b> is the AKS-specific onboarding for node/pod telemetry.</p>`},
+
+{cat:"mon",diff:"medium",q:"What is KQL, and why does it matter for an Azure SRE? Give an example.",
+a:`<p><b>KQL (Kusto Query Language)</b> is the read-only query language for Log Analytics, App Insights, Azure Data Explorer, and Sentinel. It's pipeline-based (<code>|</code>), like a SQL-meets-shell for telemetry, and it's how you actually investigate incidents on Azure.</p>
+<pre><code>// Top 10 slowest API operations in the last hour
+requests
+| where timestamp > ago(1h)
+| summarize p95=percentile(duration,95), count() by name
+| top 10 by p95 desc</code></pre>`,
+d:`<p><b>Why it matters:</b> nearly every deep Azure investigation — error spikes, latency, AKS pod restarts, security hunting in Sentinel — runs through KQL. Fluency here separates someone who clicks dashboards from someone who can root-cause.</p>
+<p><b>Common operators to know:</b> <code>where</code>, <code>summarize</code>, <code>project</code>, <code>extend</code>, <code>join</code>, <code>render</code>, <code>ago()</code>, <code>bin()</code>. Log-based <b>alerts</b> are saved KQL queries that fire when a result threshold is crossed.</p>`},
+
+{cat:"mon",diff:"hard",q:"How would you monitor an AKS cluster end to end on Azure?",
+a:`<p>Layer the signals:</p>
+<ul>
+<li><b>Container Insights</b> (Azure Monitor for containers) — node/pod CPU, memory, restarts, and control-plane health into Log Analytics.</li>
+<li><b>Managed Prometheus</b> (Azure Monitor managed service for Prometheus) — scrapes cluster and app metrics; query with PromQL.</li>
+<li><b>Azure Managed Grafana</b> — dashboards over the Prometheus/Azure Monitor data.</li>
+<li><b>App Insights</b> — application-level traces/dependencies from the workloads.</li>
+<li><b>Alerts + action groups</b> — on pod crash loops, node NotReady, PVC pressure, SLO burn rate.</li>
+</ul>`,
+d:`<p><b>What to alert on (symptom-based):</b> user-facing error rate/latency (SLO burn), not just raw CPU. For the cluster itself: nodes NotReady, pods in CrashLoopBackOff/Pending, control-plane API errors, disk/PID pressure, and PVC near-full.</p>
+<p><b>Interview signal:</b> mentioning <b>managed Prometheus + managed Grafana</b> shows you know Azure now offers the open-source observability stack as a first-party managed service — you don't have to self-host Prometheus on the cluster.</p>`},
+
+/* ---------- SECURITY ---------- */
+{cat:"sec",diff:"medium",q:"What is Azure Key Vault, and how should apps access it securely?",
+a:`<p><b>Key Vault</b> is a managed service for <b>secrets</b> (connection strings, passwords), <b>keys</b> (encryption/signing, optionally HSM-backed), and <b>certificates</b>. It centralizes secret storage, supports versioning, access logging, and auto-rotation.</p>
+<p>Apps should access it via a <b>managed identity</b> granted a Key Vault RBAC role (e.g. Key Vault Secrets User) — never with a stored secret. This removes the bootstrap problem of "where do I keep the secret that gets my secrets?"</p>`,
+d:`<p><b>Access model:</b> Key Vault supports two authorization models — legacy <b>access policies</b> and the recommended <b>Azure RBAC</b> (consistent with the rest of Azure, scoped, auditable). Prefer RBAC.</p>
+<p><b>Protect against loss:</b> enable <b>soft delete</b> and <b>purge protection</b> so deleted vaults/secrets can be recovered and can't be permanently purged during the retention window. Restrict network access with Private Endpoint.</p>`},
+
+{cat:"sec",diff:"medium",q:"What is Microsoft Defender for Cloud, and what does CSPM vs CWP mean?",
+a:`<p><b>Defender for Cloud</b> is Azure's cloud security posture and workload-protection platform:</p>
+<ul>
+<li><b>CSPM (Cloud Security Posture Management)</b> — continuously assesses configuration against best practice and compliance standards, producing a <b>Secure Score</b> and prioritized recommendations (e.g. "this storage account allows public access").</li>
+<li><b>CWP (Cloud Workload Protection)</b> — the paid Defender plans that add threat detection for specific resource types (servers, SQL, storage, containers/AKS, Key Vault) — runtime alerts on suspicious activity.</li>
+</ul>`,
+d:`<p><b>Mental model:</b> CSPM tells you "you're misconfigured, here's how to harden"; CWP tells you "something is attacking you right now." It also covers multi-cloud (AWS/GCP) and feeds alerts into <b>Microsoft Sentinel</b> (the SIEM) for correlation and response.</p>`},
+
+{cat:"sec",diff:"hard",q:"How do you encrypt data at rest in Azure, and what is the difference between platform-managed and customer-managed keys?",
+a:`<p>Azure encrypts data at rest <b>by default</b> (Storage Service Encryption, Azure Disk Storage encryption, transparent data encryption for SQL) using AES-256. The question is who controls the keys:</p>
+<ul>
+<li><b>Platform-managed keys (PMK)</b> — Microsoft creates, stores, and rotates the keys. Zero effort, good for most workloads.</li>
+<li><b>Customer-managed keys (CMK)</b> — you supply and control the key in <b>Key Vault</b> (or Managed HSM), so you can rotate, revoke, and audit it. Required by many compliance regimes for separation of duties and the ability to render data unreadable by revoking the key.</li>
+</ul>`,
+d:`<p><b>Beyond at-rest:</b> for the highest assurance, <b>confidential computing</b> protects data <i>in use</i> via hardware-based trusted execution environments. <b>Double encryption</b> (infrastructure + service layer) is available where regulations demand it.</p>
+<p><b>Gotcha with CMK:</b> if you revoke/delete the key, the data becomes inaccessible — powerful but operationally risky; protect the vault with soft delete + purge protection and tight RBAC.</p>`},
+
+/* ---------- IaC & DevOps ---------- */
+{cat:"iac",diff:"hard",q:"How do you configure a remote Terraform backend on Azure with state locking?",
+a:`<p>Use the <b>azurerm backend</b>, which stores state as a blob in an Azure Storage account. State <b>locking is automatic</b> via the blob's lease mechanism — no separate lock table (unlike AWS's DynamoDB).</p>
+<pre><code>terraform {
+  backend "azurerm" {
+    resource_group_name  = "tfstate-rg"
+    storage_account_name = "tfstatecorp01"
+    container_name       = "tfstate"
+    key                  = "prod.terraform.tfstate"
+  }
+}</code></pre>`,
+d:`<p><b>Hardening checklist:</b> enable <b>blob versioning</b> (recover a corrupted/last-good state), restrict the storage account with a <b>Private Endpoint</b> + firewall, authenticate Terraform via a <b>managed identity or OIDC-federated service principal</b> (not a stored key), and isolate state per environment (separate accounts or containers for dev/stage/prod).</p>
+<p><b>Why a remote backend at all:</b> shared, locked, durable state so a team doesn't corrupt or race on local <code>terraform.tfstate</code> files. The blob lease prevents two concurrent <code>apply</code>s.</p>`},
+
+{cat:"iac",diff:"medium",q:"How do you build a secure CI/CD pipeline to Azure from GitHub Actions or Azure DevOps?",
+a:`<p>Authenticate with <b>workload identity federation (OIDC)</b> instead of a stored client secret: the pipeline presents a short-lived OIDC token, Entra ID trusts it via a federated credential on a service principal/managed identity, and issues a scoped access token. No secrets to leak or rotate.</p>
+<ul>
+<li><b>Azure DevOps</b> — a <b>service connection</b> (now supporting workload identity federation) scoped to a subscription/RG; YAML pipelines run build → test → deploy with environment <b>approvals/gates</b>.</li>
+<li><b>GitHub Actions</b> — <code>azure/login</code> with OIDC, environments with required reviewers for prod.</li>
+</ul>`,
+d:`<p><b>Production patterns:</b> separate stages with manual approval before prod; deploy infra via Bicep/Terraform with a <code>plan</code>/what-if review; use deployment slots (App Service) or progressive rollout (AKS) for zero-downtime; store any unavoidable secrets in Key Vault and pull at runtime via managed identity.</p>
+<p><b>Interview signal:</b> leading with "OIDC federation, not a stored service-principal secret" demonstrates current, security-first CI/CD practice.</p>`},
+
+/* ---------- RELIABILITY / HA / DR ---------- */
+{cat:"dr",diff:"hard",q:"Design a highly available, multi-region web application on Azure. Walk through the components.",
+a:`<p>A standard resilient topology:</p>
+<ul>
+<li><b>Azure Front Door</b> as the global entry point — Anycast edge, WAF, TLS offload, and automatic failover across regions.</li>
+<li>In <b>each region</b>: an <b>App Gateway/AKS ingress</b> fronting workloads spread across <b>3 availability zones</b> (zone-redundant App Service / VMSS / AKS node pools).</li>
+<li><b>Data tier</b>: a geo-replicated database — Azure SQL <b>auto-failover groups</b> or Cosmos DB <b>multi-region</b>; storage as <b>GZRS/RA-GZRS</b>.</li>
+<li><b>DNS/secrets/identity</b> are global services already; use managed identities throughout.</li>
+</ul>`,
+d:`<p><b>Active-active vs active-passive:</b> active-active (both regions serving) gives near-zero RTO but needs careful data conflict handling; active-passive (warm standby) is simpler and cheaper with a slightly higher RTO. Choose based on the business RTO/RPO.</p>
+<p><b>Test it:</b> the design is only real if you <b>rehearse failover</b> (game days) and verify the data tier actually promotes. Don't forget capacity in the secondary region — a passive region with no warm capacity can't absorb full load instantly.</p>`},
+
+{cat:"dr",diff:"medium",q:"What are RTO and RPO, and how do Azure Backup and Azure Site Recovery map to them?",
+a:`<ul>
+<li><b>RTO (Recovery Time Objective)</b> — the maximum acceptable time to restore service after a disaster.</li>
+<li><b>RPO (Recovery Point Objective)</b> — the maximum acceptable data loss, measured as the age of the last recoverable copy.</li>
+</ul>
+<p><b>Azure Backup</b> takes scheduled point-in-time backups (VMs, SQL, files) — it addresses data recovery with an RPO equal to your backup frequency and an RTO equal to restore time (typically higher). <b>Azure Site Recovery (ASR)</b> continuously replicates whole VMs to another region and orchestrates failover — low RTO/RPO for true DR.</p>`,
+d:`<p><b>Mapping:</b> tight RTO/RPO → Site Recovery (continuous replication, orchestrated failover) or active geo-replication for databases. Looser targets → Azure Backup restore. Backups also protect against <i>logical</i> disasters (ransomware, bad deploy, accidental delete) that replication would faithfully copy — so you need both replication and backups.</p>
+<p><b>Gotcha:</b> a DR plan that's never been failover-tested is a hypothesis, not a plan. ASR supports test failovers into an isolated network — use them.</p>`},
+
+{cat:"dr",diff:"medium",q:"How do you achieve zero-downtime deployments on Azure across App Service and AKS?",
+a:`<ul>
+<li><b>App Service</b> — deploy to a <b>staging deployment slot</b>, warm it up (and run smoke tests), then <b>swap</b> with production. The swap is near-instant and reversible (swap back to roll back).</li>
+<li><b>AKS</b> — use Kubernetes rolling updates with proper <b>readiness probes</b> and <code>maxSurge/maxUnavailable</code>, plus <b>PodDisruptionBudgets</b>. For safer releases, do <b>blue-green</b> or <b>canary</b> (e.g. via Argo Rollouts or ingress traffic splitting).</li>
+</ul>`,
+d:`<p><b>The unsung hero is the health check.</b> Without correct readiness probes, Kubernetes routes traffic to pods that aren't ready and you get errors mid-deploy; App Service slot swap relies on warm-up so the swapped instance is ready before it takes traffic.</p>
+<p><b>Always pair with fast rollback:</b> slot swap-back, <code>kubectl rollout undo</code>, or canary abort. The ability to revert in seconds is what makes aggressive deployment safe.</p>`},
+
+{cat:"dr",diff:"easy",q:"What are Azure's paired regions and why do they matter for resilience?",
+a:`<p>Most Azure regions are assigned a <b>pair</b> within the same geography (for data residency). The pairing gives you: <b>sequential platform updates</b> (Microsoft won't update both at once, reducing the chance a bad update takes out both), <b>prioritized recovery</b> if a broad outage hits, and a <b>geo-replication target</b> for services like GRS storage.</p>`,
+d:`<p><b>Use it:</b> place your DR region as the pair of your primary so geo-redundant services replicate there and update windows don't overlap.</p>
+<p><b>Modern caveat:</b> Microsoft now also offers <b>non-paired regions</b> that rely on availability zones for in-region resilience, and some guidance favors zone-redundancy first. Know both models and pick based on the service and the RTO/RPO required.</p>`},
+
+/* ---------- a few cross-cutting scenario questions ---------- */
+{cat:"net",diff:"hard",q:"Scenario: pods in AKS can suddenly no longer pull images or reach an external API. Walk through your diagnosis.",
+a:`<p>Work outside-in, checking each layer:</p>
+<ul>
+<li><b>DNS</b> — <code>kubectl exec</code> into a pod and test resolution (CoreDNS issue? Private DNS Zone mis-linked for a Private Endpoint?). DNS is the most common cause.</li>
+<li><b>Egress / NSG / firewall</b> — did an NSG rule, Azure Firewall rule, or route table (UDR) change block outbound 443? Check effective routes and NSG flow logs.</li>
+<li><b>ACR access</b> — for image pulls, is the kubelet/managed identity still authorized to the registry? Is ACR behind a Private Endpoint with broken DNS?</li>
+<li><b>IP exhaustion</b> — with Azure CNI, did the subnet run out of IPs so new pods can't get one?</li>
+<li><b>Quotas / SNAT</b> — SNAT port exhaustion on the outbound load balancer can intermittently break external calls under load.</li>
+</ul>`,
+d:`<p><b>Commands:</b> <code>kubectl describe pod</code> (events: ImagePullBackOff vs network), <code>kubectl get events --sort-by=.lastTimestamp</code>, test DNS with <code>nslookup</code> inside a pod, check <b>NSG flow logs</b> and <b>effective routes</b> in the portal.</p>
+<p><b>Root-cause pattern:</b> a recent change to NSG/UDR/Private DNS or SNAT exhaustion under load are the usual culprits. Mention that you'd correlate the failure start time with recent infra changes (the fastest path to root cause).</p>`},
+
+{cat:"id",diff:"medium",q:"Scenario: an app using a managed identity gets 403 Forbidden calling Key Vault. How do you debug it?",
+a:`<p>Check the chain end to end:</p>
+<ul>
+<li><b>Is the identity assigned?</b> Confirm the system- or user-assigned managed identity is actually attached to the compute resource.</li>
+<li><b>Does it have the role?</b> Verify an RBAC assignment like <b>Key Vault Secrets User</b> at the vault scope (or a matching access policy if the vault uses the legacy model — don't mix the two).</li>
+<li><b>Right vault auth model?</b> If the vault is set to RBAC but you added an access policy (or vice versa), it won't take effect.</li>
+<li><b>Networking</b> — if the vault has a Private Endpoint/firewall, can the app's subnet reach it, and does DNS resolve to the private IP?</li>
+<li><b>Propagation</b> — RBAC changes can take a few minutes to apply.</li>
+</ul>`,
+d:`<p><b>Fast checks:</b> the resource's Identity blade (is it on?), the vault's Access control (IAM) for the role assignment, and the vault's Networking blade. A very common mistake is granting the role to the <i>user-assigned</i> identity but the app is configured to use the <i>system-assigned</i> one (or the wrong client ID).</p>`},
+
+{cat:"compute",diff:"medium",q:"Scenario: your VM Scale Set isn't scaling out under load even though CPU is high. What do you check?",
+a:`<ul>
+<li><b>Autoscale rules</b> — is there a scale-out rule on the right metric/threshold, and is the <b>cooldown</b> period suppressing further scale events?</li>
+<li><b>Max instance count</b> — has the VMSS already hit its configured maximum?</li>
+<li><b>Quota / capacity</b> — are you out of vCPU quota for that VM family in the region, or is the region/zone out of that SKU? This blocks new instances silently.</li>
+<li><b>Metric source</b> — autoscaling on guest-OS metrics requires the diagnostics agent; host metrics work without it. Is the metric actually flowing?</li>
+<li><b>Spot pool eviction</b> — if it's a spot pool, instances may be getting evicted as fast as they're added.</li>
+</ul>`,
+d:`<p><b>Where to look:</b> the Scale Set's Scaling blade (rules + run history shows why it did/didn't act), Activity Log for failed scale operations, and your subscription's <b>usage + quotas</b>. Quota exhaustion during a spike is one of the most common "it didn't scale when we needed it" incidents — pre-request quota headroom.</p>`},
+
+{cat:"storage",diff:"medium",q:"Scenario: customers report intermittent 503s from a storage-backed app under heavy load. What's likely and how do you fix it?",
+a:`<p>Likely <b>throttling</b>: you've hit a storage account scalability target (request rate or throughput per partition/account), and Azure Storage returns <code>503 Server Busy</code>.</p>
+<ul>
+<li><b>Spread the load</b> — distribute across more blobs/partitions; avoid hot partition keys (e.g. monotonically increasing keys concentrate writes).</li>
+<li><b>Honor backoff</b> — the SDKs retry with exponential backoff on 503; make sure that's enabled and not disabled.</li>
+<li><b>Scale out accounts</b> — split across multiple storage accounts or premium tiers for higher targets.</li>
+<li><b>Cache / CDN</b> — front read-heavy content with Azure CDN / Front Door to offload the account.</li>
+</ul>`,
+d:`<p><b>Diagnose with</b> Storage metrics in Azure Monitor — look at <code>Transactions</code> split by <i>ResponseType</i> for ServerBusy/ThrottlingError, and per-API latency (E2E vs server latency). The fix is almost always reducing per-partition hot-spotting and/or sharding across accounts, plus confirming client retry/backoff is on.</p>`},
+
+/* ===================== LINUX & SYSTEMS ===================== */
+{cat:"linux",diff:"medium",q:"SIGTERM vs SIGKILL — and what does graceful shutdown mean for a service?",
+a:`<p><b>SIGTERM (15)</b> politely asks a process to terminate; the app can trap it, stop accepting new work, drain in-flight requests, flush, and exit cleanly. <b>SIGKILL (9)</b> cannot be caught or ignored — the kernel terminates the process immediately with no cleanup. SIGHUP often means "reload config."</p>
+<p>Graceful shutdown = handle SIGTERM, stop taking new traffic, finish or hand off in-flight work, then exit before the deadline.</p>`,
+d:`<p><b>Kubernetes:</b> sends SIGTERM, waits <code>terminationGracePeriodSeconds</code> (default 30s), then SIGKILL. If your app ignores SIGTERM you drop connections on every rollout.</p>
+<p><b>Container gotcha:</b> PID 1 doesn't reap zombies or forward signals unless you run a proper init (<code>tini</code>) or exec-form entrypoint — a classic "my container won't stop gracefully" bug. Exit codes: 143 = SIGTERM, 137 = SIGKILL/OOM.</p>`},
+
+{cat:"linux",diff:"medium",q:"Load average vs CPU utilization — a 4-core box shows load 8 but CPU 30%. What's happening?",
+a:`<p><b>Load average</b> is the average number of processes either running or waiting (runnable) plus those in uninterruptible sleep (usually disk I/O) over 1/5/15 minutes. On 4 cores, load 4 ≈ fully busy; load 8 means twice as much runnable work as cores (queueing). <b>CPU%</b> is instantaneous utilization.</p>
+<p>Load 8 with CPU 30% means processes are blocked — typically <b>I/O wait</b> (D-state on slow disk/network), not CPU saturation.</p>`,
+d:`<p>Always divide load by core count for the real picture. Linux uniquely counts uninterruptible-sleep tasks in load, so a <b>storage problem looks like high load with idle CPU</b>. Drill with <code>vmstat 1</code> (look at <code>b</code>/wa columns), <code>iostat -x 1</code> (await/%util), <code>top</code> (D-state procs).</p>`},
+
+{cat:"linux",diff:"hard",q:"A Linux server is slow/overloaded. What's your systematic methodology?",
+a:`<p>Use a repeatable method (Brendan Gregg's USE: Utilization, Saturation, Errors per resource) rather than random commands. A 60-second triage:</p>
+<ul>
+<li><code>uptime</code> — load trend</li>
+<li><code>top</code>/<code>htop</code> — top CPU/mem consumers</li>
+<li><code>vmstat 1</code> — run queue, swap in/out, io wait</li>
+<li><code>free -m</code> — memory vs cache (look at <i>available</i>)</li>
+<li><code>iostat -x 1</code> — disk %util and await</li>
+<li><code>ss -s</code> / <code>ss -tnp</code> — sockets/connections</li>
+<li><code>dmesg</code> / <code>journalctl -k</code> — kernel errors, OOM</li>
+</ul>
+<p>Then drill into whichever resource is saturated.</p>`,
+d:`<p>The senior signal is <b>having a methodology</b> and correlating the slowdown's start time with a deploy or traffic change. Classify quickly: CPU-bound (<code>perf</code>, <code>pidstat</code>), memory-bound (OOM/swap), I/O-bound (iostat await), or network-bound (<code>ss</code>, <code>tcpdump</code>).</p>`},
+
+{cat:"linux",diff:"medium",q:"Your container/process gets OOM-killed. Explain Linux memory and how you confirm it.",
+a:`<p>Linux uses otherwise-free RAM as <b>page cache</b>, so "used" looking high is normal — read <i>available</i>, not <i>free</i>. When memory is genuinely exhausted (and swap too), the kernel's <b>OOM killer</b> picks a victim by <code>oom_score</code> and kills it to save the system. In a container, exceeding the cgroup memory limit triggers a cgroup OOM kill — exit code <b>137</b>.</p>`,
+d:`<p>Confirm with <code>dmesg</code>/<code>journalctl -k</code> ("Out of memory: Killed process"). In K8s, exceeding a pod's memory <i>limit</i> = OOMKilled. Set requests=limits (Guaranteed QoS) for critical pods. Don't mistake page cache for a leak — a real leak shows steadily rising <i>available</i>-memory decline over time.</p>`},
+
+{cat:"linux",diff:"medium",q:"A high-traffic service starts failing with 'Too many open files'. What's the cause and fix?",
+a:`<p>Every socket, file, and pipe is a <b>file descriptor</b>, and each process has a soft/hard limit (<code>ulimit -n</code>). A high-connection server can exhaust it, so <code>accept()</code>/opens fail with "Too many open files." Fix: raise the limit appropriately (<code>/etc/security/limits.conf</code>, or <code>LimitNOFILE</code> in the systemd unit) <b>and</b> fix any fd leak (unclosed sockets/files).</p>`,
+d:`<p>Inspect with <code>ls /proc/PID/fd | wc -l</code> and <code>lsof -p PID</code>. <b>Gotcha:</b> for daemons the limit comes from the <i>systemd unit or container runtime</i>, not your login shell's ulimit — raising it in the shell does nothing for the service. Also watch ephemeral-port and TIME_WAIT exhaustion under high churn.</p>`},
+
+{cat:"linux",diff:"medium",q:"A filesystem is 100% full but 'du' can't find the space. Where did it go?",
+a:`<p>Two classic causes beyond large files:</p>
+<ul>
+<li><b>Inode exhaustion</b> — millions of tiny files use up all inodes while bytes are free. Check <code>df -i</code>.</li>
+<li><b>Deleted-but-open files</b> — a process still holding a file descriptor to a deleted file keeps that space allocated until the process restarts. Find with <code>lsof | grep deleted</code>.</li>
+</ul>
+<p>For large dirs: <code>du -xh / | sort -h | tail</code>.</p>`,
+d:`<p><b>Common incident:</b> an app logs to a file, log rotation deletes the file, but the app still holds the fd — space isn't reclaimed until restart or truncate. Fix with proper <code>logrotate</code> (<code>copytruncate</code> or signal the app to reopen). The deleted-open-file trap stumps most people.</p>`},
+
+{cat:"linux",diff:"easy",q:"How do you manage a service and read its logs on a modern (systemd) Linux box?",
+a:`<p><b>systemd</b> is the init system. Manage services with <code>systemctl start|stop|restart|enable|status &lt;svc&gt;</code>; unit files define how they run (<code>ExecStart</code>, <code>Restart=on-failure</code>, resource limits, dependencies). Read logs with <b>journalctl</b>: <code>journalctl -u svc -f</code> (tail), <code>-p err</code> (errors), <code>-b</code> (this boot).</p>`,
+d:`<p><code>Restart=on-failure</code> + a watchdog gives automatic recovery. journald is structured and rotates; for centralized logging, ship to Loki/ELK. <code>systemd-cgtop</code> shows per-service cgroup resource use. Unit-level <code>LimitNOFILE</code>/<code>MemoryMax</code> set the real limits for the service.</p>`},
+
+/* ===================== NETWORKING & PROTOCOLS ===================== */
+{cat:"net2",diff:"hard",q:"What happens, end to end, when you type a URL and press Enter?",
+a:`<ol>
+<li><b>DNS</b> — resolve the hostname to an IP via OS/browser cache → resolver → recursive lookup (root → TLD → authoritative).</li>
+<li><b>TCP</b> — 3-way handshake (SYN, SYN-ACK, ACK) to the IP on port 443.</li>
+<li><b>TLS</b> — handshake negotiates ciphers, validates the server certificate chain, derives session keys.</li>
+<li><b>HTTP</b> — send the request; it likely traverses CDN/edge → load balancer → app → database, and the response comes back.</li>
+<li><b>Render</b> — browser parses and renders, fetching sub-resources.</li>
+</ol>`,
+d:`<p>This is the canonical systems interview — the interviewer probes depth wherever you're weak (DNS caching/TTL, TCP slow start, TLS SNI/ALPN, HTTP keep-alive/HTTP2 multiplexing). For SRE, tie each layer to a failure: DNS NXDOMAIN, TCP timeout (firewall) vs refused (no listener), TLS cert errors, HTTP 5xx. Showing the failure modes is what marks seniority.</p>`},
+
+{cat:"net2",diff:"medium",q:"'Connection refused' vs 'Connection timed out' vs 'No route to host' — what does each tell you?",
+a:`<ul>
+<li><b>Connection refused</b> — the host is reachable but nothing is listening on that port (a TCP RST came back). The app is down or you have the wrong port.</li>
+<li><b>Connection timed out</b> — no response at all; packets are being silently dropped — almost always a firewall/security group/NACL, or the host is down.</li>
+<li><b>No route to host</b> — a routing/network-path problem; there's no route to that subnet.</li>
+</ul>`,
+d:`<p>This single distinction saves enormous triage time: <i>refused</i> → check the service/process/port (<code>ss -tlnp</code>); <i>timeout</i> → check firewall/NSG/SG/NACL and host health; <i>no route</i> → routing/peering/UDR. Test with <code>nc -zv host port</code> and <code>curl -v</code>.</p>`},
+
+{cat:"net2",diff:"hard",q:"You changed a DNS record but clients still hit the old value. Why, and how does DNS resolution work?",
+a:`<p>DNS maps names to records: <b>A/AAAA</b> (IP), <b>CNAME</b> (alias), <b>MX</b>, <b>TXT</b>, <b>NS</b> (delegation), <b>SOA</b>. Resolution is recursive (resolver walks root → TLD → authoritative) with <b>caching at every layer governed by TTL</b>. A change "not taking effect" is almost always <b>TTL caching</b> — resolvers and clients serve the old record until the TTL expires. Lower the TTL <i>before</i> a planned change.</p>`,
+d:`<p>Other gotchas: a <b>CNAME can't sit at the zone apex</b> or coexist with other records (use ALIAS/ANAME); <b>negative caching</b> caches NXDOMAIN; stale OS/browser caches; split-horizon DNS. Debug with <code>dig +trace</code> and query the authoritative server directly. For Private Endpoints, the private DNS zone must resolve to the private IP.</p>`},
+
+{cat:"net2",diff:"easy",q:"TCP vs UDP — how do they differ and when do you choose each?",
+a:`<p><b>TCP</b> is connection-oriented, reliable, ordered, with flow and congestion control — used for HTTP, SSH, databases. <b>UDP</b> is connectionless, with no delivery or ordering guarantees and low overhead — used for DNS, DHCP, VoIP, video, and QUIC. Choose TCP when correctness matters; UDP when latency/throughput matter and you can tolerate or handle loss yourself.</p>`,
+d:`<p>HTTP/3 runs over <b>QUIC (UDP)</b> to avoid TCP head-of-line blocking and speed up connection setup. Health-check nuance: a TCP check proves a listener exists but not that the app is healthy — use an L7/HTTP check for real readiness.</p>`},
+
+{cat:"net2",diff:"medium",q:"As an SRE, what's the difference between HTTP 502, 503, and 504?",
+a:`<ul>
+<li><b>502 Bad Gateway</b> — the proxy/LB received an invalid or failed response from upstream (app crashed, connection reset). → check the app process/health.</li>
+<li><b>503 Service Unavailable</b> — the service is reachable but refusing or over capacity (no healthy backends, overloaded, maintenance). → check backend pool health, autoscaling, circuit breakers.</li>
+<li><b>504 Gateway Timeout</b> — upstream didn't respond in time (slow backend/DB). → check upstream latency and timeouts.</li>
+</ul>`,
+d:`<p>Knowing this instantly narrows the layer to investigate. Also: <b>429</b> = rate-limited/throttled; <b>4xx</b> = client error (400 bad request, 401/403 auth, 404). Mapping the status code to "which component do I look at" is a core SRE reflex.</p>`},
+
+{cat:"net2",diff:"easy",q:"Explain CIDR/subnetting and the private IP ranges. Why does it matter at scale?",
+a:`<p>CIDR (e.g. <code>10.0.0.0/16</code>) — the <code>/N</code> is the number of network bits; smaller N = larger range (<code>/24</code> = 256 addresses, <code>/16</code> = 65,536). RFC1918 private ranges: <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code>, <code>192.168.0.0/16</code>. Plan <b>non-overlapping</b> CIDRs across all VNets/VPCs.</p>`,
+d:`<p>Overlapping CIDRs <b>cannot be peered</b> — the most common large-scale networking design mistake. Cloud reserves a few addresses per subnet (gateway, broadcast). Right-size subnets for growth — especially for Kubernetes pods with Azure CNI, where each pod consumes a VNet IP.</p>`},
+
+{cat:"net2",diff:"medium",q:"Walk through a TLS handshake, how you debug certificate errors, and what mTLS adds.",
+a:`<p>TLS handshake: <b>ClientHello</b> (offered ciphers, SNI) → <b>ServerHello</b> + certificate chain → client validates the chain up to a trusted root and checks hostname (SAN) and expiry → key exchange (ECDHE) → derive session keys → encrypted traffic. <b>mTLS</b> adds a client certificate so <i>both</i> sides authenticate — the basis of service-to-service zero trust (service mesh).</p>`,
+d:`<p>Common cert failures: <b>expired</b> (set expiry alerts — expired certs are a top avoidable outage), <b>hostname mismatch</b> (missing SAN), <b>incomplete chain</b> (server must send intermediates), <b>untrusted root</b>. Debug with <code>openssl s_client -connect host:443 -showcerts</code> and <code>curl -v</code>. Automate renewal with cert-manager/Let's Encrypt.</p>`},
+
+/* ===================== CONTAINERS & DOCKER ===================== */
+{cat:"containers",diff:"medium",q:"How is a container different from a VM? What actually provides the isolation?",
+a:`<p>A <b>VM</b> virtualizes hardware and runs a full guest OS via a hypervisor — strong isolation, heavyweight. A <b>container</b> shares the host kernel and is isolated by Linux <b>namespaces</b> (pid, net, mount, uts, ipc, user — what a process can <i>see</i>) and <b>cgroups</b> (CPU/memory/IO limits — what it can <i>use</i>). Containers are lightweight, start in milliseconds, and pack densely, but share the kernel.</p>`,
+d:`<p><b>Security implication:</b> because the kernel is shared, a kernel vulnerability can cross container boundaries — so don't run untrusted multi-tenant workloads on a shared kernel without extra isolation (gVisor, Kata Containers). A container is an isolated <i>process</i>, not a tiny VM.</p>`},
+
+{cat:"containers",diff:"medium",q:"Explain Docker image layers and how you'd shrink a bloated image and speed up builds.",
+a:`<p>An image is a stack of read-only <b>layers</b> (one per Dockerfile instruction); the build cache reuses unchanged layers. Order instructions <b>least- to most-frequently-changing</b> — copy dependency manifests and install <i>before</i> copying source, so a code change doesn't bust the dependency-install cache. Use <b>multi-stage builds</b> (compile in a heavy builder, copy only artifacts into a slim final image) and a minimal base (alpine/distroless).</p>`,
+d:`<p>Smaller images = faster pulls + smaller attack surface. Use <code>.dockerignore</code> to keep <code>.git</code>/secrets out of the build context. Pin base-image versions for reproducibility. Distroless/scratch images have no shell (great for security, harder to debug — use ephemeral debug containers).</p>`},
+
+{cat:"containers",diff:"medium",q:"CMD vs ENTRYPOINT, and how do you debug a container that exits immediately?",
+a:`<p><b>ENTRYPOINT</b> defines the executable that always runs; <b>CMD</b> supplies default arguments (overridable at <code>docker run</code>). Prefer the <b>exec form</b> (JSON array) so signals reach your process directly (shell form wraps in <code>/bin/sh -c</code> and can swallow SIGTERM). A container that exits immediately means PID 1 finished or crashed — a container lives only as long as its foreground process.</p>`,
+d:`<p>Debug: <code>docker logs</code>, check the <b>exit code</b> (0 clean, 137 SIGKILL/OOM, 143 SIGTERM, non-zero app error), and run interactively: <code>docker run -it --entrypoint sh image</code>. Ensure the app runs in the <b>foreground</b> (not daemonized). For signal/zombie handling use <code>tini</code> as init.</p>`},
+
+{cat:"containers",diff:"medium",q:"What are your Dockerfile security best practices?",
+a:`<ul>
+<li>Run as a <b>non-root USER</b>; consider a read-only root filesystem and drop Linux capabilities at runtime.</li>
+<li>Use <b>minimal, pinned</b> base images; multi-stage to exclude build tooling.</li>
+<li><b>Never bake secrets</b> into layers — they persist in image history even if deleted later; inject at runtime or use build secrets/mounts.</li>
+<li>Use <code>.dockerignore</code> to avoid copying <code>.git</code>/credentials.</li>
+<li><b>Scan images</b> (Trivy/Grype) in CI and sign them (cosign).</li>
+</ul>`,
+d:`<p>The secrets-in-a-layer leak is a favorite gotcha — a secret in an earlier <code>RUN</code>/<code>COPY</code> is extractable from history regardless of later deletion. Least privilege at runtime: <code>--cap-drop ALL</code> then add only what's needed, plus <code>--security-opt no-new-privileges</code>.</p>`},
+
+/* ===================== KUBERNETES (CORE) ===================== */
+{cat:"k8s",diff:"medium",q:"Describe the Kubernetes control-plane and node components.",
+a:`<p><b>Control plane:</b> <code>kube-apiserver</code> (the front door — every state change goes through it), <b>etcd</b> (the cluster's source-of-truth key-value store), <code>kube-scheduler</code> (assigns pods to nodes), <code>kube-controller-manager</code> (reconciliation loops driving actual → desired state). <b>Nodes:</b> <code>kubelet</code> (runs pods on the node), <code>kube-proxy</code> (service networking via iptables/IPVS), and a container runtime (containerd).</p>`,
+d:`<p>Everything is a <b>reconciliation loop</b>: controllers watch desired state in etcd and converge reality toward it. etcd is critical — back it up, run it HA with an odd quorum, and secure it; only the API server talks to it. Losing etcd quorum stalls all cluster changes.</p>`},
+
+{cat:"k8s",diff:"hard",q:"Explain resource requests/limits and the three QoS classes.",
+a:`<p><b>Requests</b> = reserved resources used by the scheduler to place pods; <b>limits</b> = hard caps (CPU is throttled, memory over-limit is OOM-killed). QoS classes: <b>Guaranteed</b> (requests==limits for every container) — evicted last; <b>Burstable</b> (requests &lt; limits) — middle; <b>BestEffort</b> (nothing set) — evicted first under node pressure.</p>`,
+d:`<p>Set requests <b>realistically</b>: too low causes noisy-neighbor and bad packing; too high wastes capacity and blocks the cluster autoscaler from bin-packing. CPU is compressible (throttle), memory isn't (OOM). Limits set too tight cause <b>CPU throttling that looks like "the app is slow"</b> — a frequently missed root cause.</p>`},
+
+{cat:"k8s",diff:"medium",q:"Liveness vs readiness vs startup probes — and the classic mistake.",
+a:`<ul>
+<li><b>Readiness</b> — is the pod ready for traffic? Fails → removed from Service endpoints (not restarted). This is what enables zero-downtime rollouts.</li>
+<li><b>Liveness</b> — is the pod healthy? Fails → kubelet restarts the container.</li>
+<li><b>Startup</b> — gives slow-starting apps time before liveness applies, preventing premature restarts.</li>
+</ul>`,
+d:`<p><b>Classic mistake:</b> a liveness probe that hits the database or a downstream dependency — a transient blip then restarts every pod simultaneously, turning a small issue into an outage. Keep liveness lightweight and self-contained; put dependency checks in readiness if anywhere.</p>`},
+
+{cat:"k8s",diff:"medium",q:"Compare Service types (ClusterIP, NodePort, LoadBalancer) and Ingress.",
+a:`<ul>
+<li><b>ClusterIP</b> (default) — internal-only virtual IP.</li>
+<li><b>NodePort</b> — opens a static port on every node.</li>
+<li><b>LoadBalancer</b> — provisions a cloud L4 load balancer to the service.</li>
+<li><b>Ingress</b> — an L7 router (host/path-based HTTP routing + TLS) run by an ingress controller (nginx, AGIC), so <b>one</b> load balancer fronts many services.</li>
+</ul>`,
+d:`<p>In cloud, each <code>LoadBalancer</code> service provisions a real, billable LB — consolidate with Ingress. Services map to pods via <b>label selectors → endpoints</b>; kube-proxy programs the dataplane. The <b>Gateway API</b> is the newer, more expressive successor to Ingress.</p>`},
+
+{cat:"k8s",diff:"medium",q:"Deployment vs StatefulSet vs DaemonSet — when do you use each?",
+a:`<ul>
+<li><b>Deployment</b> — stateless, interchangeable replicas with rolling updates (most web apps/APIs).</li>
+<li><b>StatefulSet</b> — stable network identity + stable per-pod storage + ordered deploy/scale (databases, Kafka, ZooKeeper).</li>
+<li><b>DaemonSet</b> — exactly one pod per node (log/metrics agents, CNI, node exporters).</li>
+</ul>`,
+d:`<p>Don't run a database as a plain Deployment — you need StatefulSet's sticky names and PVCs. StatefulSet operations are <b>ordered</b> (slower by design). DaemonSet is for anything that must run on every node.</p>`},
+
+{cat:"k8s",diff:"medium",q:"How do you debug a pod stuck in Pending, ImagePullBackOff, or CrashLoopBackOff?",
+a:`<ul>
+<li><b>Pending</b> — can't be scheduled: insufficient CPU/mem requests, no node matching nodeSelector/affinity, an un-tolerated taint, or no available PV. → <code>kubectl describe pod</code> (events) + <code>describe nodes</code>.</li>
+<li><b>ImagePullBackOff</b> — bad image name/tag, missing registry auth, or a missing <code>imagePullSecret</code>. → check the image and pull secret.</li>
+<li><b>CrashLoopBackOff</b> — container starts then crashes repeatedly. → <code>kubectl logs --previous</code>, check exit code (137 OOM, config/secret missing, failing dependency, or an aggressive liveness probe).</li>
+</ul>`,
+d:`<p>Always start with <code>kubectl describe pod</code> (the Events section) and <code>kubectl logs --previous</code>. The biggest time-saver is reading events first instead of guessing — they usually name the exact cause.</p>`},
+
+{cat:"k8s",diff:"medium",q:"ConfigMap vs Secret — and what's the security gotcha with Secrets?",
+a:`<p><b>ConfigMap</b> holds non-sensitive config (env vars, files); <b>Secret</b> holds sensitive data — but by default Secrets are only <b>base64-encoded, not encrypted</b>, in etcd. Harden by enabling <b>etcd encryption-at-rest</b> (KMS provider), tightening RBAC on secrets, and preferring an external store (Vault, cloud secret manager) via the Secrets Store CSI driver or External Secrets Operator.</p>`,
+d:`<p>"base64 is not encryption" is a favorite interview gotcha — anyone with etcd access or <code>get secret</code> RBAC can read them. Don't commit secrets in manifests to git; use sealed-secrets/SOPS or external stores. Mounting secrets as files is generally safer than env vars (which can leak via child processes/crash dumps).</p>`},
+
+{cat:"k8s",diff:"hard",q:"How do NetworkPolicies and Kubernetes RBAC work, and what's a common self-inflicted outage?",
+a:`<p><b>NetworkPolicy</b> is a pod-level firewall: until a policy selects a pod it's allow-all, but once selected it becomes default-deny for that direction — you then allow specific pods/namespaces. It requires an enforcing CNI (Calico, Cilium, Azure). <b>RBAC</b> controls who can do what on the API via Roles/ClusterRoles + bindings (least privilege for users <i>and</i> service accounts).</p>`,
+d:`<p><b>Self-inflicted outage:</b> applying an ingress policy without also allowing <b>egress to DNS (UDP 53)</b> breaks name resolution cluster-wide for those pods. RBAC gotcha: don't bind service accounts to <code>cluster-admin</code>; scope to namespaces. A <b>default-deny NetworkPolicy</b> + explicit allows is the zero-trust baseline.</p>`},
+
+/* ===================== CI/CD PIPELINES ===================== */
+{cat:"cicd",diff:"hard",q:"Design a production CI/CD pipeline end to end. What are the stages and principles?",
+a:`<p><b>CI:</b> checkout → lint/SAST → unit tests → build an <b>immutable artifact</b> (container image) → SCA + image scan → push to registry tagged with the git SHA. <b>CD:</b> deploy to dev → integration/smoke tests → staging (DAST, perf) → manual approval/gate → <b>progressive prod rollout</b> (canary/blue-green) → automated rollback on SLO/health regression. Config is injected per environment; the <b>same artifact</b> is promoted across all envs.</p>`,
+d:`<p>Principles: <b>build once, promote everywhere</b> (never rebuild per env); immutable, versioned artifacts; everything as code; fast/cheap feedback first; secured (OIDC, no plaintext secrets, signed images); auditable. The senior signal is "promote the same artifact" + "automated rollback gated on SLOs," not just "I have a Jenkins job."</p>`},
+
+{cat:"cicd",diff:"medium",q:"Blue-green vs canary vs rolling deployments — trade-offs?",
+a:`<ul>
+<li><b>Rolling</b> — replace instances gradually (K8s default). Simple, but mixed versions serve traffic briefly.</li>
+<li><b>Blue-green</b> — stand up the new version (green) fully beside old (blue), switch all traffic at once; instant rollback by switching back. Needs ~2x capacity.</li>
+<li><b>Canary</b> — send a small % of traffic to the new version, watch metrics, then ramp or abort. Best risk control; needs good observability and traffic-splitting.</li>
+</ul>`,
+d:`<p><b>Canary</b> is the gold standard for risk because the decision to promote/abort is automated on SLOs/error rate. Blue-green gives instant rollback but costs double and may miss scale-only issues unless you also ramp. Whatever you choose, pair it with <b>fast, tested rollback</b>.</p>`},
+
+{cat:"cicd",diff:"hard",q:"How do you handle secrets in a CI/CD pipeline securely?",
+a:`<p>Never store secrets in the repo or as plaintext pipeline variables. Authenticate to clouds via <b>OIDC / workload identity federation</b> — the pipeline presents a short-lived token, no long-lived cloud keys stored. Pull <b>runtime secrets from a vault</b> (HashiCorp Vault, cloud secret manager) at deploy time via a federated/managed identity. Mask secrets in logs, scope them to protected environments, and rotate.</p>`,
+d:`<p>Leading with "OIDC instead of a stored service-principal/access key" and "secrets from a vault, not CI variables" signals modern DevSecOps. Scan for committed secrets (gitleaks/trufflehog) in CI and with pre-commit hooks. The goal: <b>ephemeral, least-privilege, audited</b> credentials.</p>`},
+
+{cat:"cicd",diff:"medium",q:"What is GitOps (Argo CD / Flux), and why is the pull model preferred?",
+a:`<p><b>GitOps</b> makes Git the single source of truth for declarative state; an in-cluster controller (Argo CD/Flux) continuously <b>reconciles the cluster to match Git</b> (pull model). Changes happen via reviewed PRs; drift is auto-corrected; rollback is <code>git revert</code>.</p>`,
+d:`<p>Pull-model advantages: <b>no external system holds cluster credentials</b> (the agent pulls), built-in drift detection, clear audit trail, and easy multi-cluster fleet management. Watch secret handling in Git (use sealed-secrets/SOPS/External Secrets). Contrast with push CD, where the pipeline needs cluster credentials and there's no drift correction.</p>`},
+
+{cat:"cicd",diff:"medium",q:"Your pipeline is too slow. How do you speed it up?",
+a:`<p>Profile first to find the real bottleneck, then: <b>cache dependencies</b> and Docker layers between runs; <b>parallelize</b> independent stages and shard tests; build/test only what changed (monorepo affected targets); reuse artifacts instead of rebuilding (<b>build once, promote</b>); use smaller/pre-baked runner images; scale runners; and <b>fail fast</b> — run cheap lint/unit before expensive integration.</p>`,
+d:`<p>Docker specifics: order layers for cache hits and use multi-stage to avoid shipping build tooling. Don't optimize by guess — measure stage durations and attack the long pole. "Build once, promote everywhere" alone removes redundant per-environment rebuilds.</p>`},
+
+{cat:"cicd",diff:"medium",q:"Trunk-based development vs Gitflow — which and why?",
+a:`<p><b>Trunk-based:</b> short-lived branches merged to <code>main</code> frequently behind <b>feature flags</b>; main is always releasable; pairs naturally with CI/CD. <b>Gitflow:</b> long-lived develop/release/feature/hotfix branches — more ceremony, slower integration, more merge conflict, suited to scheduled/versioned releases.</p>`,
+d:`<p>The DORA research links trunk-based development and small, frequent merges to higher delivery performance. Feature flags are the enabler — they <b>decouple deploy from release</b> (ship dark, turn on later) and shrink merge hell. Mention flags and you've shown the senior reasoning.</p>`},
+
+{cat:"cicd",diff:"hard",q:"How do you run database schema migrations safely in continuous delivery?",
+a:`<p>Make migrations <b>backward-compatible and decoupled</b> from code deploys using the <b>expand/contract (parallel change)</b> pattern: first <i>expand</i> (additive, non-breaking — new nullable columns/tables), deploy code that works with old <i>and</i> new schema, backfill data, then in a <i>later</i> release <i>contract</i> (remove the old). Run migrations as an idempotent, version-controlled step (Flyway/Liquibase/Alembic) with a tested forward/rollback plan.</p>`,
+d:`<p>This is what makes zero-downtime + rollback actually safe — if code can roll back but the schema already broke compatibility, you're stuck. Never put a destructive change in the same deploy as the code depending on it. Beware long-locking migrations on large tables — use online schema-change tools.</p>`},
+
+/* ===================== SRE & OBSERVABILITY ===================== */
+{cat:"sre",diff:"medium",q:"Explain SLI, SLO, SLA, and the error budget.",
+a:`<p><b>SLI</b> = a measured indicator (e.g. % of requests succeeding under 300ms). <b>SLO</b> = the internal target on that SLI (99.9%). <b>SLA</b> = the external, contractual promise with penalties — always keep the SLO <i>stricter</i> than the SLA for a safety buffer. <b>Error budget</b> = 1 − SLO, the permitted unreliability: spend it on feature velocity, and freeze risky changes when it's exhausted.</p>`,
+d:`<p>The error budget turns the dev-vs-ops tug-of-war into arithmetic both sides pre-agreed to. 99.9% ≈ 43 minutes/month of downtime. Measure SLIs from the <b>user's</b> perspective (edge/LB), not server-side 200s. Use burn-rate alerting: fast burn pages, slow burn tickets.</p>`},
+
+{cat:"sre",diff:"medium",q:"What are the four golden signals, and how do RED and USE relate?",
+a:`<p>Google's <b>four golden signals</b>: Latency, Traffic, Errors, Saturation. <b>RED</b> (request-driven services): Rate, Errors, Duration. <b>USE</b> (resources): Utilization, Saturation, Errors. Golden/RED give symptom-level (user impact) coverage; USE gives resource-level (diagnostic) coverage.</p>`,
+d:`<p><b>Alert on symptoms</b> (golden/RED), then use USE to find the cause. For latency, watch the <b>tail</b> (p95/p99), not the average — averages hide the minority of users who are suffering, which is exactly who churns.</p>`},
+
+{cat:"sre",diff:"hard",q:"Describe Prometheus architecture. Why pull-based?",
+a:`<p>Prometheus is a <b>pull-based</b> metrics system: it scrapes HTTP <code>/metrics</code> endpoints (instrumented apps or exporters like node_exporter), stores samples in a local TSDB, and you query with <b>PromQL</b>. Alerting rules evaluate PromQL and fire to <b>Alertmanager</b>, which dedupes, groups, silences, and routes to pagers/Slack. Service discovery (Kubernetes, Consul) finds targets dynamically.</p>`,
+d:`<p>Pull means Prometheus controls scrape timing and immediately knows when a target is down (<code>up==0</code>). For short-lived/batch jobs, use the <b>Pushgateway</b>. Prometheus is single-node by design — for HA/long-term storage use Thanos/Cortex/Mimir. Beware <b>high-cardinality labels</b> (user IDs) — they explode memory.</p>`},
+
+{cat:"sre",diff:"easy",q:"Metrics vs logs vs traces — the three pillars of observability.",
+a:`<ul>
+<li><b>Metrics</b> — cheap numeric time-series; best for dashboards/alerts and "is it healthy right now."</li>
+<li><b>Logs</b> — discrete detailed events; best for "what exactly happened."</li>
+<li><b>Traces</b> — follow one request across services; best for "where is the latency / which service failed" in distributed systems.</li>
+</ul>`,
+d:`<p>Use all three and correlate them with shared trace/request IDs. Don't alert on a log line you could cheaply measure as a metric. Traces (OpenTelemetry) are essential for microservice root-cause. Logs are the expensive pillar — sample and aggregate.</p>`},
+
+{cat:"sre",diff:"medium",q:"How do you reduce alert fatigue?",
+a:`<p>Alert on <b>symptoms</b> (user-facing SLO/golden signals), not <b>causes</b> (high CPU may be perfectly fine). Every alert must be <b>actionable</b> and link to a runbook — delete the ones that aren't. Use <b>burn-rate, multi-window</b> alerting so fast burns page and slow burns ticket. Group/dedupe related alerts in Alertmanager. Track pages-per-shift and treat noise as an engineering backlog item.</p>`,
+d:`<p>An alert that doesn't require a human to act is a bug. Cause-based alerts (disk 80%, CPU high) are the main source of noise. Reserve <b>paging</b> for "wake someone now"; everything else is a ticket.</p>`},
+
+{cat:"sre",diff:"medium",q:"What is toil, and how does it relate to capacity planning?",
+a:`<p><b>Toil</b> is manual, repetitive, automatable, tactical work with no enduring value that scales linearly with the service (e.g. manual restarts). Google SRE caps it (~50% of time) so engineers spend the rest <b>automating it away</b>. <b>Capacity planning</b> forecasts demand from growth plus headroom for failures (N+1/N+2, surviving an AZ/region loss at peak), validated by load testing, with autoscaling and quota tracking.</p>`,
+d:`<p>Unbounded toil causes a death spiral — no time to automate means ever more toil. Plan capacity to survive losing an availability zone at <b>peak</b>, not average load. Service quotas/limits are a top scale-up failure mode — track headroom proactively.</p>`},
+
+/* ===================== SECURITY & DEVSECOPS ===================== */
+{cat:"secops",diff:"medium",q:"What are your secrets-management best practices?",
+a:`<p>Centralize secrets in a vault/secret manager; <b>never</b> commit them to git or bake them into images. Access via <b>short-lived/dynamic credentials and identity</b> (managed identity/OIDC), not static keys. Rotate regularly and on suspicion, scope least privilege, audit access, and inject at runtime (CSI driver/External Secrets) rather than shipping in config.</p>`,
+d:`<p><b>Dynamic secrets</b> (e.g. Vault generates a short-lived DB credential per request) are the gold standard — there's nothing long-lived to steal. Scan repos and history for leaks (gitleaks). The "where do you keep the secret that fetches your secrets?" question is answered by <b>workload identity</b> (no bootstrap secret at all).</p>`},
+
+{cat:"secops",diff:"medium",q:"Explain least privilege and how you apply it across IAM and service accounts.",
+a:`<p>Grant the <b>minimum</b> permissions needed, at the <b>narrowest scope</b>, for the <b>shortest time</b>. Use roles/groups (not per-user grants), prefer short-lived credentials and <b>just-in-time elevation</b> (PIM) over standing admin, deny by default, separate duties, and review access regularly. Assume any credential can leak, and design to limit blast radius.</p>`,
+d:`<p>Over-privileged service accounts are the #1 lateral-movement vector in breaches. Use guardrails (Azure Policy / AWS SCPs / permission boundaries) and regular <b>access reviews</b> to remove privilege creep. JIT + no standing privilege is the modern bar.</p>`},
+
+{cat:"secops",diff:"hard",q:"How do you secure the software supply chain (SBOM, signing, SLSA)?",
+a:`<p>Secure the path from source to running artifact: pin and <b>scan dependencies (SCA)</b> for CVEs, generate an <b>SBOM</b> (component inventory), scan container images, <b>sign</b> artifacts/images (cosign) and <b>verify signatures at deploy</b> (admission control), enforce provenance (<b>SLSA</b> levels), and harden the build system itself (it's a high-value target). Use trusted base images and an internal package proxy/allowlist.</p>`,
+d:`<p>Real attacks — SolarWinds, dependency confusion, typosquatting — made this board-level. Defenses combine <b>build-time</b> (scan/sign/provenance) and <b>deploy-time</b> (admission policies rejecting unsigned/unscanned images). Shift left, but also verify at the gate.</p>`},
+
+{cat:"secops",diff:"medium",q:"Explain defense in depth, zero trust, and network segmentation.",
+a:`<p><b>Defense in depth</b> = multiple independent layers (network, identity, host, app, data) so one failure isn't fatal. <b>Zero trust</b> = never trust based on network location; authenticate and authorize <i>every</i> request, encrypt everywhere (mTLS), least privilege. <b>Segmentation</b> = isolate tiers and environments (separate accounts/subscriptions, subnets, network policies, microsegmentation) to limit blast radius and lateral movement.</p>`,
+d:`<p>The legacy anti-pattern is a flat network behind a perimeter firewall — once inside, an attacker roams freely. Separate prod from non-prod (separate accounts), apply default-deny network policies, and use mTLS between services. <b>Identity is the new perimeter.</b></p>`},
+
+{cat:"secops",diff:"medium",q:"Which common web vulnerabilities should an SRE/platform engineer be aware of?",
+a:`<p>From the OWASP risks: <b>injection</b> (SQLi — parameterize queries), broken auth/session, sensitive-data exposure (encrypt in transit and at rest), <b>broken access control</b> (enforce authz server-side), <b>SSRF</b>, security misconfiguration (default creds, open buckets, verbose errors), vulnerable dependencies, and insufficient logging/monitoring. A WAF mitigates some at the edge but doesn't replace fixing the code.</p>`,
+d:`<p>For platform/SRE specifically: enforce TLS, secret hygiene, dependency scanning, rate limiting, and good audit logging. <b>SSRF is especially dangerous in cloud</b> — it can reach the instance metadata endpoint, so enforce IMDSv2/metadata protections and egress controls.</p>`},
+
+{cat:"secops",diff:"medium",q:"How do you secure containers and Kubernetes at runtime?",
+a:`<p>Use minimal, scanned images; run as <b>non-root</b> with a <b>read-only root filesystem</b>; drop Linux capabilities; set <code>no-new-privileges</code>; and apply <b>Pod Security Standards / admission policies</b> (OPA Gatekeeper, Kyverno) to reject risky pods (privileged, hostPath, hostNetwork). Enforce default-deny <b>network policies</b>, scope RBAC tightly, and add runtime threat detection (Falco). Scan images in CI <i>and</i> at admission.</p>`,
+d:`<p>A privileged container is effectively root on the node. <b>Admission control</b> is where cluster-wide policy is enforced. Layer the controls: build-time (scan/sign) + deploy-time (admission) + runtime (Falco/network policy).</p>`},
+
+{cat:"secops",diff:"medium",q:"A credential was just committed to git / exposed. What do you do?",
+a:`<p>Treat it as an incident. <b>Rotate/revoke immediately</b> — assume it's compromised (deleting the commit is not enough; history persists and bots scrape public repos within minutes). Audit logs for unauthorized use during the exposure window, contain (disable affected access, hunt for created backdoors/new keys), then root-cause and prevent (secret scanning in CI + pre-commit, move to a vault/short-lived creds). Communicate per policy.</p>`,
+d:`<p>The #1 mistake is "I removed the commit, we're fine." The secret is already harvested — rotation is mandatory. Adopting <b>short-lived/dynamic credentials</b> shrinks this entire class of problem because there's little to steal.</p>`},
+
+/* ===================== INCIDENT RESPONSE ===================== */
+{cat:"incident",diff:"hard",q:"Walk me through how you run a production incident.",
+a:`<p>Declare the incident and assign roles — an <b>Incident Commander</b> (coordinates and decides) plus ops/comms/scribe for larger ones. <b>Mitigate first</b>: restore service (roll back the recent deploy, fail over, scale out, shed load) <i>before</i> root-causing. Communicate status to stakeholders/customers on a regular cadence. Once stable, run a <b>blameless postmortem</b> with a timeline and tracked action items that fix the system.</p>`,
+d:`<p>Golden rule: <b>mitigate before you diagnose</b> — curiosity is for the postmortem. A single IC prevents coordination chaos. Blameless means fixing the system that let a human err, not punishing the human (blame drives incidents underground). Track action items to done, or nothing actually improves.</p>`},
+
+{cat:"incident",diff:"medium",q:"A service is down at 3 a.m. Walk through your triage.",
+a:`<p>Acknowledge the page; confirm <b>scope and impact</b> (what's down, how many users, which SLO). <b>Check recent changes first</b> — deploys, config, infra changes correlate with most incidents; if a recent deploy lines up, <b>roll it back</b>. Then work the layers: app (logs/crashes), dependency (DB, cache, downstream), infra (nodes, network, DNS, certs), or capacity (saturation, quota). Mitigate, and escalate if it's beyond your depth.</p>`,
+d:`<p>"What changed?" is the fastest route to root cause — correlate the incident start time with the change log. Don't deep-debug while users suffer; roll back or fail over first. <b>Escalate early</b> rather than hero alone — it's a strength, not a weakness.</p>`},
+
+{cat:"incident",diff:"medium",q:"How do you reduce MTTR?",
+a:`<p>Attack each part of MTTR (detect + acknowledge + diagnose + fix): better <b>detection</b> (good SLIs + burn-rate alerts), fast <b>response</b> (clear runbooks, one-click rollback/failover, reachable on-call, no alert fatigue), and <b>rehearsal</b> (game days/chaos drills so the protocol is muscle memory). Reduce incident <i>frequency</i> upstream with progressive delivery, canaries, and capacity headroom; and cut <b>diagnosis</b> time with correlated metrics/logs/traces.</p>`,
+d:`<p>Each MTTR component is separately optimizable. <b>Fast, tested rollback</b> is usually the single biggest lever. Blameless postmortems feed the continuous-improvement loop that lowers both frequency and time-to-fix over time.</p>`},
+
+{cat:"incident",diff:"hard",q:"How do you prevent cascading failures in a distributed system?",
+a:`<ul>
+<li><b>Timeouts</b> on every call — never wait unbounded.</li>
+<li><b>Retries with exponential backoff + jitter</b> and a <b>retry budget</b> to avoid retry storms.</li>
+<li><b>Circuit breakers</b> — stop hammering a failing dependency.</li>
+<li><b>Bulkheads</b> — isolate resource pools so one dependency can't exhaust all threads/connections.</li>
+<li><b>Load shedding + rate limiting</b> — drop excess to protect the core.</li>
+<li><b>Graceful degradation</b> — serve a reduced response instead of failing outright.</li>
+</ul>`,
+d:`<p>The classic cascade: a slow dependency <i>without timeouts</i> exhausts the caller's thread/connection pool, which then fails <i>its</i> callers, propagating outward. Retries without jitter/budget amplify the outage (thundering herd). Naming these patterns explicitly is a strong senior differentiator. Add capacity headroom so you can absorb a partial failure.</p>`},
+];
+
+/* ============================== STATE ============================== */
+let activeCat = "all";
+let activeDiff = "all";
+let search = "";
+const mastery = loadMastery();
+
+function loadMastery(){
+  try{ const r = localStorage.getItem("az_mastery"); return r ? JSON.parse(r) : {}; }
+  catch(e){ return {}; }
+}
+function saveMastery(){
+  try{ localStorage.setItem("az_mastery", JSON.stringify(mastery)); }catch(e){}
+}
+
+/* ============================== RENDER ============================== */
+const DIFFS = ["easy","medium","hard"];
+const listEl = document.getElementById("list");
+const emptyEl = document.getElementById("empty");
+const metaEl = document.getElementById("meta");
+
+function catCounts(){
+  const c = {}; Q.forEach(q=>c[q.cat]=(c[q.cat]||0)+1); return c;
+}
+
+function buildChips(){
+  const counts = catCounts();
+  const cc = document.getElementById("catchips");
+  const mk = (key,label,count,group)=>{
+    const b=document.createElement("button");
+    b.className="chip"+((group==="cat"&&activeCat===key)||(group==="diff"&&activeDiff===key)?" on":"");
+    b.innerHTML = label + (count!=null?` <span class="ct">${count}</span>`:"");
+    b.onclick=()=>{ if(group==="cat"){activeCat=key;} else {activeDiff=key;} buildChips(); render(); };
+    return b;
+  };
+  cc.innerHTML="";
+  cc.appendChild(mk("all","All",Q.length,"cat"));
+  Object.keys(CATS).forEach(k=> cc.appendChild(mk(k,CATS[k],counts[k]||0,"cat")));
+
+  const dc=document.getElementById("diffchips");
+  // keep the action buttons that already exist; rebuild only the diff chips before the sep
+  dc.querySelectorAll(".chip").forEach(n=>n.remove());
+  const sep=dc.querySelector(".sep");
+  const frag=document.createDocumentFragment();
+  frag.appendChild(mk("all","All levels",null,"diff"));
+  DIFFS.forEach(d=> frag.appendChild(mk(d, d.charAt(0).toUpperCase()+d.slice(1), null,"diff")));
+  dc.insertBefore(frag, sep);
+}
+
+function matches(q){
+  if(activeCat!=="all" && q.cat!==activeCat) return false;
+  if(activeDiff!=="all" && q.diff!==activeDiff) return false;
+  if(search){
+    const hay=(q.q+" "+q.a+" "+q.d+" "+CATS[q.cat]).toLowerCase();
+    if(!hay.includes(search)) return false;
+  }
+  return true;
+}
+
+function render(){
+  const items = Q.map((q,i)=>({q,i})).filter(o=>matches(o.q));
+  listEl.innerHTML="";
+  items.forEach(({q,i})=>{
+    const id="q"+i;
+    const done=!!mastery[id];
+    const card=document.createElement("article");
+    card.className="card"+(done?" done":"");
+    card.style.setProperty("--spine", done? "var(--easy)":"var(--azure)");
+    card.innerHTML=`
+      <div class="qrow" role="button" tabindex="0" aria-expanded="false">
+        <div class="qnum">${String(i+1).padStart(2,"0")}</div>
+        <div class="qmain">
+          <div class="tags">
+            <span class="tag cat">${CATS[q.cat]}</span>
+            <span class="tag d-${q.diff}">${q.diff}</span>
+          </div>
+          <div class="q">${q.q}</div>
+        </div>
+        <button class="star${done?" on":""}" title="Mark mastered" aria-label="Mark mastered">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="${done?"currentColor":"none"}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.6 9.1l5.8-.8z"/></svg>
+        </button>
+        <svg class="caret" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+      <div class="ans">
+        <h4>Answer</h4>${q.a}
+        <h4>Details &amp; what the interviewer is probing</h4>${q.d}
+      </div>`;
+    const row=card.querySelector(".qrow");
+    const toggle=()=>{ card.classList.toggle("open"); row.setAttribute("aria-expanded", card.classList.contains("open")); };
+    row.addEventListener("click",e=>{ if(e.target.closest(".star")) return; toggle(); });
+    row.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); }});
+    card.querySelector(".star").addEventListener("click",e=>{
+      e.stopPropagation();
+      if(mastery[id]) delete mastery[id]; else mastery[id]=1;
+      saveMastery(); buildStats(); render();
+    });
+    listEl.appendChild(card);
+  });
+  emptyEl.style.display = items.length? "none":"block";
+  metaEl.textContent = `Showing ${items.length} of ${Q.length} question${items.length===1?"":"s"}`
+    + (activeCat!=="all"?` · ${CATS[activeCat]}`:"")
+    + (activeDiff!=="all"?` · ${activeDiff}`:"")
+    + (search?` · matching “${search}”`:"");
+}
+
+function buildStats(){
+  const counts=catCounts();
+  const byDiff={easy:0,medium:0,hard:0}; Q.forEach(q=>byDiff[q.diff]++);
+  const mastered=Object.keys(mastery).length;
+  document.getElementById("stats").innerHTML=
+     `<div class="stat"><b>${Q.length}</b><span>questions</span></div>`
+    +`<div class="stat"><b>${Object.keys(CATS).length}</b><span>topics</span></div>`
+    +`<div class="stat"><b>${byDiff.easy}</b><span>easy</span></div>`
+    +`<div class="stat"><b>${byDiff.medium}</b><span>medium</span></div>`
+    +`<div class="stat"><b>${byDiff.hard}</b><span>hard</span></div>`;
+  const pct = Q.length? Math.round(mastered/Q.length*100):0;
+  document.getElementById("pfill").style.width=pct+"%";
+  document.getElementById("pcount").textContent=`${mastered} of ${Q.length} mastered`;
+}
+
+/* ============================== EVENTS ============================== */
+document.getElementById("search").addEventListener("input",e=>{ search=e.target.value.trim().toLowerCase(); render(); });
+document.getElementById("expandAll").addEventListener("click",()=>document.querySelectorAll(".card").forEach(c=>{c.classList.add("open");c.querySelector(".qrow").setAttribute("aria-expanded","true");}));
+document.getElementById("collapseAll").addEventListener("click",()=>document.querySelectorAll(".card").forEach(c=>{c.classList.remove("open");c.querySelector(".qrow").setAttribute("aria-expanded","false");}));
+document.getElementById("resetMastery").addEventListener("click",()=>{
+  if(confirm("Clear all mastered marks?")){ for(const k in mastery) delete mastery[k]; saveMastery(); buildStats(); render(); }
+});
+
+/* ============================== INIT ============================== */
+buildChips(); buildStats(); render();
+</script>
+</body>
+</html>

@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Kubernetes Interview Book — Senior SRE &amp; Platform Engineer</title>
+<style>
+:root{
+  --ink:#1a1a1a; --soft:#444; --line:#d9d4c8; --rule:#c9c2b2;
+  --accent:#0b5d5d; --accent2:#b5572a; --bg:#ffffff; --code:#f4f2ec;
+  --codeink:#243b3b; --label:#0b5d5d; --qbg:#f6f3ec;
+}
+*{box-sizing:border-box;}
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  font-size:11.2pt; line-height:1.5;
+}
+.wrap{ max-width:780px; margin:0 auto; padding:48px 40px 72px; }
+
+/* Title page */
+.cover{ text-align:center; padding:90px 0 70px; border-bottom:3px double var(--rule); margin-bottom:8px; }
+.cover .kicker{ font-family:Georgia,serif; letter-spacing:.32em; text-transform:uppercase;
+  font-size:10pt; color:var(--accent2); margin-bottom:26px; }
+.cover h1{ font-size:33pt; line-height:1.08; margin:0 0 10px; font-weight:700; }
+.cover h1 .accent{ color:var(--accent); }
+.cover .sub{ font-size:13pt; color:var(--soft); font-style:italic; margin-top:14px; }
+.cover .meta{ margin-top:40px; font-size:10.5pt; color:var(--soft); letter-spacing:.04em; }
+.cover .rule{ width:70px; height:2px; background:var(--accent2); margin:30px auto 0; }
+
+/* TOC */
+.toc{ padding:34px 0 10px; }
+.toc h2{ font-size:15pt; letter-spacing:.18em; text-transform:uppercase; color:var(--accent);
+  border-bottom:1px solid var(--line); padding-bottom:8px; margin:0 0 14px; }
+.toc ol{ list-style:none; margin:0; padding:0; column-gap:34px; }
+.toc li{ margin:0; }
+.toc a{ display:flex; gap:12px; align-items:baseline; text-decoration:none; color:var(--ink);
+  padding:5px 0; border-bottom:1px dotted var(--line); }
+.toc .toc-n{ font-family:Georgia,serif; color:var(--accent2); font-weight:700; min-width:26px; }
+.toc .toc-t{ flex:1; }
+
+/* Chapter */
+.chapter{ padding-top:18px; }
+.chap-num{ font-family:Georgia,serif; letter-spacing:.3em; text-transform:uppercase;
+  font-size:10pt; color:var(--accent2); margin-bottom:4px; }
+.chap-title{ font-size:22pt; line-height:1.12; margin:0 0 18px; padding-bottom:14px;
+  border-bottom:3px double var(--rule); font-weight:700; }
+
+h3{ font-size:13.5pt; margin:26px 0 8px; color:var(--ink); font-weight:700;
+  padding-left:12px; border-left:4px solid var(--accent); }
+h4{ font-size:11pt; margin:16px 0 4px; color:var(--label); text-transform:uppercase;
+  letter-spacing:.08em; font-family:Georgia,serif; }
+h4.qhead{ text-transform:none; letter-spacing:0; color:var(--accent2); font-size:11.5pt;
+  border-top:1px solid var(--line); padding-top:12px; }
+
+p{ margin:0 0 9px; text-align:left; }
+ul,ol{ margin:4px 0 12px; padding-left:24px; }
+li{ margin:2px 0; }
+ul{ list-style:square; }
+ul li::marker{ color:var(--accent2); }
+ol li::marker{ color:var(--accent2); font-family:Georgia,serif; }
+
+pre{ background:var(--code); color:var(--codeink); border:1px solid var(--line);
+  border-left:3px solid var(--accent); border-radius:3px; padding:11px 13px;
+  font-family:"SF Mono","DejaVu Sans Mono",Menlo,Consolas,monospace; font-size:9.3pt;
+  line-height:1.4; white-space:pre-wrap; word-break:break-word; margin:8px 0 12px; }
+
+a{ color:var(--accent); }
+
+/* Print */
+@media print{
+  @page{ size:A4; margin:18mm 16mm; }
+  body{ font-size:10.6pt; }
+  .wrap{ padding:0; max-width:none; }
+  .cover{ height:auto; page-break-after:always; padding-top:60px; }
+  .toc{ page-break-after:always; }
+  .chapter{ page-break-before:always; }
+  h3,h4{ page-break-after:avoid; }
+  pre,ul,ol,table{ page-break-inside:avoid; }
+  a{ color:var(--ink); text-decoration:none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="cover">
+    <div class="kicker">Senior SRE &amp; Platform Engineer</div>
+    <h1>The <span class="accent">Kubernetes</span><br>Interview Book</h1>
+    <div class="sub">Chapters 1–20 · Architecture · Workloads · Networking · Storage · Scheduling · Security · Troubleshooting</div>
+    <div class="rule"></div>
+    <div class="meta">A complete question &amp; answer study guide · 20 chapters · 61 questions · 40 production scenarios</div>
+  </header>
+
+  <nav class="toc">
+    <h2>Contents</h2>
+    <ol>
+<li><a href="#ch1"><span class="toc-n">1</span><span class="toc-t">Kubernetes Fundamentals &amp; Architecture</span></a></li>
+<li><a href="#ch2"><span class="toc-n">2</span><span class="toc-t">Control Plane Deep Dive</span></a></li>
+<li><a href="#ch3"><span class="toc-n">3</span><span class="toc-t">Worker Nodes &amp; Container Runtime</span></a></li>
+<li><a href="#ch4"><span class="toc-n">4</span><span class="toc-t">Pods &amp; Lifecycle</span></a></li>
+<li><a href="#ch5"><span class="toc-n">5</span><span class="toc-t">Labels, Selectors &amp; Annotations</span></a></li>
+<li><a href="#ch6"><span class="toc-n">6</span><span class="toc-t">ReplicaSets &amp; Deployments</span></a></li>
+<li><a href="#ch7"><span class="toc-n">7</span><span class="toc-t">Rollouts, Rollbacks &amp; Deployment Strategies</span></a></li>
+<li><a href="#ch8"><span class="toc-n">8</span><span class="toc-t">Services &amp; kube-proxy</span></a></li>
+<li><a href="#ch9"><span class="toc-n">9</span><span class="toc-t">Ingress &amp; Gateway API</span></a></li>
+<li><a href="#ch10"><span class="toc-n">10</span><span class="toc-t">StatefulSets</span></a></li>
+<li><a href="#ch11"><span class="toc-n">11</span><span class="toc-t">DaemonSets, Jobs &amp; CronJobs</span></a></li>
+<li><a href="#ch12"><span class="toc-n">12</span><span class="toc-t">ConfigMaps &amp; Secrets</span></a></li>
+<li><a href="#ch13"><span class="toc-n">13</span><span class="toc-t">Storage: Volumes, PV, PVC &amp; StorageClasses</span></a></li>
+<li><a href="#ch14"><span class="toc-n">14</span><span class="toc-t">Networking: CNI, CoreDNS &amp; NetworkPolicy</span></a></li>
+<li><a href="#ch15"><span class="toc-n">15</span><span class="toc-t">Scheduling: Affinity, Taints &amp; Tolerations</span></a></li>
+<li><a href="#ch16"><span class="toc-n">16</span><span class="toc-t">Autoscaling: HPA, VPA &amp; Cluster Autoscaler</span></a></li>
+<li><a href="#ch17"><span class="toc-n">17</span><span class="toc-t">Helm &amp; Packaging</span></a></li>
+<li><a href="#ch18"><span class="toc-n">18</span><span class="toc-t">RBAC &amp; Security</span></a></li>
+<li><a href="#ch19"><span class="toc-n">19</span><span class="toc-t">Observability for Kubernetes</span></a></li>
+<li><a href="#ch20"><span class="toc-n">20</span><span class="toc-t">Production Troubleshooting (Capstone)</span></a></li>
+    </ol>
+  </nav>
+
+<section class="chapter" id="ch1">
+<div class="chap-num">Chapter 1</div>
+<h2 class="chap-title">Kubernetes Fundamentals &amp; Architecture</h2>
+<p>This chapter establishes the foundations: what Kubernetes is, the problem it solves, the declarative model, the control plane versus worker node split, and the high-level architecture a Senior SRE keeps in mind when reasoning about cluster behavior.</p>
+<h3>Question 1 — What is Kubernetes?</h3>
+<h4>Short Answer</h4>
+<p>Kubernetes is an open-source container orchestration platform that automates deployment, scaling, networking, and lifecycle management of containerized workloads.</p>
+<h4>Detailed Explanation</h4>
+<p>Containers solved packaging, but running thousands of them across many machines by hand is impossible. Kubernetes lets you declare a desired state and continuously reconciles the cluster toward it, providing self-healing, automated rollouts, service discovery, load balancing, and horizontal scaling.</p>
+<h4>Interview Answer</h4>
+<p>Kubernetes is a container orchestrator where you declare the desired state of your workloads and the platform&#x27;s control loops continuously make reality match that declaration, handling scheduling, scaling, healing, and networking automatically.</p>
+<h3>Question 2 — What problem does Kubernetes solve?</h3>
+<h4>Short Answer</h4>
+<p>It automates the operational burden of running containers at scale across a fleet of machines.</p>
+<h4>Detailed Explanation</h4>
+<p>Without orchestration you must manually place containers, restart failures, scale up under load, wire up networking, and roll out new versions safely. Kubernetes provides all of this declaratively, so operations become repeatable and self-healing rather than manual and error-prone.</p>
+<h4>Interview Answer</h4>
+<p>Kubernetes removes the manual toil of scheduling, healing, scaling, networking, and rolling out containers, turning fragile hand-managed deployments into a declarative, self-healing system.</p>
+<h3>Question 3 — What is declarative versus imperative management?</h3>
+<h4>Short Answer</h4>
+<p>Imperative commands tell Kubernetes the exact steps to perform now; declarative manifests describe the desired end state and let Kubernetes figure out the steps.</p>
+<h4>Detailed Explanation</h4>
+<p>Imperative commands like kubectl run or kubectl scale are good for quick fixes. Declarative management applies YAML with kubectl apply, which is idempotent and repeatable. Production uses declarative manifests stored in Git so the desired state is reviewable, auditable, and reproducible.</p>
+<h4>Comparison</h4>
+<p>Imperative is procedural and one-shot; declarative is idempotent and continuously reconciled. kubectl apply is declarative and safe to re-run; kubectl create is imperative and fails if the object already exists.</p>
+<h4>Interview Answer</h4>
+<p>Imperative tells Kubernetes how to act step by step; declarative describes the desired end state in manifests that Kubernetes reconciles toward. Production uses declarative plus GitOps for idempotency and auditability.</p>
+<h3>Question 4 — What are the main components of a Kubernetes cluster?</h3>
+<h4>Short Answer</h4>
+<p>A control plane (API server, etcd, scheduler, controller manager) and worker nodes (kubelet, kube-proxy, container runtime), plus add-ons like CoreDNS and a CNI plugin.</p>
+<h4>Detailed Explanation</h4>
+<p>The control plane makes global decisions and stores cluster state. Worker nodes run the actual workloads. Add-ons provide DNS (CoreDNS), pod networking (CNI), and metrics (metrics-server).</p>
+<h4>Interview Answer</h4>
+<p>A cluster splits into a control plane that decides and stores state, and worker nodes that run workloads via the kubelet, kube-proxy, and a container runtime, with add-ons supplying DNS, networking, and metrics.</p>
+<h3>Question 5 — What is a Namespace?</h3>
+<h4>Short Answer</h4>
+<p>A Namespace is a virtual cluster inside a physical cluster used to scope and isolate groups of resources.</p>
+<h4>Detailed Explanation</h4>
+<p>Namespaces separate teams or environments, allow per-tenant ResourceQuotas and LimitRanges, scope RBAC, and prevent name collisions. Not everything is namespaced — Nodes, PersistentVolumes, and ClusterRoles are cluster-scoped.</p>
+<h4>Common Mistake</h4>
+<p>Assuming everything is namespaced. Nodes, PersistentVolumes, ClusterRoles, and StorageClasses are cluster-scoped and not bound to any namespace.</p>
+<h4>Interview Answer</h4>
+<p>A Namespace logically partitions a cluster so resources can be isolated and scoped per team or environment, enabling quotas, RBAC boundaries, and collision-free naming, while cluster-scoped objects like Nodes live outside namespaces.</p>
+<h3>Question 6 — What is the difference between Kubernetes and Docker?</h3>
+<h4>Short Answer</h4>
+<p>Docker builds and runs individual containers; Kubernetes orchestrates many containers across many hosts.</p>
+<h4>Detailed Explanation</h4>
+<p>Docker is a container runtime and image tooling for a single host. Kubernetes schedules, scales, networks, and heals containers across a cluster, and uses a container runtime such as containerd underneath to actually run them.</p>
+<h4>Interview Answer</h4>
+<p>Docker packages and runs a container on one host; Kubernetes orchestrates fleets of containers across many hosts, using a runtime like containerd to execute them.</p>
+<h3>Production Scenario 1 — A New Team Asks Why They Need Kubernetes</h3>
+<p>They run three containers on one VM with a restart script. The honest answer: at that scale Kubernetes may be overkill. The value appears when you need multi-host scheduling, self-healing across failures, zero-downtime rollouts, autoscaling, and consistent declarative operations — the toil Kubernetes removes grows with scale.</p>
+<h3>Production Scenario 2 — Choosing Declarative Over Imperative in Production</h3>
+<p>A team fixes incidents with imperative kubectl edit commands, then loses those changes on the next apply. Moving to declarative manifests in Git makes every change reviewed, reproducible, and recoverable, eliminating configuration drift between what is running and what is described.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>How does the reconciliation loop make Kubernetes self-healing?</li><li>When is Kubernetes the wrong choice for a workload?</li><li>Why is GitOps a natural fit for Kubernetes&#x27; declarative model?</li><li>What cluster-scoped resources exist and why aren&#x27;t they namespaced?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is Kubernetes? A container orchestration platform that reconciles workloads toward a declared desired state.</li><li>What problem does it solve? The manual toil of scheduling, healing, scaling, and networking containers at scale.</li><li>Declarative vs imperative? Declarative describes the end state; imperative lists the steps.</li><li>What does kubectl apply do? Declaratively reconciles resources, idempotently.</li><li>What is a Namespace? A virtual partition for scoping and isolating resources.</li><li>Name three cluster-scoped objects. Nodes, PersistentVolumes, ClusterRoles.</li><li>Control plane vs worker node? Control plane decides and stores state; worker nodes run workloads.</li><li>What are the control plane components? API server, etcd, scheduler, controller manager.</li><li>What are the worker node components? kubelet, kube-proxy, container runtime.</li><li>Kubernetes vs Docker? Docker runs a container; Kubernetes orchestrates many across hosts.</li><li>What is self-healing? Controllers recreate failed Pods to match desired state.</li><li>What is GitOps? Storing desired state in Git as the source of truth.</li><li>What provides cluster DNS? CoreDNS.</li><li>What provides Pod networking? A CNI plugin.</li><li>Why is declarative preferred in production? Idempotent, reviewable, and reproducible.</li></ol>
+<h4>Best Practices</h4>
+<p>Store all manifests declaratively in Git and apply them through a pipeline. Use namespaces to separate environments and teams, with ResourceQuotas and RBAC per namespace. Avoid imperative edits in production; treat the cluster as reconciled from source control. Keep cluster-scoped changes (RBAC, StorageClasses, CRDs) under strict review.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>Kubernetes: declarative container orchestrator. Control plane: API server, etcd, scheduler, controller manager. Worker node: kubelet, kube-proxy, runtime. Namespace: scoping boundary. apply: declarative; create: imperative. Self-healing: controllers reconcile to desired state.</p>
+</section>
+<section class="chapter" id="ch2">
+<div class="chap-num">Chapter 2</div>
+<h2 class="chap-title">Control Plane Deep Dive</h2>
+<p>The control plane is the brain of Kubernetes. This chapter covers the API server, etcd, scheduler, controller manager, and the request lifecycle of authentication, authorization, and admission control — the components and flows interviewers probe most heavily.</p>
+<h3>Question 1 — What is the Kubernetes control plane?</h3>
+<h4>Short Answer</h4>
+<p>The control plane is the set of components that maintain the desired state of the cluster and make all global decisions.</p>
+<h4>Detailed Explanation</h4>
+<p>It contains the API server, etcd, scheduler, and controller manager. Every decision — scheduling, scaling, reconciliation — originates here. Worker nodes execute workloads but make no global decisions.</p>
+<h4>Interview Answer</h4>
+<p>The control plane maintains desired state by handling API requests, scheduling, and reconciliation, and stores everything in etcd, while worker nodes simply run the workloads it assigns.</p>
+<h3>Question 2 — What is the API server and why is it central?</h3>
+<h4>Short Answer</h4>
+<p>The API server is the front door of Kubernetes; every request passes through it, and it is the only component that talks to etcd.</p>
+<h4>Detailed Explanation</h4>
+<p>It authenticates, authorizes, runs admission control, validates objects, and persists desired state to etcd. Even the scheduler and controllers never touch etcd directly. It is stateless, so it runs as multiple replicas behind a load balancer for high availability.</p>
+<h4>Common Mistake</h4>
+<p>Saying the scheduler or kubelet reads etcd directly. Only the API server communicates with etcd; everything else goes through the API server.</p>
+<h4>Interview Answer</h4>
+<p>The API server is the central, stateless gateway that authenticates, authorizes, validates, and admits every request before persisting it to etcd, and it is the only component that reads or writes etcd.</p>
+<h3>Question 3 — What is etcd and why is it critical?</h3>
+<h4>Short Answer</h4>
+<p>etcd is a distributed, strongly consistent key-value store that holds the entire cluster state and serves as the single source of truth.</p>
+<h4>Detailed Explanation</h4>
+<p>It stores Pods, Deployments, Secrets, ConfigMaps, Nodes, RBAC, and leases. It uses the Raft consensus algorithm, so it runs as an odd-numbered quorum of three or five members to tolerate failures. Losing etcd without a backup means rebuilding the cluster.</p>
+<h4>Interview Answer</h4>
+<p>etcd is the strongly consistent key-value store that is Kubernetes&#x27; source of truth, holding all cluster state, run as an odd-numbered Raft quorum, and accessed only by the API server, which is why regular snapshots are essential.</p>
+<pre>ETCDCTL_API=3 etcdctl snapshot save backup.db \
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=ca.crt --cert=server.crt --key=server.key</pre>
+<h3>Question 4 — What does the scheduler do and how does it decide?</h3>
+<h4>Short Answer</h4>
+<p>The scheduler watches for unscheduled Pods and selects the best node using a filtering phase and a scoring phase.</p>
+<h4>Detailed Explanation</h4>
+<p>Filtering eliminates nodes that cannot fit the Pod — insufficient CPU or memory, taints without tolerations, unsatisfied node selectors. Scoring ranks the survivors by least load, affinity, and topology spread. The highest-scoring node is chosen and the Pod is bound to it.</p>
+<h4>Interview Answer</h4>
+<p>The scheduler decides where, not how, a Pod runs: it filters out nodes that can&#x27;t satisfy the Pod&#x27;s constraints, scores the rest for best fit using resources, affinity, and topology, and binds the Pod to the winner.</p>
+<h3>Question 5 — What is the controller manager and what is a control loop?</h3>
+<h4>Short Answer</h4>
+<p>The controller manager runs control loops that continuously reconcile actual cluster state to the desired state stored in etcd.</p>
+<h4>Detailed Explanation</h4>
+<p>Each controller — Deployment, ReplicaSet, Node, Job — observes actual state, compares it to desired state, and acts to close the gap. If desired replicas are five and only four exist, the ReplicaSet controller creates one more. This continuous reconciliation is what makes Kubernetes self-healing.</p>
+<h4>Interview Answer</h4>
+<p>The controller manager runs the reconciliation loops that watch actual state, compare it to the desired state in etcd, and take corrective action when they diverge, which is the mechanism behind self-healing.</p>
+<h3>Question 6 — Explain authentication, authorization, and admission control.</h3>
+<h4>Short Answer</h4>
+<p>Every API request passes three gates in order: authentication verifies identity, authorization checks permissions, and admission control can mutate or reject the request.</p>
+<h4>Detailed Explanation</h4>
+<p>Authentication uses client certs, bearer tokens, OIDC, or service account tokens. Authorization is usually RBAC. Admission runs mutating webhooks first (which can change objects, such as injecting sidecars) and then validating webhooks and policies, which can reject the request before it is persisted.</p>
+<h4>Interview Answer</h4>
+<p>A request is authenticated to confirm who you are, authorized to confirm what you may do, then passed through mutating and validating admission controllers before the object is stored in etcd.</p>
+<h3>Production Scenario 1 — The Control Plane Is Down but Apps Keep Serving</h3>
+<p>The API server is unavailable. Developers cannot deploy or scale, yet customer traffic is unaffected because running Pods are maintained locally by each kubelet. The lesson: control plane outages stop cluster management, not the data plane, so the priority is restoring the API server and etcd quorum without panicking about running workloads.</p>
+<h3>Production Scenario 2 — etcd Loses Quorum</h3>
+<p>Two of three etcd members fail. The cluster can no longer commit writes, so deployments hang. Because etcd is an odd-numbered Raft quorum, one failure is survivable but two is not. Recovery is restoring a member or, if quorum is unrecoverable, restoring from the latest snapshot — which is why frequent etcd backups are non-negotiable.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>Why must the API server be highly available, and what breaks if it isn&#x27;t?</li><li>Why does everything route through the API server instead of talking to etcd directly?</li><li>What is the difference between a mutating and a validating admission webhook?</li><li>Why is etcd run as an odd number of members?</li><li>How do controllers detect drift between desired and actual state?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is the control plane? The components that maintain desired state and make global decisions.</li><li>What is the API server? The central gateway for all requests and the only writer to etcd.</li><li>What is etcd? The strongly consistent key-value store that is the source of truth.</li><li>Which component talks to etcd? Only the API server.</li><li>What does the scheduler decide? Which node a Pod runs on.</li><li>What are the scheduler&#x27;s two phases? Filtering and scoring.</li><li>What is the controller manager? The runner of reconciliation control loops.</li><li>What is a control loop? Observe, compare to desired, act to close the gap.</li><li>What are the three request gates? Authentication, authorization, admission.</li><li>What does a mutating webhook do? Modifies a request, e.g. injects a sidecar.</li><li>What does a validating webhook do? Accepts or rejects a request.</li><li>Why is the API server stateless? So it can run as HA replicas.</li><li>How many etcd members for HA? An odd number, typically three or five.</li><li>What consensus algorithm does etcd use? Raft.</li><li>What happens to running Pods if the control plane fails? They keep running; you just can&#x27;t manage them.</li></ol>
+<h4>Best Practices</h4>
+<p>Run an HA control plane with at least three control plane nodes and an odd-numbered etcd quorum. Take frequent, monitored etcd snapshots and test restores. Watch etcd disk fsync latency, since etcd is extremely sensitive to slow disks. Front the API server with a load balancer and protect it with RBAC and admission policies.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>API server: central gateway, only etcd client. etcd: source of truth, Raft quorum. Scheduler: filter then score, binds Pod to node. Controller manager: reconciliation loops. Request flow: authn → authz → admission (mutating then validating) → etcd.</p>
+</section>
+<section class="chapter" id="ch3">
+<div class="chap-num">Chapter 3</div>
+<h2 class="chap-title">Worker Nodes &amp; Container Runtime</h2>
+<p>Worker nodes are where workloads actually run. This chapter covers the kubelet, kube-proxy, and the container runtime interface, plus the common misconceptions interviewers use to separate surface knowledge from real understanding.</p>
+<h3>Question 1 — What is the kubelet?</h3>
+<h4>Short Answer</h4>
+<p>The kubelet is the per-node agent that ensures the Pods assigned to its node are running and healthy.</p>
+<h4>Detailed Explanation</h4>
+<p>It registers the node, watches the API server for Pods bound to it, drives the container runtime through the CRI to start and stop containers, runs liveness, readiness, and startup probes, mounts volumes, and reports node and Pod status back to the control plane.</p>
+<h4>Common Mistake</h4>
+<p>Thinking the kubelet schedules Pods. It only runs Pods already assigned to its node by the scheduler; it does not make placement decisions.</p>
+<h4>Interview Answer</h4>
+<p>The kubelet is the node agent that watches the API server for its assigned Pods, drives the container runtime to run them, executes probes, mounts volumes, and reports status back to the control plane.</p>
+<h3>Question 2 — What is kube-proxy, and what is it not?</h3>
+<h4>Short Answer</h4>
+<p>kube-proxy programs iptables or IPVS rules to implement Service networking; it does not proxy application HTTP traffic in normal mode.</p>
+<h4>Detailed Explanation</h4>
+<p>It watches Services and EndpointSlices and configures the node&#x27;s networking so traffic to a Service&#x27;s virtual IP is load-balanced to healthy backend Pods. Modern clusters may use IPVS for scale or replace kube-proxy entirely with an eBPF dataplane like Cilium.</p>
+<h4>Comparison</h4>
+<p>iptables mode uses sequential rule chains and scales poorly with thousands of Services; IPVS mode uses a hash table and scales far better; eBPF dataplanes bypass kube-proxy entirely.</p>
+<h4>Interview Answer</h4>
+<p>kube-proxy implements Services at the network layer by programming iptables or IPVS rules that load-balance traffic from a Service&#x27;s virtual IP to healthy Pods, rather than proxying HTTP itself.</p>
+<h3>Question 3 — What is the container runtime and the CRI?</h3>
+<h4>Short Answer</h4>
+<p>The container runtime pulls images and runs containers; the kubelet talks to it through the Container Runtime Interface, a standard gRPC API.</p>
+<h4>Detailed Explanation</h4>
+<p>Docker was the original default but dockershim was removed in Kubernetes 1.24. Modern clusters use containerd or CRI-O, both CRI-native. Docker-built images still run fine because they are OCI-compliant.</p>
+<h4>Common Mistake</h4>
+<p>Claiming Docker images stopped working after dockershim removal. Removing the Docker shim changed the runtime, not the image format; OCI images run unchanged on containerd.</p>
+<h4>Interview Answer</h4>
+<p>The container runtime downloads images and runs containers, driven by the kubelet over the CRI gRPC interface; since 1.24 clusters use containerd or CRI-O, and Docker images still work because they&#x27;re OCI-compliant.</p>
+<h3>Question 4 — What is a static Pod?</h3>
+<h4>Short Answer</h4>
+<p>A static Pod is a Pod the kubelet runs directly from a local manifest file, without the scheduler or API server creating it.</p>
+<h4>Detailed Explanation</h4>
+<p>The kubelet watches a configured directory and runs any Pod manifests found there. This is how control plane components are bootstrapped in kubeadm clusters. A mirror Pod is created in the API server so the static Pod is visible, but it is managed by the kubelet, not a controller.</p>
+<h4>Interview Answer</h4>
+<p>A static Pod is managed directly by the kubelet from a local manifest rather than by the control plane, which is how kubeadm bootstraps control plane components like the API server itself.</p>
+<h3>Production Scenario 1 — A Node Goes NotReady</h3>
+<p>A node stops reporting and shows NotReady. describe node reveals the kubelet&#x27;s last heartbeat is stale. The cause is usually a stopped kubelet, a failed container runtime, a full disk, or lost API-server connectivity. After the eviction timeout the control plane reschedules the node&#x27;s Pods elsewhere, so the fix is restoring the kubelet and runtime on the node.</p>
+<h3>Production Scenario 2 — Service Traffic Fails on One Node Only</h3>
+<p>Pods are healthy but requests through the Service fail on a single node. kube-proxy on that node is unhealthy or its iptables rules are stale, so traffic to the Service IP isn&#x27;t being routed. Restarting kube-proxy and verifying the dataplane resolves it, illustrating that Service routing is a per-node concern.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>Why was dockershim removed and what replaced it?</li><li>When would you choose IPVS over iptables mode for kube-proxy?</li><li>How does a static Pod differ from a Pod managed by a Deployment?</li><li>What happens to a node&#x27;s Pods when it stays NotReady past the eviction timeout?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is the kubelet? The per-node agent that runs assigned Pods and reports status.</li><li>Does the kubelet schedule Pods? No, it only runs ones the scheduler assigned.</li><li>What is kube-proxy? The component that programs Service networking rules.</li><li>Does kube-proxy proxy HTTP? No, it programs iptables or IPVS rules.</li><li>iptables vs IPVS? IPVS scales better at large Service counts.</li><li>What is the container runtime? The component that pulls images and runs containers.</li><li>What is the CRI? The gRPC interface between kubelet and runtime.</li><li>What replaced Docker as the runtime? containerd or CRI-O.</li><li>Do Docker images still work? Yes, they&#x27;re OCI-compliant.</li><li>What is a static Pod? A Pod run directly by the kubelet from a local manifest.</li><li>How does kubeadm bootstrap the control plane? As static Pods.</li><li>What does describe node show for a down node? A stale kubelet heartbeat and conditions.</li><li>What can replace kube-proxy? An eBPF dataplane like Cilium.</li></ol>
+<h4>Best Practices</h4>
+<p>Keep kubelet and runtime versions aligned with the control plane version and within the supported skew. Monitor node conditions for MemoryPressure, DiskPressure, and PIDPressure. Prefer IPVS or an eBPF dataplane for large clusters. Treat NotReady nodes by checking kubelet, runtime, disk, and network before deleting them.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>kubelet: node agent, runs assigned Pods, runs probes. kube-proxy: programs iptables/IPVS Service rules. Runtime: containerd/CRI-O via CRI. Docker removed in 1.24; OCI images unaffected. Static Pod: kubelet-managed from local manifest.</p>
+</section>
+<section class="chapter" id="ch4">
+<div class="chap-num">Chapter 4</div>
+<h2 class="chap-title">Pods &amp; Lifecycle</h2>
+<p>Pods are the atomic unit of Kubernetes. This chapter covers Pod structure, restart policies, probes, init and sidecar containers, QoS classes, and the failure states such as CrashLoopBackOff that dominate real interviews.</p>
+<h3>Question 1 — What is a Pod?</h3>
+<h4>Short Answer</h4>
+<p>A Pod is the smallest deployable unit — one or more containers that share a network namespace, IP, and optionally storage.</p>
+<h4>Detailed Explanation</h4>
+<p>Containers in a Pod share the same IP and port space and communicate over localhost. Kubernetes schedules Pods, not bare containers, so it can attach networking, storage, lifecycle, and probes uniformly. Most Pods run a single main container; multi-container Pods use the sidecar pattern.</p>
+<h4>Interview Answer</h4>
+<p>A Pod is the smallest schedulable unit, a group of co-located containers sharing a network namespace and IP so Kubernetes can manage networking, storage, and lifecycle consistently rather than handling raw containers.</p>
+<h3>Question 2 — Explain liveness, readiness, and startup probes.</h3>
+<h4>Short Answer</h4>
+<p>Liveness restarts a hung container, readiness gates whether a Pod receives traffic, and startup protects slow-starting apps until they&#x27;re up.</p>
+<h4>Detailed Explanation</h4>
+<p>A failing liveness probe makes the kubelet restart the container. A failing readiness probe removes the Pod from Service endpoints without restarting it. A startup probe disables liveness and readiness until the app has finished starting, preventing slow boots from being killed. The classic outage is an aggressive liveness probe restarting healthy but busy Pods.</p>
+<h4>Interview Answer</h4>
+<p>Liveness detects a dead container and restarts it, readiness decides if a Pod should receive Service traffic without restarting it, and startup gives slow apps time before the others apply; misusing liveness where readiness was needed causes restart loops.</p>
+<pre>readinessProbe:
+  httpGet: { path: /healthz, port: 8080 }
+  periodSeconds: 10
+livenessProbe:
+  httpGet: { path: /livez, port: 8080 }
+  failureThreshold: 3
+  periodSeconds: 15</pre>
+<h3>Question 3 — What are init containers and sidecar containers?</h3>
+<h4>Short Answer</h4>
+<p>Init containers run to completion before the main containers start; sidecars run alongside the main container for the Pod&#x27;s lifetime.</p>
+<h4>Detailed Explanation</h4>
+<p>Init containers run sequentially for setup such as migrations or waiting on a dependency, and the Pod won&#x27;t start its main containers until they succeed. Sidecars provide ongoing support such as log shippers, mesh proxies, or exporters. Since Kubernetes 1.28, native sidecars are init containers with restartPolicy Always.</p>
+<h4>Interview Answer</h4>
+<p>Init containers run setup tasks to completion before the app starts, while sidecars run beside the app for its whole lifetime; native sidecars in 1.28+ are always-restarting init containers.</p>
+<h3>Question 4 — Explain Pod QoS classes.</h3>
+<h4>Short Answer</h4>
+<p>Kubernetes assigns Guaranteed, Burstable, or BestEffort based on a Pod&#x27;s requests and limits, which determines eviction order under node pressure.</p>
+<h4>Detailed Explanation</h4>
+<p>Guaranteed requires requests equal to limits for every container and is evicted last. Burstable has some requests set and is evicted in the middle. BestEffort sets nothing and is evicted first under memory pressure. QoS is derived automatically, not set directly.</p>
+<h4>Common Mistake</h4>
+<p>Thinking you set QoS directly. It is inferred from the requests and limits you specify on the Pod&#x27;s containers.</p>
+<h4>Interview Answer</h4>
+<p>QoS is computed from requests and limits: Guaranteed (requests equal limits), Burstable (some requests), and BestEffort (none). Under memory pressure the kubelet evicts BestEffort first, so critical workloads should be Guaranteed.</p>
+<h3>Question 5 — What is restartPolicy and how does it relate to controllers?</h3>
+<h4>Short Answer</h4>
+<p>restartPolicy controls how the kubelet restarts containers within a Pod; replacing a whole Pod is the controller&#x27;s job.</p>
+<h4>Detailed Explanation</h4>
+<p>Values are Always, OnFailure, and Never. Deployments require Always; Jobs use OnFailure or Never. When a Pod is deleted, the controller creates a replacement — restartPolicy only governs container restarts inside an existing Pod. Repeated failed restarts under Always surface as CrashLoopBackOff.</p>
+<h4>Interview Answer</h4>
+<p>restartPolicy governs container restarts inside a Pod — Always for Deployments, OnFailure or Never for Jobs — while replacing a failed Pod is handled by its controller, and repeated container failures appear as CrashLoopBackOff.</p>
+<h3>Question 6 — What does CrashLoopBackOff mean?</h3>
+<h4>Short Answer</h4>
+<p>CrashLoopBackOff means a container keeps starting and exiting, and the kubelet is applying an increasing back-off between restarts.</p>
+<h4>Detailed Explanation</h4>
+<p>It is a symptom, not a root cause. Common causes are missing config or secrets, a failing startup dependency, a bad entrypoint, an OOMKill, or an over-aggressive liveness probe. You diagnose with kubectl logs --previous and the container exit code from describe.</p>
+<h4>Interview Answer</h4>
+<p>CrashLoopBackOff is the kubelet backing off while a container repeatedly crashes on start; you find the cause in the previous container&#x27;s logs and the exit code, then fix the underlying config, dependency, or resource issue.</p>
+<pre>kubectl logs &lt;pod&gt; --previous
+kubectl describe pod &lt;pod&gt;   # exit code, events</pre>
+<h3>Production Scenario 1 — Aggressive Liveness Probe Causes Restart Storms</h3>
+<p>Under peak load a service slows briefly, its liveness probe times out, and the kubelet restarts it — dropping in-flight requests and worsening load, which triggers more restarts. The fix is to gate traffic with a readiness probe and make liveness tolerant, since liveness should detect a dead process, not a busy one.</p>
+<h3>Production Scenario 2 — Exit Code 137 in Production</h3>
+<p>A container is repeatedly killed with exit code 137. That is SIGKILL from an OOMKill: the container exceeded its memory limit. The fix is to right-size the memory limit, fix the leak, or set requests and limits so the Pod becomes Guaranteed and is less likely to be evicted.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>Why should readiness, not liveness, gate traffic during warm-up?</li><li>How do native sidecars in 1.28+ differ from a plain extra container?</li><li>Which Pods are evicted first under node memory pressure and why?</li><li>What does exit code 137 indicate and how do you remediate it?</li><li>How do init containers affect Pod startup ordering?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is a Pod? The smallest unit, sharing network and IP among its containers.</li><li>Do Pod containers share an IP? Yes.</li><li>What does a liveness probe do? Restarts a hung container.</li><li>What does a readiness probe do? Gates Service traffic without restarting.</li><li>What does a startup probe do? Delays liveness/readiness for slow starters.</li><li>What is an init container? A setup container that runs to completion first.</li><li>What is a sidecar? A container running alongside the app for its lifetime.</li><li>What are the QoS classes? Guaranteed, Burstable, BestEffort.</li><li>Which QoS is evicted first? BestEffort.</li><li>How is QoS set? Inferred from requests and limits.</li><li>What are restartPolicy values? Always, OnFailure, Never.</li><li>Which restartPolicy do Deployments need? Always.</li><li>What is CrashLoopBackOff? Repeated container crashes with kubelet back-off.</li><li>What does exit code 137 mean? OOMKilled by SIGKILL.</li><li>How do you debug a crashing Pod? logs --previous and the exit code.</li></ol>
+<h4>Best Practices</h4>
+<p>Always set resource requests and limits to control scheduling and QoS. Use readiness probes to gate traffic and keep liveness probes tolerant. Aim for Guaranteed QoS on critical workloads. Use init containers for ordered setup and native sidecars for supporting processes. Diagnose crashes with previous-instance logs before changing config.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>Pod: smallest unit, shared IP. Liveness: restart. Readiness: gate traffic. Startup: protect slow boot. QoS: Guaranteed/Burstable/BestEffort, BestEffort evicted first. restartPolicy: Always for Deployments. CrashLoopBackOff: repeated crash; 137 = OOMKilled.</p>
+</section>
+<section class="chapter" id="ch5">
+<div class="chap-num">Chapter 5</div>
+<h2 class="chap-title">Labels, Selectors &amp; Annotations</h2>
+<p>Labels and selectors are how Kubernetes groups and connects objects. This short but high-yield chapter covers the difference between labels and annotations and how Services use selectors to find Pods.</p>
+<h3>Question 1 — What is the difference between labels and annotations?</h3>
+<h4>Short Answer</h4>
+<p>Labels are identifying metadata used by selectors to group objects; annotations are non-identifying metadata for tools and humans and cannot be selected on.</p>
+<h4>Detailed Explanation</h4>
+<p>Selectors in Services, ReplicaSets, and Deployments match Pods by label. Annotations hold arbitrary data such as build info, change-cause, checksums, or ingress configuration. If something needs to select or group an object it must be a label; otherwise it is an annotation.</p>
+<h4>Comparison</h4>
+<p>Labels are queryable and bounded; annotations are free-form and can be large. Services select Pods by label, never by annotation.</p>
+<h4>Interview Answer</h4>
+<p>Labels identify and group objects and are matched by selectors, while annotations attach arbitrary non-identifying data for tooling and can&#x27;t be used in selectors.</p>
+<h3>Question 2 — How does a Service know which Pods to route to?</h3>
+<h4>Short Answer</h4>
+<p>A Service uses a label selector; the endpoints controller adds ready Pods whose labels match to the Service&#x27;s EndpointSlices.</p>
+<h4>Detailed Explanation</h4>
+<p>kube-proxy then load-balances traffic to those endpoints. If the Pod template&#x27;s labels don&#x27;t match the Service selector, the Service has no endpoints and traffic fails. This selector-versus-label mismatch is one of the most common networking bugs.</p>
+<h4>Interview Answer</h4>
+<p>A Service&#x27;s label selector is matched against ready Pods by the endpoints controller, which fills the Service&#x27;s EndpointSlices that kube-proxy load-balances to; a label mismatch leaves the Service with no endpoints.</p>
+<pre>kubectl get endpoints &lt;svc&gt;
+kubectl get pods -l app=payment,tier=backend</pre>
+<h3>Production Scenario 1 — A Service Returns No Response</h3>
+<p>Requests to a Service time out though the Pods are running. kubectl get endpoints shows the Service has zero endpoints. The Pod template labels don&#x27;t match the Service selector, or the Pods aren&#x27;t passing readiness. Aligning the labels and fixing readiness restores routing — a reminder that Services connect to Pods purely through labels.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>Why can&#x27;t a Service select Pods by annotation?</li><li>What are the first two things to check when a Service has no endpoints?</li><li>How do labels enable canary or blue-green routing at the Service level?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What are labels? Identifying key/value metadata used by selectors.</li><li>What are annotations? Non-identifying metadata for tools and humans.</li><li>Can you select on annotations? No, only on labels.</li><li>How does a Service find Pods? By label selector.</li><li>What fills a Service&#x27;s endpoints? The endpoints controller, with ready matching Pods.</li><li>What causes empty endpoints? Label mismatch or failing readiness.</li><li>What uses the endpoints to route? kube-proxy.</li><li>Where would you store a build commit hash? An annotation.</li><li>Where would you store app=payment? A label.</li></ol>
+<h4>Best Practices</h4>
+<p>Adopt a consistent labeling convention (app, component, tier, environment) across all objects. Keep selector labels stable and immutable on a running Deployment, since changing them orphans Pods. Use annotations for tooling metadata and checksums. Always verify endpoints when debugging Service connectivity.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>Labels: identifying, selectable, group objects. Annotations: non-identifying, free-form, not selectable. Service → selector → ready Pods → EndpointSlices → kube-proxy. Empty endpoints = label mismatch or readiness failure.</p>
+</section>
+<section class="chapter" id="ch6">
+<div class="chap-num">Chapter 6</div>
+<h2 class="chap-title">ReplicaSets &amp; Deployments</h2>
+<p>Deployments are the workhorse controller for stateless applications. This chapter covers ReplicaSets, Deployments, and how the two relate, setting up the rollout and rollback material in the next chapter.</p>
+<h3>Question 1 — What is a ReplicaSet?</h3>
+<h4>Short Answer</h4>
+<p>A ReplicaSet ensures a specified number of identical Pod replicas are running at all times.</p>
+<h4>Detailed Explanation</h4>
+<p>It is the self-healing replica controller: if a Pod dies, it creates a replacement to maintain the desired count. You rarely create one directly because Deployments manage ReplicaSets and add rollouts and rollbacks on top.</p>
+<h4>Interview Answer</h4>
+<p>A ReplicaSet keeps a desired number of identical Pods running and recreates any that fail, but it&#x27;s normally managed by a Deployment rather than created directly.</p>
+<h3>Question 2 — What is a Deployment and what does it add over a ReplicaSet?</h3>
+<h4>Short Answer</h4>
+<p>A Deployment manages stateless apps declaratively, creating and controlling ReplicaSets to provide rolling updates, rollbacks, and scaling.</p>
+<h4>Detailed Explanation</h4>
+<p>On a spec change such as a new image, the Deployment creates a new ReplicaSet and gradually shifts Pods from the old to the new one per the rollout strategy. It tracks revision history so you can roll back. Each Deployment revision corresponds to a ReplicaSet.</p>
+<h4>Interview Answer</h4>
+<p>A Deployment is the controller for stateless workloads that manages ReplicaSets and layers on declarative rolling updates, rollbacks, and scaling, creating a new ReplicaSet per revision and shifting Pods gradually.</p>
+<h3>Question 3 — How do a Deployment, ReplicaSet, and Pod relate?</h3>
+<h4>Short Answer</h4>
+<p>A Deployment owns ReplicaSets, and each ReplicaSet owns Pods; the Deployment is the top-level controller.</p>
+<h4>Detailed Explanation</h4>
+<p>The Deployment creates a ReplicaSet for the current template; the ReplicaSet creates and maintains the Pods. On an update, a new ReplicaSet is created and scaled up while the old one scales down. revisionHistoryLimit controls how many old ReplicaSets are kept for rollback.</p>
+<h4>Interview Answer</h4>
+<p>The hierarchy is Deployment owns ReplicaSet owns Pod: the Deployment manages revisions as ReplicaSets, each ReplicaSet maintains its Pods, and old ReplicaSets are retained per revisionHistoryLimit for rollback.</p>
+<pre>kubectl get deploy,rs,pods -l app=web
+kubectl scale deployment/web --replicas=5</pre>
+<h3>Production Scenario 1 — Scaling Under Sudden Load</h3>
+<p>Traffic spikes and the team scales a Deployment from three to ten replicas. The Deployment updates its ReplicaSet&#x27;s desired count, the ReplicaSet creates seven new Pods, and the scheduler places them. If nodes lack capacity, the new Pods stay Pending until the Cluster Autoscaler adds nodes — showing how the Deployment, ReplicaSet, and scheduler cooperate.</p>
+<h3>Production Scenario 2 — Orphaned Pods After a Label Change</h3>
+<p>An engineer edits the selector labels on a live Deployment. The ReplicaSet no longer matches the running Pods, so it creates a fresh set while the old Pods are orphaned and left running. The fix is to never mutate selector labels in place; instead create a new Deployment, since selectors are effectively immutable.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>Why do you rarely create a ReplicaSet directly?</li><li>What controls how many old ReplicaSets are kept for rollback?</li><li>What object does a Deployment actually create to run Pods?</li><li>Why are Deployment selector labels effectively immutable?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is a ReplicaSet? A controller keeping a fixed number of identical Pods running.</li><li>What is a Deployment? A controller for stateless apps managing ReplicaSets.</li><li>What does a Deployment add over a ReplicaSet? Rolling updates and rollbacks.</li><li>What does a Deployment create to run Pods? A ReplicaSet.</li><li>How does the hierarchy go? Deployment owns ReplicaSet owns Pod.</li><li>What controls retained revisions? revisionHistoryLimit.</li><li>What happens on a spec change? A new ReplicaSet is created and scaled up.</li><li>Why not edit selector labels live? It orphans existing Pods.</li><li>How do you scale a Deployment? kubectl scale or edit replicas.</li></ol>
+<h4>Best Practices</h4>
+<p>Use Deployments for stateless workloads and let them manage ReplicaSets. Keep a sensible revisionHistoryLimit so rollbacks are possible without unbounded clutter. Never mutate selector labels on a live Deployment. Drive scaling through HPA where load varies rather than manual scaling.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>ReplicaSet: maintains replica count. Deployment: manages ReplicaSets, adds rollouts/rollbacks. Hierarchy: Deployment → ReplicaSet → Pod. revisionHistoryLimit: retained revisions. Selectors: effectively immutable.</p>
+</section>
+<section class="chapter" id="ch7">
+<div class="chap-num">Chapter 7</div>
+<h2 class="chap-title">Rollouts, Rollbacks &amp; Deployment Strategies</h2>
+<p>Safe delivery is core to SRE. This chapter covers rolling updates, the maxSurge and maxUnavailable knobs, rollbacks, and the higher-level strategies of recreate, blue-green, and canary.</p>
+<h3>Question 1 — How does a rolling update work?</h3>
+<h4>Short Answer</h4>
+<p>A rolling update gradually replaces old Pods with new ones, keeping the app available throughout.</p>
+<h4>Detailed Explanation</h4>
+<p>The Deployment scales up the new ReplicaSet and scales down the old one in increments bounded by maxSurge and maxUnavailable, waiting for new Pods to pass readiness before continuing. Old and new versions briefly run together, so the app must tolerate mixed versions.</p>
+<h4>Interview Answer</h4>
+<p>A rolling update shifts Pods from the old ReplicaSet to the new one incrementally, gated by readiness and bounded by maxSurge and maxUnavailable, giving zero-downtime delivery as long as versions can coexist.</p>
+<h3>Question 2 — Explain maxSurge and maxUnavailable.</h3>
+<h4>Short Answer</h4>
+<p>maxSurge is how many Pods can exist above the desired count during an update; maxUnavailable is how many can be missing below it.</p>
+<h4>Detailed Explanation</h4>
+<p>Both accept absolute numbers or percentages and default to 25%. Setting maxUnavailable to 0 with maxSurge of 1 yields a fully available, one-at-a-time rollout that needs spare capacity. Setting maxSurge to 0 removes before adding, reducing capacity but avoiding extra Pods.</p>
+<h4>Interview Answer</h4>
+<p>maxSurge caps extra Pods created above desired during a rollout and maxUnavailable caps how many can be unavailable; maxUnavailable 0 with maxSurge 1 gives a zero-downtime rollout at the cost of temporary extra capacity.</p>
+<pre>strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0</pre>
+<h3>Question 3 — How do you roll back a bad deployment?</h3>
+<h4>Short Answer</h4>
+<p>Use kubectl rollout undo to return to the previous revision, or to a specific revision with --to-revision.</p>
+<h4>Detailed Explanation</h4>
+<p>Deployments keep revision history backed by old ReplicaSets, so a rollback is itself a controlled rollout back to a prior template. revisionHistoryLimit governs how far back you can go. Recording a change-cause makes the history readable.</p>
+<h4>Interview Answer</h4>
+<p>Rollback is kubectl rollout undo, which performs a controlled rollout back to a prior revision&#x27;s ReplicaSet; how far back you can go depends on revisionHistoryLimit.</p>
+<pre>kubectl rollout history deployment/web
+kubectl rollout undo deployment/web --to-revision=3
+kubectl rollout status deployment/web</pre>
+<h3>Question 4 — Compare rolling update, recreate, blue-green, and canary.</h3>
+<h4>Short Answer</h4>
+<p>Rolling update replaces gradually, recreate replaces all at once, blue-green runs both versions and flips traffic, and canary shifts a small traffic percentage first.</p>
+<h4>Detailed Explanation</h4>
+<p>Recreate causes downtime and is used when versions can&#x27;t coexist. Blue-green gives instant rollback at double the resources by switching the Service from blue to green. Canary sends a small fraction of traffic to the new version and ramps based on metrics, usually via a mesh, ingress weights, or Argo Rollouts.</p>
+<h4>Comparison</h4>
+<p>Rolling: built-in, cheap, mixed versions. Recreate: downtime, no mixing. Blue-green: instant rollback, double cost. Canary: safest, needs traffic-splitting tooling.</p>
+<h4>Interview Answer</h4>
+<p>Rolling update is gradual and zero-downtime, recreate is all-at-once with downtime for incompatible versions, blue-green flips traffic between two full environments for instant rollback, and canary ramps traffic to the new version based on metrics.</p>
+<h3>Production Scenario 1 — Guaranteeing Zero Downtime</h3>
+<p>A payments service must never drop requests during deploys. The team sets maxUnavailable to 0, adds proper readiness probes so only ready Pods receive traffic, and protects against node drains with a PodDisruptionBudget. Together these ensure capacity never dips below the required level during a rollout.</p>
+<h3>Production Scenario 2 — A Canary Catches a Regression</h3>
+<p>A new version is rolled out to five percent of traffic via a canary. Error-rate and latency metrics on the canary spike while the stable version stays healthy. Automated analysis halts the rollout and routes traffic back, containing the blast radius to a fraction of users instead of everyone.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>How do you guarantee zero downtime during a rollout?</li><li>Which strategy would you choose when two versions cannot share a database schema?</li><li>How does a PodDisruptionBudget interact with rollouts and node drains?</li><li>What tooling enables automated canary analysis?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is a rolling update? Gradual Pod replacement with zero downtime.</li><li>What is maxSurge? Extra Pods allowed above desired during rollout.</li><li>What is maxUnavailable? Pods allowed to be missing during rollout.</li><li>What gives a zero-downtime rollout? maxUnavailable 0 plus readiness probes.</li><li>How do you roll back? kubectl rollout undo.</li><li>How do you roll back to a specific revision? --to-revision=N.</li><li>What backs revision history? Old ReplicaSets.</li><li>What is recreate? Kill all old Pods, then start new ones.</li><li>What is blue-green? Two full environments with a traffic flip.</li><li>What is canary? Shifting a small traffic percentage to the new version.</li><li>Which strategy needs traffic-splitting tooling? Canary and often blue-green.</li><li>What protects availability during drains? A PodDisruptionBudget.</li></ol>
+<h4>Best Practices</h4>
+<p>Default to rolling updates with maxUnavailable 0 and solid readiness probes for zero downtime. Use PodDisruptionBudgets to bound voluntary disruptions. Reserve recreate for incompatible versions. Adopt canary with automated metric analysis for high-risk services, and always keep enough revision history to roll back quickly.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>Rolling: gradual, zero-downtime. maxSurge: extra Pods; maxUnavailable: missing Pods. Rollback: rollout undo [--to-revision]. Recreate: downtime. Blue-green: flip traffic, double cost. Canary: ramp by metrics. PDB: bounds disruption.</p>
+</section>
+<section class="chapter" id="ch8">
+<div class="chap-num">Chapter 8</div>
+<h2 class="chap-title">Services &amp; kube-proxy</h2>
+<p>Services give workloads stable networking. This chapter covers the Service types, how ClusterIP routing actually works, and headless Services, which underpin stateful workloads.</p>
+<h3>Question 1 — What are the Service types and when do you use each?</h3>
+<h4>Short Answer</h4>
+<p>ClusterIP for internal traffic, NodePort for a static port on every node, LoadBalancer for an external cloud load balancer, and ExternalName for a DNS alias.</p>
+<h4>Detailed Explanation</h4>
+<p>ClusterIP is the default and is reachable only inside the cluster. NodePort exposes the Service on a fixed port on each node, mostly for dev or behind an external load balancer. LoadBalancer provisions a cloud load balancer with an external IP. ExternalName maps the Service to an external DNS name via a CNAME with no proxying.</p>
+<h4>Interview Answer</h4>
+<p>ClusterIP gives an internal virtual IP, NodePort opens a static port on every node, LoadBalancer provisions an external cloud load balancer, and ExternalName aliases an external DNS name; internal traffic uses ClusterIP and external cloud exposure uses LoadBalancer, often behind Ingress.</p>
+<h3>Question 2 — How does a ClusterIP Service route traffic to Pods?</h3>
+<h4>Short Answer</h4>
+<p>The Service has a stable virtual IP; the endpoints controller fills EndpointSlices with ready Pods, and kube-proxy load-balances traffic to them.</p>
+<h4>Detailed Explanation</h4>
+<p>CoreDNS resolves the Service name to the ClusterIP so apps connect by name. kube-proxy programs iptables or IPVS rules that DNAT traffic from the ClusterIP to a backend Pod IP. The ClusterIP is virtual and stable even as Pods come and go.</p>
+<h4>Interview Answer</h4>
+<p>A ClusterIP Service has a stable virtual IP and a set of EndpointSlices of ready Pods; CoreDNS resolves the name to that IP and kube-proxy load-balances and DNATs traffic to a backend Pod, so clients use a stable name while Pods churn.</p>
+<pre># inside the cluster
+curl http://payment.default.svc.cluster.local:8080</pre>
+<h3>Question 3 — What is a headless Service and when do you need one?</h3>
+<h4>Short Answer</h4>
+<p>A headless Service sets clusterIP to None, so DNS returns the individual Pod IPs instead of a single virtual IP.</p>
+<h4>Detailed Explanation</h4>
+<p>It is used when clients need to address specific Pods — StatefulSets needing stable per-Pod DNS, databases, peer-to-peer systems, or client-side load balancing. With a StatefulSet it yields stable identities like pod-0.svc.namespace.svc.cluster.local.</p>
+<h4>Interview Answer</h4>
+<p>A headless Service (clusterIP None) returns Pod IPs directly via DNS rather than one virtual IP, which is what StatefulSets and stateful systems need for stable per-Pod addressing.</p>
+<pre>spec:
+  clusterIP: None
+  selector:
+    app: cassandra</pre>
+<h3>Production Scenario 1 — Choosing How to Expose a Web App</h3>
+<p>A team needs to expose an HTTP app externally in the cloud. A bare LoadBalancer Service per app gets expensive and lacks host or path routing. The better pattern is one LoadBalancer fronting an Ingress controller that routes by host and path to many internal ClusterIP Services, keeping cost and complexity low.</p>
+<h3>Production Scenario 2 — A Database Needs Stable Pod Addresses</h3>
+<p>A clustered database requires peers to reach each other by stable name. A normal ClusterIP load-balances across Pods, which breaks peer addressing. Switching to a headless Service gives each StatefulSet Pod a stable DNS name, allowing the cluster members to form a quorum reliably.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>How does NodePort relate to LoadBalancer under the hood?</li><li>Why do StatefulSets require a headless Service?</li><li>What component resolves a Service name to its ClusterIP?</li><li>When would you prefer client-side load balancing via a headless Service?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is ClusterIP? An internal-only stable virtual IP.</li><li>What is NodePort? A static port on every node.</li><li>What is LoadBalancer? An external cloud load balancer with an external IP.</li><li>What is ExternalName? A DNS CNAME alias with no proxying.</li><li>What resolves Service names? CoreDNS.</li><li>What load-balances Service traffic? kube-proxy.</li><li>What fills a Service&#x27;s endpoints? The endpoints controller.</li><li>What is a headless Service? clusterIP None returning Pod IPs.</li><li>Who needs headless Services? StatefulSets and stateful systems.</li><li>Default Service type? ClusterIP.</li><li>How do apps reach a Service? By DNS name resolving to the ClusterIP.</li></ol>
+<h4>Best Practices</h4>
+<p>Use ClusterIP for internal traffic and front external HTTP with one LoadBalancer plus an Ingress controller rather than many LoadBalancer Services. Use headless Services for stateful workloads needing per-Pod identity. Rely on Service DNS names, never hard-coded Pod IPs.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>ClusterIP: internal VIP. NodePort: static node port. LoadBalancer: external cloud LB. ExternalName: DNS alias. Headless (clusterIP None): per-Pod DNS. CoreDNS resolves; kube-proxy load-balances.</p>
+</section>
+<section class="chapter" id="ch9">
+<div class="chap-num">Chapter 9</div>
+<h2 class="chap-title">Ingress &amp; Gateway API</h2>
+<p>Ingress and the newer Gateway API provide L7 HTTP routing into the cluster. This chapter clarifies how they differ from Services and why Gateway API is the modern direction.</p>
+<h3>Question 1 — What is Ingress and how does it differ from a Service?</h3>
+<h4>Short Answer</h4>
+<p>A Service does L4 load balancing; Ingress provides L7 HTTP and HTTPS routing with host and path rules, TLS termination, and a single entry point for many Services.</p>
+<h4>Detailed Explanation</h4>
+<p>Ingress is only an API object describing routing rules; it needs an Ingress controller such as NGINX, Traefik, or a cloud ALB controller actually running to fulfill them. A typical setup is one external load balancer feeding the controller, which routes by host and path to many ClusterIP Services.</p>
+<h4>Common Mistake</h4>
+<p>Expecting an Ingress object to route traffic on its own. Without a running Ingress controller, the Ingress object does nothing.</p>
+<h4>Interview Answer</h4>
+<p>A Service load-balances at L4, while Ingress provides L7 host and path routing, TLS termination, and a shared entry point; Ingress is just rules and requires an Ingress controller to enforce them.</p>
+<h3>Question 2 — What is the Gateway API and why is it replacing Ingress?</h3>
+<h4>Short Answer</h4>
+<p>Gateway API is a more expressive, role-oriented successor to Ingress that standardizes advanced routing without vendor-specific annotations.</p>
+<h4>Detailed Explanation</h4>
+<p>Ingress pushes vendor behavior into annotations and is HTTP-centric with weak role separation. Gateway API separates GatewayClass (infra provider), Gateway (cluster operator), and route objects like HTTPRoute (app teams), and natively supports header-based routing, traffic splitting, and cross-namespace routing.</p>
+<h4>Interview Answer</h4>
+<p>Gateway API is the portable, role-separated successor to Ingress: platform teams own GatewayClass and Gateway while app teams own HTTPRoutes, with native support for traffic splitting and header routing instead of annotation hacks.</p>
+<h3>Production Scenario 1 — Consolidating Dozens of Services Behind One Entry Point</h3>
+<p>A cluster has thirty microservices each needing external HTTPS. Thirty LoadBalancer Services would be costly and unmanageable. One Ingress controller behind a single load balancer terminates TLS centrally and routes by host and path to each ClusterIP Service, simplifying certificates and cost.</p>
+<h3>Production Scenario 2 — Multi-Team Routing Governance</h3>
+<p>Platform and app teams clash over a shared Ingress because all routing lives in one object with vendor annotations. Adopting Gateway API lets the platform team own the Gateway and TLS while each app team manages its own HTTPRoute, giving clean role separation and safer self-service.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>What happens if you create an Ingress with no controller installed?</li><li>Which Gateway API roles map to GatewayClass, Gateway, and HTTPRoute?</li><li>How does Gateway API handle traffic splitting compared to Ingress?</li><li>Where is TLS typically terminated in an Ingress setup?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is Ingress? L7 HTTP routing into the cluster.</li><li>Service vs Ingress? Service is L4; Ingress is L7 host/path routing.</li><li>Does Ingress work without a controller? No.</li><li>Name an Ingress controller. NGINX, Traefik, or a cloud ALB controller.</li><li>What does Ingress terminate? TLS, at the controller.</li><li>What is Gateway API? The role-separated successor to Ingress.</li><li>Who owns a Gateway? The platform or cluster operator.</li><li>Who owns an HTTPRoute? The application team.</li><li>What does Gateway API add? Native traffic splitting and header routing.</li><li>Why move off Ingress? Vendor annotation sprawl and weak role separation.</li></ol>
+<h4>Best Practices</h4>
+<p>Run one Ingress controller behind a single external load balancer and terminate TLS centrally with automated certificates. Keep routing rules in version control. For multi-team clusters, adopt Gateway API to separate platform-owned Gateways from team-owned routes. Always confirm a controller is installed before relying on Ingress objects.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>Ingress: L7 host/path routing, needs a controller, terminates TLS. Gateway API: GatewayClass (infra) → Gateway (platform) → HTTPRoute (app), native traffic splitting and header routing.</p>
+</section>
+<section class="chapter" id="ch10">
+<div class="chap-num">Chapter 10</div>
+<h2 class="chap-title">StatefulSets</h2>
+<p>StatefulSets run workloads that need stable identity and storage, such as databases and message brokers. This chapter covers how they differ from Deployments and what happens to their storage.</p>
+<h3>Question 1 — What is a StatefulSet and how does it differ from a Deployment?</h3>
+<h4>Short Answer</h4>
+<p>A StatefulSet gives each Pod a stable ordinal identity, stable network name, and its own persistent storage, unlike a Deployment where Pods are interchangeable.</p>
+<h4>Detailed Explanation</h4>
+<p>Each Pod gets a stable name like app-0, app-1, stable DNS via a headless Service, and a dedicated PersistentVolumeClaim from volumeClaimTemplates that persists across rescheduling. Pods are created, scaled, and updated in order, with updates rolling in reverse ordinal order.</p>
+<h4>Interview Answer</h4>
+<p>A StatefulSet runs stateful apps that need stable identity and storage: each Pod has a fixed ordinal name, stable DNS, and its own PVC that survives rescheduling, and Pods are managed in a deterministic order, unlike a Deployment&#x27;s interchangeable Pods.</p>
+<h3>Question 2 — What happens to storage when a StatefulSet Pod is rescheduled or deleted?</h3>
+<h4>Short Answer</h4>
+<p>Each Pod&#x27;s PVC is tied to its identity, so a rescheduled Pod reattaches to the same volume; deleting the StatefulSet does not delete PVCs by default.</p>
+<h4>Detailed Explanation</h4>
+<p>PVCs created from volumeClaimTemplates are bound to each Pod&#x27;s stable identity, so data persists across rescheduling. Scaling down leaves PVCs behind to protect data. Deleting the StatefulSet retains PVCs unless you set a persistentVolumeClaimRetentionPolicy or remove them manually.</p>
+<h4>Common Mistake</h4>
+<p>Assuming deleting a StatefulSet cleans up its volumes. PVCs are intentionally retained to prevent accidental data loss.</p>
+<h4>Interview Answer</h4>
+<p>PVCs from volumeClaimTemplates are bound to each Pod&#x27;s stable identity, so a rescheduled Pod keeps its data, and scaling down or deleting the StatefulSet retains the PVCs by default to protect data unless you opt into deletion.</p>
+<h3>Production Scenario 1 — Scaling a Database StatefulSet Down and Back Up</h3>
+<p>A three-node database StatefulSet is scaled to one to save cost, then back to three. Because PVCs are retained on scale-down, the returning Pods reattach to their original volumes and recover their data, rather than starting empty — exactly the behavior a stateful system depends on.</p>
+<h3>Production Scenario 2 — A StatefulSet Pod Won&#x27;t Reschedule</h3>
+<p>A StatefulSet Pod is stuck Pending after a node failure. Its PVC uses a zonal volume that can only attach in the original zone, but no node there has capacity. The fix is topology-aware provisioning and spreading capacity across zones, since StatefulSet storage is tied to a Pod&#x27;s identity and often a zone.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>What gives each StatefulSet Pod a stable DNS name?</li><li>How do you intentionally clean up StatefulSet PVCs?</li><li>Why do StatefulSet updates roll in reverse ordinal order?</li><li>How does zonal storage constrain StatefulSet rescheduling?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is a StatefulSet? A controller for stateful Pods with stable identity and storage.</li><li>How are StatefulSet Pods named? With stable ordinals like app-0.</li><li>What gives stable DNS? A headless Service.</li><li>Where does per-Pod storage come from? volumeClaimTemplates.</li><li>Does a rescheduled Pod keep its data? Yes, it reattaches its PVC.</li><li>Are PVCs deleted with the StatefulSet? No, retained by default.</li><li>How are StatefulSet Pods created? In order, lowest ordinal first.</li><li>How do updates roll? In reverse ordinal order.</li><li>StatefulSet vs Deployment? Stable identity and storage vs interchangeable Pods.</li></ol>
+<h4>Best Practices</h4>
+<p>Use StatefulSets only for workloads that truly need stable identity and storage. Always pair them with a headless Service. Use topology-aware volume provisioning and spread capacity across zones so Pods can reschedule. Set an explicit persistentVolumeClaimRetentionPolicy so cleanup behavior is intentional, and back up the underlying data independently.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>StatefulSet: stable ordinal names, stable DNS via headless Service, per-Pod PVC from volumeClaimTemplates. PVCs retained on scale-down and delete by default. Ordered create/scale; reverse-order updates.</p>
+</section>
+<section class="chapter" id="ch11">
+<div class="chap-num">Chapter 11</div>
+<h2 class="chap-title">DaemonSets, Jobs &amp; CronJobs</h2>
+<p>Beyond long-running services, Kubernetes runs node-level agents and batch work. This chapter covers DaemonSets, Jobs, and CronJobs and their key configuration knobs.</p>
+<h3>Question 1 — What is a DaemonSet and what is it used for?</h3>
+<h4>Short Answer</h4>
+<p>A DaemonSet runs exactly one Pod per node, automatically adding Pods as nodes join and removing them as nodes leave.</p>
+<h4>Detailed Explanation</h4>
+<p>It is used for node-level agents such as log collectors, node-exporter, CNI plugins, storage daemons, and security agents. DaemonSet Pods often tolerate taints so they can run even on control plane or specialized nodes. You can target a subset of nodes with a nodeSelector or affinity.</p>
+<h4>Interview Answer</h4>
+<p>A DaemonSet ensures one Pod runs on every node (or a matching subset), scheduling onto new nodes automatically; it&#x27;s used for node-level agents like log shippers, node-exporter, and CNI plugins, and usually tolerates taints to run everywhere.</p>
+<h3>Question 2 — What is the difference between a Job and a CronJob?</h3>
+<h4>Short Answer</h4>
+<p>A Job runs Pods to completion for batch work; a CronJob creates Jobs on a recurring schedule.</p>
+<h4>Detailed Explanation</h4>
+<p>A Job retries failures up to backoffLimit and supports parallelism and completion counts for batch processing. A CronJob uses cron syntax to create Jobs on a schedule and adds concurrencyPolicy, startingDeadlineSeconds, and history limits. Use ttlSecondsAfterFinished to clean up finished Jobs.</p>
+<h4>Interview Answer</h4>
+<p>A Job runs Pods to successful completion for one-off batch work with retries and optional parallelism, while a CronJob schedules Jobs on a recurring cron schedule with concurrency and history controls.</p>
+<pre>spec:
+  schedule: &quot;0 2 * * *&quot;
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 3</pre>
+<h3>Production Scenario 1 — Rolling Out a Logging Agent Everywhere</h3>
+<p>Every node must run a log-forwarding agent, including new nodes added by autoscaling. A DaemonSet guarantees the agent runs on each node and automatically appears on new nodes, with tolerations so it also runs on tainted control plane nodes — the standard pattern for node-level observability.</p>
+<h3>Production Scenario 2 — Overlapping Backup Jobs</h3>
+<p>A nightly backup CronJob occasionally runs long and a second run starts before the first finishes, corrupting the backup. Setting concurrencyPolicy to Forbid prevents overlapping runs, and startingDeadlineSeconds bounds how late a missed run may start, making the schedule safe.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>How do you run a DaemonSet Pod on tainted control plane nodes?</li><li>What does concurrencyPolicy control on a CronJob?</li><li>How do you automatically clean up finished Jobs?</li><li>How do parallelism and completions shape a batch Job?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is a DaemonSet? One Pod per node, added automatically to new nodes.</li><li>What runs as a DaemonSet? Log agents, node-exporter, CNI plugins.</li><li>How does a DaemonSet run on tainted nodes? With tolerations.</li><li>What is a Job? A controller running Pods to completion.</li><li>What is backoffLimit? The number of retry attempts for a Job.</li><li>What is a CronJob? A controller creating Jobs on a schedule.</li><li>What is concurrencyPolicy? Allow, Forbid, or Replace overlapping runs.</li><li>How do you clean up finished Jobs? ttlSecondsAfterFinished.</li><li>What controls Job parallelism? The parallelism field.</li><li>What schedule syntax do CronJobs use? Cron expressions.</li></ol>
+<h4>Best Practices</h4>
+<p>Use DaemonSets for node-level agents and add the tolerations they need for control plane and specialized nodes. Set resource limits on DaemonSet Pods so agents don&#x27;t starve workloads. For CronJobs, set concurrencyPolicy, startingDeadlineSeconds, and history limits explicitly, and use ttlSecondsAfterFinished to avoid Job buildup.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>DaemonSet: one Pod per node, tolerations for tainted nodes. Job: run to completion, backoffLimit, parallelism/completions. CronJob: scheduled Jobs, concurrencyPolicy, ttlSecondsAfterFinished for cleanup.</p>
+</section>
+<section class="chapter" id="ch12">
+<div class="chap-num">Chapter 12</div>
+<h2 class="chap-title">ConfigMaps &amp; Secrets</h2>
+<p>Configuration and sensitive data are decoupled from images via ConfigMaps and Secrets. This chapter covers their differences, security posture, and the subtle update behavior that surprises people in production.</p>
+<h3>Question 1 — What is the difference between a ConfigMap and a Secret?</h3>
+<h4>Short Answer</h4>
+<p>ConfigMaps hold non-sensitive configuration; Secrets hold sensitive data and are only base64-encoded, not encrypted, by default.</p>
+<h4>Detailed Explanation</h4>
+<p>Both can be consumed as environment variables or mounted files. Secrets are base64-encoded, which is not security, so you should enable encryption at rest, tighten RBAC, and ideally source secrets from an external manager like Vault or a cloud secrets service via an operator.</p>
+<h4>Common Mistake</h4>
+<p>Believing Secrets are encrypted by default. They are only base64-encoded unless you enable encryption at rest in the API server.</p>
+<h4>Interview Answer</h4>
+<p>ConfigMaps store non-sensitive config and Secrets store sensitive data, but Secrets are merely base64-encoded by default, so production hardening means encryption at rest, strict RBAC, and external secret managers.</p>
+<h3>Question 2 — If you update a ConfigMap, do running Pods see the change?</h3>
+<h4>Short Answer</h4>
+<p>Environment variables from a ConfigMap are fixed at Pod start and don&#x27;t update live; volume-mounted ConfigMaps update in the filesystem but the app must re-read them.</p>
+<h4>Detailed Explanation</h4>
+<p>Env-injected values require a Pod restart to change. Mounted ConfigMaps eventually update after the kubelet sync, but the application must reload the file. A common pattern is annotating the Pod template with a checksum of the ConfigMap so a change triggers a rolling restart automatically.</p>
+<h4>Interview Answer</h4>
+<p>ConfigMap values injected as environment variables are frozen at Pod start and need a restart, while volume-mounted values update on the filesystem but require the app to re-read them; teams often add a ConfigMap checksum annotation so changes trigger a rollout.</p>
+<pre>kubectl rollout restart deployment/web</pre>
+<h3>Production Scenario 1 — A Config Change That Never Took Effect</h3>
+<p>An engineer edits a ConfigMap consumed as environment variables and is confused when nothing changes. Env vars are set only at Pod start, so the running Pods keep the old values. Rolling the Deployment, or wiring a checksum annotation to do so automatically, applies the new configuration.</p>
+<h3>Production Scenario 2 — A Secret Leaked Through Git</h3>
+<p>A base64-encoded Secret manifest was committed to Git, exposing a database password since base64 is trivially reversible. The remediation is to rotate the credential, remove it from history, enable encryption at rest, and move secrets to an external manager injected at runtime rather than stored in manifests.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>Is a Kubernetes Secret encrypted by default, and how do you change that?</li><li>How do you force Pods to pick up a changed ConfigMap?</li><li>Why is committing Secret manifests to Git dangerous?</li><li>How does an external secrets operator improve secret handling?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is a ConfigMap? Non-sensitive key/value configuration.</li><li>What is a Secret? Sensitive data, base64-encoded by default.</li><li>Are Secrets encrypted by default? No, only base64-encoded.</li><li>How do you encrypt Secrets at rest? EncryptionConfiguration on the API server.</li><li>Do env-var ConfigMaps update live? No, they need a restart.</li><li>Do mounted ConfigMaps update? Yes, but the app must re-read.</li><li>How do you trigger a reload on config change? A checksum annotation plus rollout.</li><li>Where should real secrets live? An external manager like Vault.</li><li>How can a Pod consume a ConfigMap? As env vars or mounted files.</li><li>How do you roll a Deployment to pick up config? kubectl rollout restart.</li></ol>
+<h4>Best Practices</h4>
+<p>Keep non-sensitive config in ConfigMaps and sensitive data in Secrets, with encryption at rest enabled and tight RBAC. Never commit raw Secret manifests to Git; source secrets from an external manager injected at runtime. Trigger rollouts on config changes via checksum annotations, and prefer mounted files over env vars when live updates matter.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>ConfigMap: non-sensitive config. Secret: sensitive, base64 only (enable encryption at rest). Env vars: fixed at start, need restart. Mounted: updates, app must re-read. Checksum annotation triggers rollout. External manager for real secrets.</p>
+</section>
+<section class="chapter" id="ch13">
+<div class="chap-num">Chapter 13</div>
+<h2 class="chap-title">Storage: Volumes, PV, PVC &amp; StorageClasses</h2>
+<p>Persistent storage in Kubernetes is built on a clean abstraction trio plus access modes that cause real production errors when misunderstood. This chapter covers them in depth.</p>
+<h3>Question 1 — Explain PersistentVolume, PersistentVolumeClaim, and StorageClass.</h3>
+<h4>Short Answer</h4>
+<p>A PV is a storage resource in the cluster, a PVC is a request that binds to a PV, and a StorageClass enables dynamic provisioning of PVs on demand.</p>
+<h4>Detailed Explanation</h4>
+<p>A PV is an actual piece of storage such as an EBS volume or NFS share. A PVC is a user&#x27;s request for storage by size and access mode and binds to a matching PV. A StorageClass defines a storage type and provisioner, so a PVC referencing it triggers automatic creation of a backing PV. Pods always reference PVCs, never PVs directly.</p>
+<h4>Interview Answer</h4>
+<p>A PersistentVolume is real storage in the cluster, a PersistentVolumeClaim is a user&#x27;s request that binds to a PV, and a StorageClass with a provisioner enables dynamic creation of PVs when a PVC asks for it; Pods reference PVCs.</p>
+<pre># PVC referencing a StorageClass triggers dynamic provisioning
+spec:
+  storageClassName: gp3
+  accessModes: [&quot;ReadWriteOnce&quot;]
+  resources: { requests: { storage: 20Gi } }</pre>
+<h3>Question 2 — Explain the access modes: ReadWriteOnce, ReadOnlyMany, ReadWriteMany, ReadWriteOncePod.</h3>
+<h4>Short Answer</h4>
+<p>RWO mounts read-write to one node, ROX read-only to many nodes, RWX read-write to many nodes, and ReadWriteOncePod read-write to exactly one Pod.</p>
+<h4>Detailed Explanation</h4>
+<p>Block storage like EBS is typically RWO, mounted read-write by a single node. RWX needs a shared filesystem such as NFS, EFS, or CephFS. ReadWriteOncePod is stricter than RWO. The common error is scheduling two Pods that need the same RWO volume onto different nodes, which causes a multi-attach error.</p>
+<h4>Common Mistake</h4>
+<p>Expecting an RWO EBS volume to be shared by Pods on different nodes. RWO is single-node, so this produces a multi-attach error; use RWX storage for shared access.</p>
+<h4>Interview Answer</h4>
+<p>RWO is single-node read-write, ROX is multi-node read-only, RWX is multi-node read-write requiring a shared filesystem, and ReadWriteOncePod restricts to one Pod; because block storage is RWO, spreading Pods needing it across nodes causes multi-attach errors.</p>
+<h3>Production Scenario 1 — A Multi-Attach Error During Failover</h3>
+<p>A Pod with an RWO EBS volume fails over to a new node while the old Pod is still terminating, and the new Pod can&#x27;t attach the volume. Because EBS is single-node read-write, the volume must detach from the old node first. Proper Pod termination and waiting for detachment, or topology-aware scheduling, resolves it.</p>
+<h3>Production Scenario 2 — Sharing Files Across Replicas</h3>
+<p>A team wants three replicas to share a writable directory but uses an RWO volume, so only one Pod can mount it. The correct approach is RWX storage such as EFS or NFS, which supports concurrent read-write mounts across nodes, since RWO can never provide shared write access.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>What enables dynamic provisioning of PersistentVolumes?</li><li>Why can&#x27;t two Pods on different nodes share an RWO EBS volume?</li><li>When do you need RWX and what backs it?</li><li>How does the reclaim policy affect a PV after its PVC is deleted?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is a PV? A storage resource in the cluster.</li><li>What is a PVC? A request for storage that binds to a PV.</li><li>What is a StorageClass? A storage type plus provisioner for dynamic PVs.</li><li>What does a Pod reference? A PVC, never a PV directly.</li><li>What enables dynamic provisioning? A StorageClass with a provisioner.</li><li>What is RWO? Read-write by a single node.</li><li>What is RWX? Read-write by many nodes, needs shared storage.</li><li>What storage is typically RWO? Block storage like EBS.</li><li>What causes a multi-attach error? Two nodes wanting the same RWO volume.</li><li>What backs RWX? NFS, EFS, or CephFS.</li><li>What is ReadWriteOncePod? Read-write by exactly one Pod.</li></ol>
+<h4>Best Practices</h4>
+<p>Use StorageClasses for dynamic provisioning and choose access modes deliberately: RWO for single-writer block storage and RWX for shared filesystems. Make provisioning topology-aware so volumes and Pods land in the same zone. Set reclaim policies intentionally and back up data outside the cluster, since PVs are not a backup.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>PV: real storage. PVC: request, binds to PV. StorageClass: dynamic provisioning. Pods use PVCs. RWO: one node; ROX: many read-only; RWX: many read-write (NFS/EFS); RWOncePod: one Pod. RWO + two nodes = multi-attach error.</p>
+</section>
+<section class="chapter" id="ch14">
+<div class="chap-num">Chapter 14</div>
+<h2 class="chap-title">Networking: CNI, CoreDNS &amp; NetworkPolicy</h2>
+<p>Kubernetes networking is where many candidates are weakest. This chapter covers the networking model and CNI, CoreDNS service discovery, and NetworkPolicy for east-west segmentation.</p>
+<h3>Question 1 — Explain the Kubernetes networking model and the role of CNI.</h3>
+<h4>Short Answer</h4>
+<p>Every Pod gets its own IP and can reach every other Pod without NAT; a CNI plugin implements this addressing and routing.</p>
+<h4>Detailed Explanation</h4>
+<p>Containers in a Pod share the Pod&#x27;s network namespace. Kubernetes itself doesn&#x27;t implement Pod networking — a CNI plugin such as Calico, Cilium, Flannel, or the AWS VPC CNI assigns Pod IPs and programs routes or overlays. Cilium uses eBPF for high performance and can replace kube-proxy.</p>
+<h4>Interview Answer</h4>
+<p>The model requires each Pod to have a unique IP reachable by every other Pod without NAT, with containers in a Pod sharing one namespace; Kubernetes delegates this to a CNI plugin like Calico or Cilium that assigns IPs and programs the dataplane.</p>
+<h3>Question 2 — What is CoreDNS and how does service discovery work?</h3>
+<h4>Short Answer</h4>
+<p>CoreDNS provides in-cluster DNS so Services resolve by name; every Pod is configured to query it.</p>
+<h4>Detailed Explanation</h4>
+<p>Services resolve as service.namespace.svc.cluster.local, or just the service name within the same namespace via search domains. Headless Services resolve to individual Pod IPs, and StatefulSet Pods get stable per-Pod names. DNS issues are a frequent cause of connectivity failures.</p>
+<h4>Interview Answer</h4>
+<p>CoreDNS runs in kube-system and serves cluster DNS so apps reach Services by name like service.namespace.svc.cluster.local, with headless Services and StatefulSets resolving to specific Pod IPs.</p>
+<pre>kubectl -n kube-system get pods -l k8s-app=kube-dns
+kubectl run -it --rm dns --image=busybox -- nslookup my-svc</pre>
+<h3>Question 3 — What is a NetworkPolicy and what is the default behavior?</h3>
+<h4>Short Answer</h4>
+<p>By default all Pods can talk to all Pods; a NetworkPolicy restricts ingress and egress using label selectors.</p>
+<h4>Detailed Explanation</h4>
+<p>Once any NetworkPolicy selects a Pod, that Pod becomes default-deny for the selected direction except what the policy allows. NetworkPolicies require a CNI that enforces them, such as Calico or Cilium; some CNIs ignore them. The recommended baseline is default-deny plus explicit allows.</p>
+<h4>Common Mistake</h4>
+<p>Applying a NetworkPolicy and assuming traffic is blocked even though the CNI doesn&#x27;t enforce policies. Confirm the CNI supports NetworkPolicy, or nothing is enforced.</p>
+<h4>Interview Answer</h4>
+<p>Without a NetworkPolicy all Pod-to-Pod traffic is allowed; a NetworkPolicy uses selectors to restrict traffic, and once a Pod is selected everything in that direction is denied except explicit allows, but only with a policy-enforcing CNI.</p>
+<h3>Production Scenario 1 — DNS Resolution Fails Intermittently</h3>
+<p>Pods sometimes can&#x27;t resolve Service names. CoreDNS Pods are under-resourced and dropping queries under load. Scaling CoreDNS, tuning its cache, and checking node DNS configuration restores reliable resolution — a reminder that DNS is a critical, easily overlooked dependency.</p>
+<h3>Production Scenario 2 — Enforcing Default-Deny Segmentation</h3>
+<p>A compliance audit requires that services only talk to approved peers. The team applies a default-deny NetworkPolicy per namespace and then explicit allow rules for required flows, with a CNI like Calico enforcing them. East-west traffic is now segmented, satisfying the audit.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>What does the AWS VPC CNI do differently from an overlay CNI?</li><li>Where do you look when a Pod can reach a Service by IP but not by name?</li><li>What happens if you apply a NetworkPolicy with a non-enforcing CNI?</li><li>How does Cilium&#x27;s eBPF dataplane change the networking stack?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is the Pod networking rule? Every Pod has an IP, no NAT between Pods.</li><li>What implements Pod networking? A CNI plugin.</li><li>Name CNI plugins. Calico, Cilium, Flannel, AWS VPC CNI.</li><li>What does the AWS VPC CNI assign? Real VPC IPs to Pods.</li><li>What provides cluster DNS? CoreDNS.</li><li>How do Services resolve? service.namespace.svc.cluster.local.</li><li>What resolves to Pod IPs? Headless Services.</li><li>Default Pod-to-Pod traffic? Allowed.</li><li>What restricts it? A NetworkPolicy.</li><li>What does a NetworkPolicy need to work? A policy-enforcing CNI.</li><li>What is the recommended baseline? Default-deny plus explicit allows.</li><li>What can replace kube-proxy? Cilium&#x27;s eBPF dataplane.</li></ol>
+<h4>Best Practices</h4>
+<p>Choose a CNI that fits your needs and enforces NetworkPolicy, then apply default-deny baselines with explicit allows for segmentation. Right-size and monitor CoreDNS, since DNS is a critical dependency. Rely on Service DNS names rather than Pod IPs, and validate connectivity end to end through DNS, policy, and the dataplane.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>Model: Pod-per-IP, no NAT, CNI implements it (Calico/Cilium/Flannel/AWS VPC). CoreDNS: service.namespace.svc.cluster.local; headless → Pod IPs. NetworkPolicy: default allow until applied, then default-deny per direction; needs enforcing CNI.</p>
+</section>
+<section class="chapter" id="ch15">
+<div class="chap-num">Chapter 15</div>
+<h2 class="chap-title">Scheduling: Affinity, Taints &amp; Tolerations</h2>
+<p>Placement controls reliability and performance. This chapter covers taints and tolerations, node affinity, and pod affinity and anti-affinity with topology spread, which are the levers a Senior SRE uses to design for availability.</p>
+<h3>Question 1 — What are taints and tolerations, and how do they differ from node affinity?</h3>
+<h4>Short Answer</h4>
+<p>Taints on nodes repel Pods that don&#x27;t tolerate them; node affinity on Pods attracts them to nodes with matching labels.</p>
+<h4>Detailed Explanation</h4>
+<p>Taints are applied to nodes with effects NoSchedule, PreferNoSchedule, or NoExecute and keep Pods off unless they carry a matching toleration. Node affinity is a Pod-side preference or requirement that pulls Pods toward labeled nodes. They are complementary: taint a GPU node to keep generic workloads off, and add affinity so GPU workloads target it.</p>
+<h4>Comparison</h4>
+<p>Taints push Pods away from nodes; affinity pulls Pods toward nodes. NoExecute even evicts already-running Pods that lack a matching toleration.</p>
+<h4>Interview Answer</h4>
+<p>Taints are a node-side mechanism that repels Pods unless they tolerate the taint, while node affinity is a Pod-side rule that attracts Pods to matching nodes; together they reserve specialized nodes for the right workloads.</p>
+<h3>Question 2 — Explain pod affinity, anti-affinity, and topology spread constraints.</h3>
+<h4>Short Answer</h4>
+<p>Pod affinity co-locates Pods, anti-affinity separates them, and topology spread distributes Pods evenly across domains like zones.</p>
+<h4>Detailed Explanation</h4>
+<p>Pod affinity schedules Pods near related Pods, such as a cache beside its app. Anti-affinity keeps replicas apart so one node or zone failure doesn&#x27;t take them all. Topology spread constraints use maxSkew to balance Pods across zones or nodes, a cleaner modern way to achieve high availability than anti-affinity alone.</p>
+<h4>Interview Answer</h4>
+<p>Pod affinity co-locates related Pods, anti-affinity spreads replicas to survive failures, and topology spread constraints distribute Pods evenly across zones or nodes via maxSkew, which together let you design for fault isolation and availability.</p>
+<pre>topologySpreadConstraints:
+- maxSkew: 1
+  topologyKey: topology.kubernetes.io/zone
+  whenUnsatisfiable: DoNotSchedule
+  labelSelector:
+    matchLabels: { app: web }</pre>
+<h3>Production Scenario 1 — Reserving GPU Nodes</h3>
+<p>Expensive GPU nodes were being filled by ordinary Pods, starving ML jobs. Tainting the GPU nodes with NoSchedule keeps generic workloads off, while adding a matching toleration and node affinity to the ML Pods ensures only they land there — the canonical taint-plus-affinity pattern for specialized hardware.</p>
+<h3>Production Scenario 2 — Surviving a Zone Failure</h3>
+<p>All replicas of a service happened to land in one availability zone, so a zone outage took the service down. Adding topology spread constraints on the zone topology key forces replicas to distribute across zones, so a single zone failure now removes only a fraction of capacity.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>What does the NoExecute taint effect do to already-running Pods?</li><li>How do you ensure replicas land in different availability zones?</li><li>When would you use pod affinity to co-locate workloads?</li><li>Why are topology spread constraints often preferred over anti-affinity?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is a taint? A node marking that repels Pods.</li><li>What is a toleration? A Pod allowance to schedule onto a tainted node.</li><li>What are the taint effects? NoSchedule, PreferNoSchedule, NoExecute.</li><li>What is node affinity? A Pod rule attracting it to labeled nodes.</li><li>Taints vs affinity? Taints repel from nodes; affinity attracts Pods.</li><li>What does NoExecute do to running Pods? Evicts those without a toleration.</li><li>What is pod affinity? Scheduling Pods near related Pods.</li><li>What is anti-affinity? Keeping Pods apart for resilience.</li><li>What spreads Pods across zones? Topology spread constraints.</li><li>What field bounds imbalance? maxSkew.</li><li>How do you reserve GPU nodes? Taint plus toleration and affinity.</li></ol>
+<h4>Best Practices</h4>
+<p>Reserve specialized nodes with taints plus matching tolerations and affinity. Use topology spread constraints on the zone key to keep replicas balanced across availability zones. Prefer soft (preferred) rules where strict placement isn&#x27;t essential to avoid unschedulable Pods. Combine these with PodDisruptionBudgets for resilient placement.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>Taint (node) repels; toleration (Pod) allows. Effects: NoSchedule/PreferNoSchedule/NoExecute. Node affinity attracts Pods. Pod affinity co-locates; anti-affinity separates. Topology spread (maxSkew, zone key) balances replicas.</p>
+</section>
+<section class="chapter" id="ch16">
+<div class="chap-num">Chapter 16</div>
+<h2 class="chap-title">Autoscaling: HPA, VPA &amp; Cluster Autoscaler</h2>
+<p>Scaling is a core SRE and platform competency. This chapter covers the three autoscalers, how they compose, and the pitfalls of running them together.</p>
+<h3>Question 1 — Explain HPA, VPA, and the Cluster Autoscaler and how they relate.</h3>
+<h4>Short Answer</h4>
+<p>HPA scales the number of Pods, VPA right-sizes Pod resource requests, and the Cluster Autoscaler adds or removes nodes.</p>
+<h4>Detailed Explanation</h4>
+<p>HPA scales replicas on CPU, memory, or custom and external metrics via metrics-server. VPA adjusts CPU and memory requests and often recreates Pods to apply them. The Cluster Autoscaler adds nodes when Pods can&#x27;t schedule and removes underutilized ones. They compose: HPA adds Pods, and if no node has room the Cluster Autoscaler adds a node.</p>
+<h4>Common Mistake</h4>
+<p>Running HPA and VPA on the same resource metric like CPU. They conflict, since one changes replica count and the other changes requests based on the same signal.</p>
+<h4>Interview Answer</h4>
+<p>HPA scales replica count on metrics, VPA right-sizes per-Pod requests, and the Cluster Autoscaler scales the node pool; HPA and the Cluster Autoscaler work together to handle load, while VPA handles right-sizing.</p>
+<pre>kubectl autoscale deployment web --cpu-percent=70 --min=3 --max=20</pre>
+<h3>Production Scenario 1 — A Traffic Spike Without Node Capacity</h3>
+<p>HPA scales a Deployment from five to twenty Pods during a spike, but the extra Pods stay Pending because no node has room. The Cluster Autoscaler observes the unschedulable Pods and provisions new nodes, after which the Pods schedule. The two autoscalers together absorb the load — neither alone would suffice.</p>
+<h3>Production Scenario 2 — HPA and VPA Fighting</h3>
+<p>A team enables both HPA and VPA on CPU for the same Deployment. VPA raises requests while HPA adds replicas off the same signal, causing oscillation and instability. The fix is to let HPA own CPU-based replica scaling and use VPA only in recommendation mode or for non-overlapping resources like memory.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>Why shouldn&#x27;t HPA and VPA both act on CPU?</li><li>What component supplies CPU and memory metrics to the HPA?</li><li>How does the Cluster Autoscaler decide to remove a node?</li><li>How would you scale on a custom application metric like queue depth?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What does HPA scale? The number of Pod replicas.</li><li>What does VPA scale? Per-Pod CPU and memory requests.</li><li>What does the Cluster Autoscaler scale? The node pool.</li><li>What feeds HPA metrics? metrics-server.</li><li>Can HPA use custom metrics? Yes, custom and external metrics.</li><li>Why not run HPA and VPA on CPU together? They conflict.</li><li>When does the Cluster Autoscaler add nodes? When Pods can&#x27;t schedule.</li><li>When does it remove nodes? When they&#x27;re underutilized.</li><li>How do HPA and Cluster Autoscaler compose? HPA adds Pods; CA adds nodes.</li><li>How does VPA apply new requests? Often by recreating Pods.</li></ol>
+<h4>Best Practices</h4>
+<p>Use HPA for load-driven replica scaling with sensible min and max replicas and proper requests. Pair it with the Cluster Autoscaler so node capacity follows Pod demand. Use VPA for right-sizing in recommendation mode, avoiding overlap with HPA on the same metric. Scale on the metric that reflects real load, such as queue depth or request rate, not just CPU.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>HPA: replica count on metrics (metrics-server). VPA: right-sizes requests, recreates Pods. Cluster Autoscaler: node pool. HPA + CA compose. Don&#x27;t run HPA + VPA on the same metric.</p>
+</section>
+<section class="chapter" id="ch17">
+<div class="chap-num">Chapter 17</div>
+<h2 class="chap-title">Helm &amp; Packaging</h2>
+<p>Helm is the de facto packaging tool for Kubernetes. This chapter covers charts, values, releases, and the lifecycle operations interviewers expect you to know.</p>
+<h3>Question 1 — What is Helm and what problem does it solve?</h3>
+<h4>Short Answer</h4>
+<p>Helm is the package manager for Kubernetes: a chart bundles templated manifests, values parameterize them, and a release is an installed instance.</p>
+<h4>Detailed Explanation</h4>
+<p>Helm solves templating and reuse, versioning, and lifecycle. One chart serves many environments through different values files. Helm 3 is client-only with no Tiller, and helm upgrade --install is the idempotent workhorse while helm rollback reverts a release.</p>
+<h4>Interview Answer</h4>
+<p>Helm packages Kubernetes manifests as templated, versioned charts parameterized by values, with each install tracked as a release; it solves reuse across environments and provides install, upgrade, and rollback lifecycle operations.</p>
+<pre>helm upgrade --install web ./chart -f values-prod.yaml
+helm rollback web 2</pre>
+<h3>Production Scenario 1 — One Chart Across Three Environments</h3>
+<p>A service must deploy to dev, staging, and prod with different replica counts, resources, and hostnames. Instead of three manifest copies, one chart with environment-specific values files keeps the templates identical and the differences explicit, reducing drift and review burden.</p>
+<h3>Production Scenario 2 — Recovering From a Bad Helm Upgrade</h3>
+<p>A helm upgrade ships a broken configuration and the service degrades. Because Helm tracks release revisions, helm rollback returns the release to the previous known-good revision quickly, and the team then fixes the chart before re-upgrading — the value of versioned releases.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>What changed between Helm 2 and Helm 3?</li><li>How does helm upgrade --install behave idempotently?</li><li>How do you template a value that should differ per environment?</li><li>How do Helm hooks order resource creation during a release?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is Helm? The Kubernetes package manager.</li><li>What is a chart? A package of templated manifests.</li><li>What is values.yaml? Parameters for a chart.</li><li>What is a release? An installed instance of a chart.</li><li>What does helm upgrade --install do? Idempotently install or upgrade.</li><li>How do you roll back a release? helm rollback.</li><li>What changed in Helm 3? Tiller was removed; client-side with kubeconfig RBAC.</li><li>How do you deploy per environment? Different values files.</li><li>What tracks release history? Helm release revisions.</li></ol>
+<h4>Best Practices</h4>
+<p>Use one chart per application parameterized by environment-specific values files in Git. Pin chart and dependency versions for reproducibility. Prefer helm upgrade --install in pipelines for idempotency. Keep templates simple and validated, and rely on release revisions for fast rollback when an upgrade misbehaves.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>Helm: package manager. Chart: templates. values.yaml: parameters. Release: installed instance. upgrade --install: idempotent. rollback: revert revision. Helm 3: no Tiller, client-side.</p>
+</section>
+<section class="chapter" id="ch18">
+<div class="chap-num">Chapter 18</div>
+<h2 class="chap-title">RBAC &amp; Security</h2>
+<p>Security is a top topic for fintech and regulated roles. This chapter covers RBAC, Pod hardening, and NetworkPolicy posture that demonstrate a defense-in-depth mindset.</p>
+<h3>Question 1 — Explain RBAC: Role, ClusterRole, RoleBinding, and ClusterRoleBinding.</h3>
+<h4>Short Answer</h4>
+<p>Roles grant namespaced permissions and ClusterRoles grant cluster-wide ones; bindings grant those roles to subjects, in a namespace or cluster-wide.</p>
+<h4>Detailed Explanation</h4>
+<p>A Role defines verbs on resources within one namespace; a ClusterRole does the same cluster-wide or for cluster-scoped resources. A RoleBinding grants a Role or ClusterRole to subjects within a namespace; a ClusterRoleBinding grants a ClusterRole cluster-wide. Subjects are users, groups, or ServiceAccounts, and the guiding principle is least privilege.</p>
+<h4>Common Mistake</h4>
+<p>Binding cluster-admin broadly for convenience. This violates least privilege and turns any compromised subject into a cluster takeover.</p>
+<h4>Interview Answer</h4>
+<p>Roles and ClusterRoles define namespaced or cluster-wide permissions, and RoleBindings and ClusterRoleBindings grant them to users, groups, or ServiceAccounts; a RoleBinding can reference a ClusterRole to reuse a permission set in one namespace.</p>
+<h3>Question 2 — What are common Kubernetes security best practices for a Pod?</h3>
+<h4>Short Answer</h4>
+<p>Run as non-root, drop capabilities, use a read-only root filesystem, enforce restricted Pod Security, and apply default-deny NetworkPolicies.</p>
+<h4>Detailed Explanation</h4>
+<p>Set a securityContext with runAsNonRoot, allowPrivilegeEscalation false, dropped capabilities, and a read-only root filesystem. Use minimal scanned images with pinned digests, set resource limits, disable unused ServiceAccount token automounting, and source secrets from an external manager. Enforce the restricted Pod Security Standard via admission.</p>
+<h4>Interview Answer</h4>
+<p>Harden Pods with a non-root securityContext, dropped capabilities, and a read-only filesystem, enforce restricted Pod Security and default-deny NetworkPolicies, use minimal scanned images, set limits, and keep secrets in an external manager.</p>
+<pre>securityContext:
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities: { drop: [&quot;ALL&quot;] }</pre>
+<h3>Question 3 — What is a NetworkPolicy&#x27;s role in security, and what is the default?</h3>
+<h4>Short Answer</h4>
+<p>By default all Pods can communicate; a NetworkPolicy enforces least-privilege east-west traffic, and the recommended baseline is default-deny.</p>
+<h4>Detailed Explanation</h4>
+<p>NetworkPolicies use label selectors to allow specific ingress and egress; once a Pod is selected it becomes default-deny for that direction. They require an enforcing CNI like Calico or Cilium. Segmenting traffic limits lateral movement during a breach and is often a compliance requirement.</p>
+<h4>Interview Answer</h4>
+<p>NetworkPolicies enforce least-privilege Pod-to-Pod traffic against the open default, using a default-deny baseline with explicit allows to limit lateral movement, and they require a policy-enforcing CNI.</p>
+<h3>Production Scenario 1 — Limiting Blast Radius With Least Privilege</h3>
+<p>A ServiceAccount had broad cluster permissions, so a compromised Pod could read every Secret. Replacing the binding with a narrowly scoped Role limited to its namespace and resources contains the damage, demonstrating why least-privilege RBAC is the foundation of cluster security.</p>
+<h3>Production Scenario 2 — Enforcing No-Root Containers Cluster-Wide</h3>
+<p>An audit requires that no container runs as root. Enabling the restricted Pod Security Standard via Pod Security Admission, or a policy engine like Kyverno, rejects non-compliant Pods at admission time, enforcing the control consistently rather than relying on each team to remember.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>Can a RoleBinding reference a ClusterRole, and why would you do that?</li><li>How do you enforce no-root containers across the whole cluster?</li><li>If a NetworkPolicy doesn&#x27;t block traffic, what is likely wrong?</li><li>Why disable ServiceAccount token automounting where it isn&#x27;t needed?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What is a Role? Namespaced permissions.</li><li>What is a ClusterRole? Cluster-wide or cluster-scoped permissions.</li><li>What is a RoleBinding? Grants a role to subjects in a namespace.</li><li>What is a ClusterRoleBinding? Grants a ClusterRole cluster-wide.</li><li>Can a RoleBinding use a ClusterRole? Yes, scoped to one namespace.</li><li>What are RBAC subjects? Users, groups, ServiceAccounts.</li><li>What guides RBAC design? Least privilege.</li><li>How do you harden a Pod? Non-root, drop caps, read-only fs.</li><li>How do you enforce Pod Security? Restricted standard via admission.</li><li>Default Pod-to-Pod traffic? Allowed until a NetworkPolicy applies.</li><li>What enforces no-root cluster-wide? Pod Security Admission or Kyverno/OPA.</li><li>Where should secrets come from? An external manager.</li></ol>
+<h4>Best Practices</h4>
+<p>Apply least-privilege RBAC with narrowly scoped Roles and avoid broad cluster-admin bindings. Harden Pods with non-root securityContexts, dropped capabilities, and read-only filesystems, enforced by restricted Pod Security Admission. Apply default-deny NetworkPolicies with explicit allows. Scan images, pin digests, and source secrets externally.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>Role/ClusterRole: permissions; RoleBinding/ClusterRoleBinding: grants. Least privilege. Pod hardening: non-root, drop caps, read-only fs, restricted PSA. NetworkPolicy: default-deny baseline, enforcing CNI. External secrets, scanned images.</p>
+</section>
+<section class="chapter" id="ch19">
+<div class="chap-num">Chapter 19</div>
+<h2 class="chap-title">Observability for Kubernetes</h2>
+<p>You cannot operate what you cannot see. This chapter covers how to monitor a cluster, the golden signals applied to Kubernetes, and the meaning of saturation states like throttling and OOMKills.</p>
+<h3>Question 1 — How do you monitor a Kubernetes cluster?</h3>
+<h4>Short Answer</h4>
+<p>Prometheus scrapes cluster and app metrics with kube-state-metrics and node-exporter, Grafana visualizes, Alertmanager alerts, and logs ship to a backend like Loki or Elasticsearch.</p>
+<h4>Detailed Explanation</h4>
+<p>metrics-server feeds the HPA, kube-state-metrics exposes object state, and node-exporter exposes node metrics. Containers log to stdout and stderr, collected by a node agent like Fluent Bit. Distributed tracing uses OpenTelemetry into Jaeger or Tempo. Alerting is driven by SLOs and error-budget burn rate.</p>
+<h4>Interview Answer</h4>
+<p>Use Prometheus with kube-state-metrics and node-exporter for metrics, Grafana for dashboards, Alertmanager for alerts, a node log agent shipping to Loki or Elasticsearch, and OpenTelemetry tracing, with alerts driven by SLO burn rate rather than raw thresholds.</p>
+<h3>Question 2 — What are the golden signals and how do they map to Kubernetes?</h3>
+<h4>Short Answer</h4>
+<p>Latency, traffic, errors, and saturation; in Kubernetes saturation includes CPU throttling and OOMKills.</p>
+<h4>Detailed Explanation</h4>
+<p>Latency comes from app or mesh metrics, traffic from request rate, errors from 5xx rates and failing probes, and saturation from CPU and memory utilization versus limits. Kubernetes-specific saturation signals include CPU throttling when a container hits its CPU limit and OOMKills when it exceeds its memory limit.</p>
+<h4>Common Mistake</h4>
+<p>Treating CPU throttling as a crash. Throttling slows a container at its CPU limit; it doesn&#x27;t kill it, whereas exceeding the memory limit triggers an OOMKill.</p>
+<h4>Interview Answer</h4>
+<p>The golden signals are latency, traffic, errors, and saturation; in Kubernetes you watch request latency and rate, 5xx and probe failures, and saturation including CPU throttling and OOMKills against limits.</p>
+<h3>Production Scenario 1 — Latency Rises With No Obvious Crash</h3>
+<p>A service&#x27;s latency climbs but nothing is crashing. Metrics show CPU throttling: the container is hitting its CPU limit and being throttled. Raising the limit or right-sizing requests removes the throttling and restores latency — a saturation signal that monitoring CPU usage alone would miss.</p>
+<h3>Production Scenario 2 — Alerting on Burn Rate Instead of Thresholds</h3>
+<p>Static CPU threshold alerts page constantly without correlating to user pain. Switching to SLO-based burn-rate alerting on the error budget pages only when reliability is genuinely at risk, cutting noise and focusing on-call attention on real user impact.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>What feeds CPU and memory metrics to the HPA?</li><li>Why alert on error-budget burn rate instead of static thresholds?</li><li>What is the difference between CPU throttling and an OOMKill?</li><li>How do kube-state-metrics and node-exporter differ in what they expose?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What scrapes metrics? Prometheus.</li><li>What exposes object state? kube-state-metrics.</li><li>What exposes node metrics? node-exporter.</li><li>What feeds the HPA? metrics-server.</li><li>What visualizes metrics? Grafana.</li><li>What handles alert routing? Alertmanager.</li><li>What ships container logs? A node agent like Fluent Bit.</li><li>What are the golden signals? Latency, traffic, errors, saturation.</li><li>What is Kubernetes saturation? Utilization vs limits, throttling, OOMKills.</li><li>What does OOMKilled mean? Memory limit exceeded.</li><li>What does CPU throttling mean? Container capped at its CPU limit.</li><li>What drives good alerting? SLO burn rate.</li></ol>
+<h4>Best Practices</h4>
+<p>Collect metrics with Prometheus, kube-state-metrics, and node-exporter, visualize in Grafana, and alert via Alertmanager on SLO burn rate. Centralize logs through a node agent and add tracing with OpenTelemetry. Watch Kubernetes-specific saturation — throttling and OOMKills — and set requests and limits to make those signals meaningful.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>Prometheus + kube-state-metrics + node-exporter; metrics-server feeds HPA. Grafana dashboards, Alertmanager alerts. Logs via Fluent Bit to Loki/ELK. Golden signals: latency, traffic, errors, saturation (throttling, OOMKill). Alert on burn rate.</p>
+</section>
+<section class="chapter" id="ch20">
+<div class="chap-num">Chapter 20</div>
+<h2 class="chap-title">Production Troubleshooting (Capstone)</h2>
+<p>This capstone consolidates the guide into the diagnostic scenarios that dominate senior interviews. Each follows an evidence-based method: read the events, form a hypothesis, and verify against the interacting components.</p>
+<h3>Question 1 — A Pod is stuck in Pending. How do you troubleshoot?</h3>
+<h4>Short Answer</h4>
+<p>Pending means unscheduled; run kubectl describe pod and read the Events for the reason.</p>
+<h4>Detailed Explanation</h4>
+<p>Common causes are insufficient CPU or memory on all nodes, node selectors or affinity that match nothing, taints without tolerations, an unbound PVC, or a ResourceQuota limit. Cross-check node capacity with kubectl get nodes and PVC status with kubectl get pvc.</p>
+<h4>Interview Answer</h4>
+<p>Pending means the scheduler couldn&#x27;t place the Pod; describe pod&#x27;s Events state why — insufficient resources, unsatisfiable affinity or taints, an unbound PVC, or a quota — and you confirm against node capacity and PVC status.</p>
+<pre>kubectl describe pod &lt;pod&gt;
+kubectl get nodes
+kubectl get events --sort-by=.lastTimestamp</pre>
+<h3>Question 2 — A Pod is in CrashLoopBackOff. Walk through your debugging.</h3>
+<h4>Short Answer</h4>
+<p>Read the previous container&#x27;s logs and the exit code, then fix the underlying cause.</p>
+<h4>Detailed Explanation</h4>
+<p>Use kubectl logs --previous to see why the last instance died and kubectl describe pod for the exit code and events. Causes include missing config or secrets, a failing startup dependency, a bad entrypoint, an OOMKill at exit code 137, or an over-aggressive liveness probe. Fix the root cause and redeploy.</p>
+<h4>Interview Answer</h4>
+<p>CrashLoopBackOff is repeated crashing with kubelet back-off; I check the previous instance&#x27;s logs and the exit code, identify whether it&#x27;s config, a dependency, the entrypoint, an OOMKill, or a probe, fix that, and redeploy.</p>
+<pre>kubectl logs &lt;pod&gt; --previous
+kubectl describe pod &lt;pod&gt;</pre>
+<h3>Question 3 — A Service returns connection errors though Pods are running. Diagnose.</h3>
+<h4>Short Answer</h4>
+<p>Check whether the Service has endpoints; empty endpoints usually mean a label mismatch or failing readiness.</p>
+<h4>Detailed Explanation</h4>
+<p>Verify endpoints with kubectl get endpoints, confirm the selector matches the Pod labels, check targetPort against the container port, and ensure the app binds 0.0.0.0 rather than localhost. Then test DNS resolution, kube-proxy, and any NetworkPolicy that could block the path.</p>
+<h4>Interview Answer</h4>
+<p>I check the Service&#x27;s endpoints first; if empty it&#x27;s usually a selector or label mismatch or readiness failing, then I verify ports, that the app binds all interfaces, DNS resolution, and any blocking NetworkPolicy.</p>
+<pre>kubectl get endpoints &lt;svc&gt;
+kubectl get pods -l &lt;selector&gt; -o wide</pre>
+<h3>Question 4 — A node shows NotReady. How do you investigate?</h3>
+<h4>Short Answer</h4>
+<p>Run kubectl describe node and check conditions and the kubelet heartbeat; the cause is usually kubelet, runtime, disk, or network.</p>
+<h4>Detailed Explanation</h4>
+<p>Check conditions for MemoryPressure, DiskPressure, and PIDPressure and when the kubelet last reported. On the node, inspect kubelet and runtime status, disk space, and kubelet logs. Pods on a node that stays NotReady are evicted and rescheduled after the eviction timeout.</p>
+<h4>Interview Answer</h4>
+<p>I describe the node to read its conditions and heartbeat; NotReady usually means a stopped kubelet, failed runtime, full disk, or lost connectivity, which I confirm on the node, knowing its Pods reschedule after the eviction timeout.</p>
+<pre>kubectl describe node &lt;node&gt;
+# on node: systemctl status kubelet; journalctl -u kubelet -n100</pre>
+<h3>Question 5 — etcd is unhealthy or a control plane node is down. What&#x27;s the impact and response?</h3>
+<h4>Short Answer</h4>
+<p>Losing etcd quorum stops all writes, though running Pods continue; restore the member or recover from a snapshot.</p>
+<h4>Detailed Explanation</h4>
+<p>With a three-member etcd you can lose one and keep quorum; losing two stops deployments and scaling because the API server can&#x27;t write. Existing Pods keep running via the kubelets. Recovery is restoring the failed member or, if quorum is lost, restoring from the latest snapshot. Prevent this with an HA control plane and frequent backups.</p>
+<h4>Interview Answer</h4>
+<p>If etcd loses quorum the API server can&#x27;t write so management stops, but the data plane keeps serving; with three members one failure is survivable, otherwise you restore a member or recover from the latest snapshot, which is why frequent etcd backups matter.</p>
+<pre>ETCDCTL_API=3 etcdctl snapshot status backup.db
+ETCDCTL_API=3 etcdctl snapshot restore backup.db</pre>
+<h3>Production Scenario 1 — Insufficient CPU Across the Cluster</h3>
+<p>Several Pods sit Pending with Insufficient cpu events. Every node is at capacity. The options are lowering requests if they&#x27;re inflated, adding nodes manually or via the Cluster Autoscaler, or rescheduling lower-priority work. The events point straight to the bottleneck, avoiding guesswork.</p>
+<h3>Production Scenario 2 — A Cascading Failure From a Bad Probe</h3>
+<p>During a load spike an aggressive liveness probe restarts busy Pods, reducing capacity and increasing load on the rest, which then also fail their probes. The cascade is broken by making liveness tolerant and using readiness to shed traffic gracefully, then adding capacity — a reminder that probes are a reliability control, not just a health check.</p>
+<h3>Production Scenario 3 — Image Pull Failures Block a Rollout</h3>
+<p>New Pods are stuck in ImagePullBackOff after a deploy. describe pod shows an authentication error pulling from a private registry. The imagePullSecret is missing or wrong. Fixing the registry credential and re-rolling restores the deployment, showing how the same describe-and-read-events method resolves a different failure class.</p>
+<h4>Senior Interview Questions</h4>
+<ol><li>A Pod is Pending with Insufficient cpu — what are your options?</li><li>What does exit code 137 indicate and how do you remediate it?</li><li>A Service&#x27;s endpoints list is empty — what are the top two causes?</li><li>Do running applications go down if the control plane fails?</li><li>What is ImagePullBackOff and how do you fix it?</li></ol>
+<h4>Quick Answer Bank</h4>
+<ol><li>What does Pending mean? The Pod isn&#x27;t scheduled yet.</li><li>Where do you find the Pending reason? describe pod Events.</li><li>What is CrashLoopBackOff? Repeated container crashes with back-off.</li><li>How do you see why a crashed Pod died? logs --previous.</li><li>What does exit code 137 mean? OOMKilled.</li><li>Empty Service endpoints means? Label mismatch or failing readiness.</li><li>What does NotReady indicate on a node? kubelet, runtime, disk, or network failure.</li><li>What happens to Pods on a NotReady node? They reschedule after the timeout.</li><li>What stops if etcd loses quorum? All cluster writes and management.</li><li>Do running apps survive a control plane outage? Yes, the data plane keeps serving.</li><li>What is ImagePullBackOff? Failure to pull the image, often auth or a wrong tag.</li><li>What is the universal first step? describe the object and read the events.</li></ol>
+<h4>Best Practices</h4>
+<p>Troubleshoot evidence-first: describe the object, read the events, form a hypothesis, and verify against the interacting components rather than guessing. Set requests, limits, and sane probes so failure signals are meaningful. Keep an HA control plane with etcd backups. Standardize on logs, metrics, and traces so root cause is reachable quickly under pressure.</p>
+<h4>Interview Cheat Sheet</h4>
+<p>Pending: describe → events (resources/affinity/taints/PVC/quota). CrashLoopBackOff: logs --previous + exit code (137 = OOM). No endpoints: label mismatch or readiness. NotReady: kubelet/runtime/disk/network. etcd quorum lost: restore snapshot; data plane survives. Always: describe and read events first.</p>
+</section>
+
+</div>
+</body>
+</html>

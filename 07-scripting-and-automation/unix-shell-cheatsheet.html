@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unix Commands &amp; Shell Scripting — Cheat Sheet</title>
+<style>
+:root{
+  --navy:#132342; --bg:#F4F6FA; --line:#DBE1EC; --text:#1B2436; --mut:#5B6B87; --card:#fff;
+  --mono:"SF Mono","Cascadia Code","JetBrains Mono",Consolas,Menlo,monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5}
+.wrap{max-width:1450px;margin:0 auto;padding:28px 24px 60px}
+header{background:linear-gradient(90deg,var(--navy),#1B3A66);color:#fff;border-radius:12px;padding:20px 26px}
+header h1{margin:0;font-size:24px}
+header p{margin:8px 0 0;color:#CBD8F0;font-size:14px}
+.fixnote{background:#FCEAEA;border:1px solid #C23A3A;color:#7A1E1E;border-radius:10px;padding:12px 16px;margin:16px 0 22px;font-size:13.5px}
+.fixnote b{color:#C23A3A}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card h2{margin:0 0 8px;font-size:13px;letter-spacing:.02em;text-transform:uppercase;color:var(--navy);border-bottom:2px solid var(--line);padding-bottom:6px}
+.c3{grid-column:span 3}.c4{grid-column:span 4}.c6{grid-column:span 6}.c12{grid-column:span 12}
+table{width:100%;border-collapse:collapse;font-size:12.3px;margin-top:2px}
+th,td{border:1px solid var(--line);padding:4px 7px;text-align:left;vertical-align:top}
+th{background:var(--bg);color:var(--navy)}
+code{font-family:var(--mono);font-size:12px;background:#F0F3F9;border:1px solid var(--line);border-radius:4px;padding:1px 4px;white-space:nowrap}
+pre{font-family:var(--mono);font-size:12px;background:#0F1B33;color:#DCE6FA;border-radius:7px;padding:10px 12px;overflow-x:auto;line-height:1.5;margin:4px 0}
+pre .fix{background:#1F3A22;border-left:3px solid #4CD37A;padding:0 4px}
+.cmdtbl td:first-child{font-family:var(--mono);white-space:nowrap;color:#12407F;font-weight:600}
+.check li{list-style:none;position:relative;padding-left:18px;font-size:12.4px;margin:3px 0}
+.check li:before{content:"✓";position:absolute;left:0;color:#1F8A4C;font-weight:700}
+ul{margin:4px 0;padding-left:0}
+.pill{display:inline-block;background:#E9F1FD;color:#1D5FBF;border-radius:99px;padding:2px 9px;font-size:11px;font-weight:700}
+footer{text-align:center;color:var(--mut);font-size:12px;margin-top:26px;font-family:var(--mono)}
+@media(max-width:900px){.c3,.c4,.c6{grid-column:span 12}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Unix commands &amp; shell scripting — cheat sheet for SRE</h1>
+  <p>One page. Everything you need for interviews &amp; real-world automation.</p>
+</header>
+<div class="fixnote"><b>Corrected from the original poster:</b> the shell-variable table listed <code>$$$</code> for "current PID" — that's not a valid Bash variable. The correct one is <code>$$</code> (a single dollar sign doubled). Fixed in section 20 below. The "Real-world SRE automation use cases" row at the bottom of the original was garbled/illegible and has been rewritten cleanly in section 25.</div>
+
+<div class="grid">
+
+<div class="card c6">
+<h2>1. File &amp; directory commands</h2>
+<table class="cmdtbl">
+<tr><td>ls / ls -l / ls -a / ls -lah</td><td>List / long / hidden / human-readable+hidden</td></tr>
+<tr><td>cd &lt;dir&gt; / cd .. / cd -</td><td>Change dir / up one level / previous dir</td></tr>
+<tr><td>pwd</td><td>Print working directory</td></tr>
+<tr><td>mkdir &lt;dir&gt; / mkdir -p a/b/c</td><td>Create dir / create nested dirs</td></tr>
+<tr><td>rmdir &lt;dir&gt;</td><td>Remove empty directory</td></tr>
+<tr><td>rm &lt;file&gt; / rm -rf &lt;dir&gt;</td><td>Remove file / force remove directory</td></tr>
+<tr><td>cp &lt;src&gt; &lt;dst&gt; / cp -r</td><td>Copy file / copy directory</td></tr>
+<tr><td>mv &lt;src&gt; &lt;dst&gt;</td><td>Move or rename</td></tr>
+<tr><td>ln -s &lt;src&gt; &lt;link&gt;</td><td>Create symbolic link</td></tr>
+<tr><td>touch &lt;file&gt;</td><td>Create empty file / update time</td></tr>
+<tr><td>stat &lt;file&gt;</td><td>File status &amp; metadata</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>2. File content &amp; view</h2>
+<table class="cmdtbl">
+<tr><td>cat &lt;file&gt;</td><td>Display file content</td></tr>
+<tr><td>tac &lt;file&gt;</td><td>Display in reverse</td></tr>
+<tr><td>more / less &lt;file&gt;</td><td>View with pagination / scroll (q to exit)</td></tr>
+<tr><td>head &lt;file&gt; / head -n 20</td><td>First 10 lines / first 20 lines</td></tr>
+<tr><td>tail &lt;file&gt; / tail -n 20</td><td>Last 10 lines / last 20 lines</td></tr>
+<tr><td>tail -f &lt;file&gt;</td><td>Follow (real-time) log updates</td></tr>
+<tr><td>nl &lt;file&gt;</td><td>Number lines</td></tr>
+<tr><td>od -c &lt;file&gt;</td><td>Octal dump of file</td></tr>
+<tr><td>strings &lt;file&gt;</td><td>Extract printable strings</td></tr>
+<tr><td>wc &lt;file&gt; / wc -l</td><td>Line, word, char count / count lines</td></tr>
+<tr><td>&#124; &gt; &gt;&gt; 2&gt; 2&gt;&amp;1</td><td>Pipe / redirect / append / redirect stderr / stderr→stdout</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>3. Search &amp; filter</h2>
+<table class="cmdtbl">
+<tr><td>grep 'text' file</td><td>Search text in file</td></tr>
+<tr><td>grep -i / -r / -v</td><td>Case-insensitive / recursive / invert match</td></tr>
+<tr><td>find /path -name "f*"</td><td>Find by name</td></tr>
+<tr><td>find / -type f -name "*.log"</td><td>Find files by pattern</td></tr>
+<tr><td>find / -type d -name "dir"</td><td>Find directories</td></tr>
+<tr><td>find / -mtime -1</td><td>Modified in last 1 day</td></tr>
+<tr><td>locate &lt;file&gt;</td><td>Find file (needs updatedb)</td></tr>
+<tr><td>which / whereis &lt;cmd&gt;</td><td>Location of command / binary,source,man</td></tr>
+<tr><td>type &lt;cmd&gt;</td><td>Command type (builtin/alias/file)</td></tr>
+<tr><td>cut -d: -f1 &lt;file&gt;</td><td>Cut columns by delimiter</td></tr>
+<tr><td>sort / sort -r</td><td>Sort lines / reverse sort</td></tr>
+<tr><td>uniq / uniq -c</td><td>Unique adjacent lines / with counts</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>4. Permissions &amp; ownership</h2>
+<table class="cmdtbl">
+<tr><td>chmod 755 file</td><td>Change permissions (rwxr-xr-x)</td></tr>
+<tr><td>chmod -R 755 dir</td><td>Recursive permissions</td></tr>
+<tr><td>chown user file</td><td>Change owner</td></tr>
+<tr><td>chown -R user:group dir</td><td>Recursive owner &amp; group</td></tr>
+<tr><td>chgrp group file</td><td>Change group</td></tr>
+<tr><td>umask 022</td><td>Set default permission mask</td></tr>
+<tr><td>ls -l</td><td>Show permissions</td></tr>
+<tr><td>id</td><td>Show current user/group IDs</td></tr>
+<tr><td>whoami</td><td>Current username</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>5. Process management</h2>
+<table class="cmdtbl">
+<tr><td>ps aux / ps -ef</td><td>All running processes / full format</td></tr>
+<tr><td>top / htop</td><td>Live process monitor</td></tr>
+<tr><td>pstree</td><td>Process tree</td></tr>
+<tr><td>kill &lt;PID&gt; / kill -9 &lt;PID&gt;</td><td>Terminate / force kill</td></tr>
+<tr><td>pkill &lt;name&gt; / killall &lt;name&gt;</td><td>Kill by process name / kill all by name</td></tr>
+<tr><td>nice -n 10 &lt;cmd&gt;</td><td>Run with lower priority</td></tr>
+<tr><td>renice -n 5 -p &lt;PID&gt;</td><td>Change priority of running process</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>6. System &amp; hardware info</h2>
+<table class="cmdtbl">
+<tr><td>uname -a</td><td>System &amp; kernel info</td></tr>
+<tr><td>hostname / hostnamectl</td><td>Show hostname / detailed host info</td></tr>
+<tr><td>uptime</td><td>Uptime &amp; load average</td></tr>
+<tr><td>date / cal</td><td>Show/set date / calendar</td></tr>
+<tr><td>who / w / last</td><td>Logged-in users / activity / login history</td></tr>
+<tr><td>free -h</td><td>Memory usage (human readable)</td></tr>
+<tr><td>df -h</td><td>Disk usage</td></tr>
+<tr><td>du -sh *</td><td>Directory size summary</td></tr>
+<tr><td>vmstat 1 5</td><td>Virtual memory stats</td></tr>
+<tr><td>iostat -x 1</td><td>CPU &amp; I/O stats</td></tr>
+<tr><td>sar -u 1 5</td><td>System activity report</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>7. Networking commands</h2>
+<table class="cmdtbl">
+<tr><td>ip a / ifconfig</td><td>IP address (modern / legacy)</td></tr>
+<tr><td>ip r</td><td>Route table</td></tr>
+<tr><td>ss -tulpn</td><td>Listening ports (TCP/UDP), modern</td></tr>
+<tr><td>netstat -tulpn</td><td>Legacy open-ports view</td></tr>
+<tr><td>ping &lt;host&gt; / ping -c 4</td><td>Check connectivity / limited ping</td></tr>
+<tr><td>traceroute &lt;host&gt;</td><td>Trace network path</td></tr>
+<tr><td>nslookup / dig &lt;host&gt;</td><td>DNS lookup / DNS lookup (advanced)</td></tr>
+<tr><td>curl -I &lt;url&gt;</td><td>HTTP headers only</td></tr>
+<tr><td>curl / wget &lt;url&gt;</td><td>HTTP request / download file</td></tr>
+<tr><td>scp file user@host:/path</td><td>Copy to remote</td></tr>
+<tr><td>ssh / sftp user@host</td><td>Remote shell / remote file transfer</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>8. Archives &amp; compression</h2>
+<table class="cmdtbl">
+<tr><td>tar -cf a.tar f1 f2</td><td>Create tar</td></tr>
+<tr><td>tar -xf a.tar</td><td>Extract tar</td></tr>
+<tr><td>tar -czf a.tar.gz dir / -xzf</td><td>Create / extract tar.gz</td></tr>
+<tr><td>tar -cjf a.tar.bz2 dir / -xjf</td><td>Create / extract tar.bz2</td></tr>
+<tr><td>tar -cJf a.tar.xz dir / -xJf</td><td>Create / extract tar.xz</td></tr>
+<tr><td>zip -r a.zip dir / unzip a.zip</td><td>Create zip / extract zip</td></tr>
+<tr><td>gzip file / gunzip file.gz</td><td>Compress / decompress</td></tr>
+<tr><td>bzip2 file / bunzip2 file.bz2</td><td>Compress / decompress</td></tr>
+<tr><td>xz file / unxz file.xz</td><td>Compress / decompress</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>9. User &amp; group management</h2>
+<table class="cmdtbl">
+<tr><td>useradd &lt;user&gt; / useradd -m</td><td>Add user / add with home dir</td></tr>
+<tr><td>passwd &lt;user&gt;</td><td>Set password</td></tr>
+<tr><td>usermod -aG group user</td><td>Add user to group</td></tr>
+<tr><td>userdel / userdel -r &lt;user&gt;</td><td>Delete user / delete with home dir</td></tr>
+<tr><td>groupadd / groupdel &lt;group&gt;</td><td>Add / delete group</td></tr>
+<tr><td>id &lt;user&gt; / groups &lt;user&gt;</td><td>User &amp; group info / list groups</td></tr>
+<tr><td>su - &lt;user&gt;</td><td>Switch user</td></tr>
+<tr><td>sudo &lt;cmd&gt;</td><td>Run as superuser</td></tr>
+</table>
+</div>
+
+<div class="card c4">
+<h2>10. Disk usage &amp; file system</h2>
+<table class="cmdtbl">
+<tr><td>df -h / df -i</td><td>Disk usage / inode usage</td></tr>
+<tr><td>mount</td><td>Mounted filesystems</td></tr>
+<tr><td>umount /mount/point</td><td>Unmount filesystem</td></tr>
+<tr><td>lsblk / blkid</td><td>Block devices / block device attributes</td></tr>
+<tr><td>fdisk -l</td><td>Disk partitions</td></tr>
+<tr><td>du -sh /path/* | sort -rh | head</td><td>Top 10 largest</td></tr>
+<tr><td>ncdu</td><td>NCurses disk usage (if installed)</td></tr>
+</table>
+</div>
+
+<div class="card c4">
+<h2>11. Logs &amp; real-time monitoring</h2>
+<table class="cmdtbl">
+<tr><td>tail -f /var/log/syslog</td><td>Follow syslog</td></tr>
+<tr><td>tail -F /var/log/*.log</td><td>Follow with rotation-safety</td></tr>
+<tr><td>journalctl -f</td><td>Follow systemd logs</td></tr>
+<tr><td>journalctl -xe</td><td>Systemd logs, detailed, recent</td></tr>
+<tr><td>dmesg | tail</td><td>Kernel ring buffer</td></tr>
+<tr><td>watch -n 2 'cmd'</td><td>Repeat command every 2s</td></tr>
+<tr><td>watch -d 'cmd'</td><td>Highlight changes between runs</td></tr>
+</table>
+</div>
+
+<div class="card c4">
+<h2>12. Cron jobs (scheduling)</h2>
+<table class="cmdtbl">
+<tr><td>crontab -e / -l / -r</td><td>Edit / list / remove current user's crontab</td></tr>
+<tr><td>/etc/crontab</td><td>System-wide crontab</td></tr>
+<tr><td>*/5 * * * * script.sh</td><td>Every 5 minutes</td></tr>
+<tr><td>0 2 * * * script.sh</td><td>Every day at 2 AM</td></tr>
+<tr><td>0 0 * * 0 script.sh</td><td>Every Sunday at 00:00</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>13. Package management</h2>
+<b style="font-size:12px">Debian / Ubuntu (APT)</b>
+<table class="cmdtbl">
+<tr><td>apt update / apt upgrade</td><td>Update repo / upgrade packages</td></tr>
+<tr><td>apt install &lt;pkg&gt; / remove</td><td>Install / remove package</td></tr>
+<tr><td>apt search &lt;pkg&gt;</td><td>Search package</td></tr>
+</table>
+<b style="font-size:12px">RHEL / CentOS (YUM/DNF)</b>
+<table class="cmdtbl">
+<tr><td>yum/dnf update / upgrade</td><td>Update system</td></tr>
+<tr><td>yum install / remove &lt;pkg&gt;</td><td>Install / remove package</td></tr>
+<tr><td>yum search &lt;pkg&gt;</td><td>Search package</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>19. Input / output redirection</h2>
+<table class="cmdtbl">
+<tr><td>command &gt; file</td><td>Redirect stdout (overwrite)</td></tr>
+<tr><td>command &gt;&gt; file</td><td>Append stdout</td></tr>
+<tr><td>command 2&gt; err.log</td><td>Redirect stderr</td></tr>
+<tr><td>command &amp;&gt; all.log</td><td>stdout + stderr to one file</td></tr>
+<tr><td>command &lt; file</td><td>Input from file</td></tr>
+<tr><td>command 2&gt;&amp;1</td><td>stderr redirected to stdout</td></tr>
+<tr><td>command 1&gt;&amp;2</td><td>stdout redirected to stderr</td></tr>
+<tr><td>command &gt;/dev/null 2&gt;&amp;1</td><td>Suppress all output</td></tr>
+</table>
+</div>
+
+<div class="card c4">
+<h2>14. Shell scripting basics</h2>
+<pre>#!/bin/bash
+# This is a comment
+
+echo "Hello SRE"
+VAR="DevOps"
+echo $VAR
+echo "Today is $(date)"
+
+read -p "Enter name: " NAME
+echo "Welcome $NAME"</pre>
+<p style="font-size:11.5px;color:var(--mut)">Save as <code>script.sh</code> · make executable: <code>chmod +x script.sh</code> · run: <code>./script.sh</code></p>
+</div>
+
+<div class="card c4">
+<h2>15. Variables</h2>
+<pre>NAME="SRE"
+AGE=30
+export PATH=$PATH:/opt/bin
+readonly VAR=100
+unset VAR
+
+echo $NAME
+echo ${NAME}
+echo ${NAME:-Default}   # use default if unset
+echo ${NAME:?Not set}   # error if unset</pre>
+</div>
+
+<div class="card c4">
+<h2>16. Conditionals</h2>
+<pre>if [ -f /etc/passwd ]; then
+    echo "File exists"
+elif [ -d /etc ]; then
+    echo "It is a directory"
+else
+    echo "Not found"
+fi
+
+# Numeric comparison
+if [ $AGE -gt 18 ]; then
+    echo "Adult"
+fi</pre>
+</div>
+
+<div class="card c6">
+<h2>17. Loops</h2>
+<pre># For loop
+for i in 1 2 3 4 5; do
+    echo $i
+done
+
+for file in *.log; do
+    echo "File: $file"
+done
+
+# While loop
+i=1
+while [ $i -le 5 ]; do
+    echo $i
+    i=$((i+1))
+done</pre>
+</div>
+
+<div class="card c6">
+<h2>18. Functions</h2>
+<pre>myfunc() {
+    echo "Hello $1"
+    echo "Today: $(date)"
+}
+myfunc "SRE"
+
+# Functions improve reusability
+# Call with parameters, return with: return &lt;code&gt;</pre>
+</div>
+
+<div class="card c12">
+<h2>20. Advanced shell scripting <span class="pill">fixed typo</span></h2>
+<table class="cmdtbl">
+<tr><td>set -e</td><td>Exit immediately on error</td></tr>
+<tr><td>set -u</td><td>Exit on unset variable</td></tr>
+<tr><td>set -o pipefail</td><td>Catch errors inside pipes</td></tr>
+<tr><td>trap "cleanup" EXIT</td><td>Run a function on script exit</td></tr>
+<tr><td>$0 $1 $2</td><td>Script name / 1st arg / 2nd arg</td></tr>
+<tr><td>$@ / $#</td><td>All arguments / argument count</td></tr>
+<tr><td><span class="fix" style="background:#1F3A22;border-left:3px solid #4CD37A;padding:0 4px;font-family:var(--mono)">$$</span></td><td>Current PID <span style="color:var(--mut)">(corrected — was shown as <code>$$$</code>, invalid)</span></td></tr>
+<tr><td>$!</td><td>Last background job's PID</td></tr>
+<tr><td>$?</td><td>Exit code of last command</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>26. Script template (best practice)</h2>
+<pre>#!/bin/bash
+# Description : Health Check Script
+# Author      : SRE
+# Date        : $(date +%F)
+set -euo pipefail
+LOG_FILE="/var/log/health_check.log"
+log() { echo "[$(date '+%F %T')] $1" | tee -a $LOG_FILE; }
+
+check_disk() {
+    usage=$(df -h / | awk 'NR==2{print $5}' | sed 's/%//')
+    if [ $usage -gt 80 ]; then
+        log "ERROR: Disk usage ${usage}%"
+        exit 1
+    else
+        log "Disk usage OK: ${usage}%"
+    fi
+}
+check_disk
+log "Health check completed successfully"</pre>
+</div>
+
+<div class="card c6">
+<h2>27. Debugging tips</h2>
+<ul class="check">
+<li>Run <code>bash -x script.sh</code> to trace execution</li>
+<li>Add <code>set -x</code> inside a script to enable debug mode</li>
+<li>Echo variable state: <code>echo "Debug: var=$var"</code></li>
+<li>Log everything — stdout and to a file</li>
+<li>Validate inputs before acting on them</li>
+<li>Test with small/synthetic data first</li>
+<li>Run <code>shellcheck script.sh</code> — static analysis catches quoting bugs</li>
+</ul>
+<pre># Install shellcheck (Linux)
+sudo apt install shellcheck
+shellcheck script.sh</pre>
+</div>
+
+<div class="card c6">
+<h2>28. Best practices</h2>
+<ul class="check">
+<li>Always use a shebang (<code>#!/bin/bash</code>)</li>
+<li>Enable <code>set -euo pipefail</code></li>
+<li>Quote variables: <code>"$VAR"</code></li>
+<li>Use meaningful variable names</li>
+<li>Add comments and usage messages</li>
+<li>Log everything (stdout + file)</li>
+<li>Handle errors and exit correctly</li>
+<li>Use functions for modularity</li>
+<li>Validate inputs and permissions</li>
+<li>Test scripts in a safe environment first</li>
+</ul>
+</div>
+
+<div class="card c6">
+<h2>29. Quick reference</h2>
+<table class="cmdtbl">
+<tr><td>View file</td><td><code>cat file</code></td></tr>
+<tr><td>Edit file</td><td><code>vi / nano file</code></td></tr>
+<tr><td>Search text</td><td><code>grep -r "text" /path</code></td></tr>
+<tr><td>Monitor</td><td><code>top / htop</code></td></tr>
+<tr><td>Ports</td><td><code>ss -tulpn</code></td></tr>
+<tr><td>Disk</td><td><code>df -h</code></td></tr>
+<tr><td>Memory</td><td><code>free -h</code></td></tr>
+<tr><td>Logs</td><td><code>tail -f /var/log/syslog</code></td></tr>
+<tr><td>Ping</td><td><code>ping -c 4 google.com</code></td></tr>
+<tr><td>Date</td><td><code>date "+%F %T"</code></td></tr>
+</table>
+</div>
+
+<div class="card c12">
+<h2>25. Real-world SRE automation use cases <span class="pill">rewritten — was garbled</span></h2>
+<ul class="check" style="columns:3;column-gap:24px">
+<li>Health check of services and endpoints, run on a schedule</li>
+<li>Automatic restart of a service on failure</li>
+<li>System resource reporting (CPU, memory, disk trends)</li>
+<li>Disk lot cleanup — clear old logs, temp files, core dumps</li>
+<li>Deployment &amp; CI/CD hook scripts</li>
+<li>Automatic user account management (create/lock/expire)</li>
+<li>Log rotation and archival</li>
+<li>Security scanning &amp; compliance checks</li>
+<li>Kill a runaway process listening on a specific port, e.g. <code>fuser -k 8080/tcp</code></li>
+<li>Send alerts to Slack/Teams/email on threshold breach</li>
+<li>Backup &amp; restore automation with retention policy</li>
+<li>Live log-error monitor: <code>tail -F app.log | grep --line-buffered "ERROR"</code></li>
+</ul>
+</div>
+
+</div>
+<footer>Unix commands &amp; shell scripting reference · corrected &amp; reformatted for readability at any zoom level</footer>
+</div>
+</body>
+</html>

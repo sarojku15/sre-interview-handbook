@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure for SRE/DevOps — Complete Interview Reference</title>
+<style>
+:root{
+  --navy:#0F1B33; --bg:#F4F6FA; --line:#DBE1EC; --text:#1B2436; --mut:#5B6B87; --card:#fff;
+  --az:#0078D4; --az-bg:#E5F1FB;
+  --blue:#1D5FBF; --blue-bg:#E9F1FD;
+  --green:#1F8A4C; --green-bg:#E9F7EF;
+  --amber:#B5760A; --amber-bg:#FCF2E0;
+  --purple:#6A3FBF; --purple-bg:#F0EAFB;
+  --red:#C23A3A; --red-bg:#FCEAEA;
+  --mono:"SF Mono","Cascadia Code","JetBrains Mono",Consolas,Menlo,monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5}
+.wrap{max-width:1450px;margin:0 auto;padding:28px 24px 60px}
+header{background:linear-gradient(90deg,var(--navy),#0A2540);color:#fff;border-radius:12px;padding:20px 26px;border-left:6px solid var(--az)}
+header h1{margin:0;font-size:24px}
+header p{margin:8px 0 0;color:#CBE0F5;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card h2{margin:0 0 8px;font-size:13px;letter-spacing:.02em;text-transform:uppercase;color:var(--navy);border-bottom:2px solid var(--line);padding-bottom:6px}
+.c3{grid-column:span 3}.c4{grid-column:span 4}.c6{grid-column:span 6}.c12{grid-column:span 12}
+pre{font-family:var(--mono);font-size:12px;background:#0F1B33;color:#DCE6FA;border-radius:7px;padding:10px 12px;overflow-x:auto;line-height:1.5;margin:4px 0}
+code{font-family:var(--mono);font-size:12px;background:#F0F3F9;border:1px solid var(--line);border-radius:4px;padding:1px 4px}
+ul{margin:4px 0;padding-left:18px}
+li{font-size:12.6px;margin:3px 0}
+table{width:100%;border-collapse:collapse;font-size:12.3px;margin-top:4px}
+th,td{border:1px solid var(--line);padding:5px 7px;text-align:left;vertical-align:top}
+th{background:var(--bg);color:var(--navy)}
+.cmdtbl td:first-child{font-family:var(--mono);white-space:nowrap;color:#12407F;font-weight:600}
+.check li{list-style:none;position:relative;padding-left:18px}
+.check li:before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;font-family:var(--mono)}
+.flowbox{background:var(--az-bg);border:1px solid var(--az);color:#0A4A80;border-radius:6px;padding:6px 10px}
+.arrow{color:var(--mut)}
+.qa{font-size:12.6px;margin:8px 0;padding-bottom:8px;border-bottom:1px dashed var(--line)}
+.qa:last-child{border-bottom:none}
+.qa b{color:var(--navy)}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;text-transform:uppercase}
+.badge.blue{background:var(--blue-bg);color:var(--blue)}
+footer{text-align:center;color:var(--mut);font-size:12px;margin-top:26px;font-family:var(--mono)}
+@media(max-width:900px){.c3,.c4,.c6{grid-column:span 12}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Azure for SRE / DevOps — complete interview reference</h1>
+  <p>Core services, ports, CLI/PowerShell commands, architecture flow, and troubleshooting — matches the AZ-104 scope and the Barclays prep sheet's Azure section.</p>
+</header>
+
+<div class="grid">
+
+<div class="card c12">
+<h2>1. Resource hierarchy</h2>
+<div class="flow">
+<span class="flowbox">Tenant (Entra ID)</span><span class="arrow">→</span>
+<span class="flowbox">Management Groups</span><span class="arrow">→</span>
+<span class="flowbox">Subscriptions</span><span class="arrow">→</span>
+<span class="flowbox">Resource Groups</span><span class="arrow">→</span>
+<span class="flowbox">Resources</span>
+</div>
+<p style="margin-top:8px">A <b>Tenant</b> is one Entra ID directory (identity boundary). <b>Management Groups</b> apply policy/RBAC across many subscriptions. A <b>Subscription</b> is the billing + hard isolation boundary. A <b>Resource Group</b> is a logical container (lifecycle, RBAC, deletion boundary) — resources inside can span regions, but the RG itself has one home region for its metadata.</p>
+</div>
+
+<div class="card c6">
+<h2>2. Networking — VNet</h2>
+<table>
+<tr><td><b>VNet</b></td><td>Isolated virtual network, defined by a CIDR block (e.g. <code>10.0.0.0/16</code>)</td></tr>
+<tr><td><b>Subnet</b></td><td>A slice of the VNet CIDR — not tied to a single AZ like AWS</td></tr>
+<tr><td><b>NSG</b></td><td>Stateful firewall — priority-ordered allow/deny rules, attach to subnet or NIC</td></tr>
+<tr><td><b>Route Table (UDR)</b></td><td>User-defined routes overriding Azure's system routes</td></tr>
+<tr><td><b>VNet Peering</b></td><td>Direct private connection between VNets — non-transitive by default</td></tr>
+<tr><td><b>Private Endpoint</b></td><td>Private IP into your VNet for a PaaS service (Storage, SQL, Key Vault) — data plane never touches the public internet</td></tr>
+<tr><td><b>Service Endpoint</b></td><td>Lighter-weight than Private Endpoint — keeps traffic on the Azure backbone, but the PaaS service still has a public endpoint</td></tr>
+<tr><td><b>Azure Firewall</b></td><td>Managed, stateful, centralized firewall — usually sits in a hub VNet</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>3. Compute</h2>
+<table>
+<tr><td><b>VM</b></td><td>Virtual machine — B-series burstable, D-series general, F-series compute-opt, E-series memory-opt</td></tr>
+<tr><td><b>VMSS</b></td><td>Virtual Machine Scale Set — identical, autoscaling VM fleet behind a LB</td></tr>
+<tr><td><b>Availability Set</b></td><td>Spreads VMs across fault/update domains within one datacenter</td></tr>
+<tr><td><b>Availability Zone</b></td><td>Spreads resources across physically separate datacenters in a region — stronger guarantee than Availability Sets</td></tr>
+<tr><td><b>AKS</b></td><td>Managed Kubernetes — control plane free, you pay for node pools</td></tr>
+<tr><td><b>App Service</b></td><td>PaaS for web apps/APIs — no VM/cluster management</td></tr>
+<tr><td><b>Azure Functions</b></td><td>Serverless, event-driven compute</td></tr>
+<tr><td><b>Container Apps</b></td><td>Serverless containers built on KEDA/Dapr — lighter than AKS</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>4. Storage</h2>
+<table>
+<tr><td><b>Storage Account</b></td><td>Umbrella for Blob, File, Queue, Table storage — globally unique name</td></tr>
+<tr><td><b>Blob Storage</b></td><td>Object storage — Hot, Cool, Cold, Archive tiers</td></tr>
+<tr><td><b>Azure Files</b></td><td>Managed SMB/NFS file shares — mountable like a network drive</td></tr>
+<tr><td><b>Managed Disks</b></td><td>Block storage for VMs — Standard HDD/SSD, Premium SSD, Ultra Disk</td></tr>
+<tr><td><b>Redundancy</b></td><td>LRS (local), ZRS (zone), GRS (geo), RA-GRS (geo + readable secondary)</td></tr>
+<tr><td><b>Lifecycle management</b></td><td>Auto-tier/delete blobs by age — the cost-control lever</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>5. Identity &amp; security</h2>
+<table>
+<tr><td><b>Entra ID</b></td><td>Azure's identity provider (formerly Azure AD) — users, groups, service principals</td></tr>
+<tr><td><b>Service Principal</b></td><td>An application's identity — used by pipelines/scripts to auth (has a client secret or cert)</td></tr>
+<tr><td><b>Managed Identity</b></td><td>Azure-managed identity for a resource — no stored credentials at all. System-assigned (tied to the resource) or user-assigned (shared, reusable)</td></tr>
+<tr><td><b>RBAC</b></td><td>Role assignments (Owner, Contributor, Reader, custom) scoped to management group / subscription / RG / resource</td></tr>
+<tr><td><b>Key Vault</b></td><td>Stores secrets, keys, and certificates — soft-delete + purge protection for prod</td></tr>
+<tr><td><b>Azure Policy</b></td><td>Enforces org rules (allowed regions, required tags, no public IPs) — the governance/compliance gate</td></tr>
+<tr><td><b>Defender for Cloud</b></td><td>Security posture management + threat detection</td></tr>
+</table>
+</div>
+
+<div class="card c12">
+<h2>6. Common ports &amp; protocols to know cold</h2>
+<table>
+<tr><th>Port</th><th>Protocol / use</th><th>Port</th><th>Protocol / use</th></tr>
+<tr><td>22</td><td>SSH (Linux VM)</td><td>443</td><td>HTTPS</td></tr>
+<tr><td>3389</td><td>RDP (Windows VM)</td><td>1433</td><td>Azure SQL / SQL Server</td></tr>
+<tr><td>80</td><td>HTTP</td><td>5432</td><td>PostgreSQL (Flexible Server)</td></tr>
+<tr><td>445</td><td>SMB (Azure Files)</td><td>3306</td><td>MySQL (Flexible Server)</td></tr>
+<tr><td>2049</td><td>NFS (Azure Files/NetApp)</td><td>6380</td><td>Azure Cache for Redis (TLS)</td></tr>
+<tr><td>443 / 6443</td><td>HTTPS / Kubernetes API (AKS)</td><td>9418</td><td>Git protocol (Azure DevOps mirroring)</td></tr>
+</table>
+</div>
+
+<div class="card c12">
+<h2>7. High availability architecture — real production scenario</h2>
+<div class="flow" style="margin-bottom:12px">
+<span class="flowbox">Traffic Manager / Front Door<br><span style="font-weight:400;color:var(--mut)">DNS/global routing, failover</span></span><span class="arrow">→</span>
+<span class="flowbox">Application Gateway<br><span style="font-weight:400;color:var(--mut)">L7, WAF, TLS termination</span></span><span class="arrow">→</span>
+<span class="flowbox">AKS / VMSS<br><span style="font-weight:400;color:var(--mut)">multi-zone compute</span></span><span class="arrow">→</span>
+<span class="flowbox">Azure SQL / Cosmos DB<br><span style="font-weight:400;color:var(--mut)">zone-redundant, geo-replicated</span></span>
+</div>
+<p>Every tier spans Availability Zones within a region; Traffic Manager or Front Door handles cross-region failover for full DR; Application Gateway's health probes eject unhealthy backends.</p>
+</div>
+
+<div class="card c6">
+<h2>8. Load balancing options</h2>
+<table>
+<tr><td><b>Azure Load Balancer</b></td><td>L4 — TCP/UDP, regional or global, ultra-low latency</td></tr>
+<tr><td><b>Application Gateway</b></td><td>L7 — HTTP(S), path/host routing, TLS termination, WAF built in</td></tr>
+<tr><td><b>Front Door</b></td><td>Global L7 — CDN + WAF + routing across regions, anycast entry point</td></tr>
+<tr><td><b>Traffic Manager</b></td><td>DNS-based global routing/failover — no data plane, just smart DNS answers</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>9. Observability</h2>
+<table>
+<tr><td><b>Azure Monitor</b></td><td>Umbrella: platform metrics, Activity Log (control-plane audit), diagnostic settings</td></tr>
+<tr><td><b>Log Analytics</b></td><td>Central log store, queried with <b>KQL</b></td></tr>
+<tr><td><b>Application Insights</b></td><td>APM — requests, dependencies, distributed traces</td></tr>
+<tr><td><b>Alerts + Action Groups</b></td><td>Metric/log-based alerts routed to email/SMS/webhook/PagerDuty/runbook</td></tr>
+<tr><td><b>Managed Prometheus/Grafana</b></td><td>Azure-hosted OSS observability stack, first-class for AKS</td></tr>
+</table>
+</div>
+
+<div class="card c12">
+<h2>10. Azure CLI &amp; PowerShell — commands you'll actually be asked to run</h2>
+<pre># Login &amp; context
+az login
+az account show
+az account set --subscription "My Subscription"
+
+# Resource groups &amp; resources
+az group list -o table
+az resource list --resource-group my-rg -o table
+
+# VMs
+az vm list -d -o table
+az vm start --resource-group my-rg --name my-vm
+az vm stop --resource-group my-rg --name my-vm
+az vm restart --resource-group my-rg --name my-vm
+
+# AKS
+az aks get-credentials --resource-group my-rg --name my-cluster
+az aks show --resource-group my-rg --name my-cluster --query "kubernetesVersion"
+az aks nodepool list --resource-group my-rg --cluster-name my-cluster -o table
+az aks upgrade --resource-group my-rg --name my-cluster --kubernetes-version 1.30.2
+
+# Storage
+az storage account list -o table
+az storage blob upload --account-name mystorage --container-name mycontainer --file file.txt
+
+# Key Vault
+az keyvault secret show --vault-name my-kv --name my-secret
+az keyvault secret set --vault-name my-kv --name my-secret --value "supersecret"
+
+# Monitor / logs
+az monitor metrics list --resource &lt;resource-id&gt; --metric "Percentage CPU"
+az monitor log-analytics query --workspace &lt;workspace-id&gt; --analytics-query "AzureActivity | take 10"
+
+# PowerShell equivalents (common in enterprise/regulated shops)
+Get-AzVM | Select Name, ResourceGroupName, PowerState
+Get-AzResourceGroup
+Start-AzVM -ResourceGroupName my-rg -Name my-vm
+Get-AzKeyVaultSecret -VaultName my-kv -Name my-secret</pre>
+</div>
+
+<div class="card c6">
+<h2>11. IaC &amp; deployment tooling</h2>
+<table>
+<tr><td><b>ARM templates</b></td><td>Native declarative IaC (JSON)</td></tr>
+<tr><td><b>Bicep</b></td><td>Cleaner DSL that compiles to ARM — Microsoft's recommended native IaC</td></tr>
+<tr><td><b>Terraform</b></td><td>Cloud-agnostic IaC — the enterprise default for multi-cloud/portability</td></tr>
+<tr><td><b>Azure DevOps Pipelines</b></td><td>Native CI/CD — YAML pipelines, environments, approval gates</td></tr>
+<tr><td><b>GitHub Actions</b></td><td>Increasingly common alongside/instead of Azure DevOps, with OIDC federation to Azure</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>12. Disaster recovery &amp; resilience patterns</h2>
+<table>
+<tr><th>Pattern</th><th>RTO</th><th>Cost</th></tr>
+<tr><td>Backup &amp; Restore (Azure Backup)</td><td>Hours–days</td><td>$</td></tr>
+<tr><td>Pilot Light</td><td>~10s of min</td><td>$$</td></tr>
+<tr><td>Warm Standby</td><td>Minutes</td><td>$$$</td></tr>
+<tr><td>Active-Active (Multi-region)</td><td>Near zero</td><td>$$$$</td></tr>
+</table>
+<p style="font-size:11.5px;color:var(--mut)">Azure Site Recovery, geo-redundant storage (RA-GRS), Azure SQL auto-failover groups, and Cosmos DB multi-region writes are the usual building blocks.</p>
+</div>
+
+<div class="card c12">
+<h2>13. Troubleshooting guide</h2>
+<table>
+<tr><th>Symptom</th><th>Likely cause / where to look</th></tr>
+<tr><td><b>VM unreachable (timeout)</b></td><td>NSG inbound rule missing (check both subnet and NIC level) · UDR misrouting traffic · no public IP assigned</td></tr>
+<tr><td><b>VM "connection refused"</b></td><td>Nothing listening on that port — service not running or bound to localhost only</td></tr>
+<tr><td><b>App Gateway 502</b></td><td>Backend pool unhealthy, backend not responding on the configured port, or backend TLS cert mismatch</td></tr>
+<tr><td><b>App Gateway "backend health = unhealthy"</b></td><td>Health probe path returning non-200, NSG blocking the probe, or app not listening on expected port</td></tr>
+<tr><td><b>RBAC "does not have authorization"</b></td><td>Role assigned at wrong scope, missing action in a custom role, or a Deny assignment / Azure Policy blocking it</td></tr>
+<tr><td><b>Managed Identity can't reach Key Vault</b></td><td>Access policy or RBAC role not granted to the identity, or Key Vault firewall blocking the resource's network</td></tr>
+<tr><td><b>AKS pod can't pull image</b></td><td>ACR attach missing (<code>az aks update --attach-acr</code>) or image pull secret misconfigured</td></tr>
+<tr><td><b>Azure SQL high DTU/CPU</b></td><td>Missing indexes, connection pool exhaustion, or check Query Performance Insight for the offending query</td></tr>
+</table>
+</div>
+
+<div class="card c12">
+<h2>14. Interview quick Q&amp;A</h2>
+<div class="qa"><b>Q: Azure Load Balancer vs Application Gateway — when do you pick each?</b><br>A: Load Balancer for L4 TCP/UDP at low latency; Application Gateway for L7 HTTP(S) with path/host routing and built-in WAF — the default internet-facing front door for a web app.</div>
+<div class="qa"><b>Q: System-assigned vs user-assigned Managed Identity?</b><br>A: System-assigned is created with and tied to one resource's lifecycle (deleted with it); user-assigned is a standalone identity that can be shared across multiple resources and outlives any one of them.</div>
+<div class="qa"><b>Q: How does a pod in AKS get an Azure token without stored credentials?</b><br>A: Workload Identity federates a Kubernetes service account to a Managed Identity via OIDC — the pod exchanges its K8s token for an Azure AD token, no secrets stored anywhere.</div>
+<div class="qa"><b>Q: NSG vs Azure Firewall — when do you need both?</b><br>A: NSGs are free, stateful, per-subnet/NIC allow-deny rules — your first line of defense. Azure Firewall is a managed, centralized appliance (often in a hub VNet) for FQDN filtering, threat intelligence, and consistent policy across many spoke VNets — used together in hub-spoke topologies.</div>
+<div class="qa"><b>Q: Resource Group deletion protection — how do you prevent an accidental delete?</b><br>A: Apply a <code>CanNotDelete</code> or <code>ReadOnly</code> Azure Resource Lock on the RG or resource — locks aren't RBAC, they block the operation regardless of the caller's role.</div>
+<div class="qa"><b>Q: How would you reduce Azure cost for a workload with a spiky, unpredictable pattern?</b><br>A: Right-size with Azure Advisor recommendations, use Reserved Instances/Savings Plans for the steady baseline, Spot VMs for fault-tolerant/batch work, and autoscale VMSS/AKS on a metric close to real load, not just CPU.</div>
+</div>
+
+</div>
+<footer>Azure for SRE/DevOps reference · built for Barclays AVP-level interview prep · aligned to AZ-104 scope</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CI/CD, Automation &amp; VDI Interview Study Guide — Jenkins, GitHub Actions, GitLab, Argo CD, Ansible, Azure/AWS DevOps</title>
+<style>
+  :root{
+    --ink:#14181f; --ink-soft:#48505c; --ink-faint:#7b8492;
+    --paper:#f5f6f8; --card:#ffffff; --line:#e4e7ec; --line-soft:#eef0f3;
+    --azure:#0f766e; --azure-soft:#d8f1ec; --azure-ink:#0b5a54;
+    --easy:#0f6e56; --easy-bg:#e1f5ee;
+    --med:#8a5a00; --med-bg:#faeeda;
+    --hard:#a32d2d; --hard-bg:#fbeaea;
+    --radius:12px; --shadow:0 1px 2px rgba(20,24,31,.05),0 8px 24px -16px rgba(20,24,31,.18);
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+  .mast{max-width:1080px;margin:0 auto;padding:40px 22px 18px}
+  .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--azure);
+    font-weight:700;margin:0 0 10px}
+  h1{font-size:clamp(24px,4.3vw,38px);line-height:1.1;letter-spacing:-.02em;margin:0;font-weight:800}
+  .sub{color:var(--ink-soft);margin:12px 0 0;max-width:66ch;font-size:15px}
+
+  .stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:9px 14px;display:flex;align-items:baseline;gap:8px;box-shadow:var(--shadow)}
+  .stat b{font-size:18px;font-weight:800;letter-spacing:-.01em}
+  .stat span{font-size:12px;color:var(--ink-faint)}
+  .pwrap{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;box-shadow:var(--shadow)}
+  .plabel{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);margin-bottom:7px}
+  .ptrack{height:7px;background:var(--line-soft);border-radius:99px;overflow:hidden}
+  .pfill{height:100%;width:0;background:linear-gradient(90deg,var(--azure),#3aa99b);
+    border-radius:99px;transition:width .35s ease}
+
+  .bar{position:sticky;top:0;z-index:20;background:rgba(245,246,248,.86);
+    backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--line)}
+  .bar-in{max-width:1080px;margin:0 auto;padding:12px 22px}
+  .search{width:100%;border:1px solid var(--line);background:var(--card);border-radius:10px;
+    padding:11px 14px 11px 38px;font-size:14px;color:var(--ink);font-family:inherit;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237b8492' stroke-width='2' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><path d='M21 21l-4.3-4.3'/></svg>");
+    background-repeat:no-repeat;background-position:13px center}
+  .search:focus{outline:2px solid var(--azure);outline-offset:1px;border-color:var(--azure)}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;align-items:center}
+  .chip{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
+    font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:99px;cursor:pointer;
+    font-family:inherit;transition:background .12s,color .12s,border-color .12s;display:inline-flex;gap:6px;align-items:center}
+  .chip:hover{border-color:var(--ink-faint)}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chip .ct{font-size:11px;opacity:.65;font-weight:700}
+  .chip.on .ct{opacity:.8}
+  .sep{width:1px;height:20px;background:var(--line);margin:0 3px}
+  .txtbtn{background:none;border:none;color:var(--azure);font-weight:600;font-size:12.5px;
+    cursor:pointer;font-family:inherit;padding:6px 4px}
+  .txtbtn:hover{text-decoration:underline}
+
+  main{max-width:1080px;margin:0 auto;padding:18px 22px 80px}
+  .meta{font-size:12.5px;color:var(--ink-faint);margin:8px 2px 14px}
+  .card{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--spine,var(--azure));
+    border-radius:var(--radius);margin-bottom:11px;box-shadow:var(--shadow);overflow:hidden;
+    transition:border-color .12s}
+  .card.done{border-left-color:var(--easy)}
+  .qrow{display:flex;align-items:flex-start;gap:12px;padding:15px 16px;cursor:pointer}
+  .qrow:hover{background:#fafbfc}
+  .qnum{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:3px;min-width:26px;font-weight:600}
+  .qmain{flex:1;min-width:0}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px}
+  .tag{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 8px;border-radius:99px}
+  .tag.cat{background:var(--azure-soft);color:var(--azure-ink)}
+  .tag.d-easy{background:var(--easy-bg);color:var(--easy)}
+  .tag.d-medium{background:var(--med-bg);color:var(--med)}
+  .tag.d-hard{background:var(--hard-bg);color:var(--hard)}
+  .q{font-weight:650;font-size:15.5px;line-height:1.45;letter-spacing:-.005em}
+  .caret{margin-top:3px;color:var(--ink-faint);transition:transform .2s;flex-shrink:0}
+  .card.open .caret{transform:rotate(90deg)}
+  .star{flex-shrink:0;border:none;background:none;cursor:pointer;padding:2px;color:var(--ink-faint);
+    border-radius:6px;line-height:0}
+  .star:hover{background:var(--line-soft);color:var(--med)}
+  .star.on{color:var(--easy)}
+  .star:focus-visible{outline:2px solid var(--azure);outline-offset:1px}
+
+  .ans{display:none;padding:2px 16px 18px 54px;border-top:1px solid var(--line-soft)}
+  .card.open .ans{display:block}
+  .ans h4{margin:16px 0 7px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--azure);font-weight:700}
+  .ans p{margin:0 0 10px}
+  .ans ul,.ans ol{margin:0 0 10px;padding-left:18px}
+  .ans li{margin:4px 0}
+  .ans code{font-family:var(--mono);font-size:12.5px;background:var(--line-soft);
+    padding:1.5px 5px;border-radius:5px;color:var(--azure-ink)}
+  .ans pre{background:#11151c;color:#e6edf3;font-family:var(--mono);font-size:12.5px;
+    padding:12px 14px;border-radius:9px;overflow-x:auto;margin:0 0 12px;line-height:1.5}
+  .ans pre code{background:none;color:inherit;padding:0}
+  .ans b{color:var(--ink)}
+
+  .empty{text-align:center;color:var(--ink-faint);padding:60px 20px;font-size:15px;display:none}
+  footer{max-width:1080px;margin:0 auto;padding:0 22px 50px;color:var(--ink-faint);font-size:12.5px}
+
+  @media (max-width:560px){ .ans{padding-left:16px} .qnum{display:none} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important;scroll-behavior:auto!important} }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <p class="eyebrow">CI/CD · GitOps · Configuration Management · VDI — Interview Preparation</p>
+  <h1>CI/CD, Automation &amp; VDI Study Guide</h1>
+  <p class="sub">One document, every question, full answers with the details and gotchas an interviewer probes for — built for senior SRE, DevOps, and Platform engineers. Covers Jenkins, GitHub Actions, GitLab CI/CD, Argo CD (GitOps), Ansible &amp; Ansible Automation Platform, Azure DevOps, AWS DevOps (Code* / CodeCatalyst), and Virtual Desktop Infrastructure. Filter by tool or difficulty, search any term, and mark questions mastered as you go.</p>
+  <div class="stats" id="stats"></div>
+  <div class="pwrap">
+    <div class="plabel"><span>Mastery</span><span id="pcount">0 of 0 mastered</span></div>
+    <div class="ptrack"><div class="pfill" id="pfill"></div></div>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="bar-in">
+    <input id="search" class="search" type="search" placeholder="Search questions, answers, tools (e.g. Jenkinsfile, OIDC, sync wave, FSLogix, buildspec)…" autocomplete="off">
+    <div class="chips" id="catchips"></div>
+    <div class="chips" id="diffchips" style="margin-top:8px">
+      <span class="sep" style="margin-left:0"></span>
+      <button class="txtbtn" id="expandAll">Expand all</button>
+      <button class="txtbtn" id="collapseAll">Collapse all</button>
+      <button class="txtbtn" id="resetMastery">Reset mastery</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="meta" id="meta"></div>
+  <div id="list"></div>
+  <div class="empty" id="empty">No questions match your filters. Try clearing the search or selecting “All”.</div>
+</main>
+
+<footer>
+  This guide spans CI/CD, GitOps, configuration management, and VDI for senior engineering interviews. Tool features, defaults, and product availability change across versions (e.g. AWS CodeCommit was restricted to existing customers in 2024; many teams now pair CodePipeline with GitHub/GitLab) — confirm current specifics in vendor docs before an interview. Mastery progress is saved locally in your browser when you open this file directly.
+</footer>
+
+<script>
+/* ============================== DATA ============================== */
+const CATS = {
+  jenkins:"Jenkins",
+  gha:"GitHub Actions",
+  gitlab:"GitLab CI/CD",
+  argocd:"Argo CD (GitOps)",
+  ansible:"Ansible & AAP",
+  azdo:"Azure DevOps",
+  awsdo:"AWS DevOps (Code*)",
+  vdi:"VDI"
+};
+
+const Q = [
+/* ===================== JENKINS ===================== */
+{cat:"jenkins",diff:"easy",q:"What is Jenkins, and describe its controller/agent architecture.",
+a:`<p><b>Jenkins</b> is an open-source automation server for CI/CD. Its architecture is <b>controller + agents</b> (formerly master/slave). The <b>controller</b> stores configuration, schedules builds, serves the UI/API, and dispatches work; <b>agents</b> are worker nodes that actually execute build/test/deploy steps. Distributing work to agents lets you scale out and run builds on different OSes/toolchains.</p>`,
+d:`<p>Best practice: <b>run no builds on the controller itself</b> (set its executors to 0) — builds on the controller are a security and stability risk. Agents connect via SSH, inbound JNLP, or are spun up dynamically (Docker/Kubernetes). The controller is a single point of failure, so protect and back up <code>JENKINS_HOME</code>.</p>`},
+
+{cat:"jenkins",diff:"medium",q:"Declarative vs scripted pipeline — what's the difference and when do you use each?",
+a:`<p><b>Declarative</b> pipelines use a structured, opinionated syntax (<code>pipeline { agent {} stages {} }</code>) with built-in <code>post</code>, <code>when</code>, <code>environment</code>, and validation — easier to read and the recommended default. <b>Scripted</b> pipelines are full Groovy (<code>node {}</code>) — maximum flexibility and programmatic control, but more complex and error-prone.</p>`,
+d:`<p>Use declarative for ~95% of pipelines; drop to scripted (or a <code>script {}</code> block inside declarative) only when you need complex logic. Declarative catches errors earlier and is more maintainable across a team. Both are defined in a <code>Jenkinsfile</code>.</p>`},
+
+{cat:"jenkins",diff:"medium",q:"What is a Jenkinsfile and pipeline-as-code? Walk through stages, steps, and post.",
+a:`<p>A <b>Jenkinsfile</b> is the pipeline definition stored in source control (pipeline-as-code) — versioned, reviewed, and reproducible. It defines <b>stages</b> (logical phases: Build, Test, Deploy) containing <b>steps</b> (individual actions), an <b>agent</b> (where it runs), an <b>environment</b> block (variables/credentials), and <b>post</b> actions (<code>always</code>, <code>success</code>, <code>failure</code>) for notifications/cleanup.</p>`,
+d:`<p>Storing the pipeline in the repo means CI changes go through PR review alongside code and travel with branches. <code>when</code> gates stages conditionally; <code>parallel</code> runs stages concurrently; <code>post</code> guarantees cleanup/notify regardless of outcome. This is the foundation of treating CI as code.</p>`},
+
+{cat:"jenkins",diff:"medium",q:"How do agents connect, and how do you scale Jenkins builds?",
+a:`<p>Agents attach via <b>SSH</b> (controller connects out), <b>inbound agent/JNLP</b> (agent connects in), or are provisioned <b>dynamically</b>. The modern approach is <b>ephemeral agents</b>: the Docker or <b>Kubernetes plugin</b> spins up a fresh container/pod per build and tears it down after — clean, isolated, and elastic.</p>`,
+d:`<p>Ephemeral Kubernetes agents are the best-practice for scale: no snowflake build nodes, no leftover state between builds, and you pay only for what you use. Label agents by capability (e.g. <code>linux</code>, <code>docker</code>, <code>gpu</code>) and target stages at the right label.</p>`},
+
+{cat:"jenkins",diff:"medium",q:"What are Jenkins shared libraries and why use them?",
+a:`<p><b>Shared libraries</b> are reusable pipeline code (Groovy) stored in a separate repo and loaded into many pipelines (<code>@Library</code>). They let you DRY up common logic — standardized build/deploy steps, notifications, security scans — so hundreds of teams call <code>buildAndDeploy()</code> instead of copy-pasting Jenkinsfile blocks.</p>`,
+d:`<p>Structure: <code>vars/</code> for global functions (custom steps), <code>src/</code> for Groovy classes. Versioning the library lets you roll out CI changes centrally. This is how platform teams provide "golden path" pipelines while keeping each team's Jenkinsfile tiny.</p>`},
+
+{cat:"jenkins",diff:"medium",q:"How do you manage credentials and secrets in Jenkins?",
+a:`<p>Use the built-in <b>Credentials plugin</b> to store secrets (passwords, tokens, SSH keys, certs) encrypted in Jenkins, scoped globally or to folders. In pipelines, bind them with <code>withCredentials</code> or the <code>credentials()</code> helper so they're injected as masked environment variables and never printed in logs.</p>`,
+d:`<p>Better still, integrate an external store (HashiCorp Vault, cloud secret manager) so Jenkins fetches short-lived secrets at run time rather than holding long-lived ones. Scope credentials to folders for least privilege, and never echo secrets or pass them on the command line where they'd appear in process lists/logs.</p>`},
+
+{cat:"jenkins",diff:"medium",q:"What is a multibranch pipeline, and how should builds be triggered?",
+a:`<p>A <b>multibranch pipeline</b> auto-discovers branches/PRs that contain a Jenkinsfile and creates a pipeline for each — so feature branches and PRs get CI automatically. Trigger builds with <b>SCM webhooks</b> (the repo notifies Jenkins on push) rather than <b>SCM polling</b> (Jenkins repeatedly asks the repo) — webhooks are instant and far less load.</p>`,
+d:`<p>Polling wastes resources and adds latency; webhooks are the right pattern. Multibranch + webhooks means a new branch with a Jenkinsfile is built with zero manual setup, and stale branch pipelines are cleaned up automatically.</p>`},
+
+{cat:"jenkins",diff:"hard",q:"What are your Jenkins security best practices?",
+a:`<ul>
+<li><b>Don't build on the controller</b> (0 executors); isolate builds on ephemeral agents.</li>
+<li>Enable <b>authentication + authorization</b> (Matrix/Role-Strategy plugin) with least privilege; use folders for team isolation.</li>
+<li>Keep <b>script security/sandbox</b> on; approve scripts deliberately.</li>
+<li>Store secrets in the Credentials plugin or an external vault; never in Jenkinsfiles.</li>
+<li>Keep Jenkins and plugins <b>patched</b> (a major CVE source) and restrict the plugin set.</li>
+<li>Use HTTPS, CSRF protection, and audit logging.</li>
+</ul>`,
+d:`<p>Jenkins's huge plugin surface is its biggest risk — unpatched plugins are a common breach vector. Treat the controller as a high-value target: lock down access, isolate builds, and patch aggressively. Back up <code>JENKINS_HOME</code> for recovery.</p>`},
+
+{cat:"jenkins",diff:"medium",q:"Jenkins plugins are a strength and a liability — how do you manage them?",
+a:`<p>Jenkins's ~1,800-plugin ecosystem lets it integrate with almost anything, but each plugin adds attack surface, upgrade fragility, and potential conflicts. Manage by: installing only what you need, keeping them updated, pinning/testing plugin upgrades in a staging Jenkins, and tracking them as code (e.g. <code>plugins.txt</code> with the Jenkins Docker image / Configuration as Code).</p>`,
+d:`<p><b>JCasC (Jenkins Configuration as Code)</b> lets you define the whole controller config (plugins, security, agents) in YAML — reproducible, version-controlled, and DR-friendly. Unmanaged plugin sprawl is a top cause of upgrade breakage and CVEs.</p>`},
+
+{cat:"jenkins",diff:"medium",q:"How do you back up and recover Jenkins?",
+a:`<p>Everything Jenkins needs lives under <b><code>JENKINS_HOME</code></b> — job configs, build history, plugins, credentials, and system config. Back it up regularly (snapshot the volume or use a backup plugin) and store it off-box. For recovery, restore <code>JENKINS_HOME</code> onto a fresh controller. Even better, define config as code (JCasC + Jenkinsfiles in repos) so the controller is reproducible from source.</p>`,
+d:`<p>The "config as code" approach (JCasC + pipelines-in-SCM + plugins.txt in a Docker image) turns Jenkins DR from "restore a fragile snapshot" into "redeploy from Git" — far more reliable. Test restores periodically; an untested backup is a hypothesis.</p>`},
+
+{cat:"jenkins",diff:"hard",q:"Walk through common Jenkins production problems and how you troubleshoot them.",
+a:`<ul>
+<li><b>Builds stuck in queue</b> — no available executors/agents matching the label, or agents offline. → check agent connectivity and executor counts.</li>
+<li><b>Agent offline / disconnecting</b> — network, JNLP/SSH issues, or agent OOM. → check agent logs and resources.</li>
+<li><b>Controller slow / OOM</b> — too much build history, heavy plugins, builds running on the controller. → tune JVM heap, prune history, offload builds.</li>
+<li><b>Flaky pipelines</b> — non-isolated agents with leftover state. → ephemeral agents.</li>
+</ul>`,
+d:`<p>Most stability problems trace back to <b>running work on the controller</b> or <b>stateful, shared agents</b>. The fixes — ephemeral containerized agents, zero controller executors, pruned history, JCasC — are the same set that improves security and reproducibility. Use the build's console log + agent log as the first diagnostics.</p>`},
+
+{cat:"jenkins",diff:"medium",q:"Jenkins vs GitHub Actions / GitLab CI — when would you still choose Jenkins?",
+a:`<p>Jenkins is self-hosted, infinitely extensible (plugins/Groovy), and tool/SCM-agnostic — strong for complex, heterogeneous, on-prem, or highly customized pipelines, and where you must control the entire build environment. Cloud-native CI (GitHub Actions, GitLab CI) wins on lower operational overhead, native SCM integration, YAML simplicity, and managed runners.</p>`,
+d:`<p>The trade-off: Jenkins gives control and flexibility at the cost of <b>you operating it</b> (patching, scaling, plugin management). Many orgs migrate to GitHub Actions/GitLab for new work but keep Jenkins for legacy/complex pipelines. Choose based on operational appetite and integration needs, not hype.</p>`},
+
+/* ===================== GITHUB ACTIONS ===================== */
+{cat:"gha",diff:"easy",q:"Explain the core GitHub Actions concepts: workflows, events, jobs, steps, runners.",
+a:`<ul>
+<li><b>Workflow</b> — a YAML file in <code>.github/workflows/</code> triggered by <b>events</b> (push, pull_request, schedule, <code>workflow_dispatch</code>).</li>
+<li><b>Job</b> — a set of steps that run on one <b>runner</b>; jobs run in parallel by default (use <code>needs</code> for ordering).</li>
+<li><b>Step</b> — an individual action: run a shell command or use a reusable <b>action</b>.</li>
+<li><b>Runner</b> — the machine that executes a job (GitHub-hosted or self-hosted).</li>
+</ul>`,
+d:`<p>Each job gets a fresh runner environment, so data between jobs must be passed via artifacts or outputs. Actions from the Marketplace are reusable building blocks. The event-driven model means CI/CD is wired directly to repo activity with no separate server to run.</p>`},
+
+{cat:"gha",diff:"medium",q:"GitHub-hosted vs self-hosted runners — trade-offs?",
+a:`<p><b>GitHub-hosted</b> runners are managed, ephemeral VMs (clean per job, multiple OSes) — zero maintenance, pay-per-minute. <b>Self-hosted</b> runners are machines you provide — for custom hardware/software, access to private networks, larger/GPU instances, or compliance, but you patch, scale, and secure them.</p>`,
+d:`<p><b>Security warning:</b> never use self-hosted runners on <b>public</b> repos — a malicious PR can run arbitrary code on your runner. Make self-hosted runners ephemeral (fresh per job) to avoid state/secret leakage between runs. Use auto-scaling (e.g. Actions Runner Controller on Kubernetes) for elastic self-hosted capacity.</p>`},
+
+{cat:"gha",diff:"medium",q:"How do you manage secrets in GitHub Actions and authenticate to the cloud without stored keys?",
+a:`<p>Store secrets at repo/org/<b>environment</b> scope; reference them through the <code>secrets</code> context (e.g. <code>secrets.DB_PASSWORD</code>) inside the workflow expression syntax, and they're masked in logs. For cloud access, use <b>OIDC</b>: GitHub issues a short-lived token the cloud trusts (via a configured IdP + role), so you assume an AWS/Azure/GCP role with <b>no long-lived keys stored</b>.</p>`,
+d:`<p>OIDC is the modern best practice — it eliminates the #1 CI secret-leak risk (static cloud keys). Scope the cloud trust policy to specific repo/branch/environment claims so a fork can't assume the role. Environment secrets + required reviewers gate production credentials behind approvals.</p>`},
+
+{cat:"gha",diff:"medium",q:"What is a matrix build and when is it useful?",
+a:`<p>A <b>matrix strategy</b> runs the same job across combinations of parameters — e.g. test on Node 18/20/22 × Ubuntu/Windows/macOS — fanning out into parallel jobs from one definition. It's ideal for testing across versions, OSes, or configurations without duplicating job code.</p>`,
+d:`<p>Use <code>fail-fast</code> to stop the whole matrix on first failure (or disable it to see all results), <code>include</code>/<code>exclude</code> to tweak specific combinations, and <code>max-parallel</code> to cap concurrency. Matrix builds are the clean way to get broad compatibility coverage cheaply.</p>`},
+
+{cat:"gha",diff:"medium",q:"Reusable workflows vs composite actions — what's the difference?",
+a:`<p>Both promote DRY reuse. A <b>composite action</b> bundles multiple steps into one reusable <i>step</i> (good for a sequence like setup-and-cache). A <b>reusable workflow</b> (<code>workflow_call</code>) is an entire callable <i>workflow</i> with its own jobs, inputs, secrets, and outputs — good for standardizing whole build/deploy pipelines across repos.</p>`,
+d:`<p>Composite action = reuse at the step level inside a job; reusable workflow = reuse at the workflow/job level across repos. Platform teams publish reusable workflows so every service repo calls one standardized pipeline, similar to Jenkins shared libraries.</p>`},
+
+{cat:"gha",diff:"medium",q:"How do caching and artifacts work, and how do they differ?",
+a:`<p><b>Caching</b> (<code>actions/cache</code>) persists dependencies (npm/pip/Maven caches, Docker layers) <i>between runs</i> keyed by a hash of the lock file — to speed up builds. <b>Artifacts</b> (<code>upload/download-artifact</code>) pass build outputs <i>between jobs</i> in the same run, or retain them for download (test reports, binaries).</p>`,
+d:`<p>Mental model: cache = speed up future runs (transient, reconstructible); artifacts = share/keep outputs of <i>this</i> run. Cache keys must include the dependency lock hash so a dependency change busts the cache. Don't cache secrets or large reconstructible build outputs.</p>`},
+
+{cat:"gha",diff:"medium",q:"What are environments and protection rules in GitHub Actions?",
+a:`<p><b>Environments</b> (e.g. <code>staging</code>, <code>production</code>) group deployment config and add <b>protection rules</b>: required reviewers (manual approval before a job targeting that environment runs), wait timers, and branch restrictions. Environment-scoped secrets are only available to jobs deploying to that environment.</p>`,
+d:`<p>This is how you gate production: a deploy job referencing <code>environment: production</code> pauses for approval and only then gets the prod credentials. It brings change control and least-privilege secret access into the pipeline without external tooling.</p>`},
+
+{cat:"gha",diff:"medium",q:"What is GITHUB_TOKEN and how do you apply least privilege to it?",
+a:`<p><code>GITHUB_TOKEN</code> is an automatically-generated, short-lived token scoped to the repo that workflows use to call the GitHub API (e.g. post comments, create releases). By default it can be broad, so set <code>permissions:</code> at the workflow/job level to grant only what's needed (e.g. <code>contents: read</code>), following least privilege.</p>`,
+d:`<p>Default-restrict the token (org setting "read-only by default") and elevate per job only as required — a compromised step with a write-all token is dangerous. The token is automatically revoked when the job ends, which limits exposure compared to a stored PAT.</p>`},
+
+{cat:"gha",diff:"hard",q:"What are the supply-chain risks with third-party Actions, and how do you mitigate them?",
+a:`<p>A third-party action runs code in your pipeline with access to your secrets and token — a compromised or malicious action (or a hijacked tag) can exfiltrate them. Mitigate by <b>pinning actions to a full commit SHA</b> (not a mutable tag like <code>@v3</code>), vetting/auditing actions, using verified/first-party actions where possible, restricting <code>GITHUB_TOKEN</code> permissions, and limiting which actions are allowed org-wide.</p>`,
+d:`<p>Pinning to a SHA is the single most important control — a tag can be moved to malicious code, a SHA cannot. Use Dependabot to update pinned SHAs deliberately. Treat actions like any dependency in your supply chain: pin, scan, and minimize.</p>`},
+
+{cat:"gha",diff:"medium",q:"How do you control job ordering, conditionals, and concurrency?",
+a:`<p><b>Ordering:</b> jobs run in parallel unless you declare <code>needs:</code> (job B waits for A) — this also forms a DAG and passes outputs. <b>Conditionals:</b> <code>if:</code> expressions gate jobs/steps (e.g. only deploy on the main branch or on a tag). <b>Concurrency:</b> a <code>concurrency</code> group cancels or queues superseded runs (e.g. cancel in-progress deploys for the same branch).</p>`,
+d:`<p><code>concurrency</code> prevents two deploys of the same environment from racing — a common production safety control. <code>needs</code> + job outputs build multi-stage pipelines; <code>if</code> with branch/tag/event context implements promotion logic (build everywhere, deploy only from main).</p>`},
+
+/* ===================== GITLAB CI ===================== */
+{cat:"gitlab",diff:"easy",q:"Describe the structure of a .gitlab-ci.yml pipeline.",
+a:`<p>The <code>.gitlab-ci.yml</code> at the repo root defines the pipeline. Jobs are assigned to <b>stages</b> (e.g. <code>build</code>, <code>test</code>, <code>deploy</code>) that run sequentially; jobs <i>within</i> a stage run in parallel. Each job specifies a <code>script</code>, optionally an <code>image</code> (Docker), <code>rules</code>/<code>only</code>/<code>except</code> for when it runs, and <code>artifacts</code>/<code>cache</code>.</p>`,
+d:`<p>If any job in a stage fails, later stages don't run (unless <code>allow_failure</code>). <code>rules</code> is the modern, flexible replacement for <code>only/except</code>. GitLab CI is built into the GitLab platform, so pipelines live next to code, issues, and merge requests with no separate CI server.</p>`},
+
+{cat:"gitlab",diff:"medium",q:"What are GitLab Runners and executors?",
+a:`<p><b>Runners</b> are the agents that execute jobs. They can be <b>shared</b> (across the instance), <b>group</b>, or <b>project</b>-specific. Each runner uses an <b>executor</b> that defines <i>how</i> jobs run: <code>docker</code> (each job in a fresh container — most common), <code>shell</code> (directly on the runner host), <code>kubernetes</code> (a pod per job), and others.</p>`,
+d:`<p>The Docker and Kubernetes executors give clean, isolated, ephemeral builds — preferred over the shell executor (which leaves state and runs as the runner user). The Kubernetes executor autoscales elastically. Register your own runners for private networks, special hardware, or compliance.</p>`},
+
+{cat:"gitlab",diff:"medium",q:"What pipeline types does GitLab support (basic, DAG, parent-child, MR pipelines)?",
+a:`<ul>
+<li><b>Basic/stage-based</b> — jobs grouped into sequential stages.</li>
+<li><b>DAG</b> (<code>needs:</code>) — jobs start as soon as their dependencies finish, ignoring stage boundaries, for faster pipelines.</li>
+<li><b>Parent-child</b> — a pipeline triggers separate child pipelines (good for monorepos: run only the affected component's pipeline).</li>
+<li><b>Merge request pipelines</b> — run against the MR, with features like merged-results and merge trains.</li>
+</ul>`,
+d:`<p><b>DAG (<code>needs</code>)</b> is the key performance lever — a slow test stage shouldn't block an unrelated deploy-prep job. <b>Merge trains</b> serialize merges with combined testing to prevent "green-on-branch, broken-on-main." Parent-child pipelines keep monorepo CI fast and scoped.</p>`},
+
+{cat:"gitlab",diff:"medium",q:"How do environments, deployments, and review apps work in GitLab?",
+a:`<p>A job can declare an <code>environment</code> (e.g. <code>staging</code>, <code>production</code>), and GitLab tracks deployments to it (history, current version, rollback). <b>Review apps</b> spin up a temporary, per-merge-request environment so reviewers can see the change live, then tear it down when the MR closes.</p>`,
+d:`<p>Environments give deployment visibility and one-click rollback to a previous deployment. Review apps are powerful for frontend/UX review — every MR gets a disposable live preview. Protected environments add required approvals before deploys.</p>`},
+
+{cat:"gitlab",diff:"medium",q:"How do CI/CD variables and secrets work in GitLab?",
+a:`<p>Define variables at the instance/group/project level or inline. Mark them <b>masked</b> (hidden in job logs) and <b>protected</b> (only exposed to jobs on protected branches/tags) for secrets. Reference them as <code>$VAR_NAME</code> in scripts. For stronger secret management, integrate <b>HashiCorp Vault</b> or use OIDC to fetch cloud credentials at run time.</p>`,
+d:`<p>"Protected" is crucial — it stops a feature branch (or a fork MR) from accessing production secrets. Masking prevents accidental log leakage but isn't real encryption, so combine protected + masked + Vault/OIDC for production credentials.</p>`},
+
+{cat:"gitlab",diff:"medium",q:"How do you keep GitLab CI configuration DRY (include, templates, components)?",
+a:`<p>Use <code>include:</code> to pull in CI config from other files/repos/templates, <code>extends:</code> and YAML anchors to share job definitions, and <b>CI/CD components</b> (the newer, versioned, reusable pipeline building blocks from the catalog) to standardize pipelines across many projects.</p>`,
+d:`<p>This is GitLab's answer to "don't copy-paste pipelines everywhere," analogous to reusable workflows (GHA) or shared libraries (Jenkins). A platform team publishes components/templates; project pipelines <code>include</code> them and stay tiny and consistent.</p>`},
+
+{cat:"gitlab",diff:"medium",q:"What built-in DevSecOps scanning does GitLab provide?",
+a:`<p>GitLab bundles security scanning into the pipeline: <b>SAST</b> (static code analysis), <b>DAST</b> (dynamic/running-app testing), <b>dependency scanning</b> (vulnerable libraries), <b>container scanning</b>, <b>secret detection</b>, and license compliance. Findings surface in the merge request and a security dashboard, gating risky changes before merge.</p>`,
+d:`<p>This integrated "shift-left" security is a major GitLab differentiator — you enable templates rather than wiring separate tools. Results appear inline on the MR so developers fix issues in context. Vulnerability management and compliance dashboards aggregate findings across projects.</p>`},
+
+{cat:"gitlab",diff:"medium",q:"GitLab CI vs GitHub Actions — how do they compare?",
+a:`<p>Both are YAML-based, repo-integrated CI/CD. <b>GitLab</b> is a single integrated DevSecOps platform (SCM + CI + built-in security + container registry + environments), strong for an all-in-one self-managed or SaaS suite. <b>GitHub Actions</b> has a massive Marketplace of reusable actions and the largest community, with CI/CD layered onto GitHub's dominant SCM.</p>`,
+d:`<p>GitLab leans "batteries-included platform" (especially self-managed and built-in security); GitHub leans "ecosystem + marketplace." Choice usually follows where your code already lives and whether you want an integrated suite vs a composable, action-rich ecosystem.</p>`},
+
+/* ===================== ARGO CD ===================== */
+{cat:"argocd",diff:"easy",q:"What is Argo CD and what is GitOps?",
+a:`<p><b>Argo CD</b> is a declarative, GitOps continuous-delivery tool for Kubernetes. <b>GitOps</b> means Git is the single source of truth for desired cluster state; an in-cluster agent (Argo CD) continuously compares the live cluster to the manifests in Git and reconciles them. You change infrastructure by merging a PR, not by running <code>kubectl apply</code> manually.</p>`,
+d:`<p>This is a <b>pull-based</b> model: Argo CD runs inside the cluster and pulls from Git, so no external CI system needs cluster credentials. Benefits: full audit trail (Git history), easy rollback (<code>git revert</code>), drift detection, and declarative reproducibility.</p>`},
+
+{cat:"argocd",diff:"medium",q:"Describe the Argo CD Application resource.",
+a:`<p>An <b>Application</b> CRD ties together: a <b>source</b> (a Git repo, a path, and a revision — plain manifests, Helm, or Kustomize) and a <b>destination</b> (a target cluster and namespace). Argo CD reconciles that source into that destination, tracking sync and health.</p>`,
+d:`<p>Multiple sources/tools are supported (Helm values, Kustomize overlays per environment). Applications are grouped into <b>Projects</b> for RBAC and guardrails (which repos/clusters/namespaces an app may use). The Application is the unit Argo CD manages and reports on.</p>`},
+
+{cat:"argocd",diff:"medium",q:"Sync status vs health status — what's the difference?",
+a:`<p><b>Sync status</b> answers "does the live cluster match Git?" — <code>Synced</code> or <code>OutOfSync</code> (someone changed Git or the cluster, so they diverge). <b>Health status</b> answers "are the deployed resources actually healthy?" — <code>Healthy</code>, <code>Progressing</code>, <code>Degraded</code>, etc. (e.g. a Deployment whose pods aren't ready).</p>`,
+d:`<p>They're orthogonal: an app can be <i>Synced but Degraded</i> (Git applied, but the pods are crashing) or <i>OutOfSync but Healthy</i> (running fine, but Git has a newer version not yet applied). You watch both — sync for drift, health for runtime correctness.</p>`},
+
+{cat:"argocd",diff:"medium",q:"Manual vs automated sync — and what do prune and self-heal do?",
+a:`<p><b>Manual sync</b> requires a human/pipeline to trigger applying Git changes. <b>Automated sync</b> applies them automatically when Git changes. Two options refine it: <b>prune</b> deletes resources removed from Git (otherwise orphaned resources linger), and <b>self-heal</b> reverts any manual/live changes back to Git state (enforcing Git as truth).</p>`,
+d:`<p>Automated + prune + self-heal gives true GitOps enforcement — the cluster can't drift from Git for long. Be deliberate with <b>prune</b> (a bad delete in Git removes resources) and <b>self-heal</b> (it will undo emergency manual hotfixes). Many teams auto-sync non-prod and gate prod with manual sync + approvals.</p>`},
+
+{cat:"argocd",diff:"medium",q:"What is the App of Apps pattern?",
+a:`<p><b>App of Apps</b> is a parent Argo CD Application whose Git source contains the manifests for <i>other</i> Applications. Syncing the parent creates/manages all the child apps — letting you bootstrap and manage an entire cluster's set of applications from one root, declaratively.</p>`,
+d:`<p>It's how teams manage many apps/add-ons (ingress, monitoring, cert-manager, workloads) as a unit and bootstrap new clusters reproducibly. <b>ApplicationSets</b> are a more powerful, templated successor for generating many apps across clusters/environments from generators.</p>`},
+
+{cat:"argocd",diff:"medium",q:"What are sync waves and resource hooks?",
+a:`<p><b>Sync waves</b> order resource application within a sync (lower wave numbers apply first) — e.g. create a namespace and CRDs before the workloads that depend on them. <b>Resource hooks</b> run jobs at sync phases: <code>PreSync</code> (e.g. a DB migration before deploy), <code>Sync</code>, and <code>PostSync</code> (e.g. smoke tests/notifications).</p>`,
+d:`<p>Waves + hooks let GitOps handle ordering and lifecycle tasks that plain "apply everything at once" can't — database migrations, dependency ordering, and post-deploy verification. A failed PreSync hook can halt the sync, protecting you from deploying on a bad migration.</p>`},
+
+{cat:"argocd",diff:"medium",q:"What are ApplicationSets and why use them?",
+a:`<p><b>ApplicationSet</b> is a controller that <i>generates</i> many Argo CD Applications from a template plus a <b>generator</b> — e.g. one app per cluster (cluster generator), per Git directory (monorepo of apps), or per list element. It removes the toil of hand-writing dozens of near-identical Application manifests.</p>`,
+d:`<p>The classic use: deploy the same app to many clusters/regions/environments from a single templated definition, or onboard every microservice folder in a monorepo automatically. It's the scalable evolution of the App-of-Apps pattern for fleet/multi-tenant GitOps.</p>`},
+
+{cat:"argocd",diff:"medium",q:"How does Argo CD detect and handle drift?",
+a:`<p>Argo CD continuously compares live cluster state to Git. Any divergence (a manual <code>kubectl edit</code>, an operator changing something) shows the app as <b>OutOfSync</b> and highlights the exact diff. With <b>self-heal</b> enabled, Argo CD automatically reverts the live change back to the Git-declared state.</p>`,
+d:`<p>This makes unauthorized/manual changes visible and (optionally) auto-corrected — a big reliability and security win. The trade-off: legitimate emergency manual fixes get reverted unless you also update Git, which reinforces the discipline of "change Git, not the cluster."</p>`},
+
+{cat:"argocd",diff:"medium",q:"Argo CD vs Flux — and why is the pull model preferred?",
+a:`<p>Both are CNCF GitOps tools that reconcile Git to Kubernetes. <b>Argo CD</b> has a rich UI, a clear Application model, projects/RBAC, and ApplicationSets. <b>Flux</b> is more controller/Kubernetes-native and composable (toolkit of controllers), often favored for a CLI/GitOps-toolkit approach. Both run <b>in-cluster and pull</b> from Git.</p>`,
+d:`<p>The pull model means no external CI system holds cluster credentials (the agent pulls), you get built-in drift detection and self-heal, and rollback is a Git revert. Contrast with push CD, where a pipeline needs kube credentials and there's no continuous reconciliation. Choice between Argo/Flux is largely UX/ecosystem preference.</p>`},
+
+{cat:"argocd",diff:"hard",q:"How does Argo Rollouts complement Argo CD, and how do you handle secrets in GitOps?",
+a:`<p><b>Argo CD</b> syncs declared state but does plain rolling updates. <b>Argo Rollouts</b> is a separate controller providing <b>progressive delivery</b> — canary and blue-green deployments with automated analysis (metric-based promotion/abort) and traffic shaping via a service mesh/ingress. You use Argo CD to deploy a Rollout resource, and Rollouts manages the safe ramp.</p>
+<p><b>Secrets in GitOps:</b> never commit plaintext secrets to Git — use <b>Sealed Secrets</b>, <b>SOPS</b>, or the <b>External Secrets Operator</b> (pulls from Vault/cloud secret managers at runtime).</p>`,
+d:`<p>Rollouts adds the risk control (canary + automated rollback on bad metrics) that vanilla GitOps lacks. The GitOps secrets problem is real: encrypt-before-commit (Sealed Secrets/SOPS) or reference-don't-store (External Secrets). Putting raw secrets in a Git repo — even private — is the classic GitOps mistake.</p>`},
+
+/* ===================== ANSIBLE ===================== */
+{cat:"ansible",diff:"easy",q:"What is Ansible, and what do 'agentless', 'push-based', and 'idempotent' mean?",
+a:`<p><b>Ansible</b> is an automation tool for configuration management, app deployment, and orchestration. <b>Agentless</b> — it needs no software installed on managed nodes; it connects over <b>SSH</b> (or WinRM for Windows). <b>Push-based</b> — the control node pushes changes out to targets (vs a pull agent). <b>Idempotent</b> — running a playbook repeatedly converges to the same state without making changes if already correct.</p>`,
+d:`<p>Agentless is a big operational advantage — nothing to install/patch on hundreds of nodes (just SSH + Python). Idempotency comes from Ansible's modules describing <i>desired state</i>, not commands. This makes Ansible safe to run repeatedly, the foundation of reliable automation.</p>`},
+
+{cat:"ansible",diff:"medium",q:"Describe playbook structure: plays, tasks, modules, and handlers.",
+a:`<p>A <b>playbook</b> (YAML) contains one or more <b>plays</b>, each targeting a group of hosts and running an ordered list of <b>tasks</b>. Each task calls a <b>module</b> (e.g. <code>apt</code>, <code>copy</code>, <code>service</code>) with parameters. <b>Handlers</b> are special tasks triggered by <code>notify</code> only when a task reports a change (e.g. restart a service after its config file changes).</p>`,
+d:`<p>Modules are the idempotent building blocks (they do the right thing or nothing). Handlers run once, at the end, even if notified multiple times — perfect for "restart service only if config actually changed." Plays map hosts → roles/tasks; tasks map to modules.</p>`},
+
+{cat:"ansible",diff:"medium",q:"How does Ansible inventory work (static vs dynamic)?",
+a:`<p>The <b>inventory</b> defines the hosts Ansible manages, organized into <b>groups</b> (e.g. <code>[web]</code>, <code>[db]</code>) with per-host/group variables. <b>Static</b> inventory is a file (INI/YAML) you maintain. <b>Dynamic</b> inventory uses plugins/scripts that query a source (AWS, Azure, vSphere) at run time, so the host list reflects live cloud reality automatically.</p>`,
+d:`<p>Dynamic inventory is essential in the cloud — instances come and go, so you discover them by tags/attributes rather than hand-maintaining IPs. Group variables (<code>group_vars/</code>, <code>host_vars/</code>) let you parameterize behavior per environment/role cleanly.</p>`},
+
+{cat:"ansible",diff:"medium",q:"What are roles and Ansible Galaxy?",
+a:`<p>A <b>role</b> is a standardized, reusable bundle of automation with a defined directory layout — <code>tasks/</code>, <code>handlers/</code>, <code>templates/</code>, <code>files/</code>, <code>vars/</code>, <code>defaults/</code>, <code>meta/</code>. Roles package a capability (e.g. "install and configure nginx") for reuse across playbooks. <b>Ansible Galaxy</b> is the public hub for sharing and downloading community roles and collections.</p>`,
+d:`<p>Roles are how you keep large automation DRY and maintainable — playbooks become thin lists of roles applied to host groups. <code>defaults/</code> holds overridable defaults, <code>vars/</code> holds higher-precedence role vars. Pin roles/collections from Galaxy with <code>requirements.yml</code> for reproducibility.</p>`},
+
+{cat:"ansible",diff:"medium",q:"How does Ansible achieve idempotency, and why are command/shell modules a caveat?",
+a:`<p>Most modules are <b>idempotent</b> — they check current state and only change what's needed (<code>service</code> ensures running; if already running, no change). But the <b>command</b>/<b>shell</b> modules run raw commands and are <b>not</b> idempotent by default — they execute every run. Use a proper module when one exists; if you must use shell, guard it with <code>creates</code>/<code>removes</code> or <code>changed_when</code>/<code>when</code> conditions.</p>`,
+d:`<p>The classic anti-pattern is doing everything with <code>shell</code>, losing idempotency and reporting accuracy. Prefer purpose-built modules; they make playbooks safe to re-run and report changes truthfully. <code>changed_when: false</code> marks read-only commands so they don't show spurious "changed."</p>`},
+
+{cat:"ansible",diff:"medium",q:"Explain variables, facts, and Jinja2 templating in Ansible.",
+a:`<p>Variables parameterize playbooks (defined in inventory, <code>group_vars</code>/<code>host_vars</code>, playbooks, roles, or via <code>--extra-vars</code>, following a precedence order). <b>Facts</b> are system data Ansible auto-gathers about each host (OS, IP, memory) usable as variables. <b>Jinja2</b> templates (<code>{{ variable }}</code>) render config files dynamically per host via the <code>template</code> module.</p>`,
+d:`<p>Variable <b>precedence</b> is a common interview topic — roughly: role defaults (lowest) → inventory/group/host vars → play vars → <code>--extra-vars</code> (highest). Facts let one playbook adapt per host (e.g. choose <code>apt</code> vs <code>yum</code> by OS family). Templating turns static config into per-environment-rendered config.</p>`},
+
+{cat:"ansible",diff:"medium",q:"How do you manage secrets with Ansible Vault?",
+a:`<p><b>Ansible Vault</b> encrypts sensitive data (variables or whole files) at rest so you can safely commit them to source control. You encrypt with <code>ansible-vault encrypt</code> and supply the password (or a vault-id) at run time with <code>--ask-vault-pass</code> or a password file/script. Encrypted vars decrypt in memory during the run.</p>`,
+d:`<p>For stronger secret management, integrate an external store (HashiCorp Vault, cloud secret managers) and fetch secrets at run time instead of storing encrypted blobs in Git. Keep the vault password itself out of the repo (CI secret/credential store). Vault solves "secrets in version control," not full secret lifecycle.</p>`},
+
+{cat:"ansible",diff:"medium",q:"What do handlers, loops, conditionals (when), and tags give you?",
+a:`<p><b>Handlers</b> run on change notification (restart-on-change). <b>Loops</b> (<code>loop:</code>) repeat a task over a list (install many packages, create many users). <b>Conditionals</b> (<code>when:</code>) run a task only if a condition holds (e.g. only on RedHat hosts). <b>Tags</b> let you run a subset of a playbook (<code>--tags deploy</code>) without executing everything.</p>`,
+d:`<p>These make playbooks data-driven and flexible: loop over inventory/vars, branch on facts, and selectively run parts of a large playbook. Tags are great for big playbooks where you want to re-run just the "config" or "deploy" portion quickly.</p>`},
+
+{cat:"ansible",diff:"medium",q:"What does Ansible Automation Platform (Tower/AWX) add over plain Ansible?",
+a:`<p>Plain Ansible is a CLI. <b>Ansible Automation Platform</b> (formerly <b>Tower</b>; <b>AWX</b> is the upstream open-source project) adds an enterprise control layer: a web UI and REST API, <b>RBAC</b>, <b>job templates</b> with <b>surveys</b> (parameterized self-service), scheduling, centralized <b>credential management</b>, inventory management, <b>workflows</b> (chaining jobs), logging/auditing, and notifications.</p>`,
+d:`<p>It turns Ansible from "engineers run playbooks from their laptops" into a governed, auditable, self-service automation service — non-experts can launch curated job templates with guardrails, credentials are stored centrally (not on laptops), and everything is logged. This is what makes Ansible enterprise-grade at scale.</p>`},
+
+{cat:"ansible",diff:"medium",q:"Ansible vs Terraform — how do they differ and when do you use each?",
+a:`<p><b>Terraform</b> is declarative <b>provisioning</b> (create cloud infrastructure) with explicit state and an immutable-infrastructure bent. <b>Ansible</b> is primarily <b>configuration management</b> (configure existing servers, deploy apps) — procedural/ordered, agentless, and mutable (it changes machines in place). Terraform builds the servers; Ansible configures what's on them.</p>`,
+d:`<p>They're complementary: Terraform provisions the VMs/network, Ansible configures the OS/apps (or you bake images with Packer for immutable infra). Ansible <i>can</i> provision cloud resources, but Terraform's state/plan model is stronger for that; Terraform <i>can't</i> do in-place config management well. Common pattern: Terraform + Ansible (or Terraform + immutable images).</p>`},
+
+{cat:"ansible",diff:"medium",q:"How do you test/dry-run Ansible, and what are ad-hoc commands?",
+a:`<p><b>Check mode</b> (<code>--check</code>) does a dry run, reporting what <i>would</i> change without changing anything (pair with <code>--diff</code> to see content diffs). <b>Ad-hoc commands</b> run a single module against hosts without a playbook — <code>ansible web -m ping</code> or <code>ansible web -m service -a "name=nginx state=restarted"</code> — for quick one-off tasks.</p>`,
+d:`<p>Check mode is your safety net before applying to production (note: not all modules fully support it). Ad-hoc commands are great for quick checks/fixes (ping all hosts, gather a fact, restart a service) without authoring a playbook. For real testing, use <b>Molecule</b> to test roles in containers.</p>`},
+
+{cat:"ansible",diff:"hard",q:"How do you scale Ansible performance and troubleshoot slow/failing runs?",
+a:`<p>Performance levers: increase <b>forks</b> (parallelism across hosts), use <b>strategies</b> (<code>free</code> lets hosts run independently instead of lock-step <code>linear</code>), enable <b>fact caching</b> and <code>gather_facts: false</code> when facts aren't needed, use <code>pipelining</code> to reduce SSH operations, and limit scope with <code>--limit</code>. Troubleshoot with <code>-vvv</code> (verbose), <code>--check --diff</code>, and <code>--start-at-task</code>.</p>`,
+d:`<p>Fact gathering and SSH round-trips dominate runtime at scale — caching facts and pipelining help a lot. Idempotency issues usually come from <code>shell</code>/<code>command</code> tasks; fix with proper modules or <code>changed_when</code>. For very large fleets, AAP/AWX with smart inventory and a control-node fleet scales better than a single laptop.</p>`},
+
+/* ===================== AZURE DEVOPS ===================== */
+{cat:"azdo",diff:"easy",q:"What are the core Azure DevOps services?",
+a:`<ul>
+<li><b>Boards</b> — work tracking (backlogs, sprints, Kanban, work items).</li>
+<li><b>Repos</b> — Git (and legacy TFVC) source control.</li>
+<li><b>Pipelines</b> — CI/CD (build and release).</li>
+<li><b>Test Plans</b> — manual/exploratory test management.</li>
+<li><b>Artifacts</b> — package feeds (NuGet, npm, Maven, Python, universal).</li>
+</ul>`,
+d:`<p>It's an integrated end-to-end DevOps suite (plan → code → build → test → release → package). Many teams use a subset (commonly Repos + Pipelines, or Boards + Pipelines while hosting code on GitHub). Pipelines can build from Azure Repos <i>or</i> GitHub and other sources.</p>`},
+
+{cat:"azdo",diff:"medium",q:"YAML vs Classic pipelines, and the stages/jobs/steps model?",
+a:`<p><b>YAML pipelines</b> are pipeline-as-code (a <code>azure-pipelines.yml</code> in the repo) — versioned, reviewable, and the recommended approach. <b>Classic</b> pipelines are configured in the UI (no code) — easier to start, harder to version. The model: a pipeline has <b>stages</b> → <b>jobs</b> (each runs on an agent) → <b>steps</b> (tasks/scripts).</p>`,
+d:`<p>Prefer YAML for the same reasons as any pipeline-as-code: review, history, branch-awareness, reuse via templates. Classic release pipelines are still common for legacy gated releases. Jobs in a stage can run in parallel; stages run sequentially with optional approvals between them.</p>`},
+
+{cat:"azdo",diff:"medium",q:"Microsoft-hosted vs self-hosted agents?",
+a:`<p>Pipelines run on <b>agents</b> in <b>agent pools</b>. <b>Microsoft-hosted</b> agents are managed, clean-per-run VMs (Windows/Linux/macOS) with common tooling — no maintenance, but limited customization and a concurrency/time cap. <b>Self-hosted</b> agents run on your machines — for custom software, private-network access, special hardware, or longer/faster builds — but you maintain and secure them.</p>`,
+d:`<p>Use Microsoft-hosted for standard builds; self-hosted when you need private resources, specific tools/hardware, or higher throughput. Make self-hosted agents ephemeral where possible. Scale-set agents (backed by an Azure VM scale set) give elastic self-hosted capacity.</p>`},
+
+{cat:"azdo",diff:"medium",q:"What are service connections, and how should they authenticate to Azure?",
+a:`<p>A <b>service connection</b> lets a pipeline access an external system (Azure, AWS, a registry, Kubernetes). For Azure, it historically used a <b>service principal</b> with a client secret; the modern, recommended option is <b>workload identity federation (OIDC)</b> — the pipeline gets short-lived tokens, so there's <b>no stored secret</b> to rotate or leak.</p>`,
+d:`<p>Workload identity federation is the Azure DevOps equivalent of GitHub Actions OIDC — adopt it to eliminate long-lived service-principal secrets. Scope the service connection to the least privilege (specific resource group/subscription) and restrict which pipelines may use it.</p>`},
+
+{cat:"azdo",diff:"medium",q:"How do variable groups, secret variables, and Key Vault integration work?",
+a:`<p><b>Variables</b> parameterize pipelines; mark them <b>secret</b> to encrypt and mask them in logs. <b>Variable groups</b> (in the Library) share variables across pipelines, and a variable group can be <b>linked to Azure Key Vault</b> so secrets are pulled from Key Vault at run time rather than stored in the pipeline.</p>`,
+d:`<p>Key Vault linkage is the strong pattern — secrets live in Key Vault (rotated, access-controlled, audited) and the pipeline fetches them via the service connection's identity. Secret variables aren't passed to scripts as plain env vars unless explicitly mapped, which prevents accidental leakage.</p>`},
+
+{cat:"azdo",diff:"medium",q:"How do environments, approvals/checks, and deployment strategies work?",
+a:`<p><b>Environments</b> (e.g. <code>dev</code>, <code>prod</code>) are deployment targets with <b>approvals and checks</b> — required approvers, business-hours gates, or invoking a function/REST check before a deploy proceeds. <b>Deployment jobs</b> support strategies: <code>runOnce</code>, <code>rolling</code>, and <code>canary</code>, with lifecycle hooks (preDeploy, deploy, routeTraffic, postRouteTraffic, on:failure).</p>`,
+d:`<p>Approvals + checks bring change control into the pipeline — production deploys pause for sign-off and can require security/quality gates. The canary/rolling strategies (with hooks) implement progressive delivery natively. Environments also give deployment history and traceability per target.</p>`},
+
+{cat:"azdo",diff:"medium",q:"How do you reuse pipeline logic with templates?",
+a:`<p>Azure Pipelines <b>templates</b> let you factor out reusable YAML — <b>step</b>, <b>job</b>, <b>stage</b>, and <b>variable</b> templates — referenced from multiple pipelines (even across repos). Parameters make them configurable. This standardizes build/deploy logic so each pipeline stays small and consistent.</p>`,
+d:`<p>Templates are Azure DevOps's DRY mechanism (analogous to GHA reusable workflows / GitLab includes / Jenkins shared libraries). <b>Required templates</b> can also enforce security/compliance steps that pipelines must include — a governance control for platform teams.</p>`},
+
+{cat:"azdo",diff:"medium",q:"What does Azure Artifacts provide?",
+a:`<p><b>Azure Artifacts</b> hosts package <b>feeds</b> for NuGet, npm, Maven, Python (PyPI), and universal packages — a private registry for your internal packages and a cache/proxy (upstream sources) for public ones. Pipelines publish build outputs to a feed and consume dependencies from it.</p>`,
+d:`<p>Upstream sources let you proxy public registries through your feed (caching + a single trusted source + protection against public outages/typosquatting). Views (e.g. <code>@prerelease</code>, <code>@release</code>) promote package quality levels. It's the AzDO analogue of CodeArtifact / a private Nexus/Artifactory.</p>`},
+
+{cat:"azdo",diff:"medium",q:"Azure DevOps vs GitHub Actions — both are Microsoft; when which?",
+a:`<p><b>Azure DevOps</b> is a mature, integrated suite (Boards, Repos, Pipelines, Test Plans, Artifacts) with strong enterprise governance, classic release pipelines, and Test Plans — favored by enterprises already invested in it. <b>GitHub Actions</b> is lighter, community/marketplace-driven, tightly coupled to GitHub's dominant SCM, and where Microsoft is investing for new work.</p>`,
+d:`<p>Microsoft positions GitHub as the strategic platform, so greenfield projects often start there; many enterprises keep Azure DevOps for its end-to-end suite, Boards, Test Plans, and existing pipelines. They interoperate (Azure Pipelines can build GitHub repos). Choice follows existing investment and whether you need the full suite vs the GitHub ecosystem.</p>`},
+
+/* ===================== AWS DEVOPS ===================== */
+{cat:"awsdo",diff:"easy",q:"Give an overview of the AWS developer tools (Code* suite) and CodeCatalyst.",
+a:`<ul>
+<li><b>CodeCommit</b> — managed Git repos (note: AWS restricted it to existing customers in 2024; new projects usually use GitHub/GitLab).</li>
+<li><b>CodeBuild</b> — managed build/test service.</li>
+<li><b>CodeDeploy</b> — automated deployments to EC2, ECS, and Lambda.</li>
+<li><b>CodePipeline</b> — orchestrates the end-to-end CI/CD workflow.</li>
+<li><b>CodeArtifact</b> — package repository.</li>
+<li><b>CodeCatalyst</b> — a newer unified DevOps service (projects, repos, workflows, environments) layered on these.</li>
+</ul>`,
+d:`<p>The Code* tools are managed, IAM-integrated, and pay-per-use — attractive when you want CI/CD inside AWS with no servers to run. Many teams mix-and-match: GitHub for SCM + CodePipeline/CodeBuild/CodeDeploy for build/deploy. Confirm CodeCommit availability before relying on it for new projects.</p>`},
+
+{cat:"awsdo",diff:"medium",q:"What is CodeBuild and what's in a buildspec?",
+a:`<p><b>CodeBuild</b> is a fully managed build service — it compiles source, runs tests, and produces artifacts in ephemeral, containerized build environments, scaling automatically with no build servers to manage. The build is defined by a <b>buildspec.yml</b> with <code>phases</code> (install, pre_build, build, post_build) plus <code>artifacts</code> and <code>cache</code> sections.</p>`,
+d:`<p>You pay per build-minute, and builds run in isolated containers (clean per run). The buildspec lives in the repo (build-as-code). Use the <code>cache</code> section + S3/local caching to speed up dependency-heavy builds, and grant the build's IAM role least privilege for what it needs (e.g. push to ECR).</p>`},
+
+{cat:"awsdo",diff:"hard",q:"What is CodeDeploy, and how do in-place vs blue-green deployments work?",
+a:`<p><b>CodeDeploy</b> automates deployments to EC2/on-prem, ECS, and Lambda, driven by an <b>appspec</b> file (hooks like BeforeInstall, AfterInstall, ApplicationStart, ValidateService). <b>In-place</b> updates existing instances (taking some out of service during update — risk of downtime, slower rollback). <b>Blue-green</b> provisions a new (green) fleet, shifts traffic once healthy, and keeps blue for instant rollback.</p>`,
+d:`<p>For Lambda/ECS, CodeDeploy does <b>canary/linear traffic shifting</b> (e.g. 10% then 90%) with CloudWatch alarm-based automatic rollback. Blue-green minimizes risk and rollback time at the cost of extra capacity. Deployment configs (e.g. <code>OneAtATime</code>, <code>HalfAtATime</code>, canary percentages) control the rollout pace.</p>`},
+
+{cat:"awsdo",diff:"medium",q:"What does CodePipeline orchestrate, and what are stages and actions?",
+a:`<p><b>CodePipeline</b> models a release as <b>stages</b> (Source → Build → Test → Deploy) containing <b>actions</b>. It reacts to a source change (CodeCommit/GitHub/S3), runs a build (CodeBuild), optional manual-approval actions, and deploys (CodeDeploy/CloudFormation/ECS). It's the glue connecting the other Code* services and third-party tools.</p>`,
+d:`<p>It's event-driven and managed (no orchestrator to run). Manual-approval actions add gates; parallel actions speed stages; it integrates with CloudFormation for IaC deploys and with Lambda for custom actions. Each action assumes an IAM role — keep them least-privilege.</p>`},
+
+{cat:"awsdo",diff:"medium",q:"What is CodeArtifact?",
+a:`<p><b>CodeArtifact</b> is a managed artifact/package repository for npm, PyPI, Maven, NuGet, etc. It stores your private packages and can proxy/cache public registries through an <b>upstream</b>, giving a single trusted, IAM-controlled source for dependencies and protecting builds from public-registry outages or tampering.</p>`,
+d:`<p>It's the AWS analogue of Azure Artifacts / Nexus / Artifactory. Proxying public registries adds caching, a security checkpoint, and resilience. Access is IAM/token-based, integrating cleanly with CodeBuild and your developer tooling.</p>`},
+
+{cat:"awsdo",diff:"medium",q:"How do the Code* tools integrate with Infrastructure as Code?",
+a:`<p>CodePipeline can deploy infrastructure via <b>CloudFormation</b> (or CDK, which synthesizes to CloudFormation) as a deploy action — so app and infra changes flow through the same pipeline. CodeBuild can also run <code>terraform plan/apply</code>. A common pattern: source → build/test → CloudFormation change set (with manual approval) → execute.</p>`,
+d:`<p>Using CloudFormation <b>change sets</b> with an approval gate gives a reviewable "plan" before infra changes apply — the AWS-native equivalent of reviewing a Terraform plan. This keeps infrastructure changes automated, auditable, and gated rather than hand-applied.</p>`},
+
+{cat:"awsdo",diff:"medium",q:"How do you implement blue-green and canary deployments on AWS?",
+a:`<p>Use <b>CodeDeploy</b>: for ECS and Lambda it natively shifts traffic <b>canary</b> (a percentage, then the rest after a bake time) or <b>linear</b> (equal increments), and for EC2 it does <b>blue-green</b> by standing up a new fleet behind the load balancer and cutting over. CloudWatch alarms trigger <b>automatic rollback</b> if error/latency metrics breach during the shift.</p>`,
+d:`<p>The key safety feature is alarm-based auto-rollback during traffic shifting — a bad deploy reverts before most users are affected. For ECS blue-green, an ALB with two target groups swaps traffic; for Lambda, aliases shift weighted traffic. Always pair with health/SLO alarms so the rollout can self-abort.</p>`},
+
+{cat:"awsdo",diff:"medium",q:"How do you secure an AWS CI/CD pipeline?",
+a:`<p>Give each pipeline/build/deploy action a <b>least-privilege IAM role</b> (not broad admin). For <b>external</b> CI (GitHub Actions/GitLab) deploying to AWS, use <b>OIDC</b> federation instead of stored access keys. Pull secrets from <b>Secrets Manager/SSM</b> at run time (never hardcode), scan images/dependencies in CodeBuild, and gate production with manual approvals.</p>`,
+d:`<p>The two biggest wins: scoped IAM roles per pipeline action (so a compromised build can't do everything) and OIDC for any external CI (no long-lived keys). Encrypt artifacts (S3 + KMS), enable CloudTrail on pipeline activity, and require approval before prod deploys.</p>`},
+
+/* ===================== VDI ===================== */
+{cat:"vdi",diff:"easy",q:"What is VDI, and what are its core components?",
+a:`<p><b>Virtual Desktop Infrastructure (VDI)</b> hosts user desktops/apps as virtual machines on centralized servers in a datacenter/cloud; users connect remotely from any device, and only screen pixels/input travel over the network — the data and compute stay central. Core components: a <b>hypervisor</b> (runs the desktop VMs), a <b>connection broker</b> (authenticates users and brokers them to a desktop), a <b>gateway</b> (secure remote access), a <b>golden/master image</b> (the desktop template), and <b>profile management</b> (user data/settings).</p>`,
+d:`<p>The value proposition: data never leaves the datacenter (security/compliance), central management/patching of one image instead of many endpoints, and access from any device (BYOD, contractors). The broker is the brain (load-balances users to hosts); the gateway secures external connections without a VPN.</p>`},
+
+{cat:"vdi",diff:"medium",q:"Persistent vs non-persistent (pooled) desktops — trade-offs?",
+a:`<p><b>Persistent</b> desktops are dedicated — each user keeps their own VM, with changes (apps, files, settings) saved between sessions, like a personal PC. <b>Non-persistent (pooled)</b> desktops are stateless — users get a fresh desktop from the golden image each logon, and it resets on logoff. Non-persistent is far easier to manage and patch (update one image) and denser/cheaper, but requires externalized user profiles/data.</p>`,
+d:`<p>Most modern deployments favor <b>non-persistent + profile containers (FSLogix)</b> so user identity/data roam onto stateless hosts — best of both worlds: clean managed images + personalized experience. Persistent is used where users need to install their own software or for specialized workstations. The trade-off is management simplicity/cost vs per-user customization.</p>`},
+
+{cat:"vdi",diff:"medium",q:"Describe Azure Virtual Desktop (AVD) architecture.",
+a:`<p><b>AVD</b> is Microsoft's cloud VDI/DaaS. Microsoft manages the <b>control plane</b> (broker, gateway, web access, diagnostics) as a service; <b>you</b> manage the <b>session hosts</b> (the VMs that run desktops/apps), organized into <b>host pools</b>. AVD uniquely supports <b>multi-session Windows</b> (Windows 10/11 Enterprise multi-session) so many users share one VM, cutting cost. <b>Application groups</b> publish full desktops or specific RemoteApps; users are assigned via Entra ID.</p>`,
+d:`<p>Because Microsoft runs the control plane, you only operate the session-host VMs (size, image, scale). Multi-session Windows is the big cost differentiator vs traditional 1:1 VDI. Pair with <b>FSLogix</b> (profiles on Azure Files), Entra ID + Conditional Access for security, and <b>scaling plans</b> for autoscale. Windows 365 is the simpler, fixed-price "Cloud PC" (always persistent, per-user) sibling.</p>`},
+
+{cat:"vdi",diff:"medium",q:"What is FSLogix and why is it essential for non-persistent VDI?",
+a:`<p><b>FSLogix</b> stores a user's Windows <b>profile</b> (and Office/OneDrive cache, search index) in a <b>VHD/VHDX container</b> on shared storage (e.g. Azure Files). At logon it mounts the container so the user's full profile appears <i>natively and instantly</i> on whatever stateless session host they land on; at logoff it detaches. This makes non-persistent/pooled desktops feel personalized.</p>`,
+d:`<p>Without profile containers, roaming profiles on non-persistent hosts are slow and break Office/Outlook/Teams caches. FSLogix solves the core problem of "stateless hosts + personal profile." Watch storage performance/IOPS (profile mounts are I/O sensitive) and size the file share for concurrent logons to avoid logon storms.</p>`},
+
+{cat:"vdi",diff:"medium",q:"What remoting protocols are used in VDI (RDP, HDX, Blast, PCoIP)?",
+a:`<ul>
+<li><b>RDP</b> (Remote Desktop Protocol) — Microsoft's protocol, used by AVD/RDS.</li>
+<li><b>ICA/HDX</b> — Citrix's high-definition protocol, known for performance over poor networks and rich peripheral/multimedia handling.</li>
+<li><b>Blast Extreme / PCoIP</b> — VMware Horizon's protocols (Blast is the modern default; PCoIP legacy).</li>
+</ul>
+<p>All transmit display, input, audio, and device redirection efficiently, adapting to bandwidth/latency.</p>`,
+d:`<p>Protocol quality matters most on high-latency or constrained links — Citrix HDX historically led on WAN performance and graphics; AVD's RDP and VMware Blast have closed much of the gap. For graphics/CAD/GPU workloads, protocol + GPU acceleration (vGPU) is critical. Evaluate by user experience under real network conditions and peripheral/multimedia needs.</p>`},
+
+{cat:"vdi",diff:"medium",q:"VDI vs DaaS, and what are the major platforms?",
+a:`<p><b>VDI</b> traditionally means <i>you</i> build and operate the desktop infrastructure (often on-prem). <b>DaaS (Desktop as a Service)</b> is cloud-delivered VDI where the provider manages the control plane and infrastructure, and you consume desktops as a service. Major platforms: <b>Azure Virtual Desktop</b> and <b>Windows 365</b> (Microsoft), <b>Amazon WorkSpaces</b> (AWS), <b>Citrix DaaS</b> / Virtual Apps and Desktops, and <b>VMware Horizon</b>.</p>`,
+d:`<p>DaaS shifts undifferentiated heavy lifting (broker, gateway, scaling infra) to the provider — AVD/Windows 365/WorkSpaces are DaaS; Citrix and VMware can run on-prem (VDI) or as cloud DaaS. Citrix/VMware are often layered <i>on top of</i> AVD/cloud for their advanced management, protocols, and multi-cloud brokering.</p>`},
+
+{cat:"vdi",diff:"medium",q:"What are the main use cases and benefits of VDI?",
+a:`<p>Strong fits: <b>security/compliance</b> (data stays in the datacenter, nothing on the endpoint), <b>BYOD and contractors</b> (access from any/unmanaged device safely), <b>remote/distributed workforce</b>, <b>regulated industries</b> (finance, healthcare), <b>GPU workstations</b> (CAD/3D/ML delivered to thin clients), <b>call centers</b> (cheap standardized non-persistent desktops), and <b>M&amp;A / seasonal scaling</b> (rapidly provision/deprovision many desktops).</p>`,
+d:`<p>Benefits: centralized patching/management of one image, fast onboarding/offboarding, device-independence, and a smaller endpoint attack surface. Trade-offs: dependence on network connectivity, upfront design complexity, and per-user infra cost — VDI isn't cheaper for every workforce, so the use case has to justify it.</p>`},
+
+{cat:"vdi",diff:"medium",q:"How do you size and scale a VDI deployment (e.g. AVD) and manage cost?",
+a:`<p>Size by <b>user density</b> per host: profile users as light/medium/heavy (knowledge worker vs CAD), allocate vCPU/RAM/GPU accordingly, and load-test to find users-per-host. <b>Scale</b> with multi-session hosts in host pools plus <b>autoscale/scaling plans</b> that power hosts on/off by schedule and demand (ramp up before business hours, down at night). Use <b>Spot/reserved</b> capacity and right-sized VM SKUs to control cost.</p>`,
+d:`<p>The biggest cost lever in cloud VDI is <b>turning hosts off when idle</b> (scaling plans) and packing users via multi-session — running all hosts 24/7 is the classic overspend. Watch for <b>logon storms</b> (everyone logs in at 9am) when sizing storage/compute, and reserve capacity for the steady baseline.</p>`},
+
+{cat:"vdi",diff:"hard",q:"What are common VDI problems and how do you troubleshoot them?",
+a:`<ul>
+<li><b>Slow logons / logon storms</b> — many concurrent logons overwhelm storage (FSLogix profile mounts) or domain controllers. → scale profile storage IOPS, stagger, pre-warm hosts.</li>
+<li><b>Profile bloat/corruption</b> — oversized FSLogix containers, Office cache growth. → size limits, redirect OneDrive, container maintenance.</li>
+<li><b>Poor session performance/latency</b> — network distance, insufficient host resources, no GPU for graphics. → place hosts near users, right-size, add vGPU, tune the protocol.</li>
+<li><b>Capacity/density</b> — too many users per host causing CPU/RAM contention. → re-profile and rebalance.</li>
+</ul>`,
+d:`<p>Most VDI complaints are <b>storage/IOPS</b> (profiles), <b>network latency</b>, or <b>host over-subscription</b>. Diagnose with the platform's monitoring (AVD Insights / Citrix Director / Horizon) looking at logon duration breakdown, host resource saturation, and protocol round-trip latency. Right-size, place compute near users, and ensure profile storage performance — those three solve the majority of issues.</p>`},
+];
+
+/* ============================== STATE ============================== */
+let activeCat = "all";
+let activeDiff = "all";
+let search = "";
+const mastery = loadMastery();
+
+function loadMastery(){
+  try{ const r = localStorage.getItem("cicd_mastery"); return r ? JSON.parse(r) : {}; }
+  catch(e){ return {}; }
+}
+function saveMastery(){
+  try{ localStorage.setItem("cicd_mastery", JSON.stringify(mastery)); }catch(e){}
+}
+
+/* ============================== RENDER ============================== */
+const DIFFS = ["easy","medium","hard"];
+const listEl = document.getElementById("list");
+const emptyEl = document.getElementById("empty");
+const metaEl = document.getElementById("meta");
+
+function catCounts(){ const c = {}; Q.forEach(q=>c[q.cat]=(c[q.cat]||0)+1); return c; }
+
+function buildChips(){
+  const counts = catCounts();
+  const cc = document.getElementById("catchips");
+  const mk = (key,label,count,group)=>{
+    const b=document.createElement("button");
+    b.className="chip"+((group==="cat"&&activeCat===key)||(group==="diff"&&activeDiff===key)?" on":"");
+    b.innerHTML = label + (count!=null?` <span class="ct">${count}</span>`:"");
+    b.onclick=()=>{ if(group==="cat"){activeCat=key;} else {activeDiff=key;} buildChips(); render(); };
+    return b;
+  };
+  cc.innerHTML="";
+  cc.appendChild(mk("all","All",Q.length,"cat"));
+  Object.keys(CATS).forEach(k=> cc.appendChild(mk(k,CATS[k],counts[k]||0,"cat")));
+
+  const dc=document.getElementById("diffchips");
+  dc.querySelectorAll(".chip").forEach(n=>n.remove());
+  const sep=dc.querySelector(".sep");
+  const frag=document.createDocumentFragment();
+  frag.appendChild(mk("all","All levels",null,"diff"));
+  DIFFS.forEach(d=> frag.appendChild(mk(d, d.charAt(0).toUpperCase()+d.slice(1), null,"diff")));
+  dc.insertBefore(frag, sep);
+}
+
+function matches(q){
+  if(activeCat!=="all" && q.cat!==activeCat) return false;
+  if(activeDiff!=="all" && q.diff!==activeDiff) return false;
+  if(search){
+    const hay=(q.q+" "+q.a+" "+q.d+" "+CATS[q.cat]).toLowerCase();
+    if(!hay.includes(search)) return false;
+  }
+  return true;
+}
+
+function render(){
+  const items = Q.map((q,i)=>({q,i})).filter(o=>matches(o.q));
+  listEl.innerHTML="";
+  items.forEach(({q,i})=>{
+    const id="q"+i;
+    const done=!!mastery[id];
+    const card=document.createElement("article");
+    card.className="card"+(done?" done":"");
+    card.style.setProperty("--spine", done? "var(--easy)":"var(--azure)");
+    card.innerHTML=`
+      <div class="qrow" role="button" tabindex="0" aria-expanded="false">
+        <div class="qnum">${String(i+1).padStart(2,"0")}</div>
+        <div class="qmain">
+          <div class="tags">
+            <span class="tag cat">${CATS[q.cat]}</span>
+            <span class="tag d-${q.diff}">${q.diff}</span>
+          </div>
+          <div class="q">${q.q}</div>
+        </div>
+        <button class="star${done?" on":""}" title="Mark mastered" aria-label="Mark mastered">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="${done?"currentColor":"none"}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.6 9.1l5.8-.8z"/></svg>
+        </button>
+        <svg class="caret" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+      <div class="ans">
+        <h4>Answer</h4>${q.a}
+        <h4>Details &amp; what the interviewer is probing</h4>${q.d}
+      </div>`;
+    const row=card.querySelector(".qrow");
+    const toggle=()=>{ card.classList.toggle("open"); row.setAttribute("aria-expanded", card.classList.contains("open")); };
+    row.addEventListener("click",e=>{ if(e.target.closest(".star")) return; toggle(); });
+    row.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); }});
+    card.querySelector(".star").addEventListener("click",e=>{
+      e.stopPropagation();
+      if(mastery[id]) delete mastery[id]; else mastery[id]=1;
+      saveMastery(); buildStats(); render();
+    });
+    listEl.appendChild(card);
+  });
+  emptyEl.style.display = items.length? "none":"block";
+  metaEl.textContent = `Showing ${items.length} of ${Q.length} question${items.length===1?"":"s"}`
+    + (activeCat!=="all"?` · ${CATS[activeCat]}`:"")
+    + (activeDiff!=="all"?` · ${activeDiff}`:"")
+    + (search?` · matching “${search}”`:"");
+}
+
+function buildStats(){
+  const byDiff={easy:0,medium:0,hard:0}; Q.forEach(q=>byDiff[q.diff]++);
+  const mastered=Object.keys(mastery).length;
+  document.getElementById("stats").innerHTML=
+     `<div class="stat"><b>${Q.length}</b><span>questions</span></div>`
+    +`<div class="stat"><b>${Object.keys(CATS).length}</b><span>tools</span></div>`
+    +`<div class="stat"><b>${byDiff.easy}</b><span>easy</span></div>`
+    +`<div class="stat"><b>${byDiff.medium}</b><span>medium</span></div>`
+    +`<div class="stat"><b>${byDiff.hard}</b><span>hard</span></div>`;
+  const pct = Q.length? Math.round(mastered/Q.length*100):0;
+  document.getElementById("pfill").style.width=pct+"%";
+  document.getElementById("pcount").textContent=`${mastered} of ${Q.length} mastered`;
+}
+
+/* ============================== EVENTS ============================== */
+document.getElementById("search").addEventListener("input",e=>{ search=e.target.value.trim().toLowerCase(); render(); });
+document.getElementById("expandAll").addEventListener("click",()=>document.querySelectorAll(".card").forEach(c=>{c.classList.add("open");c.querySelector(".qrow").setAttribute("aria-expanded","true");}));
+document.getElementById("collapseAll").addEventListener("click",()=>document.querySelectorAll(".card").forEach(c=>{c.classList.remove("open");c.querySelector(".qrow").setAttribute("aria-expanded","false");}));
+document.getElementById("resetMastery").addEventListener("click",()=>{
+  if(confirm("Clear all mastered marks?")){ for(const k in mastery) delete mastery[k]; saveMastery(); buildStats(); render(); }
+});
+
+/* ============================== INIT ============================== */
+buildChips(); buildStats(); render();
+</script>
+</body>
+</html>

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubernetes Interview Master Guide</title>
+<style>
+  :root{
+    --ink:#0b1f33; --ink-2:#13314f; --paper:#f4f6f9; --card:#ffffff;
+    --line:#dde4ec; --muted:#5c6b7a; --teal:#0c8f86; --teal-d:#076b64;
+    --amber:#b6741a; --amber-bg:#fff6e9; --code-bg:#0d1f33; --code-fg:#d8e6f2;
+    --accent:#1f6feb; --shadow:0 1px 2px rgba(11,31,51,.06),0 8px 24px rgba(11,31,51,.06);
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  code,kbd,pre,.mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace}
+
+  /* layout */
+  .wrap{display:grid;grid-template-columns:286px 1fr;min-height:100vh}
+  aside{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
+    background:var(--ink);color:#cdd9e5;padding:22px 16px 40px}
+  main{padding:0;max-width:920px;margin:0 auto;width:100%}
+  .pad{padding:30px 34px 80px}
+
+  /* sidebar */
+  .brand{font-weight:800;letter-spacing:.2px;font-size:17px;color:#fff;line-height:1.25}
+  .brand small{display:block;font-weight:500;color:#7f97ad;font-size:11px;
+    letter-spacing:.14em;text-transform:uppercase;margin-top:6px}
+  .helm{color:var(--teal);font-weight:800}
+  .navsearch{margin:18px 0 12px}
+  .navsearch input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #28425e;
+    background:#0a1a2c;color:#e7eef5;font-size:13px;outline:none}
+  .navsearch input::placeholder{color:#5f7589}
+  .navsearch input:focus{border-color:var(--teal)}
+  nav a{display:flex;gap:9px;align-items:baseline;justify-content:space-between;
+    color:#aebccb;text-decoration:none;padding:7px 10px;border-radius:9px;font-size:13.5px;
+    border-left:2px solid transparent}
+  nav a:hover{background:#10283f;color:#fff}
+  nav a.active{background:#10283f;color:#fff;border-left-color:var(--teal)}
+  nav a .nq{font:600 11px/1 ui-monospace,monospace;color:#6f879d;
+    background:#0a1a2c;padding:3px 6px;border-radius:6px;flex:none}
+  .navprog{margin-top:18px;font-size:11px;color:#7f97ad;letter-spacing:.04em}
+  .bar{height:6px;background:#0a1a2c;border-radius:99px;margin-top:7px;overflow:hidden}
+  .bar > i{display:block;height:100%;width:0;background:var(--teal);transition:width .35s}
+
+  /* hero */
+  .hero{background:linear-gradient(180deg,#0b1f33,#13314f);color:#eaf1f8;
+    padding:40px 34px 30px;border-bottom:3px solid var(--teal)}
+  .hero h1{margin:0 0 8px;font-size:27px;letter-spacing:-.3px}
+  .hero p{margin:0;color:#aebfd0;max-width:680px}
+  .stat-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+  .stat{background:#0a1a2c;border:1px solid #28425e;border-radius:11px;padding:10px 14px}
+  .stat b{display:block;font-size:19px;color:#fff}
+  .stat span{font-size:11px;color:#8aa1b6;text-transform:uppercase;letter-spacing:.1em}
+
+  /* chapters */
+  .chapter{margin-bottom:30px;scroll-margin-top:14px}
+  .ch-head{display:flex;align-items:center;gap:12px;margin:30px 0 4px}
+  .ch-head h2{margin:0;font-size:20px;letter-spacing:-.2px}
+  .weight{font-size:12px;color:var(--amber)}
+  .ch-sub{color:var(--muted);font-size:12.5px;margin:0 0 16px;
+    border-bottom:1px dashed var(--line);padding-bottom:14px}
+
+  /* card */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    box-shadow:var(--shadow);margin:12px 0;overflow:hidden}
+  .qbar{display:flex;align-items:flex-start;gap:12px;padding:16px 18px;cursor:pointer;
+    user-select:none}
+  .qbar:hover{background:#fbfcfe}
+  .qmark{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);
+    display:grid;place-items:center;font-size:13px;color:var(--muted);background:#fff;
+    transition:.15s}
+  .qmark:hover{border-color:var(--teal)}
+  .card.done .qmark{background:var(--teal);border-color:var(--teal);color:#fff}
+  .qtitle{flex:1;font-weight:650;font-size:15.5px}
+  .qtitle .diff{display:inline-block;font:600 10.5px/1 ui-monospace,monospace;
+    vertical-align:middle;margin-left:8px;padding:3px 7px;border-radius:6px;
+    background:#eef3f9;color:#43586c;letter-spacing:.03em}
+  .diff.Basic{background:#e8f6ee;color:#1f7a44}
+  .diff.Intermediate{background:#eaf1ff;color:#2c54b8}
+  .diff.Advanced{background:#fdecea;color:#b23a2c}
+  .chev{flex:none;color:#9bb0c4;transition:transform .2s;margin-top:3px}
+  .card.open .chev{transform:rotate(90deg)}
+
+  .body{display:none;padding:2px 18px 20px 56px;border-top:1px solid var(--line)}
+  .card.open .body{display:block}
+  .seg{margin:16px 0 0}
+  .seg .lab{font:700 10.5px/1 ui-monospace,monospace;text-transform:uppercase;
+    letter-spacing:.12em;color:var(--teal-d);margin-bottom:6px}
+  .seg p{margin:0 0 8px}
+  .why{color:var(--muted);font-style:italic}
+  .answer{background:var(--amber-bg);border:1px solid #f0dcb8;border-left:3px solid var(--amber);
+    border-radius:10px;padding:13px 15px}
+  .answer .lab{color:var(--amber)}
+  .followups{margin:6px 0 0;padding-left:18px}
+  .followups li{margin:4px 0;color:#3c4d5e}
+  pre{background:var(--code-bg);color:var(--code-fg);padding:14px 16px;border-radius:10px;
+    overflow-x:auto;font-size:13px;line-height:1.55;margin:6px 0 0}
+  pre .c{color:#7f9bb3}
+
+  .empty{display:none;text-align:center;color:var(--muted);padding:60px 20px}
+  .empty.show{display:block}
+  .foot{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);
+    margin-top:40px;padding-top:18px}
+
+  @media(max-width:860px){
+    .wrap{grid-template-columns:1fr}
+    aside{position:static;height:auto;border-bottom:1px solid #28425e}
+    nav{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+    .body{padding-left:18px}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+  :focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+  /* ===== extensions: exam simulator, deployment flow, prep guide ===== */
+  .section-intro{color:var(--muted);font-size:13.5px;margin:0 0 14px;
+    border-bottom:1px dashed var(--line);padding-bottom:14px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 16px}
+  .tbtn{border:1px solid var(--line);background:#fff;color:#3c4d5e;
+    font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding:8px 12px;border-radius:9px;cursor:pointer}
+  .tbtn:hover{border-color:var(--teal)}
+  .tbtn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .tbtn.go{background:var(--teal);color:#fff;border-color:var(--teal)}
+  .tlabel{font:700 10px/1 ui-monospace,monospace;text-transform:uppercase;
+    letter-spacing:.1em;color:var(--muted);margin-right:2px}
+  .qz-score{margin-left:auto;font:700 13px/1 ui-monospace,monospace;color:var(--teal-d);
+    background:#e7f6f4;border:1px solid #bfe6e1;padding:8px 12px;border-radius:9px}
+  .quiz-q{background:#fff;border:1px solid var(--line);border-radius:12px;
+    box-shadow:var(--shadow);padding:16px 18px;margin:0 0 12px}
+  .quiz-q .dom{font:700 10px/1 ui-monospace,monospace;text-transform:uppercase;
+    letter-spacing:.08em;color:#fff;background:#5c6b7a;padding:3px 7px;border-radius:6px;margin-right:8px}
+  .quiz-q .dom.CKA{background:#2c54b8}
+  .quiz-q .dom.CKAD{background:#1f7a44}
+  .quiz-q .dom.CKS{background:#b23a2c}
+  .quiz-q .dom.Core{background:#5c6b7a}
+  .quiz-q .qn{font:700 11px/1 ui-monospace,monospace;color:var(--muted)}
+  .quiz-q .qt{font-weight:650;margin:9px 0 12px;font-size:15px}
+  .opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);
+    border-radius:9px;padding:10px 12px;margin:6px 0;cursor:pointer;transition:.12s;background:#fff}
+  .opt:hover{border-color:var(--teal);background:#fbfdfd}
+  .opt .k{flex:none;width:22px;height:22px;border-radius:6px;background:#eef3f9;color:#43586c;
+    display:grid;place-items:center;font:700 12px/1 ui-monospace,monospace}
+  .opt .otext{flex:1;font-size:14px}
+  .opt.sel{border-color:var(--accent);background:#eef4ff}
+  .opt.sel .k{background:var(--accent);color:#fff}
+  .opt.correct{border-color:#1f7a44;background:#e8f6ee}
+  .opt.correct .k{background:#1f7a44;color:#fff}
+  .opt.wrong{border-color:#b23a2c;background:#fdecea}
+  .opt.wrong .k{background:#b23a2c;color:#fff}
+  .opt.locked{cursor:default}
+  .qz-exp{display:none;margin-top:10px;background:var(--amber-bg);border:1px solid #f0dcb8;
+    border-left:3px solid var(--amber);border-radius:9px;padding:11px 13px;font-size:13.5px}
+  .qz-exp.show{display:block}
+  .qz-exp b{color:var(--amber)}
+  .qz-submit{margin:8px 0 4px}
+  .qz-result{display:none;background:#0a1a2c;color:#eaf1f8;border-radius:12px;padding:16px 18px;margin:0 0 14px}
+  .qz-result.show{display:block}
+  .qz-result h3{margin:0 0 6px;font-size:22px}
+  .qz-result .bd{font-size:13px;color:#aebfd0;margin-top:6px}
+
+  /* flow pipeline */
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:12px 0 16px}
+  .fnode{flex:1;min-width:140px;background:#fff;border:1px solid var(--line);
+    border-top:3px solid var(--teal);border-radius:11px;padding:11px 12px;box-shadow:var(--shadow)}
+  .fnode .n{font:700 9.5px/1 ui-monospace,monospace;color:var(--teal-d);letter-spacing:.08em}
+  .fnode h5{margin:5px 0 4px;font-size:12.5px}
+  .fnode p{margin:0;font-size:11.5px;color:var(--muted);line-height:1.45}
+  .callout{background:#eef4ff;border:1px solid #cfe0ff;border-left:3px solid var(--accent);
+    border-radius:10px;padding:12px 14px;margin:12px 0;font-size:13.5px}
+  .callout.warn{background:var(--amber-bg);border-color:#f0dcb8;border-left-color:var(--amber)}
+  .callout b{color:var(--ink-2)}
+  .guide-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+  .gcard{background:#fff;border:1px solid var(--line);border-radius:11px;padding:14px 16px;box-shadow:var(--shadow)}
+  .gcard h4{margin:0 0 8px;font-size:14px;color:var(--ink-2)}
+  .gcard ul{margin:0;padding-left:18px}
+  .gcard li{margin:5px 0;font-size:13.5px}
+  .pillrow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+  .pill{font:600 11.5px/1 -apple-system,sans-serif;background:#eef3f9;color:#43586c;
+    padding:6px 10px;border-radius:99px;border:1px solid var(--line)}
+  @media(max-width:860px){.guide-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <aside>
+    <div class="brand"><span class="helm">⎈</span> Kubernetes<br>Interview Master Guide
+      <small>Senior SRE / Platform Eng</small></div>
+    <div class="navsearch"><input id="search" type="search" placeholder="Search questions…" aria-label="Search questions"></div>
+    <nav id="nav"></nav>
+    <div class="navprog">PROGRESS <span id="progtext">0 / 54</span>
+      <div class="bar"><i id="progbar"></i></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <h1>Kubernetes Interview Master Guide</h1>
+      <p>Every question in the format you asked for — concept, why interviewers ask, a detailed explanation, an interview-ready answer, follow-ups, and the commands/YAML that back it up. Click any card to expand; mark questions as reviewed to track progress.</p>
+      <div class="stat-row">
+        <div class="stat"><b>54</b><span>Questions</span></div>
+        <div class="stat"><b>20</b><span>Topic areas</span></div>
+        <div class="stat"><b>20+</b><span>Troubleshooting cmds</span></div>
+        <div class="stat"><b>★★★★★</b><span>Senior level</span></div>
+      </div>
+    </div>
+    <div class="pad">
+      <div id="content"></div>
+      <div class="empty" id="empty">No questions match your search.</div>
+      <div class="foot">Built as a single self-contained file — open it anywhere, no internet needed. Format mirrors a real technical interview book: read top-to-bottom or jump by topic.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const DATA = [{"id": "fundamentals", "title": "1. Kubernetes Fundamentals", "weight": 5, "questions": [{"q": "What is Kubernetes and what problem does it solve?", "diff": "Basic", "why": "Interviewers want to know you understand the 'why' behind orchestration, not just the buzzwords.", "explain": ["Containers solved packaging \u2014 but running hundreds or thousands of them across many machines by hand is impossible. You need something to schedule them, restart them when they crash, scale them, network them together, and keep them at the state you declared.", "Kubernetes is a container orchestration platform that does exactly that. You declare the desired state (e.g. '5 replicas of payment-service running this image'), and Kubernetes continuously works to make reality match that declaration.", "Core value: self-healing, declarative configuration, automated rollout/rollback, service discovery, load balancing, horizontal scaling, and bin-packing workloads onto nodes efficiently."], "answer": "Kubernetes is an open-source container orchestration platform that automates deployment, scaling, networking, and lifecycle management of containerized workloads. You describe the desired state declaratively, and Kubernetes' control loops continuously reconcile actual state to match it \u2014 handling self-healing, scaling, rollouts, and service discovery automatically.", "followups": ["How is Kubernetes different from Docker? (Docker packages/runs a container; Kubernetes orchestrates many containers across many hosts.)", "What does 'declarative' mean vs 'imperative'?"], "code": null}, {"q": "Explain declarative vs imperative management in Kubernetes.", "diff": "Basic", "why": "Declarative is the heart of how Kubernetes works; senior engineers are expected to default to it.", "explain": ["Imperative = you tell Kubernetes the exact steps to perform now: `kubectl run`, `kubectl create`, `kubectl scale`. Good for quick one-offs and debugging.", "Declarative = you describe the end state in YAML and apply it: `kubectl apply -f`. Kubernetes figures out the steps. This is GitOps-friendly, reviewable, repeatable, and idempotent.", "In production you almost always use declarative manifests stored in Git, because the desired state becomes auditable and reproducible."], "answer": "Imperative commands tell Kubernetes exactly what to do step by step and are useful for quick fixes. Declarative management describes the desired end state in manifests applied with `kubectl apply`, and Kubernetes reconciles toward it. Production environments use declarative + GitOps because it's idempotent, version-controlled, and auditable.", "followups": ["Why is `kubectl apply` idempotent but `kubectl create` is not?"], "code": "# Imperative\nkubectl create deployment web --image=nginx\n\n# Declarative\nkubectl apply -f deployment.yaml"}, {"q": "What is a Namespace and when would you use one?", "diff": "Basic", "why": "Tests understanding of multi-tenancy, isolation, and resource scoping.", "explain": ["A Namespace is a virtual cluster inside a physical cluster \u2014 a way to scope and isolate groups of resources (Pods, Services, etc.).", "Used for: separating teams/environments (dev/staging), applying ResourceQuotas and LimitRanges per tenant, scoping RBAC, and avoiding name collisions.", "Not everything is namespaced \u2014 Nodes, PersistentVolumes, and ClusterRoles are cluster-scoped. DNS for a Service is `<svc>.<namespace>.svc.cluster.local`."], "answer": "A Namespace logically partitions a cluster so resources can be isolated and scoped per team or environment. It enables per-tenant resource quotas, RBAC boundaries, and avoids naming collisions. Cluster-scoped objects like Nodes and PersistentVolumes don't live in namespaces.", "followups": ["Name three resources that are NOT namespaced.", "How does cross-namespace service DNS resolution work?"], "code": "kubectl get pods --namespace=payments\nkubectl get ns"}, {"q": "What are the main components of a Kubernetes cluster?", "diff": "Basic", "why": "A baseline architecture question that almost always opens a Kubernetes interview.", "explain": ["Control Plane: kube-apiserver (front door), etcd (state store), kube-scheduler (placement), kube-controller-manager (reconciliation loops), cloud-controller-manager (cloud integration).", "Worker Nodes: kubelet (node agent), kube-proxy (service networking), container runtime (containerd/CRI-O).", "Add-ons: CoreDNS, CNI plugin, metrics-server, ingress controller."], "answer": "A cluster has a control plane and worker nodes. The control plane (API server, etcd, scheduler, controller manager) makes global decisions and stores state. Worker nodes run workloads via the kubelet, kube-proxy, and a container runtime. Add-ons like CoreDNS, a CNI plugin, and metrics-server provide DNS, networking, and metrics.", "followups": ["Which component is the only one that talks to etcd?"], "code": null}]}, {"id": "controlplane", "title": "2. Control Plane Deep Dive", "weight": 5, "questions": [{"q": "What is the Kubernetes Control Plane?", "diff": "Intermediate", "why": "To determine whether you understand how Kubernetes makes decisions.", "explain": ["Think of Kubernetes as a company: workers don't decide what work to do \u2014 management decides. The control plane is the management team.", "It contains the API Server, Scheduler, Controller Manager, and etcd. Every decision starts here.", "Without the control plane there are no deployments, no scheduling, no scaling, and no enforcement of desired state \u2014 worker nodes keep running existing Pods but can't be managed."], "answer": "The control plane maintains the desired state of the cluster. It handles API requests, scheduling, controller reconciliation, and stores all cluster state in etcd. Worker nodes execute workloads while the control plane makes all management decisions.", "followups": ["Can Pods keep running if the control plane is down? (Yes \u2014 existing Pods run, but you can't manage the cluster.)"], "code": null}, {"q": "Explain the API Server and why it's central.", "diff": "Intermediate", "why": "It's the single most important component; nothing bypasses it.", "explain": ["The API Server is the front door of Kubernetes. Every request \u2014 from users, kubelets, the scheduler, and controllers \u2014 goes through it. Even the scheduler never talks to etcd directly.", "Responsibilities: accept requests, authenticate, authorize (RBAC), run admission control, validate objects, persist to etcd, and return status.", "It's stateless, so you run multiple replicas behind a load balancer for high availability."], "answer": "The API Server is the central management component and the only component that reads/writes etcd. Every request flows through it, where it authenticates, authorizes, validates, runs admission control, and persists desired state. Because it's stateless it's run in multiple replicas for HA.", "followups": ["Why is the API Server highly available? (If it's down, you can't deploy, scale, or update \u2014 though running apps continue.)"], "code": "kubectl get pods   # \u2192 API Server \u2192 etcd \u2192 API Server \u2192 kubectl"}, {"q": "What is etcd and why is it critical?", "diff": "Intermediate", "why": "etcd is the source of truth; losing it means losing the cluster's brain.", "explain": ["etcd is a distributed, strongly consistent key-value store. It holds the entire cluster state: Pods, Deployments, Secrets, ConfigMaps, Nodes, RBAC, leases, certificates \u2014 everything.", "It uses the Raft consensus algorithm, so you run an odd number of members (3 or 5) to tolerate failures while maintaining quorum.", "Only the API Server talks to etcd directly. Back it up regularly \u2014 a corrupted/lost etcd with no backup means rebuilding the cluster."], "answer": "etcd is a distributed, strongly consistent key-value store that is Kubernetes' single source of truth, holding all cluster state. It uses Raft consensus and runs as an odd-numbered quorum (3 or 5). Only the API Server interacts with it directly, so it must be backed up regularly.", "followups": ["Can the Scheduler read etcd directly? (No \u2014 only the API Server.)", "Why an odd number of etcd members?"], "code": "ETCDCTL_API=3 etcdctl snapshot save backup.db \\\n  --endpoints=https://127.0.0.1:2379 \\\n  --cacert=ca.crt --cert=server.crt --key=server.key"}, {"q": "Explain the Scheduler and how it decides where a Pod runs.", "diff": "Intermediate", "why": "Tests understanding of placement, the most visible scheduling concept.", "explain": ["The Scheduler watches for Pods with no assigned node (`nodeName` empty) and decides WHERE \u2014 not HOW \u2014 they run.", "Two phases: Filtering (predicates) eliminates nodes that can't fit (insufficient CPU/memory, taints without tolerations, node selectors). Scoring (priorities) ranks remaining nodes (least-loaded, affinity, topology spread). Highest score wins, then it binds the Pod.", "Inputs: resource requests, node affinity/anti-affinity, pod affinity, taints/tolerations, topology spread constraints, and priority classes."], "answer": "The Scheduler watches for unscheduled Pods and selects the best node in two phases: filtering removes nodes that can't satisfy the Pod's requirements, and scoring ranks the rest by fit. It accounts for resource requests, affinity, taints/tolerations, and topology, then binds the Pod to the chosen node.", "followups": ["What happens if no node passes filtering? (Pod stays Pending with a scheduling event.)"], "code": null}, {"q": "What is the Controller Manager and what is a control loop?", "diff": "Intermediate", "why": "Reconciliation is the core mental model of Kubernetes.", "explain": ["The Controller Manager runs many controllers (Deployment, ReplicaSet, Node, Job, CronJob, Namespace, ServiceAccount...). Each runs a control loop: observe actual state \u2192 compare with desired state in etcd \u2192 act to close the gap.", "Example: desired replicas = 5, actual = 4 \u2192 the ReplicaSet controller creates 1 Pod.", "This continuous reconciliation is what makes Kubernetes self-healing."], "answer": "The Controller Manager runs the control loops that continuously compare actual cluster state against the desired state in etcd and take corrective action when they differ. This reconciliation model is what gives Kubernetes its self-healing behavior.", "followups": ["How do controllers detect drift? (They watch the API Server for changes and re-reconcile.)"], "code": null}, {"q": "Explain Authentication, Authorization, and Admission Control.", "diff": "Advanced", "why": "A favorite security question \u2014 the three gates every request passes.", "explain": ["Every API request passes through three stages in order:", "1) Authentication \u2014 'Who are you?' via client certs, bearer tokens, OIDC, or service account tokens.", "2) Authorization \u2014 'What are you allowed to do?' usually via RBAC (Role/RoleBinding, ClusterRole/ClusterRoleBinding).", "3) Admission Control \u2014 'Should this request be mutated or rejected?' Mutating webhooks change objects (e.g. inject sidecars); validating webhooks/policies enforce rules (Pod Security, ResourceQuota, LimitRange)."], "answer": "Every API request goes through authentication (verifies identity via certs/tokens/OIDC), authorization (checks permissions, usually RBAC), then admission control (mutating webhooks can modify the request; validating webhooks/policies can reject it). Only after all three does the object get persisted to etcd.", "followups": ["Difference between mutating and validating admission webhooks?", "What runs first \u2014 mutating or validating? (Mutating, then validating.)"], "code": null}]}, {"id": "workernodes", "title": "3. Worker Nodes", "weight": 4, "questions": [{"q": "What is the Kubelet and what does it do?", "diff": "Intermediate", "why": "It's the node agent \u2014 the bridge between control plane decisions and running containers.", "explain": ["The kubelet runs on every worker node. It registers the node, watches the API Server for Pods bound to its node, and ensures those Pods' containers are running and healthy.", "It drives the container runtime via CRI to pull images and start/stop containers, runs liveness/readiness/startup probes, mounts volumes, and reports node + Pod status back to the API Server.", "It does NOT manage Pods that weren't scheduled to its node, and it doesn't create Pods on its own (except static Pods from a local manifest path)."], "answer": "The kubelet is the per-node agent that watches the API Server for Pods assigned to its node and makes sure their containers run and stay healthy. It talks to the container runtime through the CRI, runs probes, mounts volumes, and reports node and Pod status back to the control plane.", "followups": ["What is a static Pod? (A Pod the kubelet runs directly from a local manifest, e.g. control plane components in kubeadm.)"], "code": null}, {"q": "What is kube-proxy? (And what it is NOT.)", "diff": "Intermediate", "why": "Many candidates wrongly think it proxies HTTP \u2014 it manages networking rules.", "explain": ["kube-proxy runs on each node and implements the Service abstraction at the network level. It does NOT proxy application/HTTP traffic in the usual mode.", "It watches Services and EndpointSlices and programs iptables or IPVS rules so that traffic to a Service's ClusterIP is load-balanced across healthy backend Pods.", "Modern clusters often use IPVS (better at scale) or eBPF-based dataplanes (e.g. Cilium) that can replace kube-proxy entirely."], "answer": "kube-proxy runs on every node and implements Service networking by programming iptables or IPVS rules that route and load-balance traffic from a Service's virtual IP to its healthy backend Pods. It manages network rules rather than proxying HTTP itself, and can be replaced by eBPF dataplanes like Cilium.", "followups": ["iptables vs IPVS mode \u2014 why does IPVS scale better?", "How does kube-proxy differ from an Ingress controller?"], "code": null}, {"q": "Explain the Container Runtime and CRI.", "diff": "Intermediate", "why": "Dockershim removal made this a popular 'are you current?' question.", "explain": ["The container runtime pulls images and creates/starts/stops containers. The kubelet talks to it through the Container Runtime Interface (CRI), a standard gRPC API.", "Docker was the original default but was removed in Kubernetes 1.24 (dockershim deprecation). Modern runtimes are containerd and CRI-O, both CRI-native.", "Removing Docker as the runtime doesn't affect images \u2014 Docker-built images are OCI-compliant and run fine on containerd."], "answer": "The container runtime downloads images and runs containers; the kubelet drives it via the CRI gRPC interface. Since 1.24, dockershim was removed and clusters use containerd or CRI-O. Docker-built images still work because they're OCI-compliant.", "followups": ["Why was dockershim removed? (Maintenance burden; Docker wasn't CRI-native and required a shim.)"], "code": null}]}, {"id": "pods", "title": "4. Pods", "weight": 5, "questions": [{"q": "What is a Pod and why not just run containers directly?", "diff": "Basic", "why": "Foundational \u2014 everything in Kubernetes ultimately runs in Pods.", "explain": ["A Pod is the smallest deployable unit \u2014 one or more tightly-coupled containers that share a network namespace (same IP and port space) and can share storage volumes.", "Kubernetes schedules Pods, not bare containers, so it can attach networking, storage, lifecycle, and probes uniformly.", "Containers in the same Pod talk over localhost. Most Pods have one main container; multi-container Pods use the sidecar pattern."], "answer": "A Pod is the smallest schedulable unit in Kubernetes \u2014 a group of one or more containers that share a network namespace, IP, and optionally storage. Kubernetes manages Pods rather than raw containers so it can consistently handle networking, storage, scheduling, and health.", "followups": ["Do containers in a Pod share an IP? (Yes.)"], "code": null}, {"q": "Explain liveness, readiness, and startup probes.", "diff": "Intermediate", "why": "One of the highest-value Pod questions \u2014 misconfigured probes cause real outages.", "explain": ["Liveness: 'is the container alive?' If it fails, the kubelet restarts the container. Use it to recover from deadlocks.", "Readiness: 'can the container serve traffic?' If it fails, the Pod is removed from Service endpoints (no restart). Use it during warm-up or when a dependency is down.", "Startup: 'has the app finished starting?' Disables liveness/readiness until it passes \u2014 protects slow-starting apps from being killed prematurely.", "Common pitfall: a too-aggressive liveness probe restarts healthy-but-busy Pods, creating cascading restarts. Readiness, not liveness, should gate traffic."], "answer": "Liveness probes detect a hung container and trigger a restart; readiness probes decide whether a Pod receives Service traffic without restarting it; startup probes give slow-starting apps time before liveness/readiness apply. The classic mistake is using an aggressive liveness probe where readiness was needed, causing unnecessary restart loops.", "followups": ["A Pod is restarting in a loop under load \u2014 which probe is likely misconfigured? (Liveness.)"], "code": "readinessProbe:\n  httpGet: { path: /healthz, port: 8080 }\n  initialDelaySeconds: 5\n  periodSeconds: 10\nlivenessProbe:\n  httpGet: { path: /livez, port: 8080 }\n  periodSeconds: 15\n  failureThreshold: 3"}, {"q": "What are init containers and sidecar containers?", "diff": "Intermediate", "why": "Tests multi-container Pod patterns common in production.", "explain": ["Init containers run to completion, in order, before the main containers start. Used for setup: waiting on a dependency, running migrations, fetching config/secrets. If one fails, the Pod restarts it.", "Sidecar containers run alongside the main container for the Pod's lifetime \u2014 logging agents, service-mesh proxies (Envoy), metrics exporters. As of K8s 1.28+, native sidecars are init containers with `restartPolicy: Always`.", "Difference: init = run-and-exit before app; sidecar = run-with app."], "answer": "Init containers run sequentially to completion before the main containers start, used for setup tasks like migrations or waiting on dependencies. Sidecar containers run alongside the main container for the Pod's lifetime \u2014 proxies, log shippers, exporters. Kubernetes 1.28+ supports native sidecars as always-restarting init containers.", "followups": ["How do native sidecars (1.28+) differ from a plain extra container?"], "code": null}, {"q": "Explain Pod QoS classes.", "diff": "Advanced", "why": "Determines eviction order under node pressure \u2014 important for reliability.", "explain": ["Guaranteed: every container has requests == limits for both CPU and memory. Evicted last.", "Burstable: at least one container has a request but not requests == limits. Evicted in the middle.", "BestEffort: no requests or limits set at all. Evicted first under memory pressure.", "QoS is derived automatically from your requests/limits \u2014 you don't set it directly. For critical workloads, aim for Guaranteed."], "answer": "Kubernetes assigns a QoS class from a Pod's requests/limits: Guaranteed (requests == limits for all containers), Burstable (some requests set), and BestEffort (nothing set). Under node memory pressure the kubelet evicts BestEffort first, then Burstable, then Guaranteed \u2014 so critical workloads should be Guaranteed.", "followups": ["Which Pods get killed first under memory pressure? (BestEffort.)"], "code": null}, {"q": "What are restartPolicy values and how do they interact with controllers?", "diff": "Intermediate", "why": "Tricky because restartPolicy applies to containers in a Pod, not the Pod itself.", "explain": ["restartPolicy (Always | OnFailure | Never) governs container restarts within a Pod by the kubelet.", "Deployments/ReplicaSets require Always. Jobs use OnFailure or Never. When a Pod is deleted, the controller (not restartPolicy) creates a replacement.", "CrashLoopBackOff is the kubelet backing off exponentially while repeatedly restarting a failing container under restartPolicy: Always."], "answer": "restartPolicy controls how the kubelet restarts containers within a Pod: Always (default, required by Deployments), OnFailure, or Never (used by Jobs). It restarts containers in place; replacing a whole failed Pod is the controller's job. Repeated failed restarts under Always show up as CrashLoopBackOff.", "followups": ["What does CrashLoopBackOff actually mean?"], "code": null}]}, {"id": "labels", "title": "5. Labels, Selectors & Annotations", "weight": 3, "questions": [{"q": "What's the difference between labels and annotations?", "diff": "Basic", "why": "Common gotcha \u2014 both are key/value metadata but serve different purposes.", "explain": ["Labels are identifying metadata used for selection and grouping. Selectors (in Services, ReplicaSets, Deployments) match on labels. Keep them short and queryable.", "Annotations are non-identifying metadata for tools and humans \u2014 build info, change-cause, ingress configuration, checksums. You cannot select on annotations.", "Rule of thumb: if something needs to select/group it, it's a label; if it's arbitrary attached data, it's an annotation."], "answer": "Labels are identifying key/value metadata used by selectors to group and target objects (Services finding Pods, controllers managing replicas). Annotations are non-identifying metadata for tools and humans and can't be used in selectors. Use labels for selection, annotations for everything else.", "followups": ["Can a Service select Pods by annotation? (No \u2014 only labels.)"], "code": "kubectl get pods -l app=payment,tier=backend\nkubectl label pod mypod env=prod"}, {"q": "How does a Service know which Pods to route to?", "diff": "Basic", "why": "Ties labels/selectors to real networking behavior.", "explain": ["A Service has a `selector` (e.g. app=payment). The endpoints controller continuously finds Pods matching that selector and ready (passing readiness), and populates the Service's EndpointSlices.", "kube-proxy then load-balances traffic to those endpoints. If labels don't match, the Service has no endpoints and traffic fails.", "A frequent bug: Pod template labels don't match the Service selector \u2192 'no endpoints'."], "answer": "A Service uses a label selector; the endpoints controller watches for ready Pods whose labels match and adds them to the Service's EndpointSlices, which kube-proxy uses to load-balance traffic. If the Pod labels don't match the selector, the Service ends up with no endpoints.", "followups": ["A Service returns no response and `kubectl get endpoints` is empty \u2014 what's the first thing to check? (Selector vs Pod labels and readiness.)"], "code": null}]}, {"id": "replicasets_deploy", "title": "6. ReplicaSets & Deployments", "weight": 5, "questions": [{"q": "What is a ReplicaSet and why do we rarely create one directly?", "diff": "Basic", "why": "Sets up the Deployment relationship.", "explain": ["A ReplicaSet ensures a specified number of identical Pod replicas are running at all times \u2014 it's the self-healing replica controller.", "You rarely create it directly because a Deployment manages ReplicaSets for you and adds rollout/rollback on top.", "Each Deployment revision corresponds to a ReplicaSet; scaling and healing are delegated to the ReplicaSet."], "answer": "A ReplicaSet keeps a desired number of identical Pods running, recreating any that die. We rarely create one directly because Deployments manage ReplicaSets and layer rolling updates and rollbacks on top \u2014 each Deployment revision is backed by its own ReplicaSet.", "followups": ["How many ReplicaSets does a Deployment keep around? (Controlled by revisionHistoryLimit.)"], "code": null}, {"q": "What is a Deployment and what does it add over a ReplicaSet?", "diff": "Basic", "why": "The workhorse object for stateless apps.", "explain": ["A Deployment manages stateless apps declaratively. It creates and manages ReplicaSets and provides controlled rollouts, rollbacks, and scaling.", "On a spec change (e.g. new image), it creates a new ReplicaSet and gradually shifts Pods from old to new per the rollout strategy.", "It tracks revision history so you can roll back to a previous version."], "answer": "A Deployment is the standard controller for stateless workloads. It manages ReplicaSets and provides declarative rolling updates, rollbacks, and scaling \u2014 creating a new ReplicaSet on each spec change and shifting traffic gradually while keeping revision history for rollback.", "followups": ["What object does a Deployment actually create to run Pods? (A ReplicaSet.)"], "code": "kubectl rollout status deployment/web\nkubectl scale deployment/web --replicas=5"}, {"q": "Explain maxSurge and maxUnavailable in a rolling update.", "diff": "Advanced", "why": "Precise knowledge here separates seniors from juniors.", "explain": ["RollingUpdate is the default Deployment strategy. maxSurge = how many extra Pods above desired count can be created during the update. maxUnavailable = how many Pods can be unavailable below desired count.", "Both can be absolute numbers or percentages. maxSurge=25%, maxUnavailable=25% is the default.", "maxUnavailable=0, maxSurge=1 gives a zero-downtime, one-at-a-time rollout (needs spare capacity). maxSurge=0 forces it to remove before adding (no extra capacity, but reduces availability)."], "answer": "In a RollingUpdate, maxSurge controls how many Pods can be created above the desired replica count and maxUnavailable controls how many can be unavailable below it. Setting maxUnavailable=0 with maxSurge>0 gives a fully available, zero-downtime rollout at the cost of temporary extra capacity.", "followups": ["How do you guarantee zero downtime during a rollout? (maxUnavailable=0 + readiness probes + PodDisruptionBudget.)"], "code": "strategy:\n  type: RollingUpdate\n  rollingUpdate:\n    maxSurge: 1\n    maxUnavailable: 0"}, {"q": "How do you roll back a bad deployment?", "diff": "Intermediate", "why": "Direct production skill \u2014 interviewers want the exact commands.", "explain": ["Deployments keep revision history (revisionHistoryLimit). You can undo to the previous revision or a specific one.", "Always record the change-cause (via annotation or `--record`, now deprecated) so history is readable.", "Rollback creates a new rollout back to the old ReplicaSet \u2014 it's not magic time travel, it's another controlled rollout."], "answer": "Use `kubectl rollout undo` to return to the previous revision (or `--to-revision=N` for a specific one). Deployments retain revision history backed by old ReplicaSets, so rollback is just a controlled rollout back to a prior template.", "followups": ["What governs how many old revisions you can roll back to? (revisionHistoryLimit.)"], "code": "kubectl rollout history deployment/web\nkubectl rollout undo deployment/web\nkubectl rollout undo deployment/web --to-revision=3"}, {"q": "Compare RollingUpdate, Recreate, Blue-Green, and Canary strategies.", "diff": "Advanced", "why": "Senior-level deployment design question.", "explain": ["RollingUpdate (built-in): gradual replacement, zero downtime, mixed versions briefly.", "Recreate (built-in): kill all old Pods, then start new \u2014 causes downtime, used when versions can't coexist (e.g. incompatible DB schema).", "Blue-Green: run old (blue) and new (green) in full, switch traffic at once via Service/ingress; instant rollback but doubles resources.", "Canary: send a small % of traffic to the new version, watch metrics, then ramp up. Usually done with a service mesh, ingress weights, or tools like Argo Rollouts/Flagger."], "answer": "RollingUpdate gradually replaces Pods with zero downtime; Recreate tears down all old Pods first (downtime, for incompatible versions); Blue-Green runs both versions fully and flips traffic instantly for fast rollback at double cost; Canary shifts a small traffic percentage to the new version and ramps based on metrics, usually via a mesh or Argo Rollouts/Flagger.", "followups": ["Which strategy needs a service mesh or progressive-delivery tool? (Canary/Blue-Green typically.)"], "code": null}]}, {"id": "services", "title": "7. Services", "weight": 5, "questions": [{"q": "What are the Service types and when do you use each?", "diff": "Basic", "why": "Core networking question asked in nearly every interview.", "explain": ["ClusterIP (default): stable virtual IP reachable only inside the cluster. For internal service-to-service traffic.", "NodePort: exposes the Service on a static port on every node's IP. Mostly for dev/testing or behind an external LB.", "LoadBalancer: provisions a cloud load balancer with an external IP. The standard way to expose a service externally in cloud.", "ExternalName: maps a Service to an external DNS name via a CNAME \u2014 no proxying, just DNS."], "answer": "ClusterIP gives an internal-only virtual IP for service-to-service traffic; NodePort opens a static port on every node; LoadBalancer provisions an external cloud load balancer; ExternalName maps the Service to an external DNS name via CNAME. Most internal traffic uses ClusterIP, and external cloud exposure uses LoadBalancer (often fronted by Ingress).", "followups": ["How does NodePort relate to LoadBalancer? (LoadBalancer builds on NodePort under the hood in most cloud implementations.)"], "code": null}, {"q": "How does a ClusterIP Service actually route traffic to Pods?", "diff": "Intermediate", "why": "Connects Services, endpoints, kube-proxy, and DNS into one picture.", "explain": ["The Service gets a stable virtual ClusterIP. The endpoints controller fills EndpointSlices with ready Pods matching the selector.", "kube-proxy programs iptables/IPVS so packets to the ClusterIP are DNAT'd and load-balanced to a backend Pod IP.", "CoreDNS resolves the Service name to the ClusterIP, so apps connect by name, not IP."], "answer": "The Service has a stable ClusterIP and a set of EndpointSlices listing ready backend Pods. kube-proxy programs iptables/IPVS rules that load-balance and DNAT traffic from the ClusterIP to a backend Pod IP, while CoreDNS resolves the Service name to that ClusterIP so clients connect by name.", "followups": ["What provides DNS resolution for Services? (CoreDNS.)"], "code": null}, {"q": "What is a headless Service and when do you need one?", "diff": "Advanced", "why": "Key to understanding StatefulSets and direct Pod addressing.", "explain": ["A headless Service sets clusterIP: None. Instead of a single virtual IP, DNS returns the individual Pod IPs (A records) directly.", "Used when clients need to address specific Pods \u2014 StatefulSets (stable per-Pod DNS), databases, peer-to-peer systems, or client-side load balancing.", "Combined with a StatefulSet you get `pod-0.svc.namespace.svc.cluster.local` stable identities."], "answer": "A headless Service (clusterIP: None) returns the individual Pod IPs via DNS instead of a single virtual IP, so clients can address specific Pods. It's essential for StatefulSets and stateful systems that need stable per-Pod DNS identities or client-side load balancing.", "followups": ["Why do StatefulSets need a headless Service?"], "code": "spec:\n  clusterIP: None\n  selector:\n    app: cassandra"}]}, {"id": "ingress", "title": "8. Ingress & Gateway API", "weight": 4, "questions": [{"q": "What is Ingress and how does it differ from a Service?", "diff": "Intermediate", "why": "Clarifies L4 vs L7 routing \u2014 a common confusion.", "explain": ["A Service is L3/L4 (IP/port) load balancing. Ingress is L7 (HTTP/HTTPS) routing: host- and path-based rules, TLS termination, and a single entry point for many services.", "Ingress is just an API object \u2014 it needs an Ingress Controller (NGINX, Traefik, HAProxy, cloud ALB controller) actually running to fulfill the rules.", "Typical setup: one external LoadBalancer \u2192 Ingress controller \u2192 routes by host/path to many ClusterIP Services."], "answer": "A Service does L4 load balancing to Pods, while Ingress provides L7 HTTP/HTTPS routing \u2014 host/path rules, TLS termination, and a single entry point fronting many Services. Ingress is only a set of rules; an Ingress Controller (NGINX, Traefik, cloud ALB) must be deployed to enforce them.", "followups": ["Does creating an Ingress object do anything without a controller? (No.)"], "code": null}, {"q": "What is the Gateway API and why is it replacing Ingress?", "diff": "Advanced", "why": "Shows you're current \u2014 Gateway API is the modern direction.", "explain": ["Ingress is limited: vendor-specific behavior lives in annotations, and it's HTTP-centric with weak role separation.", "Gateway API is a newer, more expressive, role-oriented standard. GatewayClass (infra provider) \u2192 Gateway (cluster operator) \u2192 HTTPRoute/TCPRoute/GRPCRoute (app teams). It supports header-based routing, traffic splitting, and cross-namespace routing natively.", "It separates concerns: platform teams own Gateways, app teams own Routes \u2014 better multi-team governance."], "answer": "Gateway API is the successor to Ingress: a more expressive, portable, role-separated standard. GatewayClass and Gateway are owned by infra/platform teams while HTTPRoute and other route objects are owned by app teams. It natively supports traffic splitting, header routing, and cross-namespace routing without vendor-specific annotations.", "followups": ["Which roles map to GatewayClass, Gateway, and HTTPRoute?"], "code": null}]}, {"id": "statefulsets", "title": "9. StatefulSets", "weight": 4, "questions": [{"q": "What is a StatefulSet and how does it differ from a Deployment?", "diff": "Intermediate", "why": "Core question for stateful workloads (databases, Kafka, etc.).", "explain": ["A StatefulSet manages stateful apps that need stable identity and storage. Unlike Deployments, it gives each Pod a stable, ordinal name (app-0, app-1...), stable network identity via a headless Service, and its own PersistentVolumeClaim that persists across rescheduling.", "Pods are created/scaled/deleted in order, and updates roll in reverse ordinal order.", "Deployments treat Pods as interchangeable cattle; StatefulSets treat them as distinct, ordered pets."], "answer": "A StatefulSet runs stateful apps that need stable identity and storage. Each Pod gets a stable ordinal name, stable DNS via a headless Service, and a dedicated PersistentVolumeClaim that survives rescheduling. Pods are created, scaled, and updated in a deterministic order \u2014 unlike Deployments, where Pods are interchangeable.", "followups": ["What gives each StatefulSet Pod a stable DNS name? (A headless Service.)"], "code": null}, {"q": "What happens to storage when a StatefulSet Pod is rescheduled or deleted?", "diff": "Advanced", "why": "Tests data-safety understanding \u2014 a real production concern.", "explain": ["Each Pod's PVC (from volumeClaimTemplates) is tied to its ordinal identity. If a Pod is rescheduled, it reattaches to the same PVC/PV \u2014 data persists.", "Deleting the StatefulSet does NOT delete the PVCs by default (to protect data); you must delete them explicitly. (Newer versions add persistentVolumeClaimRetentionPolicy to control this.)", "Scaling down leaves the PVCs behind so data isn't lost if you scale back up."], "answer": "PVCs created from volumeClaimTemplates are bound to each Pod's stable identity, so a rescheduled Pod reattaches to the same volume and keeps its data. Deleting the StatefulSet or scaling down does not delete PVCs by default \u2014 they're retained to protect data unless you set a persistentVolumeClaimRetentionPolicy or remove them manually.", "followups": ["How do you intentionally clean up StatefulSet storage?"], "code": null}]}, {"id": "daemonsets", "title": "10. DaemonSets", "weight": 3, "questions": [{"q": "What is a DaemonSet and what is it used for?", "diff": "Basic", "why": "Node-level workloads (logging, monitoring, networking) are everywhere.", "explain": ["A DaemonSet ensures one copy of a Pod runs on every node (or a subset matched by nodeSelector/affinity). As nodes join, the DaemonSet schedules a Pod there automatically; as nodes leave, the Pod is removed.", "Used for node-level agents: log collectors (Fluent Bit), monitoring (node-exporter), CNI plugins (Cilium/Calico), storage daemons, security agents.", "DaemonSet Pods often tolerate taints so they can run even on control-plane or specialized nodes."], "answer": "A DaemonSet runs exactly one Pod per node (or per matching subset), automatically adding Pods as nodes join and removing them as nodes leave. It's used for node-level agents like log shippers, node-exporter, CNI plugins, and security daemons, and typically tolerates node taints to run everywhere.", "followups": ["How do you run a DaemonSet Pod on tainted control-plane nodes? (Add a matching toleration.)"], "code": null}]}, {"id": "jobs", "title": "11. Jobs & CronJobs", "weight": 3, "questions": [{"q": "What's the difference between a Job and a CronJob?", "diff": "Basic", "why": "Batch workload basics.", "explain": ["A Job runs a Pod (or several) to completion \u2014 for batch tasks like migrations, backups, or one-off processing. It tracks successful completions and retries failures per backoffLimit.", "A CronJob creates Jobs on a schedule (cron syntax) \u2014 recurring tasks like nightly backups or report generation.", "Key Job knobs: completions, parallelism, backoffLimit, activeDeadlineSeconds, ttlSecondsAfterFinished."], "answer": "A Job runs Pods to successful completion for batch/one-off work and retries failures up to backoffLimit. A CronJob schedules Jobs on a recurring cron schedule. Jobs support parallelism and completion counts; CronJobs add scheduling, concurrency policy, and history limits.", "followups": ["What does concurrencyPolicy control on a CronJob? (Whether overlapping runs are Allowed, Forbidden, or Replaced.)"], "code": "spec:\n  schedule: \"0 2 * * *\"\n  concurrencyPolicy: Forbid\n  jobTemplate:\n    spec:\n      backoffLimit: 3"}]}, {"id": "config", "title": "12. ConfigMaps & Secrets", "weight": 4, "questions": [{"q": "What's the difference between a ConfigMap and a Secret?", "diff": "Basic", "why": "Config management basics \u2014 and a security check.", "explain": ["Both store key/value config and can be mounted as env vars or files. ConfigMaps are for non-sensitive config; Secrets are for sensitive data (passwords, tokens, keys).", "Secrets are only base64-encoded by default (NOT encrypted) \u2014 base64 is not security. Enable encryption at rest (EncryptionConfiguration) and restrict RBAC.", "Best practice: use an external secrets manager (Vault, AWS Secrets Manager via External Secrets Operator) rather than committing Secrets to Git."], "answer": "ConfigMaps hold non-sensitive configuration; Secrets hold sensitive data. Both can be consumed as env vars or mounted files, but Secrets are only base64-encoded by default \u2014 not encrypted \u2014 so you should enable encryption at rest, tighten RBAC, and ideally source secrets from an external manager like Vault or AWS Secrets Manager.", "followups": ["Is a Kubernetes Secret encrypted by default? (No \u2014 base64-encoded; enable encryption at rest.)"], "code": null}, {"q": "If you update a ConfigMap, do running Pods see the change?", "diff": "Advanced", "why": "A subtle behavior that trips people up in production.", "explain": ["Env vars from a ConfigMap are injected at Pod start and do NOT update live \u2014 you must restart/roll the Pods.", "ConfigMaps mounted as volumes DO update in the Pod's filesystem (eventually, after the kubelet sync), but the app must re-read the file to pick up changes.", "Common pattern: add a checksum annotation of the ConfigMap to the Pod template so changing the ConfigMap triggers a rolling update (Helm does this)."], "answer": "ConfigMap values injected as environment variables are fixed at Pod start and don't change live \u2014 you must restart the Pods. Volume-mounted ConfigMaps update in the filesystem after a sync, but the app must re-read them. A common trick is annotating the Pod template with a ConfigMap checksum so updates trigger a rolling restart automatically.", "followups": ["How do you force Pods to pick up a changed ConfigMap? (Roll the Deployment, e.g. via checksum annotation or `kubectl rollout restart`.)"], "code": "kubectl rollout restart deployment/web"}]}, {"id": "storage", "title": "13. Volumes, PV, PVC & StorageClasses", "weight": 4, "questions": [{"q": "Explain PersistentVolume, PersistentVolumeClaim, and StorageClass.", "diff": "Intermediate", "why": "The storage abstraction trio \u2014 essential for stateful apps.", "explain": ["PV: a piece of storage in the cluster (an EBS volume, NFS share, etc.), provisioned by an admin or dynamically. It's a cluster resource.", "PVC: a user's request for storage (size, access mode). It binds to a matching PV. Pods reference PVCs, not PVs directly.", "StorageClass: defines a 'type' of storage and a provisioner for dynamic provisioning \u2014 when a PVC requests a StorageClass, a PV is created on demand. This is how cloud volumes get auto-created."], "answer": "A PersistentVolume is an actual storage resource in the cluster; a PersistentVolumeClaim is a user's request for storage that binds to a PV; and a StorageClass defines a storage type and provisioner enabling dynamic provisioning, so a PVC referencing it triggers automatic creation of a backing PV. Pods always reference PVCs, never PVs directly.", "followups": ["What enables dynamic provisioning? (A StorageClass with a provisioner.)"], "code": null}, {"q": "Explain access modes: ReadWriteOnce, ReadOnlyMany, ReadWriteMany, ReadWriteOncePod.", "diff": "Advanced", "why": "Misunderstanding RWO causes 'multi-attach' errors in production.", "explain": ["ReadWriteOnce (RWO): mounted read-write by a single node (multiple Pods on that node can share it). Most block storage (EBS) is RWO.", "ReadOnlyMany (ROX): mounted read-only by many nodes.", "ReadWriteMany (RWX): mounted read-write by many nodes \u2014 needs a shared filesystem (NFS, EFS, CephFS).", "ReadWriteOncePod: read-write by exactly one Pod (stricter than RWO). Common error: scheduling two Pods needing RWO on different nodes \u2192 multi-attach error."], "answer": "RWO mounts read-write to a single node, ROX read-only to many nodes, RWX read-write to many nodes (requires a shared filesystem like NFS/EFS), and ReadWriteOncePod restricts to exactly one Pod. Block storage like EBS is typically RWO, so spreading multiple Pods that need the same RWO volume across nodes causes multi-attach errors.", "followups": ["Why can't two Pods on different nodes share an EBS volume read-write? (EBS is RWO \u2014 single node.)"], "code": null}]}, {"id": "networking", "title": "14. CNI, CoreDNS & Networking", "weight": 4, "questions": [{"q": "Explain the Kubernetes networking model and the role of CNI.", "diff": "Advanced", "why": "Networking is where many candidates are weakest \u2014 seniors must be solid.", "explain": ["Kubernetes networking rules: every Pod gets its own IP; Pods communicate across nodes without NAT; containers in a Pod share the Pod's network namespace.", "Kubernetes itself doesn't implement Pod networking \u2014 a CNI plugin (Calico, Cilium, Flannel, AWS VPC CNI) does, assigning IPs and wiring routes/overlays.", "Cilium uses eBPF for high-performance networking and can replace kube-proxy. AWS VPC CNI gives Pods real VPC IPs."], "answer": "Kubernetes requires that every Pod has a unique IP and can reach every other Pod without NAT, with containers in a Pod sharing one network namespace. Kubernetes delegates the implementation to a CNI plugin \u2014 Calico, Cilium, Flannel, or the AWS VPC CNI \u2014 which assigns Pod IPs and programs the routing or overlay. Cilium's eBPF dataplane can even replace kube-proxy.", "followups": ["What does the AWS VPC CNI do differently? (Assigns real VPC IPs to Pods.)"], "code": null}, {"q": "What is CoreDNS and how does service discovery work?", "diff": "Intermediate", "why": "DNS issues are a top cause of 'it can't connect' tickets.", "explain": ["CoreDNS runs as a Deployment in kube-system and serves cluster DNS. Every Pod's /etc/resolv.conf points at the CoreDNS Service.", "Services resolve as `<service>.<namespace>.svc.cluster.local`. Within the same namespace, just `<service>` works thanks to search domains.", "Headless Services resolve to individual Pod IPs; StatefulSet Pods get `pod-0.<svc>.<ns>.svc.cluster.local`."], "answer": "CoreDNS provides in-cluster DNS, running in kube-system with every Pod configured to use it. Services resolve via `<service>.<namespace>.svc.cluster.local` (or just the service name within the same namespace), enabling name-based service discovery. Headless Services and StatefulSets resolve to specific Pod IPs.", "followups": ["A Pod can reach a Service by IP but not by name \u2014 where do you look? (CoreDNS health and the Pod's DNS config.)"], "code": "kubectl -n kube-system get pods -l k8s-app=kube-dns\nkubectl run -it --rm dnsutils --image=busybox -- nslookup my-svc"}]}, {"id": "scheduling", "title": "15. Scheduling: Affinity, Taints & Tolerations", "weight": 4, "questions": [{"q": "What are taints and tolerations and how do they differ from node affinity?", "diff": "Advanced", "why": "Frequently confused \u2014 getting the direction right shows real understanding.", "explain": ["Taints are applied to NODES and repel Pods that don't tolerate them ('keep off unless allowed'). Tolerations on Pods let them be scheduled onto tainted nodes. Effects: NoSchedule, PreferNoSchedule, NoExecute.", "Node affinity is applied to PODS and attracts them to nodes with matching labels ('I want to run here'). It's required (hard) or preferred (soft).", "Mental model: taints/tolerations = nodes pushing Pods away; affinity = Pods pulling themselves toward nodes. They're complementary \u2014 taint a GPU node AND add affinity so only GPU workloads land there."], "answer": "Taints on nodes repel Pods unless those Pods carry a matching toleration \u2014 it's a node-side 'keep off' mechanism with NoSchedule/PreferNoSchedule/NoExecute effects. Node affinity is a Pod-side preference or requirement that attracts Pods to nodes with matching labels. They're complementary: taint specialized nodes to keep generic workloads off, and add affinity so the right workloads target them.", "followups": ["What does the NoExecute taint effect do to already-running Pods? (Evicts those without a matching toleration.)"], "code": "kubectl taint nodes node1 gpu=true:NoSchedule"}, {"q": "Explain pod affinity, anti-affinity, and topology spread constraints.", "diff": "Advanced", "why": "Drives high availability across zones \u2014 a senior reliability concern.", "explain": ["Pod affinity: schedule Pods near other Pods (same node/zone) \u2014 e.g. co-locate a cache with its app for latency.", "Pod anti-affinity: keep Pods apart \u2014 e.g. spread replicas across nodes so one node failure doesn't take all replicas. requiredDuringScheduling (hard) vs preferred (soft).", "Topology spread constraints: a cleaner, modern way to evenly distribute Pods across topology domains (zones, nodes) with maxSkew, balancing availability without the overhead of anti-affinity rules."], "answer": "Pod affinity co-locates Pods with related Pods; anti-affinity keeps replicas apart to survive node/zone failures; and topology spread constraints provide a modern, declarative way to distribute Pods evenly across zones or nodes using maxSkew. Together they let you design for high availability and fault isolation.", "followups": ["How do you ensure replicas land in different availability zones? (topologySpreadConstraints on topology.kubernetes.io/zone, or zone anti-affinity.)"], "code": null}]}, {"id": "autoscaling", "title": "16. Autoscaling: HPA, VPA & Cluster Autoscaler", "weight": 4, "questions": [{"q": "Explain HPA, VPA, and Cluster Autoscaler and how they relate.", "diff": "Advanced", "why": "Scaling design is a core SRE/platform competency.", "explain": ["HPA (Horizontal Pod Autoscaler): scales the NUMBER of Pod replicas based on metrics (CPU/memory via metrics-server, or custom/external metrics). Reacts to load.", "VPA (Vertical Pod Autoscaler): adjusts Pod CPU/memory REQUESTS to right-size them. Often recreates Pods to apply new requests.", "Cluster Autoscaler: adds/removes NODES when Pods can't be scheduled (pending due to insufficient capacity) or nodes are underutilized.", "They compose: HPA adds Pods \u2192 if no node has room, Cluster Autoscaler adds a node. Don't run HPA and VPA on the same metric (CPU) simultaneously \u2014 they conflict."], "answer": "HPA scales the number of Pod replicas based on CPU/memory/custom metrics; VPA right-sizes per-Pod CPU/memory requests; and the Cluster Autoscaler adds or removes nodes when Pods can't schedule or nodes are idle. They work together \u2014 HPA adds Pods and the Cluster Autoscaler adds nodes if there's no room \u2014 but HPA and VPA shouldn't target the same resource metric.", "followups": ["Why shouldn't HPA and VPA both act on CPU? (They fight each other.)", "What provides CPU/memory metrics to HPA? (metrics-server.)"], "code": "kubectl autoscale deployment web --cpu-percent=70 --min=3 --max=20"}]}, {"id": "helm", "title": "17. Helm", "weight": 3, "questions": [{"q": "What is Helm and what problem does it solve?", "diff": "Intermediate", "why": "The de facto packaging tool \u2014 interviewers expect familiarity.", "explain": ["Helm is the package manager for Kubernetes. A Chart bundles templated manifests; values.yaml parameterizes them; a Release is an installed instance of a chart with specific values.", "It solves templating/reuse (one chart, many environments via different values), versioning, and lifecycle (install/upgrade/rollback).", "Helm 3 is client-only (no Tiller). `helm upgrade --install` is the idempotent workhorse; `helm rollback` reverts a release."], "answer": "Helm is Kubernetes' package manager. A Chart packages templated manifests, values.yaml parameterizes them per environment, and a Release is an installed instance. It solves reuse, versioning, and lifecycle management \u2014 letting you install, upgrade, and roll back applications consistently across environments.", "followups": ["What changed between Helm 2 and Helm 3? (Tiller was removed; Helm 3 is client-side with RBAC via kubeconfig.)"], "code": "helm upgrade --install web ./chart -f values-prod.yaml\nhelm rollback web 2"}]}, {"id": "rbac", "title": "18. RBAC & Security", "weight": 5, "questions": [{"q": "Explain RBAC: Role, ClusterRole, RoleBinding, ClusterRoleBinding.", "diff": "Advanced", "why": "Access control is a top security topic, especially in regulated (FCA/PCI) environments.", "explain": ["Role: a set of permissions (verbs on resources) scoped to ONE namespace. ClusterRole: same but cluster-wide or for cluster-scoped resources (nodes, PVs).", "RoleBinding: grants a Role (or ClusterRole) to subjects within a namespace. ClusterRoleBinding: grants a ClusterRole cluster-wide.", "Subjects = users, groups, or ServiceAccounts. Follow least privilege; avoid binding cluster-admin broadly.", "Trick: a RoleBinding can reference a ClusterRole to reuse a common permission set within a single namespace."], "answer": "Roles define namespaced permissions and ClusterRoles define cluster-wide or cluster-scoped permissions. RoleBindings grant those permissions to subjects (users, groups, ServiceAccounts) within a namespace, while ClusterRoleBindings grant them cluster-wide. A RoleBinding can reference a ClusterRole to reuse a permission set in one namespace, and the guiding principle is least privilege.", "followups": ["Can a RoleBinding reference a ClusterRole? (Yes \u2014 to scope shared permissions to one namespace.)"], "code": null}, {"q": "What are common Kubernetes security best practices for a Pod?", "diff": "Advanced", "why": "Production hardening \u2014 highly relevant for fintech/insurance/compliance roles.", "explain": ["Run as non-root, drop all Linux capabilities, set readOnlyRootFilesystem, and use a securityContext with runAsNonRoot and allowPrivilegeEscalation: false.", "Enforce Pod Security Standards (restricted) via Pod Security Admission. Apply NetworkPolicies for default-deny east-west traffic.", "Use minimal/distroless images, scan for CVEs, pin image digests, set resource limits, and source secrets from a manager (Vault). Restrict ServiceAccount tokens (automountServiceAccountToken: false where unused)."], "answer": "Harden Pods with a securityContext: run as non-root, disable privilege escalation, drop capabilities, and use a read-only root filesystem. Enforce restricted Pod Security Standards, apply default-deny NetworkPolicies, use minimal scanned images with pinned digests, set resource limits, disable unused ServiceAccount token automounting, and pull secrets from an external manager.", "followups": ["How do you enforce 'no root containers' cluster-wide? (Pod Security Admission with the restricted profile, or a policy engine like Kyverno/OPA Gatekeeper.)"], "code": "securityContext:\n  runAsNonRoot: true\n  allowPrivilegeEscalation: false\n  readOnlyRootFilesystem: true\n  capabilities: { drop: [\"ALL\"] }"}, {"q": "What is a NetworkPolicy and what's the default behavior without one?", "diff": "Advanced", "why": "East-west traffic control \u2014 critical for segmentation and compliance.", "explain": ["By default, all Pods can talk to all other Pods \u2014 the network is fully open. A NetworkPolicy restricts ingress/egress at L3/L4 using Pod/namespace selectors.", "Once any NetworkPolicy selects a Pod, that Pod becomes default-deny for the selected direction except what the policy allows.", "Requires a CNI that enforces policies (Calico, Cilium); some CNIs ignore NetworkPolicies. Best practice: a default-deny baseline, then allow specific flows."], "answer": "Without any NetworkPolicy, all Pod-to-Pod traffic is allowed by default. A NetworkPolicy uses label selectors to restrict ingress/egress; once a Pod is selected by a policy, everything in that direction is denied except what's explicitly allowed. It only works with a policy-enforcing CNI like Calico or Cilium, and the recommended baseline is default-deny plus explicit allows.", "followups": ["If you apply a NetworkPolicy but nothing is blocked, what's likely wrong? (CNI doesn't enforce NetworkPolicies.)"], "code": null}]}, {"id": "monitoring", "title": "19. Monitoring & Logging", "weight": 4, "questions": [{"q": "How do you monitor a Kubernetes cluster?", "diff": "Intermediate", "why": "Observability is central to SRE \u2014 they want your real stack.", "explain": ["Metrics: Prometheus scrapes cluster + app metrics; kube-state-metrics exposes object state; node-exporter exposes node metrics; metrics-server feeds HPA. Visualize in Grafana; alert via Alertmanager.", "Logging: containers log to stdout/stderr; a node-level agent (Fluent Bit/Fluentd) ships logs to Elasticsearch/Loki/Splunk.", "Tracing: OpenTelemetry \u2192 Jaeger/Tempo for distributed traces. Define SLIs/SLOs and alert on burn rate, not just raw thresholds."], "answer": "Use Prometheus to scrape cluster and app metrics (with kube-state-metrics and node-exporter), Grafana for dashboards, and Alertmanager for alerts. Ship container stdout/stderr via Fluent Bit/Fluentd to Elasticsearch, Loki, or Splunk, and add distributed tracing with OpenTelemetry/Jaeger. Drive alerting from SLOs and error-budget burn rate rather than raw thresholds.", "followups": ["What feeds the HPA its CPU/memory metrics? (metrics-server.)", "Why alert on burn rate instead of static thresholds?"], "code": null}, {"q": "What are the 'golden signals' and how do they map to Kubernetes?", "diff": "Intermediate", "why": "Connects SRE theory to practical dashboards.", "explain": ["The four golden signals (Google SRE): Latency, Traffic, Errors, Saturation.", "Latency: request duration (app metrics / mesh). Traffic: requests/sec or throughput. Errors: HTTP 5xx rate, failed probes. Saturation: CPU/memory/disk utilization vs limits, Pod pending counts, throttling.", "In K8s, saturation also includes CPU throttling (container hitting its CPU limit) and OOMKills (memory limit exceeded)."], "answer": "The golden signals are latency, traffic, errors, and saturation. In Kubernetes, latency comes from app/mesh metrics, traffic from request rate, errors from 5xx rates and failing probes, and saturation from CPU/memory utilization versus limits \u2014 including CPU throttling and OOMKills. Tracking these gives a complete health picture.", "followups": ["What does an OOMKilled status indicate? (Container exceeded its memory limit.)"], "code": null}]}, {"id": "troubleshooting", "title": "20. Production Troubleshooting", "weight": 5, "questions": [{"q": "A Pod is stuck in Pending. How do you troubleshoot?", "diff": "Intermediate", "why": "The single most common scheduling scenario.", "explain": ["Pending = not yet scheduled to a node. Start with `kubectl describe pod` and read the Events at the bottom.", "Common causes: insufficient CPU/memory on all nodes; node selectors/affinity that match nothing; taints without tolerations; unbound PVC (no matching PV/StorageClass); too-large resource requests; or hitting a ResourceQuota.", "Check `kubectl get nodes` for capacity, taints, and Ready status. If it's a PVC issue, `kubectl get pvc` will show Pending."], "answer": "Pending means the Pod hasn't been scheduled. Run `kubectl describe pod` and read the Events \u2014 they usually state the reason: insufficient resources, unsatisfiable node selectors/affinity, taints without tolerations, an unbound PVC, or a ResourceQuota limit. Cross-check node capacity and PVC status to confirm.", "followups": ["Pod is Pending with 'Insufficient cpu' \u2014 your options? (Lower requests, add nodes / Cluster Autoscaler, or reschedule.)"], "code": "kubectl describe pod <pod>\nkubectl get nodes\nkubectl get events --sort-by=.lastTimestamp"}, {"q": "A Pod is in CrashLoopBackOff. Walk through your debugging.", "diff": "Intermediate", "why": "The other most common Pod failure \u2014 they want a structured method.", "explain": ["CrashLoopBackOff = the container keeps starting then exiting, and the kubelet is backing off between restarts.", "Steps: `kubectl logs <pod>` for the current attempt, `kubectl logs <pod> --previous` for the crashed instance. Check exit code in `kubectl describe pod`.", "Common causes: app config/secret missing or wrong, failing dependency at startup, bad command/entrypoint, OOMKilled (exit 137), or a too-aggressive liveness probe. Fix the root cause, then redeploy."], "answer": "CrashLoopBackOff means the container repeatedly starts and exits. Check `kubectl logs --previous` to see why the last instance died, and `kubectl describe pod` for the exit code and events. Typical causes are missing config/secrets, a failing startup dependency, a bad entrypoint, OOMKill (exit 137), or an over-aggressive liveness probe \u2014 fix the cause and redeploy.", "followups": ["What does exit code 137 usually mean? (OOMKilled \u2014 memory limit exceeded / SIGKILL.)"], "code": "kubectl logs <pod> --previous\nkubectl describe pod <pod>"}, {"q": "A Service returns connection errors even though Pods are running. Diagnose.", "diff": "Advanced", "why": "Tests end-to-end networking reasoning.", "explain": ["Work outward: Are the Pods Ready (passing readiness)? `kubectl get endpoints <svc>` \u2014 empty endpoints means selector/label mismatch or no ready Pods.", "Check selector vs Pod labels, the targetPort vs containerPort, and that the app listens on 0.0.0.0 not 127.0.0.1.", "Then test DNS (`nslookup`), then kube-proxy health, then NetworkPolicies that might block the traffic, then ingress if external."], "answer": "Check whether the Service has endpoints with `kubectl get endpoints`; empty endpoints usually mean a selector/label mismatch or no ready Pods. Verify readiness, that selector labels match, that targetPort matches the container port, and that the app binds 0.0.0.0. Then check CoreDNS resolution, kube-proxy, and any NetworkPolicy that could be blocking the path.", "followups": ["Endpoints list is empty \u2014 top two causes? (Label/selector mismatch or readiness failing.)"], "code": "kubectl get endpoints <svc>\nkubectl get pods -l <selector> -o wide"}, {"q": "etcd is unhealthy or a control-plane node is down. What's the impact and response?", "diff": "Advanced", "why": "High-stakes scenario for senior/platform roles.", "explain": ["Impact: if etcd loses quorum, the API Server can't write \u2014 no deployments, scaling, or updates. Existing Pods keep running (the kubelet maintains them), so data-plane stays up but the cluster is unmanageable.", "Response: with an odd-member etcd, losing one of three is survivable (quorum 2/3). Restore the failed member; if quorum is lost, restore from the latest etcd snapshot.", "Prevention: HA control plane (3+ nodes), regular etcd snapshots, monitored etcd health and disk latency (etcd is very sensitive to disk fsync latency)."], "answer": "Losing etcd quorum stops all writes \u2014 no deploys, scaling, or updates \u2014 though existing Pods keep running because the kubelet maintains them. With a 3-member etcd you can lose one and keep quorum; restore the member, or if quorum is lost, restore from the latest snapshot. Prevent this with an HA control plane, frequent etcd backups, and monitoring of etcd disk/fsync latency.", "followups": ["Do running applications go down if the control plane fails? (No \u2014 the data plane keeps serving; you just can't manage the cluster.)"], "code": "ETCDCTL_API=3 etcdctl snapshot status backup.db\nETCDCTL_API=3 etcdctl snapshot restore backup.db"}, {"q": "A node shows NotReady. How do you investigate?", "diff": "Intermediate", "why": "Node-level reliability is bread-and-butter SRE work.", "explain": ["`kubectl describe node <node>` \u2014 check Conditions (MemoryPressure, DiskPressure, PIDPressure) and the kubelet's last heartbeat.", "Common causes: kubelet crashed/stopped, container runtime down, network/CNI failure, disk full, or the node lost connectivity to the API Server.", "SSH to the node: check `systemctl status kubelet`, runtime status, disk space (`df -h`), and logs (`journalctl -u kubelet`). Pods on a NotReady node may be evicted after the eviction timeout."], "answer": "Run `kubectl describe node` and check its Conditions and last heartbeat. NotReady usually means the kubelet stopped, the container runtime failed, the CNI/network broke, the disk filled, or the node lost API-server connectivity. On the node, check kubelet and runtime status, disk usage, and kubelet logs. After the eviction timeout, the control plane reschedules the node's Pods elsewhere.", "followups": ["What happens to Pods on a node that stays NotReady? (They're eventually evicted/rescheduled after the timeout.)"], "code": "kubectl describe node <node>\nkubectl get nodes\n# on node:\nsystemctl status kubelet && journalctl -u kubelet -n100"}]},
+
+/* ===================== EXTENDED IN-DEPTH CHAPTERS ===================== */
+{"id":"gitops","title":"21. GitOps & Argo CD","weight":5,"questions":[
+ {"q":"What is GitOps and what are its core principles?","diff":"Intermediate","why":"GitOps is now the default delivery model for Kubernetes; interviewers want the principles, not just the tool name.","explain":["GitOps means Git is the single source of truth for the desired state of your system. Everything — manifests, Helm values, config — lives in Git.","A controller running IN the cluster continuously reconciles the live cluster to match Git (the pull model). You change infrastructure by merging a PR, not by running kubectl apply manually.","Four principles: declarative desired state, versioned & immutable in Git, pulled automatically, and continuously reconciled."],"answer":"GitOps uses Git as the single source of truth for declarative desired state, with an in-cluster agent that continuously pulls from Git and reconciles the live cluster to match it. Changes happen through reviewed PRs, giving a full audit trail, easy rollback via git revert, and automatic drift correction.","followups":["Why is the pull model more secure than pushing with kubectl from CI? (No external system holds cluster credentials.)","How do you roll back in GitOps? (git revert the commit.)"]},
+ {"q":"Describe Argo CD's architecture.","diff":"Advanced","why":"Shows you understand how the tool actually works, not just the UI.","explain":["Argo CD runs three main components: the API/Server (UI, API, SSO, RBAC), the Repo Server (clones Git and renders manifests via Helm/Kustomize/plain YAML), and the Application Controller (compares desired vs live state and syncs). Redis caches state.","The Application Controller is the reconciliation engine: it watches Applications, computes the diff between the rendered Git manifests and the live cluster, and reports Sync/Health status.","It can manage the local cluster and many remote clusters registered to it."],"answer":"Argo CD has an API server (UI/API/RBAC/SSO), a repo server that clones Git and renders manifests, and an application controller that diffs desired vs live state and performs syncs, with Redis for caching. The controller is the reconciliation engine that keeps clusters matching Git and reports sync and health status.","followups":["Which component renders Helm/Kustomize? (The repo server.)"]},
+ {"q":"Explain the difference between Argo CD Sync status and Health status.","diff":"Intermediate","why":"People conflate them; the distinction is essential for triage.","explain":["Sync status answers 'does the live cluster match Git?' — Synced or OutOfSync.","Health status answers 'are the deployed resources actually healthy?' — Healthy, Progressing, Degraded, Missing.","They are orthogonal: an app can be Synced but Degraded (Git applied, pods crashing) or OutOfSync but Healthy (running fine, but a newer Git version isn't applied yet)."],"answer":"Sync status tells you whether the cluster matches Git (Synced/OutOfSync); health status tells you whether the running resources are actually healthy (Healthy/Progressing/Degraded). They're independent — you can be Synced but Degraded, or OutOfSync but Healthy — so you watch both.","followups":["An app is Synced but Degraded — where do you look? (Pod logs/events, not Git.)"]},
+ {"q":"What do automated sync, prune, and self-heal do in Argo CD?","diff":"Advanced","why":"These flags determine how strictly Git is enforced — a real operational decision.","explain":["Automated sync applies Git changes automatically when they appear (vs manual sync you trigger).","Prune deletes resources that were removed from Git (otherwise orphans linger).","Self-heal reverts any manual/live drift back to the Git-declared state, enforcing Git as truth."],"answer":"Automated sync applies Git changes without manual triggering; prune deletes resources removed from Git so no orphans remain; and self-heal reverts manual cluster changes back to Git. Together they give true GitOps enforcement, though many teams auto-sync non-prod and keep manual sync plus approvals for prod.","followups":["What's the risk of enabling self-heal? (It reverts emergency manual hotfixes unless you also change Git.)"]},
+ {"q":"What are the App-of-Apps pattern and ApplicationSets?","diff":"Advanced","why":"Managing many apps/clusters at scale is a senior platform concern.","explain":["App-of-Apps: a parent Argo CD Application whose Git source contains the manifests for other Applications, so syncing the parent bootstraps and manages all children — great for bootstrapping a whole cluster's add-ons and workloads.","ApplicationSet: a controller that generates many Applications from a template plus a generator (per cluster, per Git directory, per list) — the scalable, templated evolution of App-of-Apps.","Use ApplicationSets to deploy the same app across many clusters/regions/environments from one definition."],"answer":"App-of-Apps is a parent Application that manages child Applications, used to bootstrap an entire cluster declaratively. ApplicationSet is a controller that templates and generates many Applications from generators (clusters, Git directories, lists), which is the scalable way to manage fleets and multi-environment deployments.","followups":["How would you deploy one app to 20 clusters with minimal duplication? (ApplicationSet with a cluster generator.)"]},
+ {"q":"What are Argo CD sync waves and resource hooks?","diff":"Advanced","why":"Ordering and lifecycle tasks (like DB migrations) are common real-world needs.","explain":["Sync waves order resource application within a single sync (lower wave numbers apply first) — e.g. create a namespace and CRDs before the workloads that depend on them.","Resource hooks run Jobs at sync phases: PreSync (e.g. a DB migration before deploy), Sync, and PostSync (e.g. smoke tests/notifications).","A failed PreSync hook halts the sync, protecting you from deploying on top of a failed migration."],"answer":"Sync waves order which resources apply first within a sync (lower numbers first), useful for dependencies like CRDs before workloads. Resource hooks run Jobs at PreSync/Sync/PostSync phases for tasks like database migrations and smoke tests, and a failed PreSync hook stops the deploy.","followups":["How do you run a database migration before the app rolls out with Argo CD? (A PreSync hook Job.)"],"code":"metadata:\n  annotations:\n    argocd.argoproj.io/sync-wave: \"1\"\n    argocd.argoproj.io/hook: PreSync"},
+ {"q":"How does Argo CD detect drift, and how do you roll back?","diff":"Intermediate","why":"Drift handling and rollback are the day-to-day value of GitOps.","explain":["Argo CD continuously compares live state to the rendered Git manifests; any divergence (a manual kubectl edit, an operator change) shows the app OutOfSync with an exact diff you can view in the UI or CLI.","With self-heal on, it auto-reverts drift; otherwise you sync to reconcile.","Rollback is either git revert (the GitOps way — reverts the commit so the whole system converges back) or argocd app rollback to a previous synced revision from Argo's history."],"answer":"Argo CD continuously diffs live vs Git and marks drift as OutOfSync with a visible diff; self-heal can auto-revert it. To roll back, prefer git revert of the offending commit (true GitOps) or use argocd app rollback to a previous synced revision from the app's history.","followups":["Why is git revert preferable to argocd app rollback for a permanent fix? (Git stays the source of truth; otherwise the next sync re-applies the bad version.)"],"code":"argocd app history myapp\nargocd app rollback myapp 42"}
+]},
+
+{"id":"progressive","title":"22. CI/CD & Progressive Delivery","weight":4,"questions":[
+ {"q":"In a GitOps world, what is the boundary between CI and CD?","diff":"Intermediate","why":"Candidates often blur CI and CD; GitOps draws a clean line.","explain":["CI (e.g. GitHub Actions) builds, tests, and produces an immutable artifact (a container image with an immutable tag), then updates the desired state in a Git config repo (bumps the image tag).","CD (Argo CD) is the in-cluster controller that notices the Git change and reconciles the cluster to it. CI never touches the cluster directly.","This separation means the pipeline needs no cluster credentials, and every deploy is a reviewable Git commit."],"answer":"CI builds/tests and produces an immutable image, then commits the new desired state (image tag) to a Git config repo. CD (Argo CD) pulls that change and reconciles the cluster. The clean boundary — CI writes to Git, CD reads from Git — means the pipeline holds no cluster credentials and every deploy is an auditable commit.","followups":["Why shouldn't the CI pipeline run kubectl apply against prod directly? (It needs cluster creds and bypasses the Git audit trail.)"]},
+ {"q":"Why must container image tags be immutable, and what's wrong with :latest?","diff":"Intermediate","why":"Mutable tags break reproducibility, rollback, and GitOps drift detection.","explain":["Tag by the Git commit SHA (or a semver + build) so a given tag always refers to exactly one image. This makes deploys reproducible and rollbacks precise.","Using :latest is an anti-pattern: the running version is ambiguous, different nodes may pull different images, rollbacks are impossible, and GitOps can't detect a change (the tag string never changes even though the image did).","Set imagePullPolicy appropriately and never rely on :latest in production."],"answer":"Immutable tags (e.g. the Git SHA) ensure a tag always maps to exactly one image, making deploys reproducible and rollbacks precise. :latest is ambiguous — nodes may run different builds, rollback is impossible, and GitOps can't detect a change because the tag string is unchanged. Always deploy by immutable digest/SHA.","followups":["How does GitOps know a new version shipped if the tag never changes? (It doesn't — you must bump to a new immutable tag.)"]},
+ {"q":"How do you get a fully zero-downtime rollout on Kubernetes?","diff":"Advanced","why":"A precise, checklist answer separates seniors.","explain":["Use RollingUpdate with maxUnavailable: 0 and maxSurge > 0 so new Pods come up before old ones go away.","Define correct readiness probes so traffic only shifts to Pods that are actually ready.","Add a PodDisruptionBudget so voluntary disruptions (drains, upgrades) can't take down too many replicas at once.","Handle SIGTERM gracefully (drain in-flight requests during terminationGracePeriodSeconds)."],"answer":"Combine RollingUpdate with maxUnavailable=0 and maxSurge>0, correct readiness probes so traffic only reaches ready Pods, a PodDisruptionBudget to bound voluntary disruptions, and graceful SIGTERM handling to drain in-flight requests. Missing any one of these can drop connections during a deploy.","followups":["Which single misconfiguration most often causes dropped requests during a deploy? (Missing/incorrect readiness probe.)"],"code":"strategy:\n  rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }"},
+ {"q":"What is Argo Rollouts and how does it add canary/blue-green?","diff":"Advanced","why":"Vanilla Deployments can't do metric-gated canary; this is the standard add-on.","explain":["A Deployment only does rolling updates. Argo Rollouts replaces the Deployment with a Rollout resource that supports canary and blue-green with fine-grained steps.","Canary: shift a small percentage of traffic, pause, run automated AnalysisRuns against metrics (Prometheus error rate/latency), then promote or auto-abort.","It integrates with ingress/service mesh for traffic shaping and gives a dashboard/CLI to watch the rollout."],"answer":"Argo Rollouts replaces a Deployment with a Rollout CRD that supports canary and blue-green with weighted traffic steps and automated metric analysis. It shifts a small traffic percentage, evaluates Prometheus-based AnalysisRuns, and promotes or automatically aborts — the progressive-delivery capability plain Deployments lack.","followups":["How does a canary automatically abort on a bad deploy? (An AnalysisRun on error-rate/latency fails its threshold.)"],"code":"kubectl argo rollouts get rollout web --watch"},
+ {"q":"How do you handle secrets in a GitOps repo?","diff":"Advanced","why":"Committing plaintext secrets to Git is the classic GitOps mistake.","explain":["Never commit plaintext secrets. Encrypt-before-commit with Sealed Secrets (a controller decrypts them in-cluster) or SOPS (age/KMS-encrypted values).","Or reference-don't-store: the External Secrets Operator pulls secrets from Vault/AWS Secrets Manager/Azure Key Vault at runtime, so only a reference lives in Git.","Even a private repo is not a safe place for raw secrets."],"answer":"Use Sealed Secrets or SOPS to store only encrypted secrets in Git (decrypted in-cluster), or the External Secrets Operator to keep just a reference in Git and pull the real value from Vault/cloud secret managers at runtime. Never commit plaintext secrets, even to a private repo.","followups":["Sealed Secrets vs External Secrets — what's the trade-off? (Encrypted-in-Git vs referenced-from-an-external-store.)"]},
+ {"q":"Push-based vs pull-based continuous delivery — why does GitOps prefer pull?","diff":"Intermediate","why":"Security and drift are the reasons GitOps won.","explain":["Push: a CI pipeline holds cluster credentials and runs kubectl/helm against the cluster. Simple, but the external system has powerful standing access and there's no continuous reconciliation.","Pull: an in-cluster agent (Argo CD/Flux) pulls from Git and reconciles. No external credentials, built-in drift detection and self-heal, and rollback is a Git revert.","Pull scales cleanly to many clusters (each runs its own agent)."],"answer":"In push CD the pipeline holds cluster credentials and applies changes externally, with no drift correction. In pull CD an in-cluster agent reconciles from Git, so no external system needs cluster credentials, drift is detected and healed automatically, and rollback is a git revert — which is why GitOps standardized on pull.","followups":["How does pull-based CD reduce credential blast radius? (No CI system holds kubeconfig/admin creds.)"]}
+]},
+
+{"id":"lifecycle","title":"23. Cluster Lifecycle, Upgrades & Reliability","weight":4,"questions":[
+ {"q":"Walk through safely draining a node for maintenance.","diff":"Intermediate","why":"Core CKA/operations skill; the order matters.","explain":["cordon marks the node unschedulable so no new Pods land there. drain evicts existing Pods gracefully (respecting PodDisruptionBudgets and graceful termination), rescheduling them elsewhere.","Do maintenance, then uncordon to make the node schedulable again.","Use --ignore-daemonsets (DaemonSet Pods are managed per-node) and be careful with --delete-emptydir-data (it discards emptyDir data)."],"answer":"cordon the node (stop new scheduling), drain it (gracefully evict Pods, honoring PodDisruptionBudgets), perform maintenance, then uncordon to allow scheduling again. Drain typically needs --ignore-daemonsets, and --delete-emptydir-data if any Pods use emptyDir.","followups":["What stops drain from evicting too many replicas at once? (PodDisruptionBudget.)"],"code":"kubectl cordon node1\nkubectl drain node1 --ignore-daemonsets --delete-emptydir-data\n# ...maintenance...\nkubectl uncordon node1"},
+ {"q":"How does a kubeadm cluster upgrade work, and in what order?","diff":"Advanced","why":"A staple CKA and platform-ops question.","explain":["Order: upgrade the control plane first, then the worker nodes — never nodes ahead of the control plane (version skew rules forbid it).","Control plane: upgrade kubeadm, run kubeadm upgrade apply vX, then upgrade kubelet/kubectl on that node. Repeat for other control-plane nodes (kubeadm upgrade node).","Workers: drain the node, upgrade kubeadm + kubelet, kubeadm upgrade node, then uncordon. Upgrade one minor version at a time."],"answer":"Upgrade the control plane before the workers, one minor version at a time. On the control plane: bump kubeadm, run kubeadm upgrade apply, then upgrade kubelet/kubectl. On each worker: drain, upgrade kubeadm and kubelet, run kubeadm upgrade node, then uncordon. The kubelet must never be newer than the API server.","followups":["Can you skip a minor version during upgrade? (No — upgrade sequentially.)"]},
+ {"q":"What is a PodDisruptionBudget and why does it matter?","diff":"Advanced","why":"Directly protects availability during voluntary disruptions.","explain":["A PDB limits how many Pods of an application can be voluntarily disrupted at once — via minAvailable or maxUnavailable.","It applies to voluntary disruptions (node drains, cluster autoscaler scale-down, rollouts), NOT involuntary ones (a node crashing).","Without a PDB, a drain could evict all replicas of a service simultaneously and cause an outage."],"answer":"A PodDisruptionBudget bounds how many Pods of an app can be voluntarily disrupted at once (via minAvailable/maxUnavailable), protecting availability during node drains, autoscaler scale-downs, and rollouts. It doesn't protect against involuntary disruptions like a node crash.","followups":["A node drain hangs forever — how can a PDB cause that? (minAvailable can't be satisfied, so eviction is blocked.)"],"code":"spec:\n  minAvailable: 2\n  selector: { matchLabels: { app: web } }"},
+ {"q":"Explain PriorityClass and preemption.","diff":"Advanced","why":"Determines which workloads win under resource contention.","explain":["A PriorityClass assigns an integer priority to Pods. Higher-priority Pods schedule ahead of lower ones when resources are scarce.","Preemption: if a high-priority Pod can't schedule, the scheduler may evict (preempt) lower-priority Pods to make room.","Use it to protect critical workloads (e.g. control-plane add-ons, payment services) and let batch/best-effort work be preempted."],"answer":"A PriorityClass gives Pods an integer priority so higher-priority Pods schedule first under contention. If a high-priority Pod can't fit, preemption evicts lower-priority Pods to make room. It's used to guarantee capacity for critical services while letting low-priority batch work yield.","followups":["What protects a Pod from being preempted despite low priority? (There's no absolute guarantee — but PDBs and priority tuning help.)"]},
+ {"q":"What do ResourceQuota and LimitRange do?","diff":"Intermediate","why":"Multi-tenancy and preventing resource hogging are common platform duties.","explain":["ResourceQuota caps total resource consumption per namespace (total CPU/memory requests/limits, object counts like Pods/Services). It enforces fair sharing across teams.","LimitRange sets default and min/max requests/limits per Pod/container in a namespace — so Pods that omit requests get sensible defaults and can't request absurd amounts.","Together they give per-namespace governance."],"answer":"ResourceQuota caps a namespace's total resource usage and object counts for fair multi-tenant sharing; LimitRange sets per-container default and min/max requests/limits so workloads get sane defaults and can't over- or under-request. Together they enforce namespace-level governance.","followups":["A Pod is rejected with 'must specify limits' — which object caused it? (A LimitRange or a ResourceQuota requiring limits.)"]},
+ {"q":"How do you back up and disaster-recover a Kubernetes cluster?","diff":"Advanced","why":"High-stakes reliability question for senior/platform roles.","explain":["Cluster state: take regular etcd snapshots (etcdctl snapshot save) and store them off-cluster; you can restore the entire control-plane state from a snapshot.","Application/PV data: use a tool like Velero to back up namespaces, objects, and persistent volumes (via CSI snapshots) — and to migrate/restore across clusters.","GitOps helps too: the desired state already lives in Git, so re-creating workloads on a fresh cluster is a re-sync; you still need etcd/PV backups for stateful data."],"answer":"Back up cluster state with regular etcd snapshots stored off-cluster (restorable via etcdctl), and back up application objects and persistent-volume data with Velero (including CSI volume snapshots). With GitOps, workload manifests are already in Git, so recovery is re-syncing plus restoring etcd/PV data for state.","followups":["If GitOps holds all manifests, why still back up etcd and PVs? (For stateful data and objects created outside Git.)"],"code":"ETCDCTL_API=3 etcdctl snapshot save snap.db\nvelero backup create prod-backup --include-namespaces prod"}
+]},
+
+{"id":"cks","title":"24. Advanced Security (CKS Focus)","weight":5,"questions":[
+ {"q":"Explain Kubernetes admission control and mutating vs validating webhooks.","diff":"Advanced","why":"Admission control is where cluster-wide policy is enforced — a top CKS topic.","explain":["After authentication and authorization, admission controllers can modify or reject a request before it's persisted. Mutating webhooks run first and can change the object (inject a sidecar, add default labels); validating webhooks run second and can only accept/reject.","Policy engines like OPA Gatekeeper and Kyverno plug in as admission webhooks to enforce custom rules (require labels, block :latest, deny privileged Pods).","Built-in controllers include ResourceQuota, LimitRange, and Pod Security Admission."],"answer":"Admission controllers intercept requests after authz and before persistence. Mutating webhooks run first and can modify objects (e.g. inject sidecars, set defaults); validating webhooks run next and only accept or reject. Policy engines like Gatekeeper/Kyverno use these hooks to enforce custom cluster-wide policy.","followups":["Which runs first, mutating or validating? (Mutating.)","How would you block all :latest images cluster-wide? (A validating policy in Kyverno/Gatekeeper.)"]},
+ {"q":"What is Pod Security Admission and its three profiles?","diff":"Advanced","why":"It replaced PodSecurityPolicy; being current matters.","explain":["Pod Security Admission (PSA) enforces the Pod Security Standards at the namespace level via labels. It replaced the removed PodSecurityPolicy.","Three profiles: privileged (unrestricted), baseline (blocks known privilege escalations), and restricted (hardened — non-root, no privilege escalation, drop capabilities, seccomp).","Modes: enforce (reject), audit (log), warn (warn) — set per namespace via labels."],"answer":"Pod Security Admission enforces the Pod Security Standards per namespace using labels, replacing PodSecurityPolicy. Its three profiles are privileged (no restrictions), baseline (blocks common escalations), and restricted (fully hardened: non-root, no privilege escalation, dropped capabilities, seccomp). Each can run in enforce, audit, or warn mode.","followups":["How do you enforce 'restricted' on a namespace? (Label it pod-security.kubernetes.io/enforce=restricted.)"],"code":"kubectl label ns prod pod-security.kubernetes.io/enforce=restricted"},
+ {"q":"Kubernetes Secrets aren't encrypted by default — how do you fix that?","diff":"Advanced","why":"A very common security gotcha and CKS task.","explain":["By default Secrets are only base64-encoded in etcd — anyone with etcd access or get-secret RBAC can read them.","Enable encryption at rest with an EncryptionConfiguration on the API server (aescbc/secretbox, or better a KMS provider backed by a cloud KMS/HSM). Then rewrite existing Secrets so they're re-encrypted.","Also tighten RBAC on Secrets and prefer an external secrets manager."],"answer":"Secrets are only base64-encoded in etcd by default. Enable encryption at rest via an EncryptionConfiguration on the API server — ideally a KMS provider backed by a cloud KMS/HSM — then re-encrypt existing Secrets. Combine with least-privilege RBAC and, ideally, an external secrets manager.","followups":["After enabling encryption at rest, how do you encrypt existing Secrets? (kubectl get secrets -A -o yaml | kubectl replace -f - to rewrite them.)"]},
+ {"q":"How do you secure the software supply chain for container images?","diff":"Advanced","why":"Supply-chain attacks made this a board-level and CKS topic.","explain":["Scan images for CVEs in CI (Trivy/Grype) and fail the build on critical findings; use minimal/distroless bases to shrink attack surface.","Sign images (cosign) and verify signatures at admission (a Kyverno/Gatekeeper policy or the sigstore policy controller) so only signed, trusted images run.","Generate an SBOM, pin base images by digest, and pull from a trusted internal registry/proxy."],"answer":"Scan images for CVEs in CI and use minimal/distroless bases, sign images with cosign and verify signatures at admission so only trusted images deploy, generate an SBOM, and pin base images by digest from a trusted registry. This chains build-time and deploy-time controls.","followups":["How do you guarantee only signed images run in the cluster? (Admission policy verifying cosign signatures.)"]},
+ {"q":"What runtime-security controls harden a container (seccomp, AppArmor, capabilities)?","diff":"Advanced","why":"Defense-in-depth at the kernel/runtime layer is core CKS.","explain":["seccomp restricts which syscalls a container can make (use the RuntimeDefault profile as a baseline).","AppArmor/SELinux confine what files/operations a process may perform.","Drop all Linux capabilities and add back only what's needed; set runAsNonRoot, allowPrivilegeEscalation: false, and readOnlyRootFilesystem in the securityContext. Add runtime threat detection (Falco) for anomalous behavior."],"answer":"Apply a seccomp profile (RuntimeDefault) to limit syscalls, AppArmor/SELinux to confine file/process operations, drop all capabilities and add back only what's required, and set runAsNonRoot, no privilege escalation, and a read-only root filesystem. Add Falco for runtime threat detection. These layer kernel-level defenses under the app.","followups":["What's the quickest baseline seccomp setting? (seccompProfile type RuntimeDefault.)"],"code":"securityContext:\n  seccompProfile: { type: RuntimeDefault }\n  runAsNonRoot: true\n  readOnlyRootFilesystem: true\n  capabilities: { drop: [\"ALL\"] }"},
+ {"q":"How should a Pod get cloud permissions (e.g. read an S3 bucket) securely?","diff":"Advanced","why":"Node-role over-privilege and static keys are common, dangerous mistakes.","explain":["Don't bake cloud access keys into images or grant the whole node's IAM role to every Pod. Use workload identity: EKS IRSA (IAM Roles for Service Accounts) or Azure Workload Identity federate a Kubernetes ServiceAccount to a scoped cloud role via OIDC.","Each workload's ServiceAccount gets short-lived, least-privilege credentials automatically — no secrets in the cluster.","Also set automountServiceAccountToken: false where the API token isn't needed."],"answer":"Use workload identity — EKS IRSA or Azure Workload Identity — to federate a Kubernetes ServiceAccount to a scoped cloud IAM role via OIDC, so the Pod gets short-lived, least-privilege credentials with no static keys. Avoid granting the node role to all Pods, and disable ServiceAccount token automounting where unused.","followups":["Why is IRSA better than giving the node role the S3 permission? (Every Pod on the node would inherit it — no least privilege.)"]},
+ {"q":"How do you restrict east-west (Pod-to-Pod) traffic?","diff":"Advanced","why":"Segmentation limits lateral movement — key for compliance.","explain":["By default all Pods can talk to all Pods. A NetworkPolicy restricts ingress/egress using Pod/namespace selectors; once a policy selects a Pod, that direction becomes default-deny except what's allowed.","Adopt a default-deny baseline per namespace, then allow only required flows (and don't forget to allow DNS egress to kube-dns on UDP/TCP 53).","Requires an enforcing CNI (Calico, Cilium); some CNIs ignore NetworkPolicies."],"answer":"Apply NetworkPolicies: start with a default-deny per namespace, then explicitly allow only the required flows (remembering to allow DNS egress). Once a Pod is selected by a policy it's default-deny for that direction. This only works with a policy-enforcing CNI like Calico or Cilium.","followups":["You applied a default-deny and DNS broke — why? (You forgot to allow egress to kube-dns on port 53.)"]}
+]},
+
+{"id":"kubectl","title":"25. kubectl & Exam Speed Mastery","weight":4,"questions":[
+ {"q":"How do you generate a manifest fast without writing YAML by hand? (CKAD speed)","diff":"Intermediate","why":"Time is the enemy in CKAD/CKA; imperative generation is the trick.","explain":["Use imperative commands with --dry-run=client -o yaml to generate a starting manifest, then edit and apply. This is the single biggest time-saver on the exams.","kubectl create deployment, kubectl run, kubectl create service, kubectl create configmap/secret all support it.","Combine with kubectl explain to recall field paths without docs-diving."],"answer":"Generate manifests imperatively with --dry-run=client -o yaml, then tweak and apply — e.g. kubectl create deployment web --image=nginx --dry-run=client -o yaml > d.yaml. This avoids hand-writing YAML and is the key speed technique for CKAD/CKA.","followups":["How do you create a Pod YAML skeleton quickly? (kubectl run p --image=nginx --dry-run=client -o yaml.)"],"code":"kubectl create deploy web --image=nginx --replicas=3 --dry-run=client -o yaml > web.yaml\nkubectl run tmp --image=busybox --restart=Never --rm -it -- sh"},
+ {"q":"How do you extract specific fields with JSONPath and custom-columns?","diff":"Advanced","why":"Fast, precise queries are essential under exam time pressure and in scripts.","explain":["-o jsonpath pulls exact values (e.g. all Pod names, a node's internal IP). -o custom-columns builds a table of chosen fields.","Combine with --sort-by to order results. These avoid grep/awk gymnastics.","kubectl get ... -o wide adds handy columns (node, IP) without JSONPath."],"answer":"Use -o jsonpath to extract exact fields and -o custom-columns to build a focused table, optionally with --sort-by. For example, list all Pod images or a node's IP directly, avoiding fragile text parsing.","followups":["How would you list every container image running in a namespace? (jsonpath over .items[*].spec.containers[*].image.)"],"code":"kubectl get pods -o jsonpath='{.items[*].spec.containers[*].image}'\nkubectl get pods -o custom-columns=NAME:.metadata.name,STATUS:.status.phase"},
+ {"q":"How do you debug a running or distroless Pod that has no shell?","diff":"Advanced","why":"Ephemeral containers are the modern debugging answer.","explain":["kubectl debug attaches an ephemeral container (with your tools) to a running Pod, sharing its namespaces — perfect for distroless images with no shell.","kubectl debug can also create a copy of a Pod with a debug container, or start a debugging Pod on a node.","For quick checks: kubectl exec into the container, or kubectl logs --previous for a crashed instance."],"answer":"Use kubectl debug to attach an ephemeral container carrying your tools to the running Pod (sharing its process/network namespaces) — ideal for distroless images with no shell. It can also clone the Pod with a debug container or drop a debug Pod onto a node.","followups":["Why can't you kubectl exec into a distroless container? (No shell/binaries — use an ephemeral debug container.)"],"code":"kubectl debug -it mypod --image=busybox --target=app"},
+ {"q":"How do you switch contexts and namespaces quickly?","diff":"Basic","why":"Constant context/namespace switching wastes exam time if done slowly.","explain":["kubectl config use-context switches clusters; kubectl config set-context --current --namespace=X changes the default namespace so you stop typing -n.","The kubectx/kubens tools (or aliases) make this instant. Set alias k=kubectl and enable completion.","Always confirm your context before a destructive command (kubectl config current-context)."],"answer":"Use kubectl config use-context to switch clusters and kubectl config set-context --current --namespace=NS to change the default namespace so you don't repeat -n. kubectx/kubens and a k alias with completion make this instant — and always verify your current context before destructive actions.","followups":["How do you avoid typing -n on every command? (Set the namespace on the current context.)"],"code":"kubectl config set-context --current --namespace=payments\nalias k=kubectl"},
+ {"q":"apply vs create vs replace vs patch — when do you use each?","diff":"Intermediate","why":"Subtle differences cause real 'field is immutable' and idempotency issues.","explain":["apply is declarative and idempotent — it merges your manifest with the live object (three-way merge) and is the default for GitOps.","create fails if the object already exists (imperative, one-shot). replace overwrites the whole object (must include all fields; can fail on immutable fields).","patch changes specific fields (strategic/JSON/merge patch) — handy for a quick targeted edit."],"answer":"apply is declarative and idempotent (three-way merge, safe to re-run); create makes a new object and errors if it exists; replace overwrites the entire object and can fail on immutable fields; patch edits specific fields. Production/GitOps uses apply; create/patch are for quick imperative changes.","followups":["Why can replace fail where apply succeeds? (replace overwrites everything and may hit immutable fields.)"]},
+ {"q":"Give a fast troubleshooting toolkit of one-liners.","diff":"Intermediate","why":"Interviewers and exams reward knowing exactly which command to reach for.","explain":["Start with describe + events for the 'why'; logs (and --previous) for the 'what'; get -o wide for placement.","kubectl get events --sort-by=.lastTimestamp surfaces recent cluster activity; kubectl top shows resource usage (needs metrics-server).","kubectl explain recalls field structure; kubectl api-resources lists object kinds and whether they're namespaced."],"answer":"Reach for kubectl describe and kubectl get events --sort-by=.lastTimestamp for the reason, kubectl logs --previous for crash output, kubectl get -o wide for placement, kubectl top for usage, and kubectl explain / api-resources to recall structure. This toolkit resolves most Pod/scheduling/networking issues fast.","followups":["Command to see the most recent cluster events? (kubectl get events --sort-by=.lastTimestamp.)"],"code":"kubectl describe pod P\nkubectl logs P --previous\nkubectl top pods\nkubectl get events --sort-by=.lastTimestamp"}
+]},
+
+{"id":"deepconcepts","title":"26. Deeper Concepts & Gotchas","weight":4,"questions":[
+ {"q":"What are CRDs and the Operator pattern?","diff":"Advanced","why":"Operators run most real stateful software on Kubernetes today.","explain":["A CustomResourceDefinition (CRD) extends the Kubernetes API with your own resource type (e.g. a Kafka or Postgres object). It becomes a first-class object you can kubectl get.","An Operator is a custom controller that watches those custom resources and runs a control loop encoding operational knowledge — provisioning, backups, failover, upgrades — so the software self-manages.","It's the reconciliation pattern applied to app-specific operations."],"answer":"A CRD extends the Kubernetes API with a custom resource type, and an Operator is a controller that watches those resources and reconciles them — encoding operational logic like provisioning, backup, and failover. Together they let complex stateful software be managed declaratively, the same way built-in objects are.","followups":["How is an Operator different from a Helm chart? (Helm templates manifests once; an Operator continuously reconciles and automates day-2 operations.)"]},
+ {"q":"CPU throttling vs OOMKill — how do requests/limits cause each?","diff":"Advanced","why":"A subtle but high-impact reliability gotcha.","explain":["CPU is compressible: exceeding the CPU limit throttles the container (it runs slower) — it is NOT killed. This often shows up as unexplained latency.","Memory is not compressible: exceeding the memory limit triggers an OOMKill (exit 137) — the container is terminated.","Set requests for scheduling and limits to bound blast radius; requests==limits gives Guaranteed QoS. Too-tight CPU limits create latency that looks like an app bug."],"answer":"CPU is compressible, so exceeding the CPU limit throttles the container (slower, not killed) — a common hidden cause of latency. Memory is incompressible, so exceeding the memory limit causes an OOMKill (exit 137). Set requests for scheduling and limits to bound impact, and beware overly tight CPU limits masquerading as app slowness.","followups":["A service is mysteriously slow but not crashing — what limit do you suspect? (CPU limit throttling.)"]},
+ {"q":"What is the Downward API and when is it useful?","diff":"Intermediate","why":"Handy pattern that surprises candidates who haven't used it.","explain":["The Downward API exposes Pod/container metadata to the container as environment variables or files — things like the Pod name, namespace, node name, labels, annotations, and resource limits.","Useful for logging/telemetry that needs the Pod identity, or apps that must know their own namespace/node without hardcoding.","It avoids baking environment-specific values into images."],"answer":"The Downward API injects Pod and container metadata (name, namespace, node, labels, resource limits) into the container as env vars or files, so an app can learn its own identity/placement without hardcoding it. It's common for telemetry, logging context, and self-aware configuration.","followups":["How would a Pod know its own namespace at runtime? (Downward API exposing metadata.namespace.)"]},
+ {"q":"What does a service mesh add over plain Kubernetes networking?","diff":"Advanced","why":"Meshes are common in senior platform environments.","explain":["A service mesh (Istio, Linkerd) injects a sidecar proxy (or uses an eBPF/ambient dataplane) beside each Pod to control service-to-service traffic transparently.","It adds automatic mutual TLS (encryption + identity), fine-grained traffic management (canary/retries/timeouts/circuit breaking), and rich L7 observability (golden signals per service) without app code changes.","Trade-off: added complexity and sidecar overhead — only adopt when you need those features."],"answer":"A service mesh puts a proxy alongside each service to transparently provide mutual TLS, advanced traffic management (canary, retries, timeouts, circuit breaking), and per-service L7 observability — without changing app code. The cost is operational complexity and sidecar overhead, so adopt it only when those capabilities are needed.","followups":["What does a mesh give you 'for free' security-wise? (Automatic mTLS between services.)"]},
+ {"q":"Name the multi-container Pod patterns and when to use them.","diff":"Advanced","why":"Tests real design experience beyond 'sidecar'.","explain":["Sidecar: augments the main container for the Pod's lifetime (log shipper, proxy, metrics exporter).","Ambassador: a proxy container that brokers the main container's connections to the outside (e.g. a local proxy to a database/cache), simplifying the app.","Adapter: transforms the main container's output into a standard format (e.g. normalizing logs/metrics for a monitoring system)."],"answer":"Sidecar augments the main container (logging, proxy, exporter); Ambassador proxies the app's outbound connections through a helper container to simplify external access; Adapter transforms the app's output into a standard format for other systems. All exploit the shared Pod network/volume namespace.","followups":["Which pattern would you use to normalize an app's metrics into Prometheus format without changing the app? (Adapter.)"]},
+ {"q":"How do you handle deprecated/removed Kubernetes APIs during upgrades?","diff":"Advanced","why":"Upgrades break on removed API versions — a real operational pain.","explain":["Kubernetes periodically removes deprecated API versions (e.g. old Ingress/PSP APIs). Manifests using a removed version fail to apply after an upgrade.","Detect ahead of time with tooling (kubectl deprecations plugins, pluto, kubent) and the API server's deprecation warnings; migrate manifests to the current apiVersion.","In GitOps, this is a PR that updates apiVersion across the config repo before you upgrade the cluster."],"answer":"Before upgrading, scan for deprecated/removed APIs (pluto/kubent, API-server deprecation warnings) and migrate manifests to the current apiVersion, since a removed version stops applying after the upgrade. In GitOps this is a config-repo PR bumping apiVersion, done before the cluster upgrade.","followups":["How do you find manifests using a soon-to-be-removed API version? (Tools like pluto/kubent or API deprecation warnings.)"]}
+]}
+];
+const esc = s => (s==null?"":String(s));
+
+// build nav
+const nav = document.getElementById('nav');
+DATA.forEach(ch=>{
+  const a=document.createElement('a');
+  a.href='#'+ch.id; a.dataset.id=ch.id;
+  a.innerHTML='<span>'+esc(ch.title)+'</span><span class="nq">'+ch.questions.length+'</span>';
+  nav.appendChild(a);
+});
+
+// render content
+const content=document.getElementById('content');
+let qIndex=0; const cards=[];
+DATA.forEach(ch=>{
+  const sec=document.createElement('section');
+  sec.className='chapter'; sec.id=ch.id;
+  sec.innerHTML='<div class="ch-head"><h2>'+esc(ch.title)+'</h2>'+
+    '<span class="weight" title="Interview weight">'+'★'.repeat(ch.weight)+'</span></div>'+
+    '<p class="ch-sub">Interview weight: '+'★'.repeat(ch.weight)+'☆'.repeat(5-ch.weight)+
+    ' &nbsp;·&nbsp; '+ch.questions.length+' questions</p>';
+  ch.questions.forEach(q=>{
+    const id='q'+(qIndex++);
+    const card=document.createElement('div');
+    card.className='card'; card.dataset.id=id;
+    const txt=(q.q+' '+(q.answer||'')+' '+(q.explain||[]).join(' ')+' '+(q.followups||[]).join(' ')).toLowerCase();
+    card.dataset.text=txt;
+
+    let body='';
+    if(q.why){body+='<div class="seg"><div class="lab">Why interviewers ask</div><p class="why">'+esc(q.why)+'</p></div>';}
+    if(q.explain&&q.explain.length){
+      body+='<div class="seg"><div class="lab">Detailed explanation</div>'+
+        q.explain.map(p=>'<p>'+esc(p)+'</p>').join('')+'</div>';
+    }
+    if(q.answer){body+='<div class="seg answer"><div class="lab">Interview-ready answer</div><p>'+esc(q.answer)+'</p></div>';}
+    if(q.code){body+='<div class="seg"><div class="lab">Commands / YAML</div><pre>'+esc(q.code)+'</pre></div>';}
+    if(q.followups&&q.followups.length){
+      body+='<div class="seg"><div class="lab">Follow-up questions</div><ul class="followups">'+
+        q.followups.map(f=>'<li>'+esc(f)+'</li>').join('')+'</ul></div>';
+    }
+
+    card.innerHTML=
+      '<div class="qbar">'+
+        '<div class="qmark" role="checkbox" aria-checked="false" tabindex="0" title="Mark reviewed">✓</div>'+
+        '<div class="qtitle">'+esc(q.q)+'<span class="diff '+q.diff+'">'+q.diff+'</span></div>'+
+        '<div class="chev">▸</div>'+
+      '</div>'+
+      '<div class="body">'+body+'</div>';
+    sec.appendChild(card); cards.push(card);
+  });
+  content.appendChild(sec);
+});
+
+// expand/collapse
+content.addEventListener('click',e=>{
+  const mark=e.target.closest('.qmark');
+  if(mark){e.stopPropagation(); toggleDone(mark.closest('.card')); return;}
+  const bar=e.target.closest('.qbar');
+  if(bar){bar.closest('.card').classList.toggle('open');}
+});
+content.addEventListener('keydown',e=>{
+  if((e.key===' '||e.key==='Enter')&&e.target.classList.contains('qmark')){
+    e.preventDefault(); toggleDone(e.target.closest('.card'));
+  }
+});
+
+let done=0;
+function toggleDone(card){
+  card.classList.toggle('done');
+  const m=card.querySelector('.qmark');
+  const on=card.classList.contains('done');
+  m.setAttribute('aria-checked',on?'true':'false');
+  done+=on?1:-1; updateProg();
+}
+const TOTAL=cards.length;
+function updateProg(){
+  document.getElementById('progtext').textContent=done+' / '+TOTAL;
+  document.getElementById('progbar').style.width=(TOTAL?done/TOTAL*100:0)+'%';
+}
+
+// search
+const search=document.getElementById('search');
+const empty=document.getElementById('empty');
+search.addEventListener('input',()=>{
+  const term=search.value.trim().toLowerCase();
+  let shown=0;
+  cards.forEach(c=>{
+    const hit=!term||c.dataset.text.includes(term);
+    c.style.display=hit?'':'none';
+    if(hit){shown++; if(term)c.classList.add('open');}
+    else c.classList.remove('open');
+  });
+  DATA.forEach(ch=>{
+    const sec=document.getElementById(ch.id);
+    const any=[...sec.querySelectorAll('.card')].some(c=>c.style.display!=='none');
+    sec.style.display=any?'':'none';
+  });
+  empty.classList.toggle('show',shown===0);
+});
+
+// scrollspy
+const links=[...nav.querySelectorAll('a')];
+const obs=new IntersectionObserver(es=>{
+  es.forEach(en=>{
+    if(en.isIntersecting){
+      links.forEach(l=>l.classList.toggle('active',l.dataset.id===en.target.id));
+    }
+  });
+},{rootMargin:'-10% 0px -80% 0px'});
+DATA.forEach(ch=>obs.observe(document.getElementById(ch.id)));
+updateProg();
+
+/* =================================================================
+   EXTENSIONS: MCQ Exam Simulator · Deployment Flow · Monitoring · Prep
+   ================================================================= */
+(function(){
+  const navEl=document.getElementById('nav');
+  const content2=document.getElementById('content');
+  const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+  const pre=(txt)=>{const p=document.createElement('pre');p.textContent=txt;return p;};
+  const seg=(lab,node)=>{const s=el('div','seg');s.appendChild(el('div','lab',lab));if(node)s.appendChild(node);return s;};
+
+  const specials=[
+    {id:'exam-sim',label:'◆ Exam Simulator (MCQ)'},
+    {id:'deploy-flow',label:'◆ Java → GitHub Actions → Argo CD'},
+    {id:'deploy-monitor',label:'◆ Monitoring Deployments'},
+    {id:'exam-prep',label:'◆ CKA / CKAD / CKS Prep'}
+  ];
+  specials.forEach(s=>{const a=document.createElement('a');a.href='#'+s.id;a.dataset.id=s.id;
+    a.innerHTML='<span>'+s.label+'</span>';navEl.appendChild(a);});
+
+  /* ------------------------- MCQ DATA ------------------------- */
+  const QUIZ=[
+   {dom:"Core",q:"Which component is the ONLY one that reads from and writes to etcd directly?",opts:["kube-scheduler","kubelet","kube-apiserver","kube-controller-manager"],correct:2,exp:"Everything goes through the API server; even the scheduler and controllers never touch etcd directly."},
+   {dom:"Core",q:"What is the smallest deployable unit in Kubernetes?",opts:["Container","Pod","ReplicaSet","Node"],correct:1,exp:"Kubernetes schedules Pods (one or more containers sharing a network namespace), not bare containers."},
+   {dom:"Core",q:"A container shows status OOMKilled with exit code 137. What happened?",opts:["It exceeded its CPU limit","It failed a liveness probe","It exceeded its memory limit","Its image failed to pull"],correct:2,exp:"Memory is incompressible: exceeding the memory limit triggers an OOMKill (137). Exceeding CPU only throttles."},
+   {dom:"Core",q:"What is the default Service type if you don't specify one?",opts:["NodePort","LoadBalancer","ClusterIP","ExternalName"],correct:2,exp:"ClusterIP gives an internal-only virtual IP; it's the default."},
+   {dom:"Core",q:"A readiness probe fails. What does Kubernetes do?",opts:["Restarts the container","Removes the Pod from Service endpoints","Reschedules the Pod to another node","Deletes and recreates the Pod"],correct:1,exp:"Readiness failure removes the Pod from endpoints (no traffic) but does NOT restart it. Liveness failure restarts."},
+   {dom:"Core",q:"Under node memory pressure, which QoS class is evicted FIRST?",opts:["Guaranteed","Burstable","BestEffort","Privileged"],correct:2,exp:"Eviction order is BestEffort, then Burstable, then Guaranteed."},
+   {dom:"Core",q:"How are Kubernetes Secrets stored in etcd by default?",opts:["AES-256 encrypted","base64-encoded (not encrypted)","bcrypt-hashed","Stored only in memory"],correct:1,exp:"By default Secrets are only base64-encoded — enable encryption at rest to actually encrypt them."},
+   {dom:"Core",q:"Which workload runs exactly one Pod on every node?",opts:["Deployment","StatefulSet","DaemonSet","Job"],correct:2,exp:"DaemonSets run one Pod per node (or per matching subset) — used for log/metric agents and CNI."},
+   {dom:"Core",q:"Which command is declarative and idempotent, merging changes into a live object?",opts:["kubectl create","kubectl apply","kubectl run","kubectl replace"],correct:1,exp:"apply does a three-way merge and is safe to re-run; create fails if the object exists."},
+   {dom:"Core",q:"Which object gives each Pod a stable name, stable DNS, and its own persistent storage?",opts:["Deployment","ReplicaSet","StatefulSet","DaemonSet"],correct:2,exp:"StatefulSets provide ordinal identity, stable DNS via a headless Service, and per-Pod PVCs."},
+   {dom:"CKA",q:"Which consensus algorithm does etcd use?",opts:["Paxos","Raft","Gossip","Zab"],correct:1,exp:"etcd uses Raft, which is why you run an odd number of members (3 or 5) for quorum."},
+   {dom:"CKA",q:"What is the correct sequence to take a node down for maintenance?",opts:["drain → cordon → uncordon","cordon → drain → (maintenance) → uncordon","drain → delete → recreate","taint → evict → untaint"],correct:1,exp:"cordon stops new scheduling, drain evicts Pods gracefully, then uncordon re-enables scheduling."},
+   {dom:"CKA",q:"For a highly-available etcd, how many members should you run?",opts:["An even number (2 or 4)","Exactly 1","An odd number (3 or 5)","As many as nodes"],correct:2,exp:"Odd numbers maximize fault tolerance for a given size while maintaining quorum."},
+   {dom:"CKA",q:"During a kubeadm cluster upgrade, what do you upgrade first?",opts:["Worker nodes, then control plane","Control plane, then worker nodes","All nodes simultaneously","etcd only"],correct:1,exp:"Always upgrade the control plane before workers; the kubelet must never be newer than the API server."},
+   {dom:"CKA",q:"Which taint effect EVICTS already-running Pods that lack a matching toleration?",opts:["NoSchedule","PreferNoSchedule","NoExecute","NoAdmit"],correct:2,exp:"NoExecute evicts running Pods without a matching toleration; NoSchedule only blocks new scheduling."},
+   {dom:"CKA",q:"A Pod is Pending with 'Insufficient cpu'. Which is NOT a valid remedy?",opts:["Lower the Pod's CPU requests","Add nodes / enable Cluster Autoscaler","Increase the readiness probe timeout","Reschedule to a larger node"],correct:2,exp:"A readiness probe has nothing to do with scheduling; Pending due to resources needs more capacity or lower requests."},
+   {dom:"CKA",q:"A PVC is stuck in Pending. What is the most likely cause?",opts:["The Pod has no liveness probe","No matching PV or StorageClass/provisioner","The namespace has no quota","The image is too large"],correct:1,exp:"A Pending PVC usually means no PV matches or there's no StorageClass/provisioner for dynamic provisioning."},
+   {dom:"CKA",q:"Which access mode allows read-write mounting by MANY nodes at once?",opts:["ReadWriteOnce","ReadOnlyMany","ReadWriteMany","ReadWriteOncePod"],correct:2,exp:"ReadWriteMany requires a shared filesystem (NFS/EFS/CephFS). Block storage like EBS is typically RWO."},
+   {dom:"CKA",q:"What makes rolling back a Deployment possible?",opts:["etcd stores every Pod log","Old ReplicaSets are retained per revisionHistoryLimit","The scheduler caches images","Secrets are versioned"],correct:1,exp:"Each revision is backed by a ReplicaSet; rollback is a controlled rollout to a prior ReplicaSet."},
+   {dom:"CKA",q:"Which component provides CPU/memory metrics to the Horizontal Pod Autoscaler?",opts:["kube-proxy","metrics-server","CoreDNS","kubelet cadvisor only"],correct:1,exp:"metrics-server aggregates resource metrics that the HPA consumes for CPU/memory scaling."},
+   {dom:"CKA",q:"A node is NotReady. What is the first command to investigate?",opts:["kubectl logs node","kubectl describe node <node>","kubectl top pods","kubectl get svc"],correct:1,exp:"describe node shows Conditions (Disk/Memory/PID pressure) and the last kubelet heartbeat."},
+   {dom:"CKAD",q:"What is the fastest way to generate a Deployment YAML skeleton?",opts:["Write it from memory","kubectl create deploy web --image=nginx --dry-run=client -o yaml","kubectl get deploy -o yaml","helm template"],correct:1,exp:"--dry-run=client -o yaml prints the manifest without creating it — the key CKAD speed trick."},
+   {dom:"CKAD",q:"Which container type runs to completion BEFORE the main container starts?",opts:["Sidecar","initContainer","Ambassador","Ephemeral"],correct:1,exp:"initContainers run sequentially to completion before app containers start (migrations, waiting on deps)."},
+   {dom:"CKAD",q:"You changed a ConfigMap consumed as env vars. How do running Pods pick it up?",opts:["Automatically within seconds","They must be restarted / rolled","Only if you edit the Secret too","kubectl refresh configmap"],correct:1,exp:"Env vars are injected at Pod start and don't update live — roll the Deployment (e.g. kubectl rollout restart)."},
+   {dom:"CKAD",q:"A Job must complete 5 times with 2 running in parallel. Which spec is correct?",opts:["replicas: 5, parallelism: 2","completions: 5, parallelism: 2","backoffLimit: 5, parallelism: 2","completions: 2, parallelism: 5"],correct:1,exp:"completions sets total successful runs (5); parallelism sets how many run at once (2)."},
+   {dom:"CKAD",q:"Which probe should gate whether a Pod receives traffic WITHOUT restarting it?",opts:["Liveness","Readiness","Startup","Health"],correct:1,exp:"Readiness controls endpoint membership (traffic); liveness restarts the container."},
+   {dom:"CKAD",q:"How do you run a throwaway Pod that's deleted automatically when it exits?",opts:["kubectl create pod --temp","kubectl run tmp --image=busybox --restart=Never --rm -it -- sh","kubectl apply --ephemeral","kubectl debug --delete"],correct:1,exp:"--rm -it with --restart=Never runs an interactive Pod and removes it on exit — great for quick tests."},
+   {dom:"CKAD",q:"The Downward API is used to...",opts:["Pull images faster","Expose Pod metadata (name, namespace, labels) to the container","Downgrade an API version","Route traffic downward to Pods"],correct:1,exp:"The Downward API injects Pod/container metadata as env vars or files so an app can know its own identity."},
+   {dom:"CKAD",q:"Which CronJob field prevents overlapping runs?",opts:["backoffLimit","concurrencyPolicy: Forbid","suspend: true","successfulJobsHistoryLimit"],correct:1,exp:"concurrencyPolicy: Forbid skips a new run if the previous one is still active."},
+   {dom:"CKAD",q:"To guarantee zero dropped requests during a rollout, the MOST critical setting is...",opts:["maxSurge: 100%","A correct readiness probe","A higher CPU limit","revisionHistoryLimit: 0"],correct:1,exp:"Without a correct readiness probe, traffic reaches not-ready Pods mid-rollout and requests fail."},
+   {dom:"CKS",q:"Which is TRUE about Kubernetes Secrets out of the box?",opts:["They are encrypted with the cluster CA","They are only base64-encoded in etcd","They are stored in Vault automatically","They are never written to etcd"],correct:1,exp:"Base64 is encoding, not encryption. Enable EncryptionConfiguration (ideally KMS) to encrypt at rest."},
+   {dom:"CKS",q:"Which native feature enforces 'no privileged Pods' per namespace via labels?",opts:["NetworkPolicy","Pod Security Admission (restricted)","ResourceQuota","RBAC"],correct:1,exp:"Pod Security Admission applies the Pod Security Standards (baseline/restricted) via namespace labels."},
+   {dom:"CKS",q:"You need a CUSTOM policy like 'every Pod must have an owner label'. Which tool?",opts:["kube-proxy","OPA Gatekeeper or Kyverno (admission webhook)","CoreDNS","metrics-server"],correct:1,exp:"Policy engines Gatekeeper/Kyverno plug in as admission webhooks to enforce arbitrary custom rules."},
+   {dom:"CKS",q:"With NO NetworkPolicy defined, default Pod-to-Pod traffic is...",opts:["Fully denied","Fully allowed (open)","Allowed only within a namespace","Allowed only to system Pods"],correct:1,exp:"Kubernetes is open by default; a NetworkPolicy makes selected Pods default-deny for that direction."},
+   {dom:"CKS",q:"The BEST way to give a Pod on EKS permission to read an S3 bucket is...",opts:["Bake AWS keys into the image","Give the whole node's IAM role S3 access","IRSA / workload identity mapped to a scoped role","Store keys in a ConfigMap"],correct:2,exp:"IRSA federates a ServiceAccount to a scoped IAM role via OIDC — short-lived, least-privilege, no static keys."},
+   {dom:"CKS",q:"Which set of securityContext settings hardens a container best?",opts:["privileged: true","runAsNonRoot, drop ALL capabilities, readOnlyRootFilesystem","hostNetwork: true","allowPrivilegeEscalation: true"],correct:1,exp:"Non-root, dropped capabilities, and a read-only root FS (plus seccomp) are the hardened baseline."},
+   {dom:"CKS",q:"How do you ensure ONLY trusted, signed images can be deployed?",opts:["Use :latest tags","Sign images (cosign) and verify signatures at admission","Disable RBAC","Run images as root"],correct:1,exp:"Sign with cosign and enforce signature verification via an admission policy so only signed images run."},
+   {dom:"CKS",q:"seccomp profiles are used to...",opts:["Encrypt Secrets","Restrict which syscalls a container can make","Load-balance Services","Autoscale Pods"],correct:1,exp:"seccomp filters syscalls (use RuntimeDefault as a baseline) to shrink the kernel attack surface."},
+   {dom:"CKS",q:"After enabling encryption at rest, how do you encrypt EXISTING Secrets?",opts:["Restart etcd","Rewrite them (kubectl get secrets -A -o yaml | kubectl replace -f -)","Delete and recreate the cluster","Nothing — it's automatic and retroactive"],correct:1,exp:"Encryption applies on write, so you must rewrite existing Secrets to re-encrypt them."},
+   {dom:"CKS",q:"Which admission webhook type runs FIRST and can modify the object?",opts:["Validating","Mutating","Authorizing","Auditing"],correct:1,exp:"Mutating webhooks run before validating webhooks and can change the request (e.g. inject a sidecar)."}
+  ];
+
+  /* ------------------------- EXAM SIMULATOR ------------------------- */
+  const ex=el('section','chapter'); ex.id='exam-sim';
+  ex.appendChild(el('div','ch-head','<h2>Exam Simulator — MCQ Practice</h2><span class="weight" title="Practice">★★★★★</span>'));
+  ex.appendChild(el('p','section-intro','Multiple-choice practice modelled on CKA / CKAD / CKS style checks. <b>Practice</b> mode gives instant feedback and explanation per question; <b>Exam</b> mode hides answers until you submit, then scores you. Filter by domain, shuffle, and track your score. '+QUIZ.length+' questions.'));
+
+  const bar=el('div','toolbar');
+  bar.innerHTML=
+    '<span class="tlabel">Domain</span>'+
+    '<button class="tbtn on" data-dom="all">All</button>'+
+    '<button class="tbtn" data-dom="Core">Core</button>'+
+    '<button class="tbtn" data-dom="CKA">CKA</button>'+
+    '<button class="tbtn" data-dom="CKAD">CKAD</button>'+
+    '<button class="tbtn" data-dom="CKS">CKS</button>'+
+    '<span class="tlabel" style="margin-left:8px">Mode</span>'+
+    '<button class="tbtn on" data-mode="practice">Practice</button>'+
+    '<button class="tbtn" data-mode="exam">Exam</button>'+
+    '<button class="tbtn go" id="qzShuffle">↻ Shuffle &amp; restart</button>'+
+    '<span class="qz-score" id="qzScore">0 / 0</span>';
+  ex.appendChild(bar);
+
+  const resultBanner=el('div','qz-result'); resultBanner.id='qzResult'; ex.appendChild(resultBanner);
+  const list=el('div'); list.id='qzList'; ex.appendChild(list);
+  const submitWrap=el('div','qz-submit');
+  submitWrap.innerHTML='<button class="tbtn go" id="qzSubmit" style="display:none">Submit exam &amp; score</button>';
+  ex.appendChild(submitWrap);
+  content2.appendChild(ex);
+
+  let qMode='practice', qDom='all', order=[], answered={};
+  const letters=['A','B','C','D','E'];
+
+  function buildOrder(shuffle){
+    order=QUIZ.map((q,i)=>i).filter(i=>qDom==='all'||QUIZ[i].dom===qDom);
+    if(shuffle){for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}}
+  }
+  function renderQuiz(){
+    answered={}; list.innerHTML='';
+    document.getElementById('qzResult').classList.remove('show');
+    order.forEach((qi,pos)=>{
+      const q=QUIZ[qi];
+      const card=el('div','quiz-q'); card.dataset.i=qi;
+      let opts='';
+      q.opts.forEach((o,oi)=>{opts+='<div class="opt" data-o="'+oi+'"><span class="k">'+letters[oi]+'</span><span class="otext">'+o+'</span></div>';});
+      card.innerHTML='<div><span class="dom '+q.dom+'">'+q.dom+'</span><span class="qn">Q'+(pos+1)+'</span></div>'+
+        '<div class="qt">'+q.q+'</div>'+opts+
+        '<div class="qz-exp"><b>Answer: '+letters[q.correct]+'.</b> '+q.exp+'</div>';
+      list.appendChild(card);
+    });
+    document.getElementById('qzSubmit').style.display = qMode==='exam' ? '' : 'none';
+    updateScore();
+  }
+  function gradeCard(card){
+    const qi=+card.dataset.i, q=QUIZ[qi], chosen=answered[qi];
+    card.querySelectorAll('.opt').forEach((o,oi)=>{
+      o.classList.add('locked');
+      if(oi===q.correct)o.classList.add('correct');
+      if(oi===chosen&&chosen!==q.correct)o.classList.add('wrong');
+    });
+    card.querySelector('.qz-exp').classList.add('show');
+  }
+  function updateScore(){
+    let ans=0,cor=0;
+    order.forEach(qi=>{ if(answered[qi]!=null){ans++; if(answered[qi]===QUIZ[qi].correct)cor++;} });
+    document.getElementById('qzScore').textContent=cor+' / '+ans+(order.length?(' ('+order.length+' total)'):'');
+  }
+  list.addEventListener('click',e=>{
+    const opt=e.target.closest('.opt'); if(!opt)return;
+    const card=opt.closest('.quiz-q'); const qi=+card.dataset.i;
+    if(card.querySelector('.opt.locked'))return;               // already graded (practice)
+    answered[qi]=+opt.dataset.o;
+    if(qMode==='practice'){ gradeCard(card); }
+    else { card.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel')); opt.classList.add('sel'); }
+    updateScore();
+  });
+  bar.addEventListener('click',e=>{
+    const b=e.target.closest('.tbtn'); if(!b)return;
+    if(b.dataset.dom){ bar.querySelectorAll('[data-dom]').forEach(x=>x.classList.remove('on')); b.classList.add('on'); qDom=b.dataset.dom; buildOrder(false); renderQuiz(); }
+    if(b.dataset.mode){ bar.querySelectorAll('[data-mode]').forEach(x=>x.classList.remove('on')); b.classList.add('on'); qMode=b.dataset.mode; buildOrder(false); renderQuiz(); }
+    if(b.id==='qzShuffle'){ buildOrder(true); renderQuiz(); }
+  });
+  document.getElementById('qzSubmit').addEventListener('click',()=>{
+    let cor=0; list.querySelectorAll('.quiz-q').forEach(card=>{ gradeCard(card); if(answered[+card.dataset.i]===QUIZ[+card.dataset.i].correct)cor++; });
+    const total=order.length, pct=total?Math.round(cor/total*100):0;
+    const byDom={}; order.forEach(qi=>{const d=QUIZ[qi].dom;byDom[d]=byDom[d]||{c:0,t:0};byDom[d].t++;if(answered[qi]===QUIZ[qi].correct)byDom[d].c++;});
+    const bd=Object.keys(byDom).map(d=>d+': '+byDom[d].c+'/'+byDom[d].t).join(' · ');
+    const r=document.getElementById('qzResult');
+    r.innerHTML='<h3>'+cor+' / '+total+'  ('+pct+'%)</h3><div class="bd">'+(bd||'')+'</div><div class="bd">'+(pct>=80?'Strong — exam-ready on these topics.':pct>=66?'Solid pass range — review the misses below.':'Keep drilling — read every explanation below.')+'</div>';
+    r.classList.add('show'); r.scrollIntoView({behavior:'smooth',block:'center'});
+    document.getElementById('qzSubmit').style.display='none';
+  });
+  buildOrder(false); renderQuiz();
+
+  /* ------------------------- DEPLOYMENT FLOW ------------------------- */
+  const fl=el('section','chapter'); fl.id='deploy-flow';
+  fl.appendChild(el('div','ch-head','<h2>Deployment Flow — Java App → GitHub Actions → Argo CD</h2><span class="weight">★★★★★</span>'));
+  fl.appendChild(el('p','section-intro','End-to-end GitOps delivery for a Spring Boot (Java) service: GitHub Actions builds and tests the app, publishes an immutable image, and commits the new image tag to a Git config repo. Argo CD (running in the cluster) detects the commit and reconciles the cluster to match. This is the pull-based model interviewers expect you to describe.'));
+
+  const flow=el('div','flow');
+  flow.innerHTML=
+    '<div class="fnode"><div class="n">1 · SOURCE</div><h5>App repo (Git)</h5><p>Developer merges a PR to <b>main</b> in the Spring Boot repo.</p></div>'+
+    '<div class="fnode"><div class="n">2 · CI</div><h5>GitHub Actions</h5><p>mvn verify → build image → push to registry tagged with the <b>commit SHA</b>.</p></div>'+
+    '<div class="fnode"><div class="n">3 · GITOPS COMMIT</div><h5>Config repo</h5><p>CI bumps the image tag in the k8s manifests repo — a new commit = desired state.</p></div>'+
+    '<div class="fnode"><div class="n">4 · CD</div><h5>Argo CD</h5><p>Detects the commit, diffs vs live, and <b>auto-syncs</b> the change into the cluster.</p></div>'+
+    '<div class="fnode"><div class="n">5 · ROLLOUT</div><h5>Kubernetes</h5><p>Deployment (or Argo Rollouts canary) rolls the new version with readiness gating.</p></div>'+
+    '<div class="fnode"><div class="n">6 · OBSERVE</div><h5>Argo UI + Grafana</h5><p>Watch sync/health, diff, rollout progress, and golden signals; roll back if needed.</p></div>';
+  fl.appendChild(flow);
+
+  fl.appendChild(el('div','callout','<b>Why two repos?</b> Separating the <b>app repo</b> (source code) from the <b>config repo</b> (manifests) is the standard GitOps split: CI only writes the desired image tag to the config repo, and Argo CD only reads from it. The pipeline never holds cluster credentials, and every deploy is an auditable Git commit.'));
+
+  fl.appendChild(seg('1 · Dockerfile (multi-stage, non-root)', pre(
+`# --- build stage ---
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn -B dependency:go-offline        # cache deps layer
+COPY src ./src
+RUN mvn -B clean package -DskipTests
+
+# --- runtime stage (small, hardened) ---
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+RUN addgroup -S app && adduser -S app -G app
+COPY --from=build /app/target/*.jar app.jar
+USER app
+EXPOSE 8080
+ENTRYPOINT ["java","-XX:MaxRAMPercentage=75.0","-jar","app.jar"]`)));
+
+  fl.appendChild(seg('2 · GitHub Actions — build, test, push, bump tag (.github/workflows/deploy.yml)', pre(
+`name: build-and-deploy
+on:
+  push: { branches: [ main ] }
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write            # for OIDC (cloud / registry) - no stored keys
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@<PIN_SHA>
+      - uses: actions/setup-java@<PIN_SHA>
+        with: { distribution: temurin, java-version: '21', cache: maven }
+      - name: Test & build
+        run: mvn -B verify
+
+      - name: Log in to registry (GHCR)
+        uses: docker/login-action@<PIN_SHA>
+        with:
+          registry: ghcr.io
+          username: \${{ github.actor }}
+          password: \${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push image (immutable SHA tag)
+        run: |
+          IMAGE=ghcr.io/ORG/payments:\${{ github.sha }}
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+
+  bump:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitOps config repo
+        uses: actions/checkout@<PIN_SHA>
+        with:
+          repository: ORG/payments-gitops
+          token: \${{ secrets.GITOPS_PAT }}
+      - name: Set new image tag with kustomize
+        run: |
+          cd overlays/prod
+          kustomize edit set image payments=ghcr.io/ORG/payments:\${{ github.sha }}
+      - name: Commit desired state
+        run: |
+          git config user.name  ci-bot
+          git config user.email ci@org.dev
+          git commit -am "prod: payments \${{ github.sha }}"
+          git push`)));
+
+  fl.appendChild(el('div','callout','<b>Alternative to the bump job:</b> <b>Argo CD Image Updater</b> can watch the registry and write the new tag back to Git for you, so CI only builds and pushes. Either way the image tag lands in Git — Argo CD does the deploy.'));
+
+  fl.appendChild(seg('3 · Kubernetes manifests in the config repo (Deployment + Service + Ingress)', pre(
+`apiVersion: apps/v1
+kind: Deployment
+metadata: { name: payments, labels: { app: payments } }
+spec:
+  replicas: 3
+  strategy:
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }   # zero-downtime
+  selector: { matchLabels: { app: payments } }
+  template:
+    metadata: { labels: { app: payments } }
+    spec:
+      containers:
+        - name: payments
+          image: ghcr.io/ORG/payments:PLACEHOLDER   # kustomize overwrites this
+          ports: [ { containerPort: 8080 } ]
+          readinessProbe:
+            httpGet: { path: /actuator/health/readiness, port: 8080 }
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet: { path: /actuator/health/liveness, port: 8080 }
+          resources:
+            requests: { cpu: 250m, memory: 512Mi }
+            limits:   { cpu: 500m, memory: 512Mi }
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities: { drop: [ "ALL" ] }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: payments }
+spec:
+  selector: { app: payments }
+  ports: [ { port: 80, targetPort: 8080 } ]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: { name: payments }
+spec:
+  rules:
+    - host: payments.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: payments, port: { number: 80 } } }`)));
+
+  fl.appendChild(seg('4 · Argo CD Application (points at the config repo, auto-sync + self-heal)', pre(
+`apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata: { name: payments, namespace: argocd }
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ORG/payments-gitops.git
+    targetRevision: main
+    path: overlays/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: payments
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    syncOptions: [ CreateNamespace=true ]`)));
+
+  fl.appendChild(el('div','callout warn','<b>Java DB migrations:</b> run Flyway/Liquibase as an Argo CD <b>PreSync hook Job</b> (or an initContainer) so the schema is migrated <i>before</i> the new Pods roll — and keep migrations backward-compatible (expand/contract) so rollback stays safe.'));
+  fl.appendChild(el('div','callout','<b>Secrets:</b> never commit them. Use <b>Sealed Secrets</b>/<b>SOPS</b> (encrypted in Git) or the <b>External Secrets Operator</b> (pulls from Vault / AWS Secrets Manager at runtime). For a canary rollout, swap the Deployment for an Argo <b>Rollouts</b> resource with metric analysis.'));
+  content2.appendChild(fl);
+
+  /* ------------------------- MONITORING DEPLOYMENTS ------------------------- */
+  const mon=el('section','chapter'); mon.id='deploy-monitor';
+  mon.appendChild(el('div','ch-head','<h2>Monitoring Recent Deployments — Where to See the Changes</h2><span class="weight">★★★★☆</span>'));
+  mon.appendChild(el('p','section-intro','Five places show you exactly what changed, when, by whom, and what impact it had — from the GitOps diff down to the golden signals during the rollout.'));
+
+  const grid=el('div','guide-grid');
+  grid.innerHTML=
+    '<div class="gcard"><h4>1 · Argo CD — the primary view</h4><ul>'+
+      '<li><b>App view</b>: Sync status (Synced/OutOfSync) + Health (Healthy/Progressing/Degraded) and the live resource tree.</li>'+
+      '<li><b>Diff</b>: exactly which manifest fields changed (old image → new image) before/after sync.</li>'+
+      '<li><b>History &amp; Rollback</b>: every sync is a Git revision with author, time, and message — one click to roll back.</li>'+
+      '<li>CLI: <b>argocd app history payments</b>, <b>argocd app rollback payments N</b>, <b>argocd app diff payments</b>.</li></ul></div>'+
+    '<div class="gcard"><h4>2 · Git history — the audit trail</h4><ul>'+
+      '<li>The config repo commit log is the definitive <b>who / what / when / why</b> of every deploy.</li>'+
+      '<li><b>git log -p overlays/prod</b> shows each image-tag bump; the PR/commit links back to the source change.</li>'+
+      '<li>Rollback = <b>git revert</b> the commit; Argo CD re-syncs to the previous state.</li></ul></div>'+
+    '<div class="gcard"><h4>3 · kubectl — rollout state</h4><ul>'+
+      '<li><b>kubectl rollout status deploy/payments</b> — is the new version fully rolled?</li>'+
+      '<li><b>kubectl rollout history deploy/payments</b> — the revision list (rollback target).</li>'+
+      '<li><b>kubectl get rs -l app=payments</b> — old vs new ReplicaSets and their replica counts.</li>'+
+      '<li><b>kubectl get events --sort-by=.lastTimestamp</b> — recent scaling/pull/probe events.</li></ul></div>'+
+    '<div class="gcard"><h4>4 · Argo Rollouts — canary progress</h4><ul>'+
+      '<li><b>kubectl argo rollouts get rollout payments --watch</b> — live step, weight, and status.</li>'+
+      '<li>The Rollouts <b>dashboard</b> shows canary weight, pause/promote, and AnalysisRun results.</li>'+
+      '<li>A failing metric AnalysisRun <b>auto-aborts</b> and rolls back the canary.</li></ul></div>'+
+    '<div class="gcard"><h4>5 · Prometheus / Grafana — impact</h4><ul>'+
+      '<li>Track the rollout with <b>kube_deployment_status_observed_generation</b> and ReplicaSet version metrics.</li>'+
+      '<li>Add a <b>Grafana deploy annotation</b> at sync time so error-rate/latency panels line up with each release.</li>'+
+      '<li>Watch the golden signals (errors, latency, saturation) during the rollout; alert on <b>error-budget burn</b>.</li></ul></div>'+
+    '<div class="gcard"><h4>Fast answer for interviews</h4><ul>'+
+      '<li><b>What changed</b> → Argo CD diff + Git commit.</li>'+
+      '<li><b>When / who</b> → Argo CD history + Git log.</li>'+
+      '<li><b>Which revision is live</b> → kubectl rollout history / get rs.</li>'+
+      '<li><b>Did it hurt anything</b> → Grafana golden signals + alerts.</li>'+
+      '<li><b>Undo</b> → git revert (or argocd app rollback / kubectl rollout undo).</li></ul></div>';
+  mon.appendChild(grid);
+
+  mon.appendChild(seg('Handy one-liners', pre(
+`# GitOps / Argo CD
+argocd app get payments
+argocd app history payments
+argocd app diff payments
+argocd app rollback payments 41
+
+# rollout state
+kubectl rollout status deploy/payments
+kubectl rollout history deploy/payments
+kubectl get rs -l app=payments -o wide
+kubectl rollout undo deploy/payments        # break-glass (prefer git revert)
+
+# canary
+kubectl argo rollouts get rollout payments --watch`)));
+  content2.appendChild(mon);
+
+  /* ------------------------- EXAM PREP GUIDE ------------------------- */
+  const prep=el('section','chapter'); prep.id='exam-prep';
+  prep.appendChild(el('div','ch-head','<h2>CKA / CKAD / CKS — The Fastest Path to Mastery</h2><span class="weight">★★★★★</span>'));
+  prep.appendChild(el('p','section-intro','All three exams are 2-hour, hands-on, performance-based tests in a live terminal (not multiple choice). You are graded on getting real tasks done, fast. Speed with kubectl and the allowed docs is everything.'));
+
+  const cg=el('div','guide-grid');
+  cg.innerHTML=
+    '<div class="gcard"><h4>CKA — Administrator</h4><p style="color:var(--muted);font-size:13px;margin:0 0 8px">Run and operate clusters.</p><div class="pillrow"><span class="pill">Cluster architecture &amp; install</span><span class="pill">Workloads &amp; scheduling</span><span class="pill">Services &amp; networking</span><span class="pill">Storage</span><span class="pill">Troubleshooting (biggest weight)</span></div></div>'+
+    '<div class="gcard"><h4>CKAD — Developer</h4><p style="color:var(--muted);font-size:13px;margin:0 0 8px">Build/deploy/configure apps.</p><div class="pillrow"><span class="pill">App design &amp; build</span><span class="pill">Deployment</span><span class="pill">Observability</span><span class="pill">Environment/config/security</span><span class="pill">Services &amp; networking</span></div></div>'+
+    '<div class="gcard"><h4>CKS — Security Specialist</h4><p style="color:var(--muted);font-size:13px;margin:0 0 8px">Requires a valid CKA first.</p><div class="pillrow"><span class="pill">Cluster hardening</span><span class="pill">System hardening</span><span class="pill">Supply-chain security</span><span class="pill">Microservice vulnerabilities</span><span class="pill">Runtime security (Falco)</span></div></div>'+
+    '<div class="gcard"><h4>Format facts</h4><ul><li>~2 hours, performance-based in a real cluster.</li><li>Passing ~66% (CKA/CKAD), ~67% (CKS); one free retake.</li><li>Official <b>kubernetes.io/docs</b> is allowed during the exam — bookmark it.</li></ul></div>';
+  prep.appendChild(cg);
+
+  prep.appendChild(el('div','callout','<b>The #1 lever is speed.</b> Set <code>alias k=kubectl</code>, enable completion, and generate everything imperatively with <code>--dry-run=client -o yaml</code> instead of hand-writing YAML. Fix your default namespace per context so you stop typing <code>-n</code>. Learn just enough vim to edit fast.'));
+
+  prep.appendChild(seg('Put this in your shell first (exam muscle memory)', pre(
+`alias k=kubectl
+export do="--dry-run=client -o yaml"   # k create deploy web --image=nginx $do
+export now="--force --grace-period=0"  # fast delete
+source <(kubectl completion bash)
+complete -F __start_kubectl k
+kubectl config set-context --current --namespace=<ns>`)));
+
+  const plan=el('div','guide-grid');
+  plan.innerHTML=
+    '<div class="gcard"><h4>How to master it (4–6 week plan)</h4><ul>'+
+      '<li><b>Weeks 1–2</b>: work every chapter in this guide; do each task by hand in a real cluster (kind/minikube/killercoda).</li>'+
+      '<li><b>Week 3</b>: drill imperative generation, JSONPath, and the troubleshooting flows until they are reflex.</li>'+
+      '<li><b>Week 4</b>: timed practice — <b>killer.sh</b> (2 free sessions with your exam), KodeKloud labs, killercoda scenarios.</li>'+
+      '<li><b>Repeat the MCQ simulator above</b> per domain until you consistently score 85%+ — it locks in the concepts the hands-on tasks assume.</li></ul></div>'+
+    '<div class="gcard"><h4>Exam-day tactics</h4><ul>'+
+      '<li>Read the question weight; do high-value tasks first, flag hard ones and return.</li>'+
+      '<li>Always <b>set the right context</b> before each task (the exam switches clusters).</li>'+
+      '<li>Verify with <b>kubectl get/describe</b> after each task — don\'t assume it worked.</li>'+
+      '<li>Use the allowed docs for exact YAML fields; don\'t memorize what you can copy.</li>'+
+      '<li>For CKS, know <b>Pod Security Admission, NetworkPolicy, seccomp/AppArmor, image scanning (Trivy), Falco, and audit logging</b> cold.</li></ul></div>';
+  prep.appendChild(plan);
+  content2.appendChild(prep);
+
+  /* ------------------------- scrollspy + hero stats ------------------------- */
+  const obs2=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){
+    [...navEl.querySelectorAll('a')].forEach(l=>l.classList.toggle('active',l.dataset.id===en.target.id));
+  }});},{rootMargin:'-10% 0px -80% 0px'});
+  specials.forEach(s=>{const n=document.getElementById(s.id);if(n)obs2.observe(n);});
+
+  const sb=document.querySelectorAll('.stat b');
+  if(sb[0])sb[0].textContent=cards.length;
+  if(sb[1])sb[1].textContent=DATA.length;
+  const s3=document.querySelectorAll('.stat');
+  if(s3[2])s3[2].innerHTML='<b>'+QUIZ.length+'</b><span>MCQ questions</span>';
+})();
+</script>
+</body>
+</html>

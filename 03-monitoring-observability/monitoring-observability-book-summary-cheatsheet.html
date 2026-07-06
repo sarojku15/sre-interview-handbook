@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitoring &amp; Observability Book — Condensed Summary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#13202a; --ink2:#3f4d5e; --mut:#5a6a78;
+  --paper:#fff; --panel:#f3f8f7; --line:#d6e0e0;
+  --teal:#0f766e; --tl2:#13988c; --blue:#1f5fa6; --green:#1f8a52; --amber:#b8730a; --red:#c0392b; --violet:#6d4aa8;
+}
+*{box-sizing:border-box;}
+body{ margin:0; background:#e8edee; color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif; font-size:11px; line-height:1.36; }
+.sheet{ max-width:1000px; margin:0 auto; background:var(--paper); padding:24px 26px 32px; }
+code,.mono{ font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace; }
+
+.mast{ border-bottom:3px solid var(--ink); padding-bottom:9px; margin-bottom:13px; }
+.mast .kick{ font-family:"JetBrains Mono"; font-size:9.5px; letter-spacing:.26em; text-transform:uppercase; color:var(--mut); }
+.mast h1{ font-family:"Space Grotesk"; font-weight:700; font-size:25px; margin:5px 0 3px; letter-spacing:-.01em; }
+.mast h1 b{ color:var(--teal); }
+.mast .sub{ color:var(--mut); font-size:11px; }
+
+.sec{ font-family:"Space Grotesk"; font-weight:700; font-size:12px; letter-spacing:.02em;
+  color:#fff; background:var(--teal); border-radius:5px; padding:3px 9px; margin:14px 0 9px; display:inline-block; }
+.sec.b{ background:var(--blue);} .sec.v{ background:var(--violet);} .sec.r{ background:var(--red);} .sec.a{ background:var(--amber);} .sec.g{ background:var(--green);}
+
+.grid{ column-count:3; column-gap:13px; }
+.card{ break-inside:avoid; border:1px solid var(--line); border-radius:7px; padding:8px 9px 9px;
+  margin:0 0 12px; border-left:3px solid var(--teal); }
+.card.bc{ border-left-color:var(--blue);} .card.vc{ border-left-color:var(--violet);}
+.card.rc{ border-left-color:var(--red);} .card.ac{ border-left-color:var(--amber);} .card.gc{ border-left-color:var(--green);}
+.card h3{ font-family:"Space Grotesk"; font-weight:600; font-size:11.5px; margin:0 0 5px;
+  display:flex; align-items:baseline; gap:6px; }
+.card h3 .n{ font-family:"JetBrains Mono"; font-size:8px; font-weight:700; color:#fff; background:var(--teal);
+  border-radius:3px; padding:1px 4px; letter-spacing:.03em; white-space:nowrap; }
+.bc h3 .n{ background:var(--blue);} .vc h3 .n{ background:var(--violet);} .rc h3 .n{ background:var(--red);} .ac h3 .n{ background:var(--amber);} .gc h3 .n{ background:var(--green);}
+.card ul{ margin:0; padding-left:13px; } .card li{ margin:1.5px 0; }
+.card p{ margin:0 0 4px; }
+.k{ font-weight:600; } .mut{ color:var(--mut); }
+
+table.mini{ width:100%; border-collapse:collapse; font-size:9.5px; margin:2px 0 3px; }
+.mini th,.mini td{ text-align:left; padding:2px 4px; border-bottom:1px solid var(--line); vertical-align:top; }
+.mini th{ font-family:"JetBrains Mono"; font-size:7.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--mut); }
+.mini tr:last-child td{ border-bottom:none; } .mini td b{ color:var(--ink); }
+
+.flow{ display:flex; flex-wrap:wrap; align-items:center; gap:2px; margin:2px 0 4px; }
+.flow .n{ background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:1px 4px;
+  font-family:"JetBrains Mono"; font-size:8px; }
+.flow .a{ color:var(--mut); font-size:9px; }
+
+.codeblk{ background:#0f1b22; color:#e6f0ee; border-radius:6px; padding:6px 8px;
+  font-family:"JetBrains Mono"; font-size:9px; line-height:1.5; margin:3px 0; overflow-x:auto; }
+.codeblk .c{ color:#7fd6c0;} .codeblk .m{ color:#8ab4f8;} .codeblk .x{ color:#f0a868;} .codeblk .cm{ color:#6b8290;}
+
+.numbers{ border:1px solid var(--line); border-left:3px solid var(--ink); border-radius:7px; padding:9px 11px; margin-top:6px; }
+.numbers h3{ font-family:"Space Grotesk"; font-weight:700; font-size:12px; margin:0 0 6px; }
+.nn{ columns:3; column-gap:18px; font-size:10px; }
+.nn .i{ break-inside:avoid; margin:0 0 5px; padding-left:13px; position:relative; }
+.nn .i::before{ content:"▸"; position:absolute; left:0; color:var(--teal); }
+.nn .i b{ font-family:"JetBrains Mono"; font-size:9.5px; color:var(--ink); }
+
+.foot{ border-top:2px solid var(--ink); margin-top:16px; padding-top:8px; font-size:9.5px; color:var(--mut);
+  display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+
+@media (max-width:820px){ .grid{ column-count:2; } .nn{ columns:2; } }
+@media (max-width:560px){ .grid{ column-count:1; } .nn{ columns:1; } }
+@media print{
+  @page{ margin:11mm 9mm; }
+  body{ background:#fff; font-size:9.4px; }
+  .sheet{ max-width:none; padding:0; }
+  .grid{ column-count:3; column-gap:9px; }
+  .card{ margin-bottom:8px; }
+  a{ color:inherit; text-decoration:none; }
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header class="mast">
+    <div class="kick">Monitoring &amp; Observability SRE Book · all 26 chapters condensed</div>
+    <h1><b>Observability</b> — Memorize-the-Book Summary</h1>
+    <p class="sub">Every chapter compressed to its must-know facts, comparisons, and the numbers interviewers test. The PromQL, SLO/nines, tracing, and incident blocks are the highest-yield — and the numbers block at the end is your 5-minute pre-call skim.</p>
+  </header>
+
+  <!-- ① FOUNDATIONS -->
+  <span class="sec">① Foundations</span>
+  <div class="grid">
+    <div class="card">
+      <h3><span class="n">1</span> Monitoring vs Observability</h3>
+      <p><b>Monitoring</b> = is something wrong (known failures). <b>Observability</b> = <span class="k">why</span> (unknowns).</p>
+      <table class="mini">
+        <tr><td><b>Metrics</b></td><td>detect — symptom</td></tr>
+        <tr><td><b>Traces</b></td><td>locate — where</td></tr>
+        <tr><td><b>Logs</b></td><td>explain — evidence</td></tr>
+      </table>
+      <p class="mut">white-box (internal) vs black-box (external probe).</p>
+    </div>
+    <div class="card">
+      <h3><span class="n">2</span> Metric Types</h3>
+      <table class="mini">
+        <tr><td><b>Counter</b></td><td>up only (requests) → rate()</td></tr>
+        <tr><td><b>Gauge</b></td><td>up/down (memory)</td></tr>
+        <tr><td><b>Histogram</b></td><td>buckets → P95/P99, aggregates</td></tr>
+        <tr><td><b>Summary</b></td><td>client quantiles, hard to aggregate</td></tr>
+      </table>
+      <p><span class="k">Cardinality</span> = labels × values; keep low (kills Prometheus).</p>
+    </div>
+  </div>
+
+  <!-- ② PROMETHEUS & PROMQL -->
+  <span class="sec b">② Prometheus &amp; PromQL</span>
+  <div class="grid">
+    <div class="card bc">
+      <h3><span class="n">3</span> Prometheus Architecture</h3>
+      <p><b>Pull model</b>: scrapes <span class="mono">/metrics</span> → TSDB. <b>WAL</b> = crash recovery before blocks.</p>
+      <ul>
+        <li><b>Service discovery</b> (k8s/EC2/etc.)</li>
+        <li><b>PushGateway</b> — short-lived jobs only</li>
+        <li>Retention ~15–30d local; recording + alert rules</li>
+        <li><b>Operator</b>: ServiceMonitor (services), PodMonitor (pods)</li>
+      </ul>
+    </div>
+    <div class="card bc">
+      <h3><span class="n">4·16</span> PromQL Essentials</h3>
+      <div class="codeblk"><span class="cm"># req/sec — Counter only!</span>
+<span class="c">rate</span>(<span class="m">reqs_total</span>[<span class="x">5m</span>])
+<span class="cm"># P95 latency</span>
+<span class="c">histogram_quantile</span>(<span class="x">.95</span>,
+ <span class="c">sum</span>(<span class="c">rate</span>(<span class="m">..._bucket</span>[<span class="x">5m</span>]))<span class="c">by</span>(le))
+<span class="cm"># error rate</span>
+<span class="c">sum</span>(<span class="c">rate</span>(...{status=~<span class="x">"5.."</span>}))/<span class="c">sum</span>(<span class="c">rate</span>(...))</div>
+      <p><b>rate</b>=stable/alerts · <b>irate</b>=reactive · <b>increase</b>=total. Instant vs range vector.</p>
+    </div>
+    <div class="card bc">
+      <h3><span class="n">17</span> Advanced PromQL</h3>
+      <ul>
+        <li><b>topk(10, …)</b> — hotspots</li>
+        <li><b>predict_linear(fs[6h],86400)</b> — forecast disk full</li>
+        <li>Vector matching: <b>on() / ignoring() / group_left</b></li>
+        <li><b>label_replace / label_join</b> — fix labels</li>
+        <li><b>Recording rules</b> — precompute expensive queries</li>
+      </ul>
+      <p class="mut">rate() only on counters; aggregate replicas with sum by().</p>
+    </div>
+  </div>
+
+  <!-- ③ GRAFANA & ALERTING -->
+  <span class="sec">③ Grafana &amp; Alerting</span>
+  <div class="grid">
+    <div class="card">
+      <h3><span class="n">5·19</span> Grafana</h3>
+      <p><span class="k">Does NOT store metrics</span> — queries Prometheus/Loki/Tempo.</p>
+      <ul>
+        <li><b>Variables</b> = one dashboard, all clusters</li>
+        <li><b>Annotations</b> overlay deploys on graphs</li>
+        <li><b>Transformations · library panels · drill-down</b></li>
+        <li><b>Exec</b> = business KPIs · <b>Ops</b> = technical</li>
+        <li>Slow dashboard = expensive queries (use recording rules)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="n">6·18</span> Alertmanager</h3>
+      <table class="mini">
+        <tr><td><b>route</b></td><td>to right team (by label)</td></tr>
+        <tr><td><b>group</b></td><td>collapse related → 1 page</td></tr>
+        <tr><td><b>dedup</b></td><td>drop duplicates (HA)</td></tr>
+        <tr><td><b>inhibit</b></td><td>suppress symptoms under root cause</td></tr>
+        <tr><td><b>silence</b></td><td>mute during maintenance</td></tr>
+      </table>
+      <p><b>labels</b>=routing · <b>annotations</b>=context+runbook · <b>for:</b> kills spikes · pending→firing.</p>
+    </div>
+    <div class="card">
+      <h3><span class="n">18</span> Alert Strategy</h3>
+      <ul>
+        <li><b>HA Alertmanager</b> gossips state, dedups</li>
+        <li>Page on <b>SLO/burn-rate</b>, not raw CPU</li>
+        <li><b>Multi-window</b> (5m + 1h) cuts false positives</li>
+        <li>Fix fatigue: remove non-actionable, group, inhibit, for:</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ④ EXPORTERS & LOGGING -->
+  <span class="sec g">④ Exporters &amp; Logging</span>
+  <div class="grid">
+    <div class="card gc">
+      <h3><span class="n">7</span> Exporters &amp; Instrumentation</h3>
+      <table class="mini">
+        <tr><td><b>node-exporter</b></td><td>OS/host metrics</td></tr>
+        <tr><td><b>kube-state-metrics</b></td><td>k8s object state</td></tr>
+        <tr><td><b>cAdvisor</b></td><td>container usage</td></tr>
+        <tr><td><b>blackbox</b></td><td>synthetic HTTP/TCP/DNS/SSL</td></tr>
+        <tr><td><b>JMX</b></td><td>JVM heap/GC/threads</td></tr>
+      </table>
+      <p>Instrument apps with client libs; expose <b>business metrics</b>; secure /metrics.</p>
+    </div>
+    <div class="card gc">
+      <h3><span class="n">8·20</span> Logging</h3>
+      <div class="flow"><span class="n">stdout</span><span class="a">→</span><span class="n">Fluent Bit DS</span><span class="a">→</span><span class="n">parse/enrich</span><span class="a">→</span><span class="n">Loki/OpenSearch</span><span class="a">→</span><span class="n">Grafana/Kibana</span></div>
+      <ul>
+        <li><b>Loki</b> indexes labels (cheap) vs <b>ELK</b> full-text (costly)</li>
+        <li><b>Fluent Bit</b> light/C vs <b>Fluentd</b> heavy/Ruby; Filebeat = Elastic</li>
+        <li>Structured JSON · <b>correlation ID</b> · log to stdout · mask PII/secrets</li>
+      </ul>
+    </div>
+    <div class="card gc">
+      <h3><span class="n">20</span> Fluent Bit Pipeline</h3>
+      <div class="flow"><span class="n">input</span><span class="a">→</span><span class="n">parser</span><span class="a">→</span><span class="n">filter</span><span class="a">→</span><span class="n">buffer</span><span class="a">→</span><span class="n">output</span></div>
+      <p>Parser = text→fields · filter = enrich + mask · buffer = survive outages.</p>
+      <p class="mut">Enrich with cluster/namespace/pod metadata before storage.</p>
+    </div>
+  </div>
+
+  <!-- ⑤ OPENSEARCH -->
+  <span class="sec a">⑤ OpenSearch &amp; Elasticsearch</span>
+  <div class="grid">
+    <div class="card ac">
+      <h3><span class="n">21</span> Node Roles &amp; Health</h3>
+      <table class="mini">
+        <tr><td><b>Cluster Mgr</b></td><td>coordination (3 dedicated, never 1)</td></tr>
+        <tr><td><b>Data</b></td><td>store + search shards</td></tr>
+        <tr><td><b>Ingest</b></td><td>preprocess docs</td></tr>
+        <tr><td><b>Coordinating</b></td><td>route + merge queries</td></tr>
+      </table>
+      <p><b>Green</b> all assigned · <b>Yellow</b> replica missing · <b>Red</b> primary missing.</p>
+    </div>
+    <div class="card ac">
+      <h3><span class="n">21</span> Shards, Heap, Backup</h3>
+      <ul>
+        <li><b>Shards</b> = partition (scale) · <b>Replicas</b> = HA + read</li>
+        <li><b>ILM</b>: Hot→Warm→Cold→Frozen (cost tiers)</li>
+        <li><b>JVM heap ≤31 GB</b> (compressed OOPs), ≤50% RAM</li>
+        <li><b>Snapshot = backup; replica ≠ backup</b></li>
+        <li>Query: filters, no leading wildcards</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ⑥ TRACING -->
+  <span class="sec v">⑥ Distributed Tracing &amp; OpenTelemetry</span>
+  <div class="grid">
+    <div class="card vc">
+      <h3><span class="n">9·22</span> Tracing Concepts</h3>
+      <ul>
+        <li><b>Trace</b> = whole request · <b>Span</b> = one operation</li>
+        <li><b>Trace ID</b> shared across services · <b>Span ID</b> per span</li>
+        <li>Parent/child spans; <b>root</b> = first span</li>
+        <li><b>Context propagation</b> via W3C <span class="mono">traceparent</span> header</li>
+      </ul>
+    </div>
+    <div class="card vc">
+      <h3><span class="n">10·22</span> OpenTelemetry</h3>
+      <div class="flow"><span class="n">SDK</span><span class="a">→</span><span class="n">OTLP</span><span class="a">→</span><span class="n">Collector</span><span class="a">→</span><span class="n">Tempo/Jaeger</span></div>
+      <p><b>Collector</b> = receive → process → export (decouples app from backend, batch/sample/enrich).</p>
+      <p>Auto vs manual instrumentation. Vendor-neutral, one pipeline → many backends.</p>
+    </div>
+    <div class="card vc">
+      <h3><span class="n">22</span> Backends &amp; Sampling</h3>
+      <table class="mini">
+        <tr><td><b>Jaeger</b></td><td>rich UI, mature</td></tr>
+        <tr><td><b>Tempo</b></td><td>cheap, object storage, Grafana-native</td></tr>
+      </table>
+      <p><b>Tail sampling</b> = decide after request → keep slow/failed (prod). Head/probabilistic = simpler.</p>
+      <p class="mut">Correlate: metrics detect → traces locate → logs explain.</p>
+    </div>
+  </div>
+
+  <!-- ⑦ RELIABILITY -->
+  <span class="sec r">⑦ SLO, Error Budgets &amp; Availability Math</span>
+  <div class="grid">
+    <div class="card rc">
+      <h3><span class="n">11·23</span> SLI / SLO / SLA</h3>
+      <ul>
+        <li><b>SLI</b> measures (actual 99.96%)</li>
+        <li><b>SLO</b> targets (goal 99.9%)</li>
+        <li><b>SLA</b> promises (contract + penalty)</li>
+        <li><b>Error budget</b> = 100% − SLO; <b>burn rate</b> = spend speed</li>
+        <li>Multi-window burn alerts; don't use CPU as an SLO</li>
+      </ul>
+      <p><b>Signals:</b> L-T-E-S · RED (services) · USE (resources).</p>
+    </div>
+    <div class="card rc">
+      <h3><span class="n">12</span> Availability Math — the nines</h3>
+      <table class="mini">
+        <tr><th>SLO</th><th>Downtime/mo</th></tr>
+        <tr><td>99%</td><td>~7h 18m</td></tr>
+        <tr><td>99.9%</td><td>~43m</td></tr>
+        <tr><td>99.99%</td><td>~4m 23s</td></tr>
+        <tr><td>99.999%</td><td>~26s</td></tr>
+      </table>
+      <p class="mut">avail = success / total.</p>
+    </div>
+    <div class="card rc">
+      <h3><span class="n">12</span> MTxx &amp; HA</h3>
+      <table class="mini">
+        <tr><td><b>MTBF</b></td><td>between failures</td></tr>
+        <tr><td><b>MTTD</b></td><td>to detect</td></tr>
+        <tr><td><b>MTTA</b></td><td>to acknowledge</td></tr>
+        <tr><td><b>MTTR</b></td><td>to recover</td></tr>
+      </table>
+      <p><b>HA</b> ≠ fault tolerance (FT = no interruption). Kill <b>SPOFs</b> with redundancy.</p>
+    </div>
+  </div>
+
+  <!-- ⑧ INCIDENTS & CHAOS -->
+  <span class="sec">⑧ Incident Response, On-Call &amp; Chaos</span>
+  <div class="grid">
+    <div class="card">
+      <h3><span class="n">13·24</span> Incident Lifecycle</h3>
+      <div class="flow"><span class="n">detect</span><span class="a">→</span><span class="n">SEV</span><span class="a">→</span><span class="n">IC+war room</span><span class="a">→</span><span class="n">mitigate</span><span class="a">→</span><span class="n">recover</span><span class="a">→</span><span class="n">RCA</span><span class="a">→</span><span class="n">postmortem</span></div>
+      <ul>
+        <li><b>SEV1–4</b> by business impact (not infra)</li>
+        <li><b>IC coordinates</b>, doesn't debug; escalate early</li>
+        <li>Communicate every <b>15–30 min</b> (eng/exec/customer)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="n">13·24</span> RCA &amp; On-Call</h3>
+      <ul>
+        <li><b>5 Whys / fishbone</b>; <b>blameless</b> postmortem</li>
+        <li><b>CAPA</b> = corrective + preventive actions</li>
+        <li>Primary/secondary, follow-the-sun; cut PagerDuty noise</li>
+        <li><b>ORR</b> readiness review; reduce <b>toil</b> via automation</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="n">14</span> Chaos Engineering</h3>
+      <p>Inject failures to prove resilience. <b>Steady-state hypothesis</b> + small <b>blast radius</b>, expand gradually.</p>
+      <p>Tools: Chaos Monkey, AWS FIS, Azure Chaos Studio, LitmusChaos, Gremlin. <b>Game Days</b>.</p>
+      <p><b>Patterns:</b> circuit breaker · retry+backoff · timeout · bulkhead · graceful degradation.</p>
+    </div>
+  </div>
+
+  <!-- ⑨ ARCHITECTURE, DR, CAPSTONE -->
+  <span class="sec b">⑨ Enterprise Architecture · DR · Capstone</span>
+  <div class="grid">
+    <div class="card bc">
+      <h3><span class="n">15</span> Scaling Prometheus</h3>
+      <table class="mini">
+        <tr><td><b>Federation</b></td><td>pull selected (aggregate)</td></tr>
+        <tr><td><b>Remote Write</b></td><td>push all (long-term)</td></tr>
+        <tr><td><b>Thanos</b></td><td>sidecar, HA + long-term, object storage</td></tr>
+        <tr><td><b>Mimir/Cortex</b></td><td>cloud-scale multi-tenant TSDB</td></tr>
+      </table>
+      <p>One Prometheus <b>per cluster</b>; aggregate globally. HA = 2 Prom + dedup.</p>
+    </div>
+    <div class="card bc">
+      <h3><span class="n">25</span> DR &amp; BCP</h3>
+      <table class="mini">
+        <tr><td><b>HA</b></td><td>seconds · multi-AZ</td></tr>
+        <tr><td><b>DR</b></td><td>min–hrs · multi-region</td></tr>
+      </table>
+      <ul>
+        <li><b>RTO</b> = downtime · <b>RPO</b> = data loss</li>
+        <li>Active-Active vs Active-Passive; DNS failover vs global LB</li>
+        <li>Sync (no loss) vs async (lower latency) replication</li>
+        <li>BCP = people+process+tech; test restores</li>
+      </ul>
+    </div>
+    <div class="card bc">
+      <h3><span class="n">26</span> Capstone &amp; KPIs</h3>
+      <p><b>Incident path:</b> alert → Grafana → trace → Loki → root cause → mitigate → postmortem.</p>
+      <p>Multi-cluster (Thanos), multi-cloud; cost (cardinality/sampling); security (SSO/RBAC/encrypt/mask).</p>
+      <p class="mut"><b>Monthly KPIs:</b> availability, MTTD/A/R, SLO compliance, error budget, change-failure rate, deploy frequency.</p>
+    </div>
+  </div>
+
+  <!-- NUMBERS -->
+  <div class="numbers">
+    <h3>⚡ Numbers &amp; one-liners to lock in</h3>
+    <div class="nn">
+      <div class="i"><b>SLI/SLO/SLA</b> — measures · targets · promises.</div>
+      <div class="i"><b>Error budget</b> = 100% − SLO.</div>
+      <div class="i"><b>The nines</b> — 99.9% ≈ 43m/mo · 99.99% ≈ 4m · 99.999% ≈ 26s.</div>
+      <div class="i"><b>rate()</b> — counters only; P95 = histogram, never averages.</div>
+      <div class="i"><b>Grafana</b> — doesn't store data; queries backends.</div>
+      <div class="i"><b>Loki</b> indexes labels (cheap); <b>ELK</b> full-text (costly).</div>
+      <div class="i"><b>ES/JVM heap</b> ≤ ~31 GB (compressed OOPs), ≤50% RAM.</div>
+      <div class="i"><b>Cluster health</b> — Green all · Yellow replica · Red primary.</div>
+      <div class="i"><b>Trace ID</b> shared, <b>Span ID</b> per span; W3C traceparent.</div>
+      <div class="i"><b>Tail sampling</b> keeps slow/failed traces.</div>
+      <div class="i"><b>Three pillars</b> — metrics detect · traces locate · logs explain.</div>
+      <div class="i"><b>Golden signals</b> — Latency, Traffic, Errors, Saturation.</div>
+      <div class="i"><b>One Prometheus per cluster</b> + Thanos/Mimir globally.</div>
+      <div class="i"><b>Alert</b> on symptoms (SLO/burn-rate), not CPU; group + inhibit.</div>
+      <div class="i"><b>HA</b> seconds/multi-AZ · <b>DR</b> min/multi-region · RTO=time, RPO=data.</div>
+      <div class="i"><b>IC coordinates</b>, doesn't debug; blameless postmortem.</div>
+      <div class="i"><b>Replicas ≠ backups</b> — snapshots are backups; test restores.</div>
+      <div class="i"><b>Cardinality</b> is the #1 Prometheus cost/perf killer.</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>Condensed from the Monitoring &amp; Observability SRE Interview Book (26 chapters)</span>
+    <span>Print: Ctrl/⌘ + P → Save as PDF · ~4–5 pages portrait</span>
+  </div>
+
+</div>
+</body>
+</html>

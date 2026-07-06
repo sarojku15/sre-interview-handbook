@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS &amp; Terraform Interview Study Guide — SRE / DevOps / Cloud</title>
+<style>
+  :root{
+    --ink:#14181f; --ink-soft:#48505c; --ink-faint:#7b8492;
+    --paper:#f5f6f8; --card:#ffffff; --line:#e4e7ec; --line-soft:#eef0f3;
+    --azure:#c25410; --azure-soft:#fbeee2; --azure-ink:#9a3f08;
+    --easy:#0f6e56; --easy-bg:#e1f5ee;
+    --med:#8a5a00; --med-bg:#faeeda;
+    --hard:#a32d2d; --hard-bg:#fbeaea;
+    --radius:12px; --shadow:0 1px 2px rgba(20,24,31,.05),0 8px 24px -16px rgba(20,24,31,.18);
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+  .mast{max-width:1080px;margin:0 auto;padding:40px 22px 18px}
+  .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--azure);
+    font-weight:700;margin:0 0 10px}
+  h1{font-size:clamp(26px,4.5vw,40px);line-height:1.08;letter-spacing:-.02em;margin:0;font-weight:800}
+  .sub{color:var(--ink-soft);margin:12px 0 0;max-width:64ch;font-size:15px}
+
+  .stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:9px 14px;display:flex;align-items:baseline;gap:8px;box-shadow:var(--shadow)}
+  .stat b{font-size:18px;font-weight:800;letter-spacing:-.01em}
+  .stat span{font-size:12px;color:var(--ink-faint)}
+  .pwrap{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;box-shadow:var(--shadow)}
+  .plabel{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);margin-bottom:7px}
+  .ptrack{height:7px;background:var(--line-soft);border-radius:99px;overflow:hidden}
+  .pfill{height:100%;width:0;background:linear-gradient(90deg,var(--azure),#e8893f);
+    border-radius:99px;transition:width .35s ease}
+
+  .bar{position:sticky;top:0;z-index:20;background:rgba(245,246,248,.86);
+    backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--line)}
+  .bar-in{max-width:1080px;margin:0 auto;padding:12px 22px}
+  .search{width:100%;border:1px solid var(--line);background:var(--card);border-radius:10px;
+    padding:11px 14px 11px 38px;font-size:14px;color:var(--ink);font-family:inherit;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237b8492' stroke-width='2' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><path d='M21 21l-4.3-4.3'/></svg>");
+    background-repeat:no-repeat;background-position:13px center}
+  .search:focus{outline:2px solid var(--azure);outline-offset:1px;border-color:var(--azure)}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;align-items:center}
+  .chip{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
+    font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:99px;cursor:pointer;
+    font-family:inherit;transition:background .12s,color .12s,border-color .12s;display:inline-flex;gap:6px;align-items:center}
+  .chip:hover{border-color:var(--ink-faint)}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chip .ct{font-size:11px;opacity:.65;font-weight:700}
+  .chip.on .ct{opacity:.8}
+  .sep{width:1px;height:20px;background:var(--line);margin:0 3px}
+  .txtbtn{background:none;border:none;color:var(--azure);font-weight:600;font-size:12.5px;
+    cursor:pointer;font-family:inherit;padding:6px 4px}
+  .txtbtn:hover{text-decoration:underline}
+
+  main{max-width:1080px;margin:0 auto;padding:18px 22px 80px}
+  .meta{font-size:12.5px;color:var(--ink-faint);margin:8px 2px 14px}
+  .card{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--spine,var(--azure));
+    border-radius:var(--radius);margin-bottom:11px;box-shadow:var(--shadow);overflow:hidden;
+    transition:border-color .12s}
+  .card.done{border-left-color:var(--easy)}
+  .qrow{display:flex;align-items:flex-start;gap:12px;padding:15px 16px;cursor:pointer}
+  .qrow:hover{background:#fafbfc}
+  .qnum{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:3px;min-width:26px;font-weight:600}
+  .qmain{flex:1;min-width:0}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px}
+  .tag{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 8px;border-radius:99px}
+  .tag.cat{background:var(--azure-soft);color:var(--azure-ink)}
+  .tag.d-easy{background:var(--easy-bg);color:var(--easy)}
+  .tag.d-medium{background:var(--med-bg);color:var(--med)}
+  .tag.d-hard{background:var(--hard-bg);color:var(--hard)}
+  .q{font-weight:650;font-size:15.5px;line-height:1.45;letter-spacing:-.005em}
+  .caret{margin-top:3px;color:var(--ink-faint);transition:transform .2s;flex-shrink:0}
+  .card.open .caret{transform:rotate(90deg)}
+  .star{flex-shrink:0;border:none;background:none;cursor:pointer;padding:2px;color:var(--ink-faint);
+    border-radius:6px;line-height:0}
+  .star:hover{background:var(--line-soft);color:var(--med)}
+  .star.on{color:var(--easy)}
+  .star:focus-visible{outline:2px solid var(--azure);outline-offset:1px}
+
+  .ans{display:none;padding:2px 16px 18px 54px;border-top:1px solid var(--line-soft)}
+  .card.open .ans{display:block}
+  .ans h4{margin:16px 0 7px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--azure);font-weight:700}
+  .ans p{margin:0 0 10px}
+  .ans ul,.ans ol{margin:0 0 10px;padding-left:18px}
+  .ans li{margin:4px 0}
+  .ans code{font-family:var(--mono);font-size:12.5px;background:var(--line-soft);
+    padding:1.5px 5px;border-radius:5px;color:var(--azure-ink)}
+  .ans pre{background:#11151c;color:#e6edf3;font-family:var(--mono);font-size:12.5px;
+    padding:12px 14px;border-radius:9px;overflow-x:auto;margin:0 0 12px;line-height:1.5}
+  .ans pre code{background:none;color:inherit;padding:0}
+  .ans b{color:var(--ink)}
+
+  .empty{text-align:center;color:var(--ink-faint);padding:60px 20px;font-size:15px;display:none}
+  footer{max-width:1080px;margin:0 auto;padding:0 22px 50px;color:var(--ink-faint);font-size:12.5px}
+
+  @media (max-width:560px){ .ans{padding-left:16px} .qnum{display:none} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important;scroll-behavior:auto!important} }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <p class="eyebrow">AWS · Terraform — Interview Preparation</p>
+  <h1>AWS &amp; Terraform Interview Study Guide</h1>
+  <p class="sub">One document, every question, full answers with the details and gotchas an interviewer probes for — built for senior SRE, DevOps, Platform, and Cloud engineers. A complete AWS track (IAM, VPC, EC2, S3, RDS, serverless, containers, observability, security, DR, cost) plus a deep Terraform track (state, modules, expressions, workflow, troubleshooting). Filter by topic or difficulty, search any term, and mark questions mastered as you go.</p>
+  <div class="stats" id="stats"></div>
+  <div class="pwrap">
+    <div class="plabel"><span>Mastery</span><span id="pcount">0 of 0 mastered</span></div>
+    <div class="ptrack"><div class="pfill" id="pfill"></div></div>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="bar-in">
+    <input id="search" class="search" type="search" placeholder="Search questions, answers, services (e.g. IAM, VPC, S3, state, for_each, IRSA)…" autocomplete="off">
+    <div class="chips" id="catchips"></div>
+    <div class="chips" id="diffchips" style="margin-top:8px">
+      <span class="sep" style="margin-left:0"></span>
+      <button class="txtbtn" id="expandAll">Expand all</button>
+      <button class="txtbtn" id="collapseAll">Collapse all</button>
+      <button class="txtbtn" id="resetMastery">Reset mastery</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="meta" id="meta"></div>
+  <div id="list"></div>
+  <div class="empty" id="empty">No questions match your filters. Try clearing the search or selecting “All”.</div>
+</main>
+
+<footer>
+  This guide covers AWS and Terraform for senior engineering interviews. AWS service limits, instance types, and pricing models evolve, and Terraform syntax/best practice shifts across versions — confirm current specifics in the AWS and HashiCorp docs before an interview. Mastery progress is saved locally in your browser when you open this file directly.
+</footer>
+
+<script>
+/* ============================== DATA ============================== */
+const CATS = {
+  "aws-core":"AWS · Fundamentals",
+  iam:"AWS · IAM & Identity",
+  vpc:"AWS · Networking (VPC)",
+  ec2:"AWS · Compute (EC2)",
+  elb:"AWS · Load Balancing & Scaling",
+  s3:"AWS · Storage (S3)",
+  rds:"AWS · Databases",
+  serverless:"AWS · Serverless",
+  "containers-aws":"AWS · Containers (ECS/EKS)",
+  "mon-aws":"AWS · Monitoring",
+  "sec-aws":"AWS · Security",
+  "dr-aws":"AWS · Reliability & DR",
+  "cost-aws":"AWS · Cost Optimization",
+  "tf-core":"Terraform · Fundamentals",
+  "tf-state":"Terraform · State",
+  "tf-modules":"Terraform · Modules",
+  "tf-vars":"Terraform · Variables & Expressions",
+  "tf-workflow":"Terraform · Workflow & CI/CD",
+  "tf-adv":"Terraform · Advanced & Troubleshooting"
+};
+
+const Q = [
+/* ===================== AWS · FUNDAMENTALS ===================== */
+{cat:"aws-core",diff:"easy",q:"Explain Region, Availability Zone, and Edge Location. How do they shape your architecture?",
+a:`<ul>
+<li><b>Region</b> — an independent geographic area (e.g. <code>us-east-1</code>); an isolation and data-residency boundary with its own service endpoints. Regions fail independently.</li>
+<li><b>Availability Zone (AZ)</b> — one or more discrete datacenters within a Region with independent power/cooling/networking, linked by low-latency fiber. Each Region has a minimum of three.</li>
+<li><b>Edge Location</b> — hundreds of CloudFront/Route 53 points of presence that cache content close to users.</li>
+</ul>`,
+d:`<p><b>Design rule:</b> spread across <b>AZs for high availability</b> within a Region, and across <b>Regions for DR</b> and data residency. AZ names are randomized per account, so use the stable <b>AZ ID</b> when you need a fixed physical reference. Always run production in at least 3 AZs.</p>`},
+
+{cat:"aws-core",diff:"medium",q:"What is the AWS Shared Responsibility Model, and where does the line move?",
+a:`<p>AWS is responsible for security <b>of</b> the cloud (physical datacenters, hardware, hypervisor, managed-service infrastructure, network backbone). The customer is responsible for security <b>in</b> the cloud (data, IAM, OS patching on EC2, security-group config, encryption settings). The line shifts with abstraction: with EC2 you patch the OS; with RDS AWS does; with S3/Lambda you mainly own access config and your data.</p>`,
+d:`<p>A public S3 bucket leak is always a <b>customer</b> misconfiguration — AWS provides the controls; you must set them. Most "AWS breaches" are customer-side. Knowing exactly which half you own per service is the heart of cloud security reasoning.</p>`},
+
+{cat:"aws-core",diff:"medium",q:"Why use AWS Organizations and multiple accounts? What are SCPs?",
+a:`<p>The AWS account is the <b>strongest isolation boundary</b>. Separate accounts (dev/staging/prod, plus log-archive and security accounts) give blast-radius isolation, clean per-environment billing, and distinct guardrails. <b>Organizations</b> manages them centrally; <b>Service Control Policies (SCPs)</b> set the <i>maximum</i> permissions for accounts in an OU — they never grant, only bound. <b>Control Tower</b> automates a governed multi-account landing zone.</p>`,
+d:`<p>Effective permission = intersection of SCP and IAM; an SCP <code>Deny</code> overrides any IAM <code>Allow</code>. Typical SCPs: deny disabling CloudTrail, deny unapproved Regions, deny leaving the org. The management account should run no workloads.</p>`},
+
+{cat:"aws-core",diff:"easy",q:"Name the AWS Well-Architected pillars and give one practice each.",
+a:`<p>Six pillars: <b>Operational Excellence</b> (IaC, runbooks, observability), <b>Security</b> (least privilege, encryption), <b>Reliability</b> (multi-AZ, auto-recovery, tested DR), <b>Performance Efficiency</b> (right instance types, caching), <b>Cost Optimization</b> (right-sizing, Savings Plans), and <b>Sustainability</b> (efficient resource/Region choices, Graviton).</p>`,
+d:`<p>Memorize the six — it's a Solutions Architect staple and a genuine design checklist. The master reliability principle: <b>design for failure</b> — assume any instance, AZ, or Region can vanish and architect to survive it.</p>`},
+
+{cat:"aws-core",diff:"hard",q:"Walk through what happens when you run an AWS CLI/API call. What's the control plane vs data plane?",
+a:`<p>The CLI/SDK resolves credentials, builds the request, and <b>SigV4-signs</b> it with your keys, sending it over HTTPS to a <b>regional service endpoint</b> (e.g. <code>ec2.us-east-1.amazonaws.com</code>). AWS verifies the signature (authentication) and IAM evaluates the layered policies (authorization, default-deny). If allowed, the service performs the action.</p>
+<p><b>Control plane</b> = managing resources (<code>RunInstances</code>, <code>CreateBucket</code>); <b>data plane</b> = using them (serving traffic, <code>GetObject</code>). They scale and fail independently.</p>`,
+d:`<p>A few services are global (IAM, Route 53, CloudFront, billing), anchored in <code>us-east-1</code>. The most common "my resource is missing" cause is the <b>wrong Region</b>. Designing request paths to not depend on the control plane (which can have its own outages) improves resilience.</p>`},
+
+/* ===================== AWS · IAM ===================== */
+{cat:"iam",diff:"easy",q:"IAM users vs groups vs roles vs policies — what's the difference?",
+a:`<ul>
+<li><b>User</b> — a long-lived identity for a person or legacy app (has credentials).</li>
+<li><b>Group</b> — a collection of users to attach policies to; not an identity you assume.</li>
+<li><b>Role</b> — an identity with <b>no long-term credentials</b> that is <i>assumed</i> to get temporary STS credentials; used by services, cross-account access, and federation.</li>
+<li><b>Policy</b> — a JSON document granting/denying permissions, attached to users, groups, or roles (identity-based) or to resources (resource-based).</li>
+</ul>`,
+d:`<p>Best practice: humans federate via IAM Identity Center (SSO) to <b>assume roles</b> (short-lived creds), apps on EC2/ECS/EKS use <b>roles</b>, and you avoid IAM users with static keys entirely. Attach policies to groups/roles, not individual users.</p>`},
+
+{cat:"iam",diff:"hard",q:"Explain IAM policy evaluation logic. What wins?",
+a:`<p>Evaluation is default-<b>deny</b>, and an <b>explicit Deny always wins</b> over any Allow. AWS aggregates: identity-based policies, resource-based policies, <b>permission boundaries</b> (a ceiling on the identity), <b>SCPs</b> (org-level ceiling), and session policies. Roughly: the request is allowed only if it's permitted by identity/resource policy AND within the permission boundary AND within the SCP, with no explicit deny anywhere.</p>`,
+d:`<p>Permission boundary and SCP <b>intersect</b> (limit) — they never grant. For <b>cross-account</b> access you need both: an identity policy in the calling account allowing <code>sts:AssumeRole</code>, and a trust/resource policy in the target account allowing that principal. Use the IAM Policy Simulator to debug "AccessDenied."</p>`},
+
+{cat:"iam",diff:"medium",q:"How does an EC2 instance (or ECS task / Lambda) get AWS credentials securely?",
+a:`<p>Attach an <b>IAM role</b> (via an instance profile for EC2, a task role for ECS, the execution role for Lambda). The SDK/CLI retrieves short-lived credentials automatically — from the <b>Instance Metadata Service (IMDS)</b> on EC2, or the task-role endpoint on ECS. You never store access keys.</p>`,
+d:`<p>Hard-coding keys in an AMI, image, or repo is the most common catastrophic AWS mistake. Use <b>IMDSv2</b> (session-token required) to defend against SSRF stealing instance credentials. On EKS, use <b>IRSA</b> (IAM Roles for Service Accounts) so pods get scoped roles via OIDC.</p>`},
+
+{cat:"iam",diff:"medium",q:"How do you let GitHub Actions deploy to AWS without long-lived keys?",
+a:`<p>Use <b>OIDC federation</b>: configure GitHub's OIDC provider as a trusted identity provider in IAM, then create a role whose <b>trust policy</b> allows that provider, scoped by repo/branch claims. The workflow assumes the role and gets short-lived STS credentials — no stored access keys.</p>`,
+d:`<p>This eliminates the #1 CI secret-leak risk. Scope the trust policy tightly (specific repo, specific branch/environment) so a fork or another repo can't assume it. The same pattern works for GitLab and other OIDC-capable CI systems.</p>`},
+
+{cat:"iam",diff:"medium",q:"Permission boundaries vs SCPs vs identity policies — when do you use each?",
+a:`<ul>
+<li><b>Identity policy</b> — grants permissions to a user/role.</li>
+<li><b>Permission boundary</b> — a <i>ceiling</i> on what an identity policy can grant; used so you can delegate role-creation to teams without letting them escalate privilege.</li>
+<li><b>SCP</b> — an org/OU-wide <i>ceiling</i> applied across whole accounts.</li>
+</ul>`,
+d:`<p>Boundaries and SCPs both <b>limit, never grant</b>. Classic use of a boundary: let developers create IAM roles for their apps, but bound those roles so they can't grant themselves admin. SCPs enforce org guardrails (allowed Regions, mandatory logging) regardless of account-level IAM.</p>`},
+
+{cat:"iam",diff:"easy",q:"What are your IAM security best practices?",
+a:`<p>Harden and stop using the <b>root user</b> (MFA on, locked away). Enforce <b>least privilege</b> at the narrowest scope. Prefer <b>roles + short-lived credentials</b> (Identity Center/STS) over IAM users and static keys; never commit keys. Require <b>MFA</b>. Use IAM Access Analyzer to find unintended external access and over-broad grants, and run regular access reviews.</p>`,
+d:`<p>Start broad-deny and add specific allows rather than granting <code>*</code> and trimming later. Rotate any unavoidable long-lived keys. Tag-based and condition-based policies (e.g. <code>aws:SourceIp</code>, <code>aws:RequestedRegion</code>) add guardrails.</p>`},
+
+/* ===================== AWS · VPC ===================== */
+{cat:"vpc",diff:"easy",q:"What are the core components of a VPC?",
+a:`<p>A <b>VPC</b> is your isolated software-defined network. Core pieces: <b>subnets</b> (a CIDR slice tied to one AZ), <b>route tables</b> (where traffic goes), an <b>Internet Gateway (IGW)</b> (public internet access), a <b>NAT Gateway</b> (outbound internet for private subnets), <b>security groups</b> and <b>NACLs</b> (firewalls), and optionally peering/Transit Gateway/VPN/Direct Connect/endpoints for connectivity.</p>`,
+d:`<p>A subnet is <b>public</b> if its route table sends <code>0.0.0.0/0</code> to an IGW and instances have public IPs; otherwise it's private. Plan non-overlapping CIDRs so VPCs can peer. Reserve address space for growth (especially EKS pods with the VPC CNI).</p>`},
+
+{cat:"vpc",diff:"medium",q:"How does an instance in a private subnet reach the internet, and how is that different from inbound access?",
+a:`<p>Outbound: route the private subnet's <code>0.0.0.0/0</code> to a <b>NAT Gateway</b> in a public subnet, which SNATs traffic out via the IGW. The instance can reach the internet, but the internet <b>cannot initiate</b> connections to it. Inbound access to a private instance comes via a load balancer in public subnets or a bastion/SSM Session Manager — never a public IP on the instance.</p>`,
+d:`<p><b>Cost gotcha:</b> NAT Gateways charge per hour <i>and</i> per GB processed — a frequent surprise on the bill. For AWS-service traffic, use <b>VPC endpoints</b> to bypass NAT entirely. Prefer <b>SSM Session Manager</b> over bastions/SSH (no open port, fully audited).</p>`},
+
+{cat:"vpc",diff:"medium",q:"Security Group vs Network ACL — what's the difference?",
+a:`<ul>
+<li><b>Security Group</b> — <b>stateful</b>, instance/ENI level, <b>allow-only</b> rules (return traffic auto-allowed). Evaluated as a whole (no order). Default-deny inbound, allow-all outbound.</li>
+<li><b>Network ACL (NACL)</b> — <b>stateless</b>, subnet level, supports <b>allow and deny</b>, rules processed in numbered order. You must explicitly allow return traffic (ephemeral ports).</li>
+</ul>`,
+d:`<p>Use SGs as the primary control (simpler, stateful); use NACLs for coarse subnet-level deny (e.g. block a malicious IP range). Forgetting to allow ephemeral return ports in a NACL is a classic "why is traffic dropped" bug. SGs can reference other SGs as sources — cleaner than IP ranges.</p>`},
+
+{cat:"vpc",diff:"hard",q:"VPC peering vs Transit Gateway — when do you outgrow peering?",
+a:`<p><b>VPC peering</b> is a one-to-one, <b>non-transitive</b> connection between two VPCs over the AWS backbone. With many VPCs it becomes an unmanageable full mesh (N×(N−1)/2 connections), and you can't route A→C through B. <b>Transit Gateway (TGW)</b> is a hub that all VPCs (and on-prem via VPN/DX) attach to, providing <b>transitive</b> routing and centralized control.</p>`,
+d:`<p>Move to TGW once you have more than a handful of VPCs or need on-prem + multi-VPC routing. Overlapping CIDRs can't be peered or attached — plan address space org-wide. TGW supports route tables per attachment for segmentation.</p>`},
+
+{cat:"vpc",diff:"medium",q:"VPN vs Direct Connect for hybrid connectivity?",
+a:`<p><b>Site-to-Site VPN</b> — IPsec tunnels over the public internet; quick to set up, encrypted, but subject to internet latency/jitter and bandwidth limits. <b>Direct Connect (DX)</b> — a dedicated private physical link to AWS; consistent low latency, higher and predictable bandwidth, lower data-transfer cost at scale, but slower to provision and not encrypted by default.</p>`,
+d:`<p>Common pattern: <b>DX as primary with a VPN backup</b> (DX isn't inherently redundant — a single DX is a single point of failure). Run encryption over DX (MACsec or a VPN over DX) for sensitive traffic. Attach both to a Transit Gateway for centralized hybrid routing.</p>`},
+
+{cat:"vpc",diff:"medium",q:"What are VPC endpoints (PrivateLink), and Gateway vs Interface endpoints?",
+a:`<p><b>VPC endpoints</b> let resources reach AWS services privately, without traversing the public internet or a NAT Gateway. <b>Gateway endpoints</b> (S3 and DynamoDB only) add a route-table entry — free. <b>Interface endpoints</b> (PrivateLink) put an ENI with a private IP in your subnet for most other services — billed hourly + per GB.</p>`,
+d:`<p>Endpoints improve security (traffic stays on the AWS network) and can cut NAT costs (especially S3 gateway endpoints for heavy S3 traffic). Interface endpoints rely on private DNS so the service FQDN resolves to the private IP — misconfigured DNS is the usual failure.</p>`},
+
+{cat:"vpc",diff:"medium",q:"Explain Route 53 routing policies.",
+a:`<ul>
+<li><b>Simple</b> — one record, no logic.</li>
+<li><b>Weighted</b> — split traffic by percentage (canary, A/B).</li>
+<li><b>Latency-based</b> — route to the Region with lowest latency for the user.</li>
+<li><b>Failover</b> — primary/secondary with health checks (active-passive DR).</li>
+<li><b>Geolocation / Geoproximity</b> — route by user location.</li>
+<li><b>Multivalue answer</b> — return multiple healthy IPs (basic client-side balancing).</li>
+</ul>`,
+d:`<p>Route 53 is a global service and a key DR tool — failover routing + health checks gives cross-region failover at the DNS layer. Remember DNS <b>TTL caching</b> delays failover; keep TTLs low for records you may need to fail over quickly.</p>`},
+
+/* ===================== AWS · EC2 ===================== */
+{cat:"ec2",diff:"medium",q:"Compare EBS volume types and how you choose.",
+a:`<ul>
+<li><b>gp3</b> (general-purpose SSD) — the default; baseline 3,000 IOPS and you provision IOPS/throughput independently of size. Best price/perf for most workloads.</li>
+<li><b>io2 / io2 Block Express</b> (provisioned IOPS SSD) — highest IOPS and durability for critical databases.</li>
+<li><b>st1</b> (throughput HDD) — big sequential workloads (logs, big data).</li>
+<li><b>sc1</b> (cold HDD) — infrequently accessed, cheapest.</li>
+</ul>`,
+d:`<p>gp3 decouples IOPS from capacity (gp2 tied IOPS to size — a common reason to migrate). EBS is AZ-scoped; snapshots (to S3) are how you back up and move volumes across AZs/Regions. For ephemeral high-IOPS scratch, instance store (local NVMe) is faster but lost on stop.</p>`},
+
+{cat:"ec2",diff:"medium",q:"On-Demand vs Reserved vs Savings Plans vs Spot — how do you optimize compute cost?",
+a:`<ul>
+<li><b>On-Demand</b> — pay per second, no commitment; for spiky/unpredictable load.</li>
+<li><b>Reserved Instances / Savings Plans</b> — 1- or 3-year commitment for ~up to 70% off; Savings Plans are more flexible (commit to $/hour of compute, not a specific instance). For steady baseline load.</li>
+<li><b>Spot</b> — up to ~90% off spare capacity, but can be reclaimed with a 2-minute warning; for fault-tolerant, interruptible work (batch, CI, stateless workers).</li>
+</ul>`,
+d:`<p>Typical mix: Savings Plans for the steady baseline, On-Demand for variable headroom, Spot for interruptible scale-out. Spot needs graceful handling of the interruption notice and diversification across instance types/AZs to avoid mass reclamation.</p>`},
+
+{cat:"ec2",diff:"medium",q:"How does an Auto Scaling Group work, and what makes scaling reliable?",
+a:`<p>An <b>ASG</b> maintains a desired count of instances from a <b>launch template</b>, spread across AZs, and replaces unhealthy ones (using EC2 or ELB health checks). Scaling policies: <b>target tracking</b> (keep a metric like CPU at a target — simplest), <b>step</b>, and <b>scheduled</b>. <b>Lifecycle hooks</b> let you run setup/drain logic on launch/terminate.</p>`,
+d:`<p>Use <b>ELB health checks</b> (not just EC2 status) so the ASG replaces instances that are running but not serving. Spread across ≥3 AZs. <b>Quota exhaustion</b> (vCPU limits) during a spike is a classic "it didn't scale when we needed it" incident — pre-request headroom and watch quotas.</p>`},
+
+{cat:"ec2",diff:"hard",q:"What are placement groups, and when do you use each type?",
+a:`<ul>
+<li><b>Cluster</b> — packs instances close together in one AZ for lowest latency / highest throughput (HPC, tightly-coupled compute). Less resilient (single AZ).</li>
+<li><b>Spread</b> — places instances on distinct hardware (max 7 per AZ) to minimize correlated failure; for small numbers of critical instances.</li>
+<li><b>Partition</b> — groups instances into partitions on separate racks; for large distributed systems (HDFS, Cassandra) that are partition-aware.</li>
+</ul>`,
+d:`<p>Cluster optimizes performance at the cost of fault isolation; spread/partition optimize fault isolation. Match the group to whether your workload values raw latency (cluster) or failure independence (spread/partition).</p>`},
+
+{cat:"ec2",diff:"medium",q:"IMDSv1 vs IMDSv2 — why does it matter for security?",
+a:`<p>The Instance Metadata Service serves instance data and the role's temporary credentials at <code>169.254.169.254</code>. <b>IMDSv1</b> is a simple request/response — an <b>SSRF</b> vulnerability in an app can be tricked into fetching credentials. <b>IMDSv2</b> requires a session token obtained via a PUT (with a hop limit), which SSRF typically can't perform, blocking the attack.</p>`,
+d:`<p>Enforce IMDSv2 (require tokens, set hop limit to 1) on all instances — it's a cheap, high-impact hardening step. SSRF stealing instance credentials has caused major real-world breaches; IMDSv2 is the direct mitigation.</p>`},
+
+/* ===================== AWS · LOAD BALANCING ===================== */
+{cat:"elb",diff:"medium",q:"ALB vs NLB vs GWLB — which do you choose?",
+a:`<ul>
+<li><b>ALB</b> (Application LB) — Layer 7 (HTTP/S). Host/path-based routing, WebSocket, redirects, OIDC auth, WAF integration. For web apps/microservices/containers.</li>
+<li><b>NLB</b> (Network LB) — Layer 4 (TCP/UDP/TLS). Ultra-high throughput, very low latency, static IPs / PrivateLink. For non-HTTP, extreme performance, or when you need fixed IPs.</li>
+<li><b>GWLB</b> (Gateway LB) — Layer 3; inserts third-party virtual appliances (firewalls, IDS/IPS) transparently into the traffic path.</li>
+</ul>`,
+d:`<p>(CLB is the legacy Classic LB — avoid for new builds.) ALB for L7 features, NLB for L4 speed/static IPs, GWLB for inline security appliances. ALB routes to <b>target groups</b> (instances, IPs, or Lambda) with health checks.</p>`},
+
+{cat:"elb",diff:"medium",q:"How do target groups, health checks, and sticky sessions work?",
+a:`<p>A <b>target group</b> is the pool the LB routes to (EC2 instances, IPs, containers, or Lambda). The LB runs <b>health checks</b> against each target and only sends traffic to healthy ones; failing targets are drained. <b>Sticky sessions</b> (cookie-based on ALB) pin a client to one target — needed for stateful apps, but they undermine even load distribution and resilience.</p>`,
+d:`<p>Prefer <b>stateless</b> apps (store session in Redis/DynamoDB) so you don't need stickiness. Tune health-check path/thresholds carefully — too aggressive and you flap healthy targets out; too lax and you keep sending traffic to broken ones. <b>Connection draining</b> (deregistration delay) lets in-flight requests finish during deploys/scale-in.</p>`},
+
+{cat:"elb",diff:"easy",q:"How do an ALB and an Auto Scaling Group work together for a resilient web tier?",
+a:`<p>The ASG launches instances across AZs and registers them with the ALB's target group; the ALB distributes requests to healthy targets and the ASG replaces unhealthy ones. Target-tracking scaling adds/removes instances based on load (e.g. requests-per-target or CPU). The result is a self-healing, auto-scaling, multi-AZ tier behind one endpoint.</p>`,
+d:`<p>Use the ALB health check as the ASG's health source so non-serving instances are recycled. Connection draining + lifecycle hooks give graceful instance retirement. This ALB + ASG pattern is the canonical AWS HA web tier.</p>`},
+
+/* ===================== AWS · S3 ===================== */
+{cat:"s3",diff:"medium",q:"Explain S3 storage classes and lifecycle policies.",
+a:`<ul>
+<li><b>S3 Standard</b> — frequent access, default.</li>
+<li><b>Intelligent-Tiering</b> — auto-moves objects between tiers by access pattern (no retrieval fees) — great when access is unpredictable.</li>
+<li><b>Standard-IA / One Zone-IA</b> — infrequent access (One Zone is cheaper but single-AZ).</li>
+<li><b>Glacier Instant / Flexible / Deep Archive</b> — archival, cheapest storage, retrieval latency from ms to hours.</li>
+</ul>
+<p><b>Lifecycle policies</b> automate transitions and expiration (e.g. Standard → IA at 30d → Glacier at 90d → delete at 365d).</p>`,
+d:`<p>Lifecycle automation is a major cost lever for logs/backups. Watch minimum-storage-duration charges and Glacier retrieval latency/cost — don't archive data you might need fast. Intelligent-Tiering is the safe default when you don't know the access pattern.</p>`},
+
+{cat:"s3",diff:"easy",q:"What durability and availability does S3 provide, and what does versioning add?",
+a:`<p>S3 Standard is designed for <b>11 nines (99.999999999%) of durability</b> — objects are redundantly stored across multiple devices and AZs — and high availability. <b>Versioning</b> keeps every version of an object so you can recover from accidental overwrites/deletes (a delete just adds a delete marker).</p>`,
+d:`<p>Durability ≠ availability ≠ backup. Versioning + MFA-delete + lifecycle protects against accidental and malicious deletion (and ransomware). For cross-Region protection use <b>Cross-Region Replication</b>. <b>Object Lock</b> (WORM) gives immutability for compliance.</p>`},
+
+{cat:"s3",diff:"medium",q:"How do you encrypt S3 data? Compare SSE-S3, SSE-KMS, and SSE-C.",
+a:`<ul>
+<li><b>SSE-S3</b> — AWS manages the keys entirely (AES-256). Simplest.</li>
+<li><b>SSE-KMS</b> — keys in KMS; you get key policies, rotation, and CloudTrail audit of key use. Use <b>S3 Bucket Keys</b> to cut KMS request costs at scale.</li>
+<li><b>SSE-C</b> — you supply the key on each request; AWS doesn't store it. Maximum control, maximum operational burden.</li>
+</ul>`,
+d:`<p>Encryption at rest is on by default. Choose SSE-KMS when you need auditability/controlled key access/separation of duties (most regulated workloads). Without Bucket Keys, SSE-KMS on a high-throughput bucket can generate large KMS API costs.</p>`},
+
+{cat:"s3",diff:"hard",q:"Bucket policy vs IAM policy vs ACL — and how do buckets end up public?",
+a:`<p><b>IAM policies</b> attach to identities; <b>bucket policies</b> are resource-based policies on the bucket (good for cross-account and conditions like <code>aws:SourceVpce</code>); <b>ACLs</b> are the legacy object/bucket grant mechanism (AWS now recommends disabling ACLs). Buckets become public via a permissive bucket policy/ACL granting <code>*</code>.</p>`,
+d:`<p>Enable <b>S3 Block Public Access</b> at the account and bucket level — it overrides any policy/ACL that would make objects public, and is the single best guard against the classic open-bucket leak. Use IAM Access Analyzer to detect external access. Disable ACLs and use policies + Block Public Access.</p>`},
+
+{cat:"s3",diff:"medium",q:"What is S3's consistency model, and how do you get high request performance?",
+a:`<p>S3 now provides <b>strong read-after-write consistency</b> for all operations (GET/PUT/LIST) — a PUT is immediately readable (it was eventually consistent for overwrites/deletes before Dec 2020). For performance, S3 scales per <b>prefix</b> (thousands of requests/sec per prefix), so spread keys across prefixes for very high throughput; use <b>multipart upload</b> for large objects and parallelism.</p>`,
+d:`<p>The old advice to randomize key prefixes for performance is largely obsolete (S3 auto-scales), but spreading load across prefixes still helps at extreme scale. Strong consistency simplifies pipelines that used to need workarounds. Use <b>Transfer Acceleration</b> or CloudFront for global upload/download latency.</p>`},
+
+/* ===================== AWS · DATABASES ===================== */
+{cat:"rds",diff:"hard",q:"RDS Multi-AZ vs read replicas — what problem does each solve?",
+a:`<p><b>Multi-AZ</b> is for <b>high availability</b>: a synchronous standby in another AZ; on failure AWS fails over automatically (DNS CNAME flips). In classic Multi-AZ the standby is <b>not readable</b> — it's pure resilience, not scaling. <b>Read replicas</b> are for <b>read scaling</b>: asynchronous copies you can read from (and can be cross-Region), but they're not an automatic-failover HA mechanism by themselves.</p>`,
+d:`<p>HA → Multi-AZ; read scaling → read replicas; you often use both. The newer <b>Multi-AZ DB cluster</b> deployment adds two <i>readable</i> standbys with faster failover. A read replica can be promoted to a standalone primary (useful for DR or migration).</p>`},
+
+{cat:"rds",diff:"hard",q:"Describe Aurora's architecture and why it differs from standard RDS.",
+a:`<p>Aurora separates compute from a <b>distributed, log-structured storage layer</b> that replicates 6 copies across 3 AZs and self-heals. Up to 15 read replicas share that same storage (so replica lag is minimal and adding replicas doesn't copy data). It exposes a <b>writer endpoint</b> and a load-balanced <b>reader endpoint</b>, and fails over in seconds by promoting a replica.</p>`,
+d:`<p>Because storage is shared and distributed, Aurora gives near-synchronous replicas, fast failover, and continuous backup to S3 with point-in-time restore. <b>Aurora Serverless v2</b> autoscales capacity. It's MySQL/PostgreSQL-compatible, so a common upgrade path from RDS.</p>`},
+
+{cat:"rds",diff:"hard",q:"DynamoDB fundamentals: partition keys, capacity modes, GSI vs LSI, DAX, Streams.",
+a:`<p>DynamoDB is a managed key-value/document store with single-digit-ms latency. Data is partitioned by the <b>partition key</b>'s hash — a good (high-cardinality, evenly-accessed) key avoids <b>hot partitions</b>. Capacity: <b>on-demand</b> (pay per request, auto-scales) or <b>provisioned</b> (set RCU/WCU, cheaper for steady load). <b>GSI</b> = alternate partition/sort key, own capacity, eventually consistent; <b>LSI</b> = same partition key, alternate sort key, defined at creation. <b>DAX</b> = in-memory cache; <b>Streams</b> = change feed for event-driven processing.</p>`,
+d:`<p>Hot partitions (e.g. a key like a fixed date or a celebrity user) cause throttling even with capacity to spare — design the key for even distribution. Reads are eventually consistent by default; request strongly-consistent reads when needed (costs more, not available on GSIs). Model access patterns first (single-table design).</p>`},
+
+{cat:"rds",diff:"medium",q:"When do you reach for ElastiCache, and Redis vs Memcached?",
+a:`<p><b>ElastiCache</b> offloads the database with an in-memory cache for hot reads, session stores, leaderboards, rate limiting, and pub/sub. <b>Redis</b> — rich data structures, persistence, replication, cluster mode, pub/sub, geospatial; the default choice. <b>Memcached</b> — simple, multi-threaded key-value cache that scales horizontally; use when you just need a plain, large, sharded cache with no persistence/replication.</p>`,
+d:`<p>Caching strategies: <b>cache-aside</b> (lazy load on miss) is most common; <b>write-through</b> keeps cache fresh at write cost. Mind cache <b>invalidation</b> and stampede protection (a popular key expiring under load). Redis cluster mode + replicas gives HA.</p>`},
+
+/* ===================== AWS · SERVERLESS ===================== */
+{cat:"serverless",diff:"hard",q:"Explain the Lambda execution model, cold starts, and concurrency controls.",
+a:`<p>Lambda runs your code in ephemeral execution environments it creates on demand. A <b>cold start</b> is the first-invocation latency to spin up a new environment (worse for large packages, VPC-attached, or heavy init). <b>Reserved concurrency</b> caps/guarantees a function's concurrency; <b>provisioned concurrency</b> keeps environments pre-warmed to eliminate cold starts for latency-sensitive functions.</p>`,
+d:`<p>Reduce cold starts: smaller packages, lighter runtimes, move work out of the handler init, and provisioned concurrency for user-facing paths. The account has a default concurrency limit (~1,000, soft) shared across functions — reserved concurrency on one function reduces what's available to others. Idempotency matters (retries can double-invoke).</p>`},
+
+{cat:"serverless",diff:"medium",q:"SQS vs SNS vs EventBridge — when do you use each?",
+a:`<ul>
+<li><b>SQS</b> — a <b>queue</b>: one consumer group pulls and processes messages; decouples and buffers load. Standard (at-least-once, best-effort order) or FIFO (ordered, exactly-once).</li>
+<li><b>SNS</b> — <b>pub/sub fan-out</b>: one message pushed to many subscribers (queues, Lambda, HTTP).</li>
+<li><b>EventBridge</b> — an event bus with <b>content-based routing rules</b>, schema registry, and SaaS/AWS-service event sources; richer filtering than SNS.</li>
+</ul>`,
+d:`<p>Classic pattern: <b>SNS → multiple SQS queues</b> (fan-out with durable buffering per consumer). Always configure a <b>dead-letter queue (DLQ)</b> for poison messages. EventBridge when you need event routing/filtering and integration with many event producers; SQS when you need a durable work queue.</p>`},
+
+{cat:"serverless",diff:"medium",q:"What is API Gateway, and REST API vs HTTP API?",
+a:`<p><b>API Gateway</b> fronts your APIs with auth, throttling, caching, request/response transformation, and routing to Lambda/HTTP/AWS services. <b>HTTP API</b> is the newer, cheaper, lower-latency option with core features (JWT auth, CORS). <b>REST API</b> is the older, fuller-featured option (request validation, API keys/usage plans, WAF, private endpoints, fine-grained transformations).</p>`,
+d:`<p>Use HTTP API by default for simple Lambda/proxy backends (lower cost/latency); use REST API when you need its advanced features. Set <b>throttling/usage plans</b> to protect backends, and a Lambda authorizer or Cognito/JWT for auth.</p>`},
+
+{cat:"serverless",diff:"medium",q:"What are Step Functions and when would you use them?",
+a:`<p><b>Step Functions</b> orchestrate multi-step workflows as a state machine — sequencing Lambda functions and AWS service calls with built-in retries, error handling, parallel branches, and human approval steps, without you writing orchestration glue. <b>Standard</b> workflows (long-running, exactly-once, auditable) vs <b>Express</b> (high-volume, short, cheaper).</p>`,
+d:`<p>Reach for Step Functions when a process has branching, retries, long waits, or coordination across many services — it replaces brittle chains of Lambdas calling Lambdas. The visual state machine + execution history makes complex workflows debuggable and auditable.</p>`},
+
+/* ===================== AWS · CONTAINERS ===================== */
+{cat:"containers-aws",diff:"medium",q:"ECS vs EKS, and Fargate vs EC2 launch type?",
+a:`<p><b>ECS</b> is AWS's own container orchestrator — simpler, deeply integrated, no Kubernetes to manage. <b>EKS</b> is managed Kubernetes — portable, huge ecosystem, but more operational surface. <b>Launch type:</b> <b>Fargate</b> is serverless (no nodes to manage/patch, pay per task) ; <b>EC2</b> means you manage the node fleet (more control, can be cheaper at high steady utilization, supports things Fargate doesn't like daemonsets/GPUs in some cases).</p>`,
+d:`<p>Choose ECS for simplicity in an AWS-only shop; EKS for Kubernetes portability/standardization. Fargate to eliminate node ops; EC2 when you need node-level control or better economics at scale. Fargate Spot cuts cost for interruptible tasks.</p>`},
+
+{cat:"containers-aws",diff:"medium",q:"What is ECR and how do clusters pull from it securely?",
+a:`<p><b>ECR</b> is AWS's managed container registry. Clusters authenticate via IAM (the node/task/execution role gets ECR pull permissions) rather than static registry credentials. It supports image <b>scanning</b> (basic and enhanced via Inspector), lifecycle policies to expire old images, immutable tags, and cross-Region/cross-account replication.</p>`,
+d:`<p>Use <b>immutable tags</b> + scanning in CI, and lifecycle policies to control storage cost. Private ECR access via a VPC interface endpoint keeps pulls off the public internet. Grant least-privilege pull/push via IAM, not shared credentials.</p>`},
+
+{cat:"containers-aws",diff:"hard",q:"What is IRSA on EKS and why is it the right way to give pods AWS access?",
+a:`<p><b>IRSA (IAM Roles for Service Accounts)</b> federates a Kubernetes <b>service account</b> to an IAM role via the cluster's OIDC provider. Pods using that service account get <b>scoped, short-lived</b> AWS credentials automatically — no node-wide role, no static keys. Each workload gets exactly the permissions it needs.</p>`,
+d:`<p>Without IRSA, pods would inherit the broad node instance-profile role (over-privileged, shared by all pods on the node). IRSA enforces least privilege per workload. (EKS Pod Identity is a newer alternative that simplifies the setup.) This is the EKS analogue of least-privilege task roles in ECS.</p>`},
+
+/* ===================== AWS · MONITORING ===================== */
+{cat:"mon-aws",diff:"medium",q:"How do CloudWatch metrics, logs, and alarms fit together?",
+a:`<p><b>CloudWatch Metrics</b> are numeric time-series (built-in per service, plus custom metrics you publish). <b>Logs</b> are streamed from apps/agents into log groups, queryable with <b>Logs Insights</b>. <b>Alarms</b> evaluate a metric against a threshold and trigger actions (SNS notification, Auto Scaling, Lambda remediation). <b>Dashboards</b> visualize it all.</p>`,
+d:`<p>Alert on <b>symptoms</b> (error rate, latency, SLO burn), not just CPU. Composite alarms reduce noise. Metric filters turn log patterns into metrics. EMF (Embedded Metric Format) emits custom metrics from logs cheaply. For high-cardinality/observability at scale, many teams pair CloudWatch with Prometheus/Grafana.</p>`},
+
+{cat:"mon-aws",diff:"medium",q:"CloudTrail vs Config vs CloudWatch — what does each answer?",
+a:`<ul>
+<li><b>CloudTrail</b> — <b>who did what, when</b>: an audit log of every API call. For security forensics and compliance.</li>
+<li><b>AWS Config</b> — <b>resource configuration state and compliance over time</b>: tracks how resources are configured, records changes, and evaluates them against rules.</li>
+<li><b>CloudWatch</b> — <b>operational telemetry</b>: metrics, logs, alarms about how things are performing.</li>
+</ul>`,
+d:`<p>Audit/forensics → CloudTrail; configuration drift/compliance → Config; performance/health → CloudWatch. Enable CloudTrail org-wide to an immutable log-archive account and protect it with an SCP that forbids disabling it. Config rules can auto-remediate non-compliant resources.</p>`},
+
+{cat:"mon-aws",diff:"easy",q:"What does AWS X-Ray provide?",
+a:`<p><b>X-Ray</b> is distributed tracing for AWS apps: it follows a request across services (API Gateway → Lambda → DynamoDB, etc.), building a service map and showing where latency and errors occur. It answers "which hop in this distributed request is slow or failing."</p>`,
+d:`<p>Tracing is the third observability pillar (with metrics and logs) and essential for microservices/serverless root-cause. Many teams now use <b>OpenTelemetry</b> (via the AWS Distro for OpenTelemetry) to stay vendor-neutral while still exporting to X-Ray or other backends.</p>`},
+
+/* ===================== AWS · SECURITY ===================== */
+{cat:"sec-aws",diff:"hard",q:"Explain KMS and envelope encryption.",
+a:`<p><b>KMS</b> manages encryption keys. With <b>envelope encryption</b>, KMS doesn't encrypt your large data directly: it issues a <b>data key</b>, which encrypts the data locally; the data key itself is encrypted by the KMS <b>key (CMK)</b> and stored alongside the ciphertext. To decrypt, the service asks KMS to decrypt the data key, then uses it locally. This scales encryption without sending bulk data to KMS.</p>`,
+d:`<p>Access is governed by <b>key policies</b> (and grants) — separate from IAM, so you get separation of duties (an admin with S3 access may still be denied decrypt). Customer-managed keys support rotation and CloudTrail audit of every use. Deleting/disabling a key renders its data unreadable — powerful but operationally dangerous.</p>`},
+
+{cat:"sec-aws",diff:"medium",q:"Secrets Manager vs SSM Parameter Store — which and when?",
+a:`<p>Both store config/secrets and integrate with IAM/KMS. <b>Secrets Manager</b> adds <b>automatic rotation</b> (built-in for RDS and custom via Lambda), cross-Region replication, and is purpose-built for secrets — at a per-secret cost. <b>SSM Parameter Store</b> is cheaper/free for standard parameters, great for general config and secrets you rotate yourself (SecureString via KMS).</p>`,
+d:`<p>Use Secrets Manager when you need managed rotation (database credentials); use Parameter Store for general config and lower-cost secret storage. Both let apps fetch values at runtime via IAM-scoped roles — never bake secrets into images.</p>`},
+
+{cat:"sec-aws",diff:"medium",q:"What do GuardDuty, Security Hub, WAF, and Shield each do?",
+a:`<ul>
+<li><b>GuardDuty</b> — threat detection from logs (VPC Flow, CloudTrail, DNS); flags anomalies like crypto-mining or credential exfiltration.</li>
+<li><b>Security Hub</b> — aggregates findings (GuardDuty, Inspector, Config) and benchmarks posture against standards (CIS, AWS FSBP).</li>
+<li><b>WAF</b> — Layer 7 web firewall (rules for SQLi/XSS, rate limiting) on ALB/CloudFront/API Gateway.</li>
+<li><b>Shield</b> — DDoS protection (Standard free; Advanced adds higher-layer protection and cost protection).</li>
+</ul>`,
+d:`<p>GuardDuty = detection, Security Hub = aggregation/posture, WAF = app-layer filtering, Shield = DDoS. Together with Config (compliance) and Inspector (vuln scanning) they form a layered defense. Enable GuardDuty + Security Hub org-wide for centralized visibility.</p>`},
+
+/* ===================== AWS · DR ===================== */
+{cat:"dr-aws",diff:"hard",q:"What are the four DR strategies, cheapest to most resilient, and how do RTO/RPO drive the choice?",
+a:`<ul>
+<li><b>Backup &amp; Restore</b> — restore from backups after disaster. Cheapest; high RTO (hours), RPO = backup frequency.</li>
+<li><b>Pilot Light</b> — core data replicated and minimal services on standby; scale up on failover. Lower RTO.</li>
+<li><b>Warm Standby</b> — a scaled-down but running full stack in the DR Region; scale up on failover. Low RTO.</li>
+<li><b>Active-Active (Multi-Region)</b> — both Regions serve traffic; near-zero RTO/RPO. Most expensive and complex.</li>
+</ul>`,
+d:`<p><b>RTO</b> (max time to restore) and <b>RPO</b> (max data loss) set by the business pick the strategy and the cost. Tight RTO forbids backup-restore; tight RPO forbids async-only replication. The plan is only real if you <b>test failover</b> (game days) and keep capacity available in the secondary Region.</p>`},
+
+{cat:"dr-aws",diff:"medium",q:"How do you build a multi-Region active-passive architecture on AWS?",
+a:`<p>Replicate data to the secondary Region (S3 Cross-Region Replication, RDS/Aurora cross-Region replicas or global database, DynamoDB global tables), keep infrastructure defined as code so the standby is reproducible, and use <b>Route 53 failover routing</b> with health checks to flip traffic to the secondary when the primary is unhealthy. Warm standby keeps minimal capacity running to absorb the cutover.</p>`,
+d:`<p>Watch DNS TTL on failover. DynamoDB global tables and Aurora Global Database give active-active-ish data layers with low RPO. The hard part is <b>data</b> consistency and ensuring the standby has enough warm capacity — a cold standby can't absorb full load instantly.</p>`},
+
+{cat:"dr-aws",diff:"easy",q:"What does Multi-AZ give you, and why is it the baseline for production?",
+a:`<p>Multi-AZ spreads resources across physically separate datacenters within a Region, so the loss of one AZ (power, network, flood) doesn't take down your service. It's the foundational, low-effort high-availability move — load balancers, ASGs, and managed databases all support it. SLA improves to 99.99% for compute spread across zones.</p>`,
+d:`<p>Single-AZ "production" works in the demo and fails in the real incident. Always run prod across ≥3 AZs. Multi-AZ handles in-Region failures; pair it with multi-Region only when you need protection against a full-Region event or data residency.</p>`},
+
+/* ===================== AWS · COST ===================== */
+{cat:"cost-aws",diff:"medium",q:"How do you approach AWS cost optimization?",
+a:`<p>Make spend visible and bounded: <b>tag</b> everything for cost allocation, use <b>Cost Explorer</b> and <b>Budgets with alarms</b>. Then optimize: <b>right-size</b> over-provisioned resources, buy <b>Savings Plans/RIs</b> for steady load and use <b>Spot</b> for interruptible work, delete idle resources, move data to cheaper S3 tiers via lifecycle, and watch hidden costs (NAT Gateway processing, cross-AZ/egress data transfer, idle EBS/EIPs).</p>`,
+d:`<p>NAT Gateway and data-transfer/egress are the classic surprise line items — use VPC endpoints and keep chatty traffic in-AZ. The error budget / unused capacity is also a cost signal: consistently idle headroom means you over-provisioned. Make cost a continuous practice (FinOps), not a quarterly panic.</p>`},
+
+{cat:"cost-aws",diff:"easy",q:"Reserved Instances vs Savings Plans vs Spot — quick cost guidance?",
+a:`<p><b>Savings Plans</b> — commit to a steady $/hour of compute for 1–3 years for up to ~70% off; more flexible than RIs (apply across instance families/Regions/Lambda/Fargate). <b>Reserved Instances</b> — similar discount but tied to specific attributes (less flexible; Convertible RIs add some flexibility). <b>Spot</b> — up to ~90% off spare capacity, reclaimable with a 2-minute notice; for fault-tolerant workloads.</p>`,
+d:`<p>Cover your stable baseline with Savings Plans, run interruptible/stateless scale-out on Spot, and leave On-Demand for unpredictable headroom. This blend typically cuts compute cost dramatically versus all-On-Demand.</p>`},
+
+/* ===================== TERRAFORM · FUNDAMENTALS ===================== */
+{cat:"tf-core",diff:"easy",q:"What is Terraform and how does declarative IaC differ from imperative?",
+a:`<p><b>Terraform</b> is a declarative Infrastructure-as-Code tool: you describe the <i>desired end state</i> in HCL, and Terraform figures out the actions to reach it. <b>Imperative</b> tools (scripts, much of Ansible) describe the <i>steps</i>. Declarative means Terraform reconciles current state to desired state — it computes the diff (plan) and applies only what's needed.</p>`,
+d:`<p>Terraform uses <b>providers</b> (AWS, Azure, Kubernetes, etc.) that translate HCL resources into API calls. It's cloud-agnostic with a huge provider ecosystem and an explicit <b>plan/apply</b> workflow. The declarative model gives idempotency and a reviewable diff before any change.</p>`},
+
+{cat:"tf-core",diff:"easy",q:"Walk through the core workflow: init, plan, apply, destroy.",
+a:`<ul>
+<li><code>terraform init</code> — downloads providers and configures the backend (state).</li>
+<li><code>terraform plan</code> — refreshes state, computes the diff between desired config and reality, and shows what it <i>would</i> change. No changes made.</li>
+<li><code>terraform apply</code> — executes the plan to reach the desired state (prompts for approval, or takes a saved plan file).</li>
+<li><code>terraform destroy</code> — tears down everything in the state.</li>
+</ul>`,
+d:`<p>In CI, run <code>plan</code> on the PR (review the diff) and <code>apply</code> on merge, ideally against a saved plan file so apply does exactly what was reviewed. <code>terraform validate</code> and <code>fmt</code> belong in the lint stage. Always read the plan — especially anything marked <b>destroy/replace</b>.</p>`},
+
+{cat:"tf-core",diff:"medium",q:"Resources vs data sources — what's the difference?",
+a:`<p>A <b>resource</b> is something Terraform <i>creates and manages</i> (it goes in state and Terraform owns its lifecycle). A <b>data source</b> <i>reads</i> existing information that Terraform does <b>not</b> manage — e.g. look up an existing VPC, the latest AMI, or another team's output — to use as input. Resources write; data sources read.</p>`,
+d:`<p>Use data sources to reference things managed elsewhere (another Terraform state via <code>terraform_remote_state</code>, or resources created outside Terraform) without taking ownership. A common pattern: a data source finds the latest AMI ID so you don't hardcode it.</p>`},
+
+{cat:"tf-core",diff:"medium",q:"How do you configure providers, version constraints, and aliases?",
+a:`<p>Declare providers and pin versions in a <code>required_providers</code> block (and pin Terraform itself with <code>required_version</code>) so builds are reproducible. <b>Provider aliases</b> let you configure multiple instances of the same provider — e.g. two AWS Regions or two accounts — and target resources at a specific alias with <code>provider = aws.useast1</code>.</p>`,
+d:`<p>Pin versions (use <code>~&gt;</code> for safe minor upgrades) and commit the <code>.terraform.lock.hcl</code> lock file so everyone uses identical provider versions. Aliases are how you do multi-Region/multi-account deployments in one configuration.</p>`},
+
+{cat:"tf-core",diff:"medium",q:"Terraform vs CloudFormation vs Pulumi vs Ansible — when which?",
+a:`<ul>
+<li><b>Terraform</b> — declarative, cloud-agnostic, huge provider ecosystem, explicit state. The de-facto multi-cloud IaC standard.</li>
+<li><b>CloudFormation</b> — AWS-native, no state file to manage (AWS tracks it), day-one AWS feature support; AWS-only.</li>
+<li><b>Pulumi / CDK</b> — define infra in a real programming language (loops, types); good for complex logic.</li>
+<li><b>Ansible</b> — primarily configuration management/provisioning (imperative-ish); complements rather than replaces IaC.</li>
+</ul>`,
+d:`<p>Terraform for multi-cloud and a mature module ecosystem; CloudFormation/CDK if you're all-in on AWS and want native integration; Pulumi when you want full programming-language power; Ansible for config management on top of provisioned infra.</p>`},
+
+{cat:"tf-core",diff:"medium",q:"What does the lifecycle meta-argument do (create_before_destroy, prevent_destroy, ignore_changes)?",
+a:`<ul>
+<li><b>create_before_destroy</b> — make the replacement before deleting the old one (avoids downtime when a resource must be replaced).</li>
+<li><b>prevent_destroy</b> — guard a critical resource so an accidental destroy fails fast.</li>
+<li><b>ignore_changes</b> — stop Terraform from reverting specific attributes that something else legitimately modifies (e.g. an autoscaling-adjusted desired_count, or tags set by another system).</li>
+</ul>`,
+d:`<p><code>create_before_destroy</code> is key for zero-downtime replacement but needs the resource to allow two to exist briefly (naming/uniqueness). <code>ignore_changes</code> prevents endless plan churn when an external system mutates a managed attribute. <code>prevent_destroy</code> protects databases/state buckets.</p>`},
+
+/* ===================== TERRAFORM · STATE ===================== */
+{cat:"tf-state",diff:"medium",q:"What is Terraform state and why does it exist?",
+a:`<p><b>State</b> is Terraform's record (a JSON file) mapping your configuration to the real resources it manages — resource IDs, attributes, and dependencies. Terraform needs it to know what it already created (so it can compute diffs), to track metadata, and to map config names to actual cloud resource IDs. Without state, Terraform couldn't tell an update from a create.</p>`,
+d:`<p>State can drift from reality (manual changes) — <code>plan</code>/refresh reconciles. State contains <b>sensitive values in plaintext</b> (passwords, keys), so it must be stored securely. Never edit state by hand; use <code>terraform state</code> subcommands.</p>`},
+
+{cat:"tf-state",diff:"hard",q:"How do you set up a remote backend with locking on AWS, and why?",
+a:`<p>Use the <b>S3 backend</b> for state storage plus a <b>DynamoDB table for state locking</b>, so a team shares one durable, locked state instead of racing on local files.</p>
+<pre><code>terraform {
+  backend "s3" {
+    bucket         = "mycorp-tfstate"
+    key            = "prod/network.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "tf-locks"
+    encrypt        = true
+  }
+}</code></pre>`,
+d:`<p>Harden it: enable <b>S3 versioning</b> (recover a corrupted/last-good state), enable encryption (SSE-KMS), restrict the bucket with a policy + Block Public Access, and authenticate via an assumed role/OIDC (not static keys). Isolate state per environment (separate keys/buckets for dev/stage/prod). Locking prevents two concurrent applies from corrupting state. (Newer Terraform can also use native S3 lockfile-based locking.)</p>`},
+
+{cat:"tf-state",diff:"medium",q:"What does state locking prevent, and what do you do about a stale lock?",
+a:`<p>Locking prevents <b>concurrent writes</b> — two engineers (or a person and a pipeline) running <code>apply</code> at once, which would corrupt state. With the S3/DynamoDB backend, the lock is a DynamoDB item held for the duration of the operation. If a process dies mid-run, a <b>stale lock</b> can remain; you clear it with <code>terraform force-unlock &lt;LOCK_ID&gt;</code> — but only after confirming no apply is actually running.</p>`,
+d:`<p>Never <code>force-unlock</code> blindly — if an apply is genuinely in progress you'll corrupt state. Serialize applies in CI (one at a time per state) so locks rarely collide. The lock is why a remote backend is mandatory for teams.</p>`},
+
+{cat:"tf-state",diff:"hard",q:"How do you bring an existing (manually-created) resource under Terraform management?",
+a:`<p>Write the resource configuration to match it, then <b>import</b> it into state: either the classic <code>terraform import aws_instance.web i-0abc123</code>, or a declarative <b>import block</b> (Terraform 1.5+) that lets you plan the import and even generate config. After import, run <code>plan</code> and reconcile the config until the diff is empty (no changes), proving config matches reality.</p>`,
+d:`<p>Import maps a real resource to a state address — it does <b>not</b> write your HCL for you (the import block can generate a starting config). The goal is a no-op plan after import. Importing complex resources (with many sub-resources) is tedious — do it carefully, one at a time, and verify the empty diff.</p>`},
+
+{cat:"tf-state",diff:"medium",q:"What are the key state commands, and what are moved blocks for?",
+a:`<ul>
+<li><code>terraform state list</code> — list managed resources.</li>
+<li><code>terraform state show ADDR</code> — inspect one resource's state.</li>
+<li><code>terraform state mv</code> — rename/move a resource in state (e.g. after refactoring into a module) without destroy/recreate.</li>
+<li><code>terraform state rm</code> — stop managing a resource without destroying it.</li>
+<li><code>terraform state pull/push</code> — read/write raw state (use with care).</li>
+</ul>
+<p><b>moved blocks</b> (1.1+) declare a refactor (old address → new address) <i>in code</i>, so Terraform updates state automatically and reviewers see the intent — safer than manual <code>state mv</code>.</p>`,
+d:`<p>Prefer <b>moved blocks</b> over imperative <code>state mv</code> for refactors — they're version-controlled, reviewable, and run automatically for everyone. <code>state rm</code> is how you hand a resource off to another config or stop managing it without deleting.</p>`},
+
+{cat:"tf-state",diff:"medium",q:"What is configuration drift, and how does Terraform handle it?",
+a:`<p><b>Drift</b> is when the real infrastructure diverges from what's in state/config — usually because someone changed it manually in the console. On <code>plan</code>, Terraform <b>refreshes</b> state against reality and shows the drift as a diff; <code>apply</code> reverts it back to the declared config. <code>terraform plan -refresh-only</code> lets you inspect/accept drift into state without changing infra.</p>`,
+d:`<p>Prevent drift by making Terraform the sole owner (no manual changes), enforcing it via guardrails/SCPs and PR-only workflows, and running scheduled drift-detection plans in CI. <code>ignore_changes</code> is the escape valve for attributes another system legitimately manages.</p>`},
+
+{cat:"tf-state",diff:"hard",q:"State contains secrets in plaintext. How do you secure it?",
+a:`<p>Treat state as sensitive: store it in an <b>encrypted remote backend</b> (S3 with SSE-KMS), lock down access with tight IAM/bucket policies + Block Public Access, enable versioning, and <b>never commit state to git</b>. Limit who can read the backend (state access ≈ secret access). Mark sensitive variables/outputs with <code>sensitive = true</code> so they're redacted from CLI output (though still present in state).</p>`,
+d:`<p>Because resource attributes like DB passwords land in state, anyone with backend read access can extract them. Minimize secrets in Terraform-managed resources where possible (generate at runtime, pull from a vault), and gate state access as tightly as production credentials.</p>`},
+
+/* ===================== TERRAFORM · MODULES ===================== */
+{cat:"tf-modules",diff:"easy",q:"What is a Terraform module, and how is it structured?",
+a:`<p>A <b>module</b> is a reusable, encapsulated group of resources — a folder of <code>.tf</code> files with <b>input variables</b>, <b>resources</b>, and <b>outputs</b>. The <b>root module</b> is your working directory; it calls <b>child modules</b> with a <code>module</code> block. Modules let you package a pattern (e.g. "a standard VPC" or "a tagged S3 bucket") once and reuse it everywhere.</p>`,
+d:`<p>Good modules are small, single-purpose, and parameterized — they expose what callers need via variables and return useful values via outputs, hiding internal detail. Conventional files: <code>main.tf</code>, <code>variables.tf</code>, <code>outputs.tf</code>, <code>versions.tf</code>.</p>`},
+
+{cat:"tf-modules",diff:"medium",q:"How do you pass data between modules and compose them?",
+a:`<p>A module exposes results via <code>output</code> blocks; the caller references them as <code>module.NAME.OUTPUT</code> and passes them as inputs to another module. You compose by wiring one module's outputs into another's variables (e.g. the network module outputs subnet IDs, which the compute module takes as input). Terraform builds the dependency graph from these references automatically.</p>`,
+d:`<p>Keep coupling explicit through inputs/outputs rather than reaching into a module's internals. Avoid deeply nested module trees — they get hard to reason about. For cross-<i>state</i> sharing (separate Terraform configs), use the <code>terraform_remote_state</code> data source or published outputs.</p>`},
+
+{cat:"tf-modules",diff:"medium",q:"How do you version and source modules safely?",
+a:`<p>Reference modules from a <b>source</b> (local path, Git, or a registry) and <b>pin a version</b>. For registry/Git modules use a version constraint or a tagged ref so an upstream change can't silently alter your infra:</p>
+<pre><code>module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~> 5.0"
+  # ...inputs
+}</code></pre>`,
+d:`<p>Never reference an unpinned <code>main</code> branch for production modules — pin a tag/version for reproducibility, then upgrade deliberately and review the plan. Local modules (<code>./modules/...</code>) are versioned with the repo. Publish shared internal modules to a private registry for reuse and governance.</p>`},
+
+{cat:"tf-modules",diff:"medium",q:"count vs for_each on modules and resources — which and why?",
+a:`<p>Both create multiple instances. <b>count</b> indexes by number (<code>[0]</code>, <code>[1]</code>) — simple, but removing a middle item <b>renumbers</b> the rest, causing Terraform to destroy/recreate unrelated instances. <b>for_each</b> keys by a stable string (from a map/set) — adding/removing one item only affects that key. Prefer <code>for_each</code> whenever items have stable identities.</p>`,
+d:`<p>The <code>count</code> renumbering trap is a classic production gotcha — deleting the 2nd of 5 subnets shouldn't recreate subnets 3–5, but with <code>count</code> it does. Use <code>count</code> only for true on/off (0 or 1) or genuinely index-independent lists; use <code>for_each</code> for named collections.</p>`},
+
+/* ===================== TERRAFORM · VARIABLES & EXPRESSIONS ===================== */
+{cat:"tf-vars",diff:"easy",q:"How do variables work, including types, validation, and precedence?",
+a:`<p><code>variable</code> blocks declare typed inputs (string, number, bool, list, map, object) with optional defaults and <b>validation</b> rules. Values come from (highest to lowest precedence): CLI <code>-var</code>/<code>-var-file</code>, then <code>*.auto.tfvars</code> / <code>terraform.tfvars</code>, then environment variables (<code>TF_VAR_name</code>), then the declared default.</p>`,
+d:`<p>Use <b>type constraints + validation</b> to fail fast on bad input (e.g. restrict an environment var to dev/stage/prod). Keep environment-specific values in per-env <code>.tfvars</code> files. Mark secrets <code>sensitive = true</code>. Don't put secrets in committed tfvars — inject via env vars or a vault.</p>`},
+
+{cat:"tf-vars",diff:"medium",q:"Locals vs variables — when do you use each?",
+a:`<p><b>Variables</b> are <i>inputs</i> from outside the module (the caller sets them). <b>Locals</b> are <i>internal</i> named expressions computed within the config — derived values, repeated expressions, or merged tags — that callers don't set. Use a variable when someone should pass it in; use a local to DRY up a computed or repeated value.</p>`,
+d:`<p>Common pattern: a <code>local.common_tags</code> map merged into every resource's tags, or a <code>local.name_prefix</code> built from environment + project. Locals make configs readable and keep one source of truth for derived values.</p>`},
+
+{cat:"tf-vars",diff:"hard",q:"Explain for expressions, conditionals, and dynamic blocks.",
+a:`<ul>
+<li><b>for expressions</b> — transform/filter collections: <code>[for s in var.subnets : s.id if s.public]</code> (list) or <code>{for k,v in var.m : k =&gt; upper(v)}</code> (map).</li>
+<li><b>Conditionals</b> — ternary: <code>var.env == "prod" ? 3 : 1</code> to vary counts/sizes by environment.</li>
+<li><b>dynamic blocks</b> — generate repeated nested blocks (e.g. multiple ingress rules in a security group) from a collection, instead of hand-writing each.</li>
+</ul>`,
+d:`<p>These keep configs DRY and data-driven. <b>dynamic</b> blocks are powerful but overusing them hurts readability — sometimes explicit blocks are clearer. <code>for</code> + <code>for_each</code> together let you turn a list of inputs into a keyed set of resources.</p>`},
+
+{cat:"tf-vars",diff:"medium",q:"Outputs and sensitive outputs — what are they for?",
+a:`<p><code>output</code> blocks expose values from a module/config — to display after apply, to feed another module (<code>module.x.output</code>), or to share across states via <code>terraform_remote_state</code>. Marking an output <code>sensitive = true</code> redacts it from CLI/plan output so secrets aren't printed.</p>`,
+d:`<p>Outputs are the public interface of a module — expose what callers legitimately need (IDs, ARNs, endpoints), not internals. Sensitive outputs are still stored in state in plaintext; the flag only suppresses display, so secure the state regardless.</p>`},
+
+/* ===================== TERRAFORM · WORKFLOW & CI/CD ===================== */
+{cat:"tf-workflow",diff:"medium",q:"What are Terraform workspaces, and what's the caveat for managing environments?",
+a:`<p><b>Workspaces</b> let one configuration hold multiple independent states (e.g. <code>default</code>, <code>dev</code>, <code>prod</code>) under the same backend, switched with <code>terraform workspace select</code>. They're handy for lightweight per-environment or per-feature state separation using the same code.</p>`,
+d:`<p><b>Caveat:</b> workspaces share the same backend and code, so they're a weak isolation boundary — easy to apply to the wrong env, and they don't separate credentials/blast radius. Many teams prefer <b>separate directories/state per environment</b> (or Terragrunt) for prod isolation. Use workspaces for ephemeral/feature environments, not as the only separation between dev and prod.</p>`},
+
+{cat:"tf-workflow",diff:"hard",q:"Design a CI/CD pipeline for Terraform.",
+a:`<p>On a pull request: <code>fmt -check</code>, <code>validate</code>, a security/policy scan (checkov/tfsec/OPA/Sentinel), then <code>terraform plan</code> posted to the PR for review. On merge to main: <code>apply</code> the <b>saved plan</b> (so apply == reviewed plan), serialized so only one apply runs per state. Authenticate to the cloud via <b>OIDC</b> (no stored keys), use a remote locked backend, and isolate state per environment with manual approval before prod.</p>`,
+d:`<p>Key practices: plan-on-PR / apply-on-merge, apply the exact reviewed plan file, policy-as-code gates before apply, OIDC auth, and one-apply-at-a-time per state to avoid lock contention. Tools like <b>Atlantis</b> or Terraform Cloud/Enterprise automate the plan-comment-apply workflow.</p>`},
+
+{cat:"tf-workflow",diff:"medium",q:"What problem does Terragrunt solve?",
+a:`<p><b>Terragrunt</b> is a thin wrapper that reduces repetition in large Terraform setups: it keeps your backend and provider config DRY (define once, generate per-module), makes it easy to run the same modules across many environments/accounts, manages dependencies between components, and can run commands across many modules at once.</p>`,
+d:`<p>It shines when you have many environments/accounts and don't want to copy backend blocks and provider config into every folder. Plain Terraform plus good module design covers many cases; reach for Terragrunt when the env/account matrix gets large and repetitive.</p>`},
+
+{cat:"tf-workflow",diff:"medium",q:"How do you enforce policy and catch problems before apply?",
+a:`<p>Use <b>policy-as-code</b> and scanning in the pipeline: <b>Sentinel</b> (Terraform Cloud/Enterprise) or <b>OPA/Conftest</b> to enforce rules on the plan (e.g. "no public S3", "only approved instance types", "mandatory tags"), and scanners like <b>checkov / tfsec / Terrascan</b> for misconfig/security issues. Gate <code>apply</code> on these passing.</p>`,
+d:`<p>This shifts governance left — catching a public bucket or an over-broad IAM policy in the plan, before it's created. Combine with required-tags validation and cost estimation (Infracost) so reviewers see security <i>and</i> cost impact on every PR.</p>`},
+
+/* ===================== TERRAFORM · ADVANCED & TROUBLESHOOTING ===================== */
+{cat:"tf-adv",diff:"medium",q:"How does Terraform determine dependencies, and when do you need depends_on?",
+a:`<p>Terraform builds a <b>dependency graph</b> automatically from references — if resource B uses <code>aws_x.a.id</code>, B implicitly depends on A and is created after it. You only need explicit <code>depends_on</code> when there's a dependency Terraform <b>can't see</b> from references (e.g. an IAM policy must exist before an action works, but the resource doesn't reference it directly).</p>`,
+d:`<p>Prefer implicit dependencies (references) over <code>depends_on</code> — they're more precise. Overusing <code>depends_on</code> serializes things unnecessarily and can hide design issues. Use it sparingly for hidden ordering requirements.</p>`},
+
+{cat:"tf-adv",diff:"medium",q:"Why are provisioners a last resort?",
+a:`<p><b>Provisioners</b> (<code>local-exec</code>, <code>remote-exec</code>) run scripts during create/destroy. They're a last resort because they break Terraform's declarative model: they're not tracked in state, not idempotent, fail unpredictably, and a failed provisioner taints the resource. Prefer cloud-native mechanisms — user data/cloud-init, AMIs baked with Packer, or config management — over provisioners.</p>`,
+d:`<p>If you must use one, understand it runs once at create (or with triggers) and isn't reconciled afterward. For bootstrapping instances, <code>user_data</code> is the declarative path; for app config, use a config-management tool. Provisioners are escape hatches, not architecture.</p>`},
+
+{cat:"tf-adv",diff:"hard",q:"How do you handle secrets in Terraform safely?",
+a:`<p>Never hardcode secrets in <code>.tf</code> or commit them in tfvars. Pull them at run time from a secret store (Vault provider, AWS Secrets Manager / SSM data sources) or inject via <code>TF_VAR_</code> environment variables from the CI secret store. Mark variables/outputs <code>sensitive</code>. Critically, remember secrets still land in <b>state in plaintext</b> — so secure the remote backend like a vault.</p>`,
+d:`<p>Best is to let Terraform reference a secret rather than own it (e.g. create the secret container, let the app fetch the value at runtime), minimizing what lands in state. Generate random secrets with the <code>random</code> provider and store them in Secrets Manager rather than printing them.</p>`},
+
+{cat:"tf-adv",diff:"hard",q:"Walk through common Terraform errors and how you fix them.",
+a:`<ul>
+<li><b>State lock errors</b> — another apply running, or a stale lock → wait, or <code>force-unlock</code> only if truly stale.</li>
+<li><b>"Resource already exists"</b> — created outside Terraform or in another state → <code>import</code> it.</li>
+<li><b>Cycle errors</b> — circular dependencies → break the cycle (refactor references, sometimes split resources).</li>
+<li><b>for_each with unknown/computed values</b> — keys must be known at plan time → derive keys from static input, not computed attributes.</li>
+<li><b>Provider drift / inconsistent plan</b> — refresh, or <code>ignore_changes</code> for externally-managed attributes.</li>
+</ul>`,
+d:`<p>Use <code>TF_LOG=DEBUG</code> for deep diagnosis, <code>terraform plan</code> to understand intent before applying, and <code>state</code> subcommands to repair mismatches. The "for_each can't use computed values for keys" error trips up many — restructure so keys come from known inputs.</p>`},
+
+{cat:"tf-adv",diff:"medium",q:"How do you refactor Terraform safely (rename/move resources) without downtime?",
+a:`<p>Use <b>moved blocks</b> to declare old-address → new-address in code, so Terraform updates state instead of destroy/recreate, and the change is reviewable in the PR. For replacements that must happen, use <code>create_before_destroy</code> so the new resource exists before the old is removed. For pulling a resource into a module, <code>moved</code> (or <code>terraform state mv</code>) preserves the existing resource.</p>`,
+d:`<p>Always check the <code>plan</code> for unexpected <b>destroy/replace</b> before applying a refactor — that's how you catch a rename that would have recreated a database. <code>moved</code> blocks are the modern, version-controlled, team-safe way to refactor (vs imperative <code>state mv</code> that only runs on one machine).</p>`},
+
+{cat:"tf-adv",diff:"medium",q:"How do you share outputs across separate Terraform states?",
+a:`<p>Use the <code>terraform_remote_state</code> data source to read another configuration's published outputs (e.g. the networking state exposes <code>vpc_id</code> and subnet IDs, which the application state consumes). The producing config must declare those values as <code>output</code>s; the consumer reads them from the remote backend.</p>`,
+d:`<p>This decouples large systems into separately-applied states (network, data, app) while still wiring them together. Alternatives: publish outputs to SSM Parameter Store and read them via a data source — looser coupling that also works for non-Terraform consumers. Keep cross-state dependencies explicit and minimal.</p>`},
+];
+
+/* ============================== STATE ============================== */
+let activeCat = "all";
+let activeDiff = "all";
+let search = "";
+const mastery = loadMastery();
+
+function loadMastery(){
+  try{ const r = localStorage.getItem("awstf_mastery"); return r ? JSON.parse(r) : {}; }
+  catch(e){ return {}; }
+}
+function saveMastery(){
+  try{ localStorage.setItem("awstf_mastery", JSON.stringify(mastery)); }catch(e){}
+}
+
+/* ============================== RENDER ============================== */
+const DIFFS = ["easy","medium","hard"];
+const listEl = document.getElementById("list");
+const emptyEl = document.getElementById("empty");
+const metaEl = document.getElementById("meta");
+
+function catCounts(){ const c = {}; Q.forEach(q=>c[q.cat]=(c[q.cat]||0)+1); return c; }
+
+function buildChips(){
+  const counts = catCounts();
+  const cc = document.getElementById("catchips");
+  const mk = (key,label,count,group)=>{
+    const b=document.createElement("button");
+    b.className="chip"+((group==="cat"&&activeCat===key)||(group==="diff"&&activeDiff===key)?" on":"");
+    b.innerHTML = label + (count!=null?` <span class="ct">${count}</span>`:"");
+    b.onclick=()=>{ if(group==="cat"){activeCat=key;} else {activeDiff=key;} buildChips(); render(); };
+    return b;
+  };
+  cc.innerHTML="";
+  cc.appendChild(mk("all","All",Q.length,"cat"));
+  Object.keys(CATS).forEach(k=> cc.appendChild(mk(k,CATS[k],counts[k]||0,"cat")));
+
+  const dc=document.getElementById("diffchips");
+  dc.querySelectorAll(".chip").forEach(n=>n.remove());
+  const sep=dc.querySelector(".sep");
+  const frag=document.createDocumentFragment();
+  frag.appendChild(mk("all","All levels",null,"diff"));
+  DIFFS.forEach(d=> frag.appendChild(mk(d, d.charAt(0).toUpperCase()+d.slice(1), null,"diff")));
+  dc.insertBefore(frag, sep);
+}
+
+function matches(q){
+  if(activeCat!=="all" && q.cat!==activeCat) return false;
+  if(activeDiff!=="all" && q.diff!==activeDiff) return false;
+  if(search){
+    const hay=(q.q+" "+q.a+" "+q.d+" "+CATS[q.cat]).toLowerCase();
+    if(!hay.includes(search)) return false;
+  }
+  return true;
+}
+
+function render(){
+  const items = Q.map((q,i)=>({q,i})).filter(o=>matches(o.q));
+  listEl.innerHTML="";
+  items.forEach(({q,i})=>{
+    const id="q"+i;
+    const done=!!mastery[id];
+    const card=document.createElement("article");
+    card.className="card"+(done?" done":"");
+    card.style.setProperty("--spine", done? "var(--easy)":"var(--azure)");
+    card.innerHTML=`
+      <div class="qrow" role="button" tabindex="0" aria-expanded="false">
+        <div class="qnum">${String(i+1).padStart(2,"0")}</div>
+        <div class="qmain">
+          <div class="tags">
+            <span class="tag cat">${CATS[q.cat]}</span>
+            <span class="tag d-${q.diff}">${q.diff}</span>
+          </div>
+          <div class="q">${q.q}</div>
+        </div>
+        <button class="star${done?" on":""}" title="Mark mastered" aria-label="Mark mastered">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="${done?"currentColor":"none"}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.6 9.1l5.8-.8z"/></svg>
+        </button>
+        <svg class="caret" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+      <div class="ans">
+        <h4>Answer</h4>${q.a}
+        <h4>Details &amp; what the interviewer is probing</h4>${q.d}
+      </div>`;
+    const row=card.querySelector(".qrow");
+    const toggle=()=>{ card.classList.toggle("open"); row.setAttribute("aria-expanded", card.classList.contains("open")); };
+    row.addEventListener("click",e=>{ if(e.target.closest(".star")) return; toggle(); });
+    row.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); }});
+    card.querySelector(".star").addEventListener("click",e=>{
+      e.stopPropagation();
+      if(mastery[id]) delete mastery[id]; else mastery[id]=1;
+      saveMastery(); buildStats(); render();
+    });
+    listEl.appendChild(card);
+  });
+  emptyEl.style.display = items.length? "none":"block";
+  metaEl.textContent = `Showing ${items.length} of ${Q.length} question${items.length===1?"":"s"}`
+    + (activeCat!=="all"?` · ${CATS[activeCat]}`:"")
+    + (activeDiff!=="all"?` · ${activeDiff}`:"")
+    + (search?` · matching “${search}”`:"");
+}
+
+function buildStats(){
+  const byDiff={easy:0,medium:0,hard:0}; Q.forEach(q=>byDiff[q.diff]++);
+  const mastered=Object.keys(mastery).length;
+  const awsCount=Q.filter(q=>!q.cat.startsWith("tf-")).length;
+  const tfCount=Q.filter(q=>q.cat.startsWith("tf-")).length;
+  document.getElementById("stats").innerHTML=
+     `<div class="stat"><b>${Q.length}</b><span>questions</span></div>`
+    +`<div class="stat"><b>${awsCount}</b><span>AWS</span></div>`
+    +`<div class="stat"><b>${tfCount}</b><span>Terraform</span></div>`
+    +`<div class="stat"><b>${byDiff.easy}</b><span>easy</span></div>`
+    +`<div class="stat"><b>${byDiff.medium}</b><span>medium</span></div>`
+    +`<div class="stat"><b>${byDiff.hard}</b><span>hard</span></div>`;
+  const pct = Q.length? Math.round(mastered/Q.length*100):0;
+  document.getElementById("pfill").style.width=pct+"%";
+  document.getElementById("pcount").textContent=`${mastered} of ${Q.length} mastered`;
+}
+
+/* ============================== EVENTS ============================== */
+document.getElementById("search").addEventListener("input",e=>{ search=e.target.value.trim().toLowerCase(); render(); });
+document.getElementById("expandAll").addEventListener("click",()=>document.querySelectorAll(".card").forEach(c=>{c.classList.add("open");c.querySelector(".qrow").setAttribute("aria-expanded","true");}));
+document.getElementById("collapseAll").addEventListener("click",()=>document.querySelectorAll(".card").forEach(c=>{c.classList.remove("open");c.querySelector(".qrow").setAttribute("aria-expanded","false");}));
+document.getElementById("resetMastery").addEventListener("click",()=>{
+  if(confirm("Clear all mastered marks?")){ for(const k in mastery) delete mastery[k]; saveMastery(); buildStats(); render(); }
+});
+
+/* ============================== INIT ============================== */
+buildChips(); buildStats(); render();
+</script>
+</body>
+</html>

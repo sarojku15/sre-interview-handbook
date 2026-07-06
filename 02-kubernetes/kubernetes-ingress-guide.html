@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubernetes Ingress — Complete Guide</title>
+<style>
+:root{
+  --navy:#0B1E3D; --ink:#132848; --line:#D8DEE9; --bg:#F4F6FA;
+  --text:#1B2436; --mut:#5B6B87; --card:#FFFFFF;
+  --blue:#1D5FBF; --blue-bg:#E9F1FD;
+  --green:#1F8A4C; --green-bg:#E9F7EF;
+  --amber:#B5760A; --amber-bg:#FCF2E0;
+  --purple:#6A3FBF; --purple-bg:#F0EAFB;
+  --red:#C23A3A; --red-bg:#FCEAEA;
+  --teal:#0F8A82; --teal-bg:#E4F7F5;
+  --mono:"SF Mono","Cascadia Code","JetBrains Mono",Consolas,Menlo,monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55}
+.wrap{max-width:1400px;margin:0 auto;padding:28px 24px 60px}
+header{background:var(--navy);color:#fff;border-radius:12px;padding:22px 28px;margin-bottom:8px}
+header h1{margin:0;font-size:26px;letter-spacing:.02em}
+header p{margin:8px 0 0;color:#CBD8F0;font-size:14.5px}
+header p b{color:#FF8A5B}
+.fixnote{background:var(--red-bg);border:1px solid var(--red);color:#7A1E1E;border-radius:10px;padding:12px 16px;margin:16px 0 24px;font-size:13.5px}
+.fixnote b{color:var(--red)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;box-shadow:0 1px 2px rgba(20,30,60,.04)}
+.card h2{margin:0 0 12px;font-size:15px;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);border-bottom:2px solid var(--line);padding-bottom:8px}
+.c3{grid-column:span 3}.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:span 12}
+ul{margin:6px 0;padding-left:20px}
+li{margin:5px 0;font-size:13.8px}
+p{font-size:13.8px;margin:6px 0}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+th{background:var(--bg);color:var(--navy);font-weight:600}
+code,.mono{font-family:var(--mono);font-size:12.5px;background:#F0F3F9;border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+pre{font-family:var(--mono);font-size:12.5px;background:#0F1B33;color:#DCE6FA;border-radius:8px;padding:14px 16px;overflow-x:auto;line-height:1.55;margin:8px 0}
+pre .k{color:#7FB3FF}pre .s{color:#8FE3B0}pre .c{color:#7C89A6}pre .fix{background:#1F3A22;border-left:3px solid #4CD37A;padding:0 4px}
+.box{border:1px solid var(--line);border-radius:8px;padding:10px 12px;text-align:center;font-size:13px;font-weight:600;background:var(--blue-bg);color:var(--blue)}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;font-family:var(--mono);color:var(--navy)}
+.flow .arrow{color:var(--mut)}
+.flowbox{background:var(--blue-bg);border:1px solid var(--blue);color:#12407F;border-radius:6px;padding:6px 10px}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.04em}
+.badge.blue{background:var(--blue-bg);color:var(--blue)}
+.badge.green{background:var(--green-bg);color:var(--green)}
+.badge.amber{background:var(--amber-bg);color:var(--amber)}
+.check li{list-style:none;position:relative;padding-left:22px}
+.check li:before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700}
+.warn{background:var(--amber-bg);border-left:3px solid var(--amber);padding:8px 12px;border-radius:0 6px 6px 0;font-size:13px;margin-top:8px}
+.cmd-line{display:flex;gap:10px;font-size:12.8px;padding:4px 0;border-bottom:1px dashed var(--line)}
+.cmd-line:last-child{border-bottom:none}
+.cmd-line code{flex-shrink:0;min-width:230px}
+footer{text-align:center;color:var(--mut);font-size:12px;margin-top:30px;font-family:var(--mono)}
+@media(max-width:900px){.c3,.c4,.c5,.c6,.c7,.c8{grid-column:span 12}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Kubernetes Ingress — Complete Guide</h1>
+  <p>Ingress is a Kubernetes API object that defines HTTP/HTTPS routing rules. <b>The Ingress Controller</b> is the software that actually implements those rules and handles traffic.</p>
+</header>
+<div class="fixnote"><b>Corrected from the original poster:</b> the sample YAML's <code>admin</code> path had <code>backend.service</code> written as a list item (<code>- name: admin</code>) — that's invalid; <code>service</code> must be a plain mapping like the other two paths. Fixed below in section 10.</div>
+
+<div class="grid">
+
+<div class="card c6">
+<h2>1. What is Ingress?</h2>
+<ul>
+<li>A Kubernetes resource that manages external access to Services in a cluster — typically HTTP/HTTPS.</li>
+<li>Provides <b>L7 (application-layer)</b> routing based on hostnames, paths, or other rules.</li>
+</ul>
+</div>
+
+<div class="card c6">
+<h2>2. Why do we need it?</h2>
+<ul>
+<li>One external entry point (Load Balancer) for many Services.</li>
+<li>Cost saving — one LB instead of one-per-Service.</li>
+<li>Centralized routing, TLS termination, security policies.</li>
+<li>Advanced routing: host/path based, rewrites, rate limiting, auth, WAF.</li>
+</ul>
+</div>
+
+<div class="card c6">
+<h2>3. Ingress vs Ingress Controller</h2>
+<table>
+<tr><th>Ingress</th><th>Ingress Controller</th></tr>
+<tr><td>Kubernetes API object</td><td>Software / application (runs as Pods)</td></tr>
+<tr><td>Defines rules (host, path, backend)</td><td>Watches Ingress resources</td></tr>
+<tr><td>Does <b>not</b> handle traffic</td><td>Handles traffic &amp; implements rules</td></tr>
+<tr><td>Stored in etcd</td><td>Running in-cluster (Deployment)</td></tr>
+<tr><td>Example: <code>ingress.yaml</code></td><td>NGINX, Traefik, ALB, AGIC</td></tr>
+</table>
+<div class="warn">If no controller is installed, Ingress objects sit in etcd and do nothing — the single most common beginner trap.</div>
+</div>
+
+<div class="card c6">
+<h2>4. Ingress vs Service</h2>
+<table>
+<tr><th></th><th>Service (L4)</th><th>Ingress (L7)</th></tr>
+<tr><td>Layer</td><td>Transport (TCP/UDP)</td><td>Application (HTTP/HTTPS)</td></tr>
+<tr><td>Purpose</td><td>Expose Pods internally/externally</td><td>Route HTTP(S) requests to Services</td></tr>
+<tr><td>Routing</td><td>No — simple load balance</td><td>Host/path-based routing</td></tr>
+<tr><td>Protocols</td><td>TCP, UDP</td><td>HTTP, HTTPS</td></tr>
+<tr><td>Resource</td><td>Service object</td><td>Ingress object</td></tr>
+<tr><td>Use case</td><td>Expose a single app</td><td>Expose many apps under one entry</td></tr>
+</table>
+</div>
+
+<div class="card c12">
+<h2>5. Ingress architecture — real production scenario</h2>
+<div class="flow" style="margin-bottom:14px">
+<span class="flowbox">Users</span><span class="arrow">→</span>
+<span class="flowbox">Internet</span><span class="arrow">→</span>
+<span class="flowbox">Cloud Load Balancer<br><span style="font-weight:400;color:var(--mut)">(one external LB)</span></span><span class="arrow">→</span>
+<span class="flowbox">Ingress Controller<br><span style="font-weight:400;color:var(--mut)">(NGINX / ALB / AGIC)</span></span><span class="arrow">→</span>
+<span class="flowbox">Service (SVC)</span><span class="arrow">→</span>
+<span class="flowbox">Pods</span>
+</div>
+<table>
+<tr><th>Service</th><th>Port</th><th>Routes to</th></tr>
+<tr><td>Frontend Service</td><td>80</td><td>Frontend Pods</td></tr>
+<tr><td>Payment Service</td><td>80</td><td>Payment Pods</td></tr>
+<tr><td>Admin Service</td><td>80</td><td>Admin Pods</td></tr>
+</table>
+<p style="margin-top:10px"><b>Traffic flow:</b> <code>Internet → Load Balancer → Ingress Controller → Service → Pods</code> — TLS termination happens at the Ingress Controller.</p>
+</div>
+
+<div class="card c6">
+<h2>6a. Routing type — host-based</h2>
+<pre>host: shop.company.com  → Frontend Service
+host: api.company.com   → API Service</pre>
+<p>Different hostnames route to entirely different Services — one Ingress, many domains.</p>
+</div>
+
+<div class="card c6">
+<h2>6b. Routing type — path-based</h2>
+<pre>Host: company.com
+/shop     → Shop Service
+/payment  → Payment Service
+/admin    → Admin Service</pre>
+<p>One hostname, multiple paths fan out to different backend Services.</p>
+</div>
+
+<div class="card c6">
+<h2>7. TLS / SSL termination</h2>
+<ul>
+<li>HTTPS traffic arrives from the internet.</li>
+<li>The Ingress Controller holds the certificate (a Kubernetes <code>Secret</code>).</li>
+<li>It terminates (decrypts) HTTPS and forwards plain HTTP to backend Services — re-encryption to the Pod is optional but preferred for regulated workloads.</li>
+</ul>
+<div class="flow"><span class="flowbox">Client — HTTPS</span><span class="arrow">→</span><span class="flowbox">Ingress Controller<br><span style="font-weight:400">(TLS termination)</span></span><span class="arrow">→</span><span class="flowbox">Service — HTTP</span></div>
+</div>
+
+<div class="card c6">
+<h2>8. Default backend</h2>
+<ul>
+<li>If a request doesn't match any rule (host/path), it goes to the <b>default backend</b>.</li>
+<li>Usually returns <code>404 Not Found</code>.</li>
+</ul>
+<div class="flow"><span class="flowbox">Unknown host/path</span><span class="arrow">→</span><span class="flowbox">Ingress</span><span class="arrow">→</span><span class="flowbox" style="background:var(--red-bg);color:var(--red);border-color:var(--red)">Default backend (404)</span></div>
+</div>
+
+<div class="card c6">
+<h2>9. IngressClass</h2>
+<p>Specifies which Ingress Controller should process a given Ingress — required when more than one controller runs in a cluster.</p>
+<pre>spec:
+  ingressClassName: nginx</pre>
+<h2 style="margin-top:14px">Useful commands</h2>
+<div class="cmd-line"><code>kubectl get ingress -A</code><span>List all Ingress objects</span></div>
+<div class="cmd-line"><code>kubectl describe ingress &lt;name&gt;</code><span>Rules, backend, events</span></div>
+<div class="cmd-line"><code>kubectl get pods -n ingress-nginx</code><span>Controller Pod status</span></div>
+<div class="cmd-line"><code>kubectl logs -n ingress-nginx &lt;pod&gt;</code><span>Controller logs</span></div>
+<div class="cmd-line"><code>kubectl get svc -n ingress-nginx</code><span>Controller's LB Service</span></div>
+</div>
+
+<div class="card c6">
+<h2>10. Sample Ingress YAML <span class="badge green">corrected</span></h2>
+<pre>apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ecommerce
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - shop.company.com
+      secretName: tls-secret
+  rules:
+    - host: shop.company.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
+          - path: /payment
+            pathType: Prefix
+            backend:
+              service:
+                name: payment
+                port:
+                  number: 80
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:<span class="fix">
+                name: admin</span>
+                port:
+                  number: 80</pre>
+<p style="font-size:12.5px;color:var(--mut)">Highlighted line: the original had <code>- name: admin</code> (a list item) instead of a plain <code>name: admin</code> mapping — that would fail schema validation.</p>
+</div>
+
+<div class="card c6">
+<h2>11. SSL certificate (TLS Secret)</h2>
+<pre>tls:
+  - hosts:
+      - shop.company.com
+    secretName: tls-secret</pre>
+<p>The Secret must exist in the <b>same namespace</b> as the Ingress.</p>
+<pre># Create the secret
+kubectl create secret tls tls-secret \
+  --cert=cert.pem --key=key.pem</pre>
+</div>
+
+<div class="card c12">
+<h2>12. NodePort vs LoadBalancer vs Ingress</h2>
+<table>
+<tr><th>Type</th><th>Layer</th><th>Exposes</th><th>Routing</th><th>Use case</th></tr>
+<tr><td>NodePort</td><td>L4</td><td>Node IP:Port</td><td>No (simple)</td><td>Dev/test or simple exposure</td></tr>
+<tr><td>LoadBalancer</td><td>L4</td><td>Cloud LB</td><td>No (simple)</td><td>Expose one application</td></tr>
+<tr><td>Ingress</td><td>L7</td><td>One IP / LB</td><td>Yes (host/path)</td><td>Multiple apps, advanced routing</td></tr>
+</table>
+</div>
+
+<div class="card c12">
+<h2>13. Ingress vs API Gateway</h2>
+<table>
+<tr><th>Ingress</th><th>API Gateway</th></tr>
+<tr><td>Basic routing, TLS, reverse proxy</td><td>Advanced features (rate limit, transform, auth)</td></tr>
+<tr><td>Works at cluster level</td><td>Works at application/API level</td></tr>
+<tr><td>No auth, or basic auth only</td><td>AuthN, AuthZ, API keys, OAuth</td></tr>
+<tr><td>Limited request transformation</td><td>Full request/response transformation</td></tr>
+<tr><td>Examples: NGINX, Traefik</td><td>Examples: Kong, Apigee, AWS API Gateway</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>14. Troubleshooting guide</h2>
+<table>
+<tr><th>Symptom</th><th>Likely cause</th></tr>
+<tr><td><b>404 Not Found</b></td><td>Wrong host/path in rule · service name/port wrong · rule not matching request · default backend serving</td></tr>
+<tr><td><b>503 Service Unavailable</b></td><td>No endpoints (pods not ready) · pods down/crashlooping · readiness probe failing · Service selector mismatch</td></tr>
+<tr><td><b>Ingress has no address</b></td><td>Controller not provisioned · check Ingress events · check LoadBalancer Service or controller logs</td></tr>
+<tr><td><b>SSL / HTTPS issues</b></td><td>Wrong TLS secret · expired certificate · hostname mismatch · Ingress not reloaded</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>15. Best practices</h2>
+<ul class="check">
+<li>Use a reliable Ingress Controller (NGINX / ALB / AGIC).</li>
+<li>Enable TLS for all public endpoints.</li>
+<li>Store certificates in Kubernetes Secrets, or automate with cert-manager.</li>
+<li>Use readiness &amp; liveness probes so traffic only hits healthy Pods.</li>
+<li>Prefer host-based routing for multi-domain applications.</li>
+<li>Use path-based routing to consolidate related services.</li>
+<li>Enable access logs and monitor 4xx/5xx response rates.</li>
+<li>Implement rate limiting, authentication, and WAF for internet-facing apps.</li>
+<li>Keep Ingress rules simple, maintainable, and version-controlled (GitOps).</li>
+</ul>
+</div>
+
+<div class="card c12">
+<h2>16. Complete network flow</h2>
+<div class="flow" style="margin-bottom:10px">
+<span class="flowbox">User / Browser</span><span class="arrow">→</span>
+<span class="flowbox">DNS<br><span style="font-weight:400">resolves company.com</span></span><span class="arrow">→</span>
+<span class="flowbox">Internet</span><span class="arrow">→</span>
+<span class="flowbox">Cloud Load Balancer<br><span style="font-weight:400">(external IP)</span></span><span class="arrow">→</span>
+<span class="flowbox">Ingress Controller<br><span style="font-weight:400">(NGINX pod)</span></span><span class="arrow">→</span>
+<span class="flowbox">Kubernetes Service<br><span style="font-weight:400">(ClusterIP)</span></span><span class="arrow">→</span>
+<span class="flowbox">Pods</span>
+</div>
+<table>
+<tr><th>Step</th><th>What happens</th></tr>
+<tr><td>1. DNS resolution</td><td>Browser resolves company.com to the Load Balancer's public IP</td></tr>
+<tr><td>2. Connect to LB</td><td>Client opens a TCP connection to the cloud Load Balancer</td></tr>
+<tr><td>3. TLS termination</td><td>The Ingress Controller decrypts HTTPS using its Secret</td></tr>
+<tr><td>4. Routing (host/path)</td><td>Controller matches the request against Ingress rules</td></tr>
+<tr><td>5. Internal cluster routing</td><td>Matched Service resolves to healthy Pod endpoints</td></tr>
+<tr><td>6. Traffic to Pods</td><td>Request reaches the application container</td></tr>
+</table>
+<p style="margin-top:10px"><b>Key points:</b> Ingress = rules (YAML) · Ingress Controller = the implementation (Pods) · one LB, many Services · L7 routing, TLS, and security all live at this layer.</p>
+</div>
+
+</div>
+<footer>Kubernetes Ingress reference · corrected &amp; reformatted for readability at any zoom level</footer>
+</div>
+</body>
+</html>
