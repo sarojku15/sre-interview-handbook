@@ -1,0 +1,1513 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terraform for SRE Interview Handbook — Infrastructure as Code for DevOps &amp; Platform Engineering</title>
+<style>
+:root{
+  --ink:#1a1a1a; --soft:#444; --line:#dcd6ea; --rule:#c7bcdc;
+  --accent:#4b2e83; --accent2:#a9518e; --bg:#ffffff; --code:#f5f2fa;
+  --codeink:#2c1f43; --label:#4b2e83; --qbg:#f6f2fa;
+}
+*{box-sizing:border-box;}
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  font-size:11.2pt; line-height:1.5;
+}
+.wrap{ max-width:780px; margin:0 auto; padding:48px 40px 72px; }
+
+/* Title page */
+.cover{ text-align:center; padding:90px 0 70px; border-bottom:3px double var(--rule); margin-bottom:8px; }
+.cover .kicker{ font-family:Georgia,serif; letter-spacing:.32em; text-transform:uppercase;
+  font-size:10pt; color:var(--accent2); margin-bottom:26px; }
+.cover h1{ font-size:32pt; line-height:1.1; margin:0 0 10px; font-weight:700; }
+.cover h1 .accent{ color:var(--accent); }
+.cover .sub{ font-size:13pt; color:var(--soft); font-style:italic; margin-top:14px; }
+.cover .meta{ margin-top:40px; font-size:10.5pt; color:var(--soft); letter-spacing:.04em; }
+.cover .rule{ width:70px; height:2px; background:var(--accent2); margin:30px auto 0; }
+
+/* TOC */
+.toc{ padding:34px 0 10px; }
+.toc h2{ font-size:15pt; letter-spacing:.18em; text-transform:uppercase; color:var(--accent);
+  border-bottom:1px solid var(--line); padding-bottom:8px; margin:0 0 14px; }
+.toc ol{ list-style:none; margin:0; padding:0; }
+.toc li{ margin:0; }
+.toc a{ display:flex; gap:12px; align-items:baseline; text-decoration:none; color:var(--ink);
+  padding:5px 0; border-bottom:1px dotted var(--line); }
+.toc .toc-n{ font-family:Georgia,serif; color:var(--accent2); font-weight:700; min-width:26px; }
+.toc .toc-t{ flex:1; }
+
+/* Chapter */
+.chapter{ padding-top:18px; }
+.chap-num{ font-family:Georgia,serif; letter-spacing:.3em; text-transform:uppercase;
+  font-size:10pt; color:var(--accent2); margin-bottom:4px; }
+.chap-title{ font-size:21pt; line-height:1.12; margin:0 0 18px; padding-bottom:14px;
+  border-bottom:3px double var(--rule); font-weight:700; }
+
+h3{ font-size:13.5pt; margin:26px 0 8px; color:var(--ink); font-weight:700;
+  padding-left:12px; border-left:4px solid var(--accent); }
+h4{ font-size:11pt; margin:16px 0 4px; color:var(--label); text-transform:uppercase;
+  letter-spacing:.08em; font-family:Georgia,serif; }
+h4.qhead{ text-transform:none; letter-spacing:0; color:var(--accent2); font-size:11.5pt;
+  border-top:1px solid var(--line); padding-top:12px; }
+
+p{ margin:0 0 9px; text-align:left; }
+ul,ol{ margin:4px 0 12px; padding-left:24px; }
+li{ margin:2px 0; }
+ul{ list-style:square; }
+ul li::marker{ color:var(--accent2); }
+ol li::marker{ color:var(--accent2); font-family:Georgia,serif; }
+
+pre{ background:var(--code); color:var(--codeink); border:1px solid var(--line);
+  border-left:3px solid var(--accent); border-radius:3px; padding:11px 13px;
+  font-family:"SF Mono","DejaVu Sans Mono",Menlo,Consolas,monospace; font-size:9.2pt;
+  line-height:1.42; white-space:pre-wrap; word-break:break-word; margin:8px 0 12px; }
+
+code{ font-family:"SF Mono","DejaVu Sans Mono",Menlo,Consolas,monospace; font-size:9.5pt;
+  background:var(--qbg); border:1px solid var(--line); border-radius:3px; padding:0 3px; }
+
+table{ width:100%; border-collapse:collapse; font-size:9.6pt; margin:8px 0 12px; }
+th,td{ border:1px solid var(--line); padding:5px 8px; text-align:left; vertical-align:top; }
+th{ background:var(--qbg); color:var(--label); }
+
+.mistake{ background:#fbeee0; border:1px solid #e0b47a; border-left:3px solid #b5572a;
+  border-radius:3px; padding:8px 12px; margin:8px 0 12px; font-size:10.2pt; }
+.mistake b{ color:#b5572a; }
+.tip{ background:#f0eaf7; border:1px solid #c9b3e0; border-left:3px solid var(--accent);
+  border-radius:3px; padding:8px 12px; margin:8px 0 12px; font-size:10.2pt; }
+.tip b{ color:var(--accent); }
+
+a{ color:var(--accent); }
+
+/* Print */
+@media print{
+  @page{ size:A4; margin:18mm 16mm; }
+  body{ font-size:10.6pt; }
+  .wrap{ padding:0; max-width:none; }
+  .cover{ height:auto; page-break-after:always; padding-top:60px; }
+  .toc{ page-break-after:always; }
+  .chapter{ page-break-before:always; }
+  h3,h4{ page-break-after:avoid; }
+  pre,ul,ol,table{ page-break-inside:avoid; }
+  a{ color:var(--ink); text-decoration:none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="cover">
+    <div class="kicker">Senior SRE &middot; DevOps &middot; Platform Engineer &middot; Cloud</div>
+    <h1>The <span class="accent">Terraform</span><br>Interview Handbook</h1>
+    <div class="sub">Infrastructure as Code &mdash; state, modules, providers, and the workflows interviewers actually probe</div>
+    <div class="rule"></div>
+    <div class="meta">A complete study guide &middot; 20 chapters &middot; worked HCL examples, interview Q&amp;A, exercises &amp; production scenarios</div>
+  </header>
+
+  <nav class="toc">
+    <h2>Contents</h2>
+    <ol>
+<li><a href="#ch1"><span class="toc-n">1</span><span class="toc-t">Terraform Fundamentals &amp; Infrastructure as Code</span></a></li>
+<li><a href="#ch2"><span class="toc-n">2</span><span class="toc-t">Installation &amp; CLI Workflow</span></a></li>
+<li><a href="#ch3"><span class="toc-n">3</span><span class="toc-t">HCL Syntax &amp; Core Language Concepts</span></a></li>
+<li><a href="#ch4"><span class="toc-n">4</span><span class="toc-t">Providers</span></a></li>
+<li><a href="#ch5"><span class="toc-n">5</span><span class="toc-t">Resources</span></a></li>
+<li><a href="#ch6"><span class="toc-n">6</span><span class="toc-t">Variables &amp; Types</span></a></li>
+<li><a href="#ch7"><span class="toc-n">7</span><span class="toc-t">Outputs &amp; Data Sources</span></a></li>
+<li><a href="#ch8"><span class="toc-n">8</span><span class="toc-t">State Management Fundamentals</span></a></li>
+<li><a href="#ch9"><span class="toc-n">9</span><span class="toc-t">Remote Backends &amp; State Locking</span></a></li>
+<li><a href="#ch10"><span class="toc-n">10</span><span class="toc-t">State Commands &amp; Troubleshooting</span></a></li>
+<li><a href="#ch11"><span class="toc-n">11</span><span class="toc-t">Modules</span></a></li>
+<li><a href="#ch12"><span class="toc-n">12</span><span class="toc-t">Meta-Arguments: count, for_each, depends_on, lifecycle</span></a></li>
+<li><a href="#ch13"><span class="toc-n">13</span><span class="toc-t">Expressions, Functions &amp; Dynamic Blocks</span></a></li>
+<li><a href="#ch14"><span class="toc-n">14</span><span class="toc-t">Workspaces &amp; Environment Strategies</span></a></li>
+<li><a href="#ch15"><span class="toc-n">15</span><span class="toc-t">Provisioners (and Why to Avoid Them)</span></a></li>
+<li><a href="#ch16"><span class="toc-n">16</span><span class="toc-t">Terraform with AWS</span></a></li>
+<li><a href="#ch17"><span class="toc-n">17</span><span class="toc-t">Terraform with Azure</span></a></li>
+<li><a href="#ch18"><span class="toc-n">18</span><span class="toc-t">Terraform with Kubernetes &amp; Helm</span></a></li>
+<li><a href="#ch19"><span class="toc-n">19</span><span class="toc-t">CI/CD, Security &amp; Best Practices</span></a></li>
+<li><a href="#ch20"><span class="toc-n">20</span><span class="toc-t">Troubleshooting &amp; Real-World Production Scenarios (Capstone)</span></a></li>
+    </ol>
+  </nav>
+<section class="chapter" id="ch1">
+<div class="chap-num">Chapter 1</div>
+<h2 class="chap-title">Terraform Fundamentals &amp; Infrastructure as Code</h2>
+
+<p>Interviewers open here to confirm you understand <em>why</em> Terraform exists before drilling into HCL syntax. The strongest answers connect IaC directly to the reliability problems it solves &mdash; configuration drift, unreviewed changes, non-reproducible environments.</p>
+
+<h3>Core Concepts</h3>
+<p>Infrastructure as Code means defining infrastructure in versioned, declarative files instead of clicking through a console or running ad-hoc CLI commands. Terraform is HashiCorp's IaC tool: you declare the desired end state in HCL (HashiCorp Configuration Language), and Terraform computes a plan to reconcile real infrastructure toward it, across any provider (AWS, Azure, GCP, Kubernetes, and hundreds more) through a single, consistent workflow.</p>
+
+<h3 class="qhead">Question 1 &mdash; What problem does Terraform solve that clicking in the AWS/Azure console doesn't?</h3>
+<h4>Answer</h4>
+<p>Console changes are unaudited, unreviewed, and easy to forget or misremember. Terraform makes infrastructure changes reviewable (via pull request), reproducible (the same config produces the same environment), and diffable (<code>terraform plan</code> shows exactly what will change before it happens). It also gives you a single declarative source of truth instead of tribal knowledge of "how prod was actually set up."</p>
+
+<h3 class="qhead">Question 2 &mdash; Declarative vs imperative &mdash; where does Terraform sit?</h3>
+<h4>Answer</h4>
+<p>Terraform is declarative: you describe the desired end state (<code>resource "aws_instance" "web" { ... }</code>) and Terraform figures out the steps to get there &mdash; create, update in place, or destroy-and-recreate. This differs from imperative tools (a Bash script that runs <code>aws ec2 run-instances</code> step by step), which describe the actions, not the outcome, and don't know how to reconcile drift.</p>
+
+<h3 class="qhead">Question 3 &mdash; Terraform vs Ansible &mdash; when would you use which?</h3>
+<h4>Answer</h4>
+<p>Terraform is provisioning-focused: it creates and manages the lifecycle of infrastructure resources (VPCs, VMs, load balancers, DNS records) and tracks their state. Ansible is configuration-focused: it installs packages, manages files, and configures software on machines that already exist, and is typically agentless and idempotent per-run rather than state-tracked. A common production pattern: Terraform provisions the VM, then hands off to Ansible (or cloud-init/user-data) to configure it.</p>
+
+<h3 class="qhead">Question 4 &mdash; Terraform vs CloudFormation / ARM / Bicep?</h3>
+<h4>Answer</h4>
+<p>CloudFormation and ARM/Bicep are cloud-native IaC tools locked to one provider (AWS, Azure respectively). Terraform is provider-agnostic &mdash; the same tool and workflow manage AWS, Azure, GCP, Kubernetes, and on-prem resources through provider plugins, which matters heavily for multi-cloud shops or teams that don't want tooling fragmented per cloud.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Explain in one paragraph, as if to a skeptical engineer, why a team currently doing manual console changes should adopt Terraform.</p>
+<div class="tip"><b>Model answer:</b> "Right now, if prod breaks because of a manual change, nobody can say for certain what changed or when. With Terraform, every infrastructure change goes through a pull request, gets a `plan` showing the exact diff before anything happens, and lives in Git history &mdash; so we get code review, rollback, and an audit trail for infrastructure the same way we already have it for application code."</div>
+
+<div class="mistake"><b>Common mistake:</b> describing Terraform purely as "a scripting tool for creating cloud resources." That undersells it and misses what interviewers are listening for &mdash; the state model and declarative reconciliation, not just resource creation.</div>
+<div class="tip"><b>Interview tip:</b> if asked "what is Terraform" cold, lead with declarative + state-tracked + provider-agnostic in one sentence, then expand. That ordering signals you know what actually distinguishes it from a shell script.</div>
+
+</section>
+<section class="chapter" id="ch2">
+<div class="chap-num">Chapter 2</div>
+<h2 class="chap-title">Installation &amp; CLI Workflow</h2>
+
+<p>The core workflow &mdash; <code>init</code>, <code>plan</code>, <code>apply</code>, <code>destroy</code> &mdash; is assumed knowledge, but interviewers probe what happens under the hood at each step, since that's where real understanding shows.</p>
+
+<h3>Core Workflow</h3>
+<pre>terraform init      # downloads providers/modules, configures the backend
+terraform fmt        # auto-formats .tf files to canonical style
+terraform validate   # checks syntax and internal consistency (no API calls)
+terraform plan       # computes and shows the diff between state and config
+terraform apply      # executes the plan, asks for confirmation
+terraform destroy    # tears down everything Terraform manages in this state
+terraform show        # inspects current state or a saved plan file
+terraform output      # prints output values</pre>
+
+<h3 class="qhead">Question 1 &mdash; What exactly does <code>terraform init</code> do?</h3>
+<h4>Answer</h4>
+<p>It downloads and installs the provider plugins referenced in the config (into <code>.terraform/</code>), initializes the configured backend (local or remote, e.g. S3+DynamoDB), and downloads any referenced modules. It's safe to re-run and is required any time providers, modules, or the backend configuration change.</p>
+
+<h3 class="qhead">Question 2 &mdash; What does <code>terraform plan</code> actually compute?</h3>
+<h4>Answer</h4>
+<p>It refreshes state against real infrastructure (unless <code>-refresh=false</code>), then diffs the desired config against that refreshed state, producing a list of resources to create, update in place, or destroy-and-recreate. Nothing is changed on real infrastructure during <code>plan</code> &mdash; it's read-only against the providers, aside from the state refresh reads.</p>
+
+<h3 class="qhead">Question 3 &mdash; How do you save and later apply an exact plan (important for CI/CD)?</h3>
+<pre>terraform plan -out=tfplan
+# ... review, get approval ...
+terraform apply tfplan   # applies EXACTLY what was planned, no re-diffing</pre>
+<h4>Answer</h4>
+<p>This two-step pattern is the production-safe way to run Terraform in a pipeline: it guarantees what gets approved is exactly what gets applied, with no risk of the underlying infrastructure changing between review and apply causing a different outcome.</p>
+
+<h3 class="qhead">Question 4 &mdash; What's the difference between <code>terraform destroy</code> and removing a resource block from config?</h3>
+<h4>Answer</h4>
+<p><code>terraform destroy</code> tears down everything tracked in the state file. Removing a single resource block from your <code>.tf</code> files and running <code>apply</code> destroys only that resource &mdash; Terraform sees it's no longer declared and plans its deletion. Confusing these two is a common source of "why did it delete everything" incidents.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write the safe CI/CD sequence for a pull-request-triggered Terraform pipeline (plan on PR, apply on merge).</p>
+<pre># On pull request:
+terraform init -input=false
+terraform validate
+terraform plan -out=tfplan -input=false
+# post plan output as a PR comment for review
+
+# On merge to main:
+terraform init -input=false
+terraform apply -input=false tfplan   # apply the exact reviewed plan</pre>
+
+<div class="mistake"><b>Common mistake:</b> running <code>terraform apply</code> directly in CI without a saved plan file, or with <code>-auto-approve</code> on a fresh <code>plan</code> &mdash; this risks applying a different diff than whatever was reviewed if infrastructure drifted between plan and apply.</div>
+<div class="tip"><b>Interview tip:</b> mention <code>-input=false</code> and <code>-lock-timeout</code> for CI usage unprompted &mdash; it signals you've actually wired Terraform into a pipeline, not just run it locally.</div>
+
+</section>
+<section class="chapter" id="ch3">
+<div class="chap-num">Chapter 3</div>
+<h2 class="chap-title">HCL Syntax &amp; Core Language Concepts</h2>
+
+<p>HCL (HashiCorp Configuration Language) fluency is checked quickly and then left behind &mdash; but stumbling on basic block syntax under pressure reads badly, so it's worth being fast here.</p>
+
+<h3>Core Syntax</h3>
+<pre># Block syntax: BLOCK_TYPE "LABEL" "LABEL2" { ARGUMENTS }
+resource "aws_instance" "web" {
+  ami           = "ami-0abcd1234"
+  instance_type = "t3.micro"
+
+  tags = {
+    Name        = "web-server"
+    Environment = "production"
+  }
+}
+
+# Comments
+# single line
+# also single line
+/* multi
+   line */
+
+# Interpolation / references
+resource "aws_eip" "web_ip" {
+  instance = aws_instance.web.id     # references another resource's attribute
+}
+
+# String interpolation
+locals {
+  full_name = "${var.project}-${var.environment}"
+}</pre>
+
+<h3 class="qhead">Question 1 &mdash; What are the top-level block types in Terraform?</h3>
+<h4>Answer</h4>
+<p><code>terraform</code> (settings, required providers, backend), <code>provider</code> (configures a provider), <code>resource</code> (declares a managed infrastructure object), <code>data</code> (reads existing infrastructure without managing it), <code>variable</code> (input), <code>output</code> (exposes a value), <code>locals</code> (computed internal values), and <code>module</code> (calls a reusable module).</p>
+
+<h3 class="qhead">Question 2 &mdash; <code>variable</code> vs <code>locals</code> &mdash; when do you use each?</h3>
+<h4>Answer</h4>
+<p><code>variable</code> blocks are inputs supplied by the caller (CLI flag, <code>.tfvars</code> file, environment variable, or module caller). <code>locals</code> are computed values derived inside the config itself &mdash; for naming conventions, combining variables, or avoiding repetition &mdash; and cannot be set from outside. If a value should be configurable by whoever runs the config, it's a variable; if it's derived logic internal to the module, it's a local.</p>
+
+<h3 class="qhead">Question 3 &mdash; What is the <code>terraform</code> block used for?</h3>
+<pre>terraform {
+  required_version = ">= 1.6.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+
+  backend "s3" {
+    bucket = "my-tfstate-bucket"
+    key    = "prod/network.tfstate"
+    region = "ap-south-1"
+  }
+}</pre>
+<h4>Answer</h4>
+<p>It pins the Terraform CLI version, declares which providers (and version constraints) the config needs, and configures the state backend. Version pinning here is what prevents "works on my machine" drift between team members and CI.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write an HCL snippet that defines a local combining a project name and environment variable, then uses it as a resource tag.</p>
+<pre>variable "project" {
+  type    = string
+  default = "checkout"
+}
+
+variable "environment" {
+  type = string
+}
+
+locals {
+  name_prefix = "${var.project}-${var.environment}"
+}
+
+resource "aws_s3_bucket" "logs" {
+  bucket = "${local.name_prefix}-logs"
+
+  tags = {
+    Name = local.name_prefix
+  }
+}</pre>
+
+<div class="mistake"><b>Common mistake:</b> confusing resource <em>type</em> and <em>name</em> in the block header (<code>resource "aws_instance" "web"</code> &mdash; <code>aws_instance</code> is the type, <code>web</code> is your local name) and then referencing it wrong elsewhere (<code>aws_instance.web.id</code> vs the reversed order).</div>
+<div class="tip"><b>Interview tip:</b> version-pin providers with <code>~></code> (pessimistic constraint operator, e.g. <code>~> 5.0</code> allows 5.x but not 6.0) unprompted when writing any <code>terraform</code> block &mdash; unpinned providers are a real, common cause of "it broke after a routine <code>terraform init</code>" incidents.</div>
+
+</section>
+<section class="chapter" id="ch4">
+<div class="chap-num">Chapter 4</div>
+<h2 class="chap-title">Providers</h2>
+
+<p>Providers are the plugins that translate HCL into actual API calls against AWS, Azure, Kubernetes, etc. Interviewers use this chapter to check you understand multi-provider and multi-region/account setups, which come up constantly in real multi-account AWS/Azure environments.</p>
+
+<h3>Core Concepts</h3>
+<pre>provider "aws" {
+  region = "ap-south-1"
+}
+
+# Multiple configurations of the same provider, via alias
+provider "aws" {
+  alias  = "us_east"
+  region = "us-east-1"
+}
+
+resource "aws_instance" "primary" {
+  provider = aws              # default provider (ap-south-1)
+  # ...
+}
+
+resource "aws_acm_certificate" "cdn_cert" {
+  provider = aws.us_east      # explicitly use the aliased provider — ACM for CloudFront must be us-east-1
+  # ...
+}</pre>
+
+<h3 class="qhead">Question 1 &mdash; What is a provider, mechanically?</h3>
+<h4>Answer</h4>
+<p>A provider is a plugin binary that Terraform Core talks to over an internal RPC protocol. It knows how to translate <code>resource</code>/<code>data</code> blocks of its types into actual API calls (e.g. the AWS provider knows how <code>aws_instance</code> maps to EC2 API calls), and how to read the resulting state back. This plugin architecture is what makes Terraform provider-agnostic at its core.</p>
+
+<h3 class="qhead">Question 2 &mdash; How do you manage resources across multiple AWS accounts or regions in one config?</h3>
+<h4>Answer</h4>
+<p>Declare multiple <code>provider "aws"</code> blocks with different <code>alias</code> values (each with its own <code>region</code> and/or <code>assume_role</code> for cross-account access), then reference the specific one per resource with the <code>provider = aws.alias_name</code> meta-argument. This is the standard pattern for hub-and-spoke or multi-region architectures in one root module.</p>
+
+<h3 class="qhead">Question 3 &mdash; How do you authenticate the AWS/Azure provider without hardcoding credentials?</h3>
+<h4>Answer</h4>
+<p>AWS: rely on the default credential chain &mdash; environment variables, shared credentials file, or (best practice in CI/CD and on EC2/EKS) an IAM role via instance profile or IRSA (IAM Roles for Service Accounts), never hardcoded <code>access_key</code>/<code>secret_key</code> in HCL. Azure: use <code>azurerm</code> provider with a Service Principal via environment variables or Managed Identity, again never inline. Both patterns keep secrets out of version control entirely.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Configure the AWS provider to assume a cross-account role for managing resources in a separate "prod" AWS account from a shared tooling account.</p>
+<pre>provider "aws" {
+  region = "ap-south-1"
+
+  assume_role {
+    role_arn     = "arn:aws:iam::111122223333:role/TerraformDeployRole"
+    session_name = "terraform-prod-deploy"
+  }
+}</pre>
+
+<div class="mistake"><b>Common mistake:</b> hardcoding <code>access_key</code> and <code>secret_key</code> directly in a <code>provider</code> block. Even if the file isn't committed, this pattern encourages copy-pasting credentials between machines and CI systems &mdash; use the default credential chain and IAM roles instead.</div>
+<div class="tip"><b>Interview tip:</b> know that provider version constraints matter as much as Terraform core version constraints &mdash; an unpinned <code>aws</code> provider can introduce breaking changes (renamed arguments, changed defaults) on a routine <code>init</code> in CI with no code change on your end.</div>
+
+</section>
+<section class="chapter" id="ch5">
+<div class="chap-num">Chapter 5</div>
+<h2 class="chap-title">Resources</h2>
+
+<p>The <code>resource</code> block is the fundamental unit of Terraform &mdash; anything Terraform creates and manages the lifecycle of. This chapter covers the mechanics interviewers probe: dependency resolution, resource addressing, and the create/update/replace decision.</p>
+
+<h3>Core Concepts</h3>
+<pre>resource "aws_security_group" "web" {
+  name        = "web-sg"
+  description = "Allow HTTP/HTTPS"
+  vpc_id      = aws_vpc.main.id      # implicit dependency — Terraform infers ordering
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_instance" "web" {
+  ami                    = data.aws_ami.latest.id
+  instance_type          = "t3.micro"
+  vpc_security_group_ids = [aws_security_group.web.id]
+
+  depends_on = [aws_internet_gateway.main]   # explicit dependency when no attribute reference exists
+}</pre>
+
+<h3 class="qhead">Question 1 &mdash; How does Terraform know the order to create resources in?</h3>
+<h4>Answer</h4>
+<p>By default, Terraform builds a dependency graph from implicit references &mdash; any time one resource's argument references another resource's attribute (e.g. <code>vpc_id = aws_vpc.main.id</code>), Terraform knows to create the VPC first. Resources with no relationship to each other are created in parallel for speed. Use <code>depends_on</code> only when a dependency exists that isn't expressed through an attribute reference (e.g. IAM policy propagation timing).</p>
+
+<h3 class="qhead">Question 2 &mdash; What triggers an in-place update vs a destroy-and-recreate?</h3>
+<h4>Answer</h4>
+<p>It depends on the specific argument and provider &mdash; each resource schema marks each argument as either updatable in place or <code>ForceNew</code> (requires replacement). Changing an EC2 instance's <code>tags</code> is an in-place update; changing its <code>availability_zone</code> forces replacement, since AZ can't be changed on a running instance. <code>terraform plan</code> always shows which: <code>~</code> for update in place, <code>-/+</code> for destroy-and-recreate.</p>
+
+<h3 class="qhead">Question 3 &mdash; What is a resource address, and why does it matter?</h3>
+<h4>Answer</h4>
+<p>The address is <code>resource_type.resource_name</code> (or <code>module.name.resource_type.resource_name</code> inside a module) &mdash; it's the unique key Terraform uses to track a resource in state. It matters for targeted operations (<code>terraform apply -target=aws_instance.web</code>), for <code>terraform state mv</code> during refactors, and because renaming a resource block changes its address, which Terraform sees as destroy-old + create-new unless you use a <code>moved</code> block.</p>
+
+<h3 class="qhead">Question 4 &mdash; What does the <code>lifecycle</code> block's <code>create_before_destroy</code> do, and why does it matter for zero-downtime changes?</h3>
+<pre>resource "aws_launch_template" "app" {
+  name_prefix = "app-"
+  image_id    = var.ami_id
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}</pre>
+<h4>Answer</h4>
+<p>By default, when a resource must be replaced, Terraform destroys the old one first, then creates the new one &mdash; causing downtime for anything depending on it. <code>create_before_destroy = true</code> reverses that: the new resource is created first, dependent resources are re-pointed, and only then is the old one destroyed. Essential for things like launch templates behind an ASG, or any resource fronting live traffic.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write a security group and an EC2 instance that references it, using implicit dependency (no explicit <code>depends_on</code>).</p>
+<pre>resource "aws_security_group" "app" {
+  name   = "app-sg"
+  vpc_id = aws_vpc.main.id
+}
+
+resource "aws_instance" "app" {
+  ami                    = "ami-0abcd1234"
+  instance_type          = "t3.small"
+  vpc_security_group_ids = [aws_security_group.app.id]   # implicit dependency
+}</pre>
+
+<div class="mistake"><b>Common mistake:</b> reaching for <code>depends_on</code> by default instead of letting Terraform infer dependencies from attribute references. Excessive explicit <code>depends_on</code> makes the graph harder to reason about and can hide real bugs in how resources actually relate.</div>
+<div class="tip"><b>Interview tip:</b> when asked about zero-downtime infrastructure changes, <code>create_before_destroy</code> is the answer interviewers are fishing for &mdash; mention it even if the question is phrased generically ("how do you avoid downtime during a Terraform change").</div>
+
+</section>
+<section class="chapter" id="ch6">
+<div class="chap-num">Chapter 6</div>
+<h2 class="chap-title">Variables &amp; Types</h2>
+
+<p>Variables are how configs stay reusable across environments. Interviewers check whether you know the precedence order and use validation/types deliberately, not just <code>type = any</code> everywhere.</p>
+
+<h3>Core Concepts</h3>
+<pre>variable "instance_type" {
+  type        = string
+  default     = "t3.micro"
+  description = "EC2 instance type for the app tier"
+}
+
+variable "allowed_cidrs" {
+  type    = list(string)
+  default = ["10.0.0.0/8"]
+}
+
+variable "tags" {
+  type    = map(string)
+  default = {}
+}
+
+variable "environment" {
+  type = string
+
+  validation {
+    condition     = contains(["dev", "staging", "prod"], var.environment)
+    error_message = "environment must be one of: dev, staging, prod."
+  }
+}
+
+variable "db_password" {
+  type      = string
+  sensitive = true    # hides value from plan/apply output and logs
+}</pre>
+
+<h3 class="qhead">Question 1 &mdash; What is the variable precedence order (highest to lowest)?</h3>
+<h4>Answer</h4>
+<ol>
+<li>Command-line <code>-var</code> or <code>-var-file</code> flags</li>
+<li><code>*.auto.tfvars</code> / <code>*.auto.tfvars.json</code> files (alphabetical order)</li>
+<li><code>terraform.tfvars</code> / <code>terraform.tfvars.json</code></li>
+<li><code>TF_VAR_name</code> environment variables</li>
+<li>The <code>default</code> value in the <code>variable</code> block (lowest priority)</li>
+</ol>
+<p>In practice: CLI flags win, environment variables are a convenient CI mechanism, and <code>.tfvars</code> files are the standard way to separate per-environment values (<code>prod.tfvars</code>, <code>staging.tfvars</code>).</p>
+
+<h3 class="qhead">Question 2 &mdash; What does marking a variable <code>sensitive = true</code> actually do (and not do)?</h3>
+<h4>Answer</h4>
+<p>It redacts the value from CLI output (<code>plan</code>/<code>apply</code> show <code>(sensitive value)</code>) and from being displayed in error messages. It does <b>not</b> encrypt the value in the state file &mdash; sensitive values are still stored in plaintext in <code>terraform.tfstate</code>, which is why state must be stored in an encrypted, access-controlled backend regardless of variable sensitivity settings.</p>
+
+<h3 class="qhead">Question 3 &mdash; Why use <code>validation</code> blocks instead of just documenting constraints?</h3>
+<h4>Answer</h4>
+<p>Validation blocks fail fast at <code>plan</code> time with a clear error message, before any API calls happen &mdash; catching a typo'd environment name or an out-of-range value immediately instead of after a partial apply or a downstream resource failure. This is a cheap, high-value guardrail, especially in shared/team modules.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Define a variable for an instance count that must be between 1 and 10, with a validation block.</p>
+<pre>variable "instance_count" {
+  type    = number
+  default = 2
+
+  validation {
+    condition     = var.instance_count >= 1 && var.instance_count <= 10
+    error_message = "instance_count must be between 1 and 10."
+  }
+}</pre>
+
+<div class="mistake"><b>Common mistake:</b> assuming <code>sensitive = true</code> protects a secret end-to-end. It only redacts CLI output &mdash; the value is still in plaintext state. Real secrets belong in a secrets manager (Vault, AWS Secrets Manager, Azure Key Vault) referenced via data source, not passed as a plain Terraform variable at all where avoidable.</p></div>
+<div class="tip"><b>Interview tip:</b> if asked how you manage per-environment configuration, describe <code>*.tfvars</code> files per environment (<code>prod.tfvars</code>, <code>staging.tfvars</code>) passed with <code>-var-file</code>, combined with workspaces or separate state files &mdash; this is the standard, expected answer.</div>
+
+</section>
+<section class="chapter" id="ch7">
+<div class="chap-num">Chapter 7</div>
+<h2 class="chap-title">Outputs &amp; Data Sources</h2>
+
+<p>Outputs expose values for humans or other configs to consume; data sources read existing infrastructure Terraform doesn't manage. Both come up constantly in module design and cross-stack references.</p>
+
+<h3>Core Concepts</h3>
+<pre>output "instance_public_ip" {
+  value       = aws_instance.web.public_ip
+  description = "Public IP of the web server"
+}
+
+output "db_connection_string" {
+  value     = "postgres://${aws_db_instance.main.endpoint}/app"
+  sensitive = true    # hides the value in CLI output
+}
+
+# Data source — reads existing infrastructure, doesn't manage it
+data "aws_ami" "latest_amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-*-x86_64"]
+  }
+}
+
+resource "aws_instance" "web" {
+  ami = data.aws_ami.latest_amazon_linux.id   # use the looked-up value
+}</pre>
+
+<h3 class="qhead">Question 1 &mdash; Resource vs data source &mdash; what's the difference?</h3>
+<h4>Answer</h4>
+<p>A <code>resource</code> block is created, updated, and destroyed by Terraform &mdash; it's in the state and Terraform owns its lifecycle. A <code>data</code> block only <b>reads</b> information about something that already exists (looked up via provider API), and is never created or destroyed by Terraform. Use data sources for referencing shared/pre-existing infrastructure (an existing VPC, the latest AMI, an existing Route53 zone) that this config shouldn't own.</p>
+
+<h3 class="qhead">Question 2 &mdash; How do you share outputs between separate Terraform states (e.g. a network stack and an app stack)?</h3>
+<h4>Answer</h4>
+<p>Two common patterns: (1) <code>terraform_remote_state</code> data source, which reads another state file's outputs directly (requires read access to that backend); (2) writing outputs to a shared parameter store (AWS SSM Parameter Store, Azure App Configuration) that the consuming stack reads via a data source. Pattern 2 is generally preferred at scale &mdash; it decouples the stacks so the consumer doesn't need direct backend access to the producer's state.</p>
+<pre>data "terraform_remote_state" "network" {
+  backend = "s3"
+  config = {
+    bucket = "my-tfstate-bucket"
+    key    = "prod/network.tfstate"
+    region = "ap-south-1"
+  }
+}
+
+resource "aws_instance" "app" {
+  subnet_id = data.terraform_remote_state.network.outputs.private_subnet_id
+}</pre>
+
+<h3 class="qhead">Question 3 &mdash; Why mark an output <code>sensitive</code>, and what does it actually protect?</h3>
+<h4>Answer</h4>
+<p>Same caveat as sensitive variables: it hides the value from <code>terraform output</code> and <code>apply</code> CLI output, but the value is still stored in plaintext in state. It's a UX/accidental-exposure guard (stops a value leaking into CI logs on screen), not encryption.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Look up the default VPC via data source and output its ID and CIDR block.</p>
+<pre>data "aws_vpc" "default" {
+  default = true
+}
+
+output "default_vpc_id" {
+  value = data.aws_vpc.default.id
+}
+
+output "default_vpc_cidr" {
+  value = data.aws_vpc.default.cidr_block
+}</pre>
+
+<div class="mistake"><b>Common mistake:</b> using a <code>resource</code> block to "import" infrastructure you don't actually want Terraform to manage or destroy &mdash; e.g. accidentally re-declaring an existing production VPC as a managed resource, risking a future <code>destroy</code> tearing it down. If you only need to reference something, use a <code>data</code> source.</div>
+<div class="tip"><b>Interview tip:</b> know <code>terraform_remote_state</code> by name &mdash; it's the standard mechanism for cross-stack references and comes up in almost every "how do you structure multiple Terraform configs" question.</div>
+
+</section>
+<section class="chapter" id="ch8">
+<div class="chap-num">Chapter 8</div>
+<h2 class="chap-title">State Management Fundamentals</h2>
+
+<p>State is the single most-tested Terraform topic in senior interviews. It's the thing that, when misunderstood, causes real production incidents &mdash; so interviewers spend real time here.</p>
+
+<h3>Core Concepts</h3>
+<p>Terraform state (<code>terraform.tfstate</code>) is a JSON file that maps every resource in your config to the real-world object it represents (e.g. <code>aws_instance.web</code> &rarr; EC2 instance <code>i-0abc123</code>) and caches all of that resource's attributes. State is what makes Terraform fast (it doesn't need to query every provider API on every <code>plan</code>) and is what allows Terraform to detect drift and compute diffs at all. Without state, Terraform would have no way to know a resource it previously created still exists, or what its current values are.</p>
+
+<h3 class="qhead">Question 1 &mdash; Why does Terraform need state at all &mdash; why not just query the cloud provider live every time?</h3>
+<h4>Answer</h4>
+<p>Three reasons: performance (querying every resource live on every command would be slow at scale), mapping (some resources have no unique, discoverable identifier that ties them back to a specific config block without a stored reference), and metadata (state stores things not present in the live resource, like the dependency graph and resource addresses). State is Terraform's source of truth for "what do I currently manage and what does it look like."</p>
+
+<h3 class="qhead">Question 2 &mdash; What is configuration drift, and how does Terraform detect it?</h3>
+<h4>Answer</h4>
+<p>Drift is when real infrastructure no longer matches what's in state &mdash; typically caused by a manual console change, another tool, or an out-of-band API call. On <code>terraform plan</code> (unless <code>-refresh=false</code>), Terraform refreshes state by querying the actual provider APIs and compares that against both the stored state and the desired config, surfacing drift as part of the diff.</p>
+
+<h3 class="qhead">Question 3 &mdash; Why is storing state locally (<code>terraform.tfstate</code> in the repo or on a laptop) dangerous for a team?</h3>
+<h4>Answer</h4>
+<p>Local state means no locking (two people running <code>apply</code> simultaneously can corrupt state or race), no shared source of truth (everyone's local copy can drift from each other), it often contains secrets in plaintext that shouldn't be committed to Git, and there's no backup/versioning if a laptop is lost. This is why any real team setup uses a remote backend (Chapter 9) from day one.</p>
+
+<h3 class="qhead">Question 4 &mdash; What's the difference between <code>terraform refresh</code>, <code>plan</code>, and <code>apply</code> with respect to state?</h3>
+<h4>Answer</h4>
+<p><code>refresh</code> (now folded into <code>plan</code>/<code>apply</code> by default, or run standalone as <code>terraform apply -refresh-only</code>) updates state to match real infrastructure without changing any config or infrastructure. <code>plan</code> refreshes, then diffs against config. <code>apply</code> refreshes, diffs, then executes changes and writes the new state.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Explain what happens, step by step, if someone manually deletes an EC2 instance in the AWS console that Terraform manages, and then someone runs <code>terraform plan</code>.</p>
+<div class="tip"><b>Model answer:</b> "On <code>plan</code>, Terraform refreshes state and discovers the instance no longer exists in AWS. It updates its in-memory understanding to reflect that, then diffs against the config, which still declares the instance &mdash; so the plan shows the instance will be <b>created</b> (not updated), since as far as Terraform's refreshed state is concerned, it doesn't currently exist. Applying that plan recreates it."</div>
+
+<div class="mistake"><b>Common mistake:</b> treating the state file as unimportant or disposable ("we can always re-import"). Losing state without a backup means Terraform loses all mapping to existing resources &mdash; re-importing everything by hand at scale is a serious, error-prone recovery effort, not a quick fix.</div>
+<div class="tip"><b>Interview tip:</b> if asked "what is Terraform state," don't just define it &mdash; immediately connect it to why remote backends and locking exist. That's the follow-up question coming next anyway, and answering it pre-emptively signals depth.</div>
+
+</section>
+<section class="chapter" id="ch9">
+<div class="chap-num">Chapter 9</div>
+<h2 class="chap-title">Remote Backends &amp; State Locking</h2>
+
+<p>This is the practical, production half of the state story &mdash; how a real team shares state safely. Expect a live-whiteboard question here in almost any senior interview.</p>
+
+<h3>Core Concepts</h3>
+<pre>terraform {
+  backend "s3" {
+    bucket         = "my-company-tfstate"
+    key            = "prod/network/terraform.tfstate"
+    region         = "ap-south-1"
+    dynamodb_table = "terraform-locks"   # state locking via DynamoDB
+    encrypt        = true
+  }
+}
+
+# Azure equivalent
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "tfstate-rg"
+    storage_account_name = "tfstatestorage"
+    container_name        = "tfstate"
+    key                    = "prod/network.terraform.tfstate"
+  }
+}</pre>
+
+<h3 class="qhead">Question 1 &mdash; What does a remote backend give you that local state doesn't?</h3>
+<h4>Answer</h4>
+<p>A single shared source of truth the whole team and CI read from, state locking (preventing concurrent <code>apply</code> operations from corrupting state), versioning/history if the backend supports it (S3 bucket versioning), and encryption at rest for a file that may contain secrets. It turns Terraform from a single-operator tool into something a team can safely run concurrently.</p>
+
+<h3 class="qhead">Question 2 &mdash; How does state locking actually work with S3 + DynamoDB?</h3>
+<h4>Answer</h4>
+<p>Before any operation that could write state (<code>plan</code> acquires a read-ish lock in newer versions; <code>apply</code> always locks), Terraform writes a lock record to the DynamoDB table keyed by the state file's path. If another operation tries to run concurrently, it sees the existing lock and fails fast with a "state locked" error instead of racing. The lock is released when the operation completes or is interrupted cleanly.</p>
+
+<h3 class="qhead">Question 3 &mdash; A teammate's <code>terraform apply</code> got killed (Ctrl-C, CI timeout) and now every apply fails with "Error acquiring the state lock." What do you do?</h3>
+<h4>Answer</h4>
+<p>First confirm no other apply is actually still running (check CI, ask the team) &mdash; force-unlocking a genuinely active operation corrupts state. Once confirmed safe, run <code>terraform force-unlock &lt;LOCK_ID&gt;</code> (the lock ID is printed in the error message). This is a manual, deliberate action precisely because it bypasses the safety mechanism &mdash; never script it to run automatically.</p>
+<pre>terraform force-unlock 8f14e45f-ceea-4d16-8f1a-example1234</pre>
+
+<h3 class="qhead">Question 4 &mdash; What backends are commonly used per cloud, and is DynamoDB locking still needed with S3?</h3>
+<h4>Answer</h4>
+<p>AWS: S3 for state storage + DynamoDB for locking (as of Terraform 1.x, native S3 locking via conditional writes is being introduced but DynamoDB is still the widely-deployed standard). Azure: <code>azurerm</code> backend using Blob Storage, which has built-in lease-based locking &mdash; no separate lock table needed. GCP: Google Cloud Storage backend, similarly with built-in locking. Terraform Cloud/Enterprise is a fully managed backend with locking, a UI, and policy enforcement (Sentinel) built in.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write the S3 backend configuration for a team's "staging" environment, with state locking and encryption.</p>
+<pre>terraform {
+  backend "s3" {
+    bucket         = "acme-corp-tfstate"
+    key            = "staging/app/terraform.tfstate"
+    region         = "ap-south-1"
+    dynamodb_table = "acme-corp-tf-locks"
+    encrypt        = true
+  }
+}</pre>
+
+<div class="mistake"><b>Common mistake:</b> force-unlocking state as a reflex "fix" for a stuck pipeline without first confirming nothing else is genuinely running. If you force-unlock while an apply is actually mid-flight, you can get two concurrent writes to state and real corruption.</div>
+<div class="tip"><b>Interview tip:</b> mention state locking unprompted whenever asked "how do you set up Terraform for a team" &mdash; it's one of the most senior-signaling details to volunteer, since it's exactly the kind of thing that only comes up after you've been burned by a race condition once.</div>
+
+</section>
+<section class="chapter" id="ch10">
+<div class="chap-num">Chapter 10</div>
+<h2 class="chap-title">State Commands &amp; Troubleshooting</h2>
+
+<p>Hands-on state surgery &mdash; the commands you reach for when state and reality have diverged, or when refactoring config without wanting to destroy and recreate real resources.</p>
+
+<h3>Core Commands</h3>
+<pre>terraform state list                          # list all resources tracked in state
+terraform state show aws_instance.web         # show one resource's full attributes
+terraform state mv aws_instance.web aws_instance.app   # rename/move within state (no infra change)
+terraform state rm aws_instance.old           # stop tracking a resource (does NOT destroy it)
+terraform import aws_instance.web i-0abc123   # bring an existing resource under management
+terraform state pull > state.json             # download current state
+terraform state push state.json                # upload modified state (dangerous — last resort)</pre>
+
+<h3 class="qhead">Question 1 &mdash; You renamed a resource block in your .tf files (e.g. <code>aws_instance.web</code> &rarr; <code>aws_instance.app</code>). What happens if you just run <code>apply</code>, and how do you avoid it?</h3>
+<h4>Answer</h4>
+<p>Terraform sees the old address gone and a new address appeared, so it plans to <b>destroy</b> the old resource and <b>create</b> a new one &mdash; even though nothing about the actual infrastructure needs to change. To avoid the unnecessary destroy/recreate (and potential downtime/data loss), use <code>terraform state mv aws_instance.web aws_instance.app</code> first, which updates the state mapping without touching real infrastructure. Modern Terraform (1.1+) also supports a declarative <code>moved</code> block in config for the same purpose, which is preferred since it's version-controlled and self-documenting.</p>
+<pre>moved {
+  from = aws_instance.web
+  to   = aws_instance.app
+}</pre>
+
+<h3 class="qhead">Question 2 &mdash; What does <code>terraform import</code> do, and what's its main limitation?</h3>
+<h4>Answer</h4>
+<p>It brings an already-existing resource (created outside Terraform, e.g. manually in the console) under Terraform's management by adding it to state, mapped to a resource block you must already have written in config. Its main limitation: <code>import</code> only populates state &mdash; it does not generate the matching HCL for you (older versions at least; newer Terraform has experimental <code>-generate-config-out</code> to help). You must write a resource block whose arguments closely match the real resource's current values, or the next <code>plan</code> shows a large diff.</p>
+
+<h3 class="qhead">Question 3 &mdash; What's the difference between <code>terraform state rm</code> and <code>terraform destroy -target</code>?</h3>
+<h4>Answer</h4>
+<p><code>state rm</code> removes a resource from Terraform's tracking without touching the real infrastructure at all &mdash; the resource keeps running, Terraform just "forgets" about it. <code>destroy -target</code> actually deletes the real resource. Use <code>state rm</code> when you want Terraform to stop managing something (e.g. handing it off to another team/tool) but keep it running.</p>
+
+<h3 class="qhead">Question 4 &mdash; State file appears corrupted or has a manual bad edit. Recovery steps?</h3>
+<h4>Answer</h4>
+<p>First, don't panic-apply. Pull the current state (<code>terraform state pull</code>), and if the backend has versioning (S3 bucket versioning is the standard setup), restore the last known-good version. If no backup exists, reconstruct via <code>terraform import</code> for each resource, one at a time, verifying with <code>plan</code> after each that the diff is empty (or expected). This is exactly the pain remote backend versioning exists to prevent &mdash; a good answer here loops back to "this is why we always enable state versioning."</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> A security group was created manually in the AWS console and now needs to be brought under Terraform management. Walk through the steps.</p>
+<pre># 1. Write the matching resource block in config first
+resource "aws_security_group" "legacy_sg" {
+  name   = "legacy-app-sg"
+  vpc_id = "vpc-0abc1234"
+  # ... arguments matching the real SG's current config
+}
+
+# 2. Import it into state
+terraform import aws_security_group.legacy_sg sg-0def5678
+
+# 3. Verify no unexpected diff
+terraform plan
+# review carefully — any diff means the HCL doesn't fully match reality yet</pre>
+
+<div class="mistake"><b>Common mistake:</b> renaming a resource in config and just running <code>apply</code>, causing an unwanted destroy-and-recreate of something like a database or an EC2 instance with local state &mdash; a genuinely damaging production mistake that <code>state mv</code> or a <code>moved</code> block would have prevented entirely.</div>
+<div class="tip"><b>Interview tip:</b> mention that <code>import</code> only updates state, not HCL, as a known limitation unprompted &mdash; it shows you've actually used it, since that gap trips up almost everyone the first time.</div>
+
+</section>
+<section class="chapter" id="ch11">
+<div class="chap-num">Chapter 11</div>
+<h2 class="chap-title">Modules</h2>
+
+<p>Modules are how Terraform scales beyond a single team's single config &mdash; reusable, versioned building blocks. Interviewers use this chapter to check design judgment, not just syntax.</p>
+
+<h3>Core Concepts</h3>
+<pre># modules/vpc/main.tf — a reusable module
+variable "cidr_block" { type = string }
+variable "name"       { type = string }
+
+resource "aws_vpc" "this" {
+  cidr_block = var.cidr_block
+  tags       = { Name = var.name }
+}
+
+output "vpc_id" {
+  value = aws_vpc.this.id
+}
+
+# root module — calling it
+module "prod_network" {
+  source     = "./modules/vpc"
+  cidr_block = "10.0.0.0/16"
+  name       = "prod"
+}
+
+module "staging_network" {
+  source     = "./modules/vpc"
+  cidr_block = "10.1.0.0/16"
+  name       = "staging"
+}
+
+resource "aws_instance" "app" {
+  subnet_id = module.prod_network.vpc_id   # reference a module's output
+}</pre>
+
+<h3 class="qhead">Question 1 &mdash; What makes a well-designed reusable module?</h3>
+<h4>Answer</h4>
+<p>Clear, minimal required inputs with sensible defaults for optional ones; outputs that expose everything a caller is likely to need to reference (IDs, ARNs) without over-exposing internals; no hardcoded values that should be configurable (region, naming, environment); and no assumptions about what calls it (avoid baking in a specific provider alias or backend inside a reusable module &mdash; that belongs in the root). A good module is boring and predictable to use.</p>
+
+<h3 class="qhead">Question 2 &mdash; Where can module sources come from?</h3>
+<h4>Answer</h4>
+<p>Local paths (<code>./modules/vpc</code>), the public Terraform Registry (<code>terraform-aws-modules/vpc/aws</code>), a private registry (Terraform Cloud/Enterprise), or directly from Git (<code>git::https://github.com/org/repo.git//path?ref=v1.2.0</code>). Production setups typically pin Git or registry modules to a specific tagged version &mdash; never an unpinned branch &mdash; for the same reproducibility reason providers are version-pinned.</p>
+
+<h3 class="qhead">Question 3 &mdash; When would you use a public registry module (e.g. <code>terraform-aws-modules/vpc/aws</code>) vs writing your own?</h3>
+<h4>Answer</h4>
+<p>Well-maintained public modules for common, well-understood patterns (VPC, EKS cluster, RDS) save significant time and encode a lot of hard-won edge-case handling &mdash; generally worth using for standard infrastructure. Write your own when the pattern is specific to your org's conventions (naming, tagging policy, security baselines) or when you need tight control over exactly what gets created for compliance reasons. A common middle ground: wrap a public module inside a thin internal module that enforces your org's required tags/naming.</p>
+
+<h3 class="qhead">Question 4 &mdash; How do you structure a repo with multiple environments sharing common modules?</h3>
+<pre>repo/
+├── modules/
+│   ├── vpc/
+│   ├── eks/
+│   └── rds/
+├── environments/
+│   ├── dev/
+│   │   ├── main.tf        # calls modules with dev-specific inputs
+│   │   └── backend.tf     # dev's own state file
+│   ├── staging/
+│   └── prod/
+│       ├── main.tf
+│       └── backend.tf     # separate state — blast radius isolation</pre>
+<h4>Answer</h4>
+<p>Shared logic lives once in <code>modules/</code>; each environment is its own root module with its own state file and backend key, calling the shared modules with different inputs. This isolates blast radius &mdash; a mistake in a <code>dev</code> apply can't touch <code>prod</code> state &mdash; while avoiding duplicated resource logic.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write a minimal reusable module for an S3 bucket with versioning and encryption enabled, then call it twice for two different buckets.</p>
+<pre># modules/s3-bucket/main.tf
+variable "bucket_name" { type = string }
+
+resource "aws_s3_bucket" "this" {
+  bucket = var.bucket_name
+}
+
+resource "aws_s3_bucket_versioning" "this" {
+  bucket = aws_s3_bucket.this.id
+  versioning_configuration { status = "Enabled" }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
+  bucket = aws_s3_bucket.this.id
+  rule {
+    apply_server_side_encryption_by_default { sse_algorithm = "AES256" }
+  }
+}
+
+output "bucket_arn" { value = aws_s3_bucket.this.arn }
+
+# root module
+module "logs_bucket" {
+  source      = "./modules/s3-bucket"
+  bucket_name = "acme-app-logs"
+}
+
+module "backups_bucket" {
+  source      = "./modules/s3-bucket"
+  bucket_name = "acme-app-backups"
+}</pre>
+
+<div class="mistake"><b>Common mistake:</b> pointing a production config at an unpinned Git module reference (no <code>?ref=</code>, or <code>ref=main</code>) &mdash; the module's behavior can change under you on the next <code>init</code> with zero visibility, exactly like an unpinned provider.</div>
+<div class="tip"><b>Interview tip:</b> if asked to design a module, ask (or state as an assumption) who the consumers are and how many environments it needs to support &mdash; that framing question itself signals you think about modules as a product with users, not just a refactor of duplicated code.</div>
+
+</section>
+<section class="chapter" id="ch12">
+<div class="chap-num">Chapter 12</div>
+<h2 class="chap-title">Meta-Arguments: count, for_each, depends_on, lifecycle</h2>
+
+<p>These four meta-arguments show up in nearly every real config. The <code>count</code> vs <code>for_each</code> choice specifically is one of the most common "gotcha" interview questions because getting it wrong causes real destroy/recreate incidents.</p>
+
+<h3>Core Concepts</h3>
+<pre># count — index-based, good for identical N copies
+resource "aws_instance" "web" {
+  count         = 3
+  ami           = var.ami_id
+  instance_type = "t3.micro"
+  tags          = { Name = "web-${count.index}" }
+}
+# addresses: aws_instance.web[0], aws_instance.web[1], aws_instance.web[2]
+
+# for_each — key-based, good for a map/set of distinct items
+resource "aws_instance" "web" {
+  for_each      = toset(["web-a", "web-b", "web-c"])
+  ami           = var.ami_id
+  instance_type = "t3.micro"
+  tags          = { Name = each.key }
+}
+# addresses: aws_instance.web["web-a"], aws_instance.web["web-b"], ...</pre>
+
+<h3 class="qhead">Question 1 &mdash; Why is <code>for_each</code> generally preferred over <code>count</code> for a list of distinct named resources?</h3>
+<h4>Answer</h4>
+<p>With <code>count</code>, resources are tracked by numeric index. If you remove an item from the middle of the list (or the list's order changes), every subsequent index shifts &mdash; Terraform sees this as destroying and recreating every resource after that point, even though most of them didn't logically change. With <code>for_each</code>, resources are tracked by a stable key (from a map or set), so removing one item only affects that one resource; everything else is untouched. This difference is a real, common cause of unintended production destroy/recreate.</p>
+
+<h3 class="qhead">Question 2 &mdash; When is <code>count</code> still the right choice?</h3>
+<h4>Answer</h4>
+<p>When you genuinely want N identical, interchangeable copies of something and don't need to reference them individually by a meaningful name &mdash; or for the common conditional-resource pattern (<code>count = var.create_resource ? 1 : 0</code>) to optionally create a single resource.</p>
+<pre>resource "aws_eip" "nat" {
+  count = var.enable_nat_gateway ? 1 : 0
+  vpc   = true
+}</pre>
+
+<h3 class="qhead">Question 3 &mdash; What does the <code>lifecycle</code> block's <code>prevent_destroy</code> do?</h3>
+<pre>resource "aws_db_instance" "prod" {
+  # ...
+  lifecycle {
+    prevent_destroy = true
+  }
+}</pre>
+<h4>Answer</h4>
+<p>It makes Terraform refuse to destroy that specific resource &mdash; any plan that would destroy it (including via <code>terraform destroy</code> or a forced replacement) fails with an error instead of proceeding. It's a guardrail for genuinely critical, stateful resources like production databases, where an accidental destroy would be catastrophic and hard to reverse.</p>
+
+<h3 class="qhead">Question 4 &mdash; What does <code>ignore_changes</code> do, and when is it appropriate?</h3>
+<pre>resource "aws_instance" "app" {
+  # ...
+  lifecycle {
+    ignore_changes = [tags["LastDeployedBy"]]   # or ignore_changes = all
+  }
+}</pre>
+<h4>Answer</h4>
+<p>It tells Terraform to stop showing/planning changes for specific arguments even if they drift from config &mdash; useful when something else legitimately manages that field outside Terraform (e.g. an autoscaler adjusting <code>desired_capacity</code>, or a CI pipeline tagging deploys). Overusing it is a smell: it means either Terraform shouldn't own that resource fully, or two systems are fighting over the same field.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Rewrite a <code>count</code>-based set of three named S3 buckets to use <code>for_each</code> instead, to avoid index-shift issues.</p>
+<pre># Before (fragile)
+resource "aws_s3_bucket" "app" {
+  count  = 3
+  bucket = ["logs-bucket", "backups-bucket", "assets-bucket"][count.index]
+}
+
+# After (stable)
+resource "aws_s3_bucket" "app" {
+  for_each = toset(["logs-bucket", "backups-bucket", "assets-bucket"])
+  bucket   = each.value
+}</pre>
+
+<div class="mistake"><b>Common mistake:</b> using <code>count</code> with a list that can be reordered or have items removed from the middle &mdash; the classic cause of a plan that unexpectedly wants to destroy and recreate several unrelated-looking resources.</div>
+<div class="tip"><b>Interview tip:</b> if a question describes "we removed one item from a list of resources and Terraform wanted to recreate everything after it" &mdash; that's a <code>count</code> vs <code>for_each</code> question in disguise. Naming that pattern immediately is a strong signal.</div>
+
+</section>
+<section class="chapter" id="ch13">
+<div class="chap-num">Chapter 13</div>
+<h2 class="chap-title">Expressions, Functions &amp; Dynamic Blocks</h2>
+
+<p>HCL's built-in functions and dynamic blocks are what let modules stay DRY and flexible. Interviewers use these to check comfort with the language beyond static resource declarations.</p>
+
+<h3>Core Concepts — Common Functions</h3>
+<pre>length(["a", "b", "c"])              # 3
+concat(["a"], ["b", "c"])              # ["a", "b", "c"]
+merge({a=1}, {b=2})                     # {a=1, b=2}
+lookup(var.map, "key", "default")       # safe map lookup with fallback
+coalesce(var.a, var.b, "fallback")      # first non-null value
+join(",", ["a", "b", "c"])              # "a,b,c"
+split(",", "a,b,c")                     # ["a", "b", "c"]
+for s in var.subnets : s.id             # for expression (list comprehension style)
+{ for k, v in var.map : k => upper(v) } # for expression producing a map
+try(var.optional.value, "default")      # safe access, avoids errors on nulls
+templatefile("user-data.tpl", { name = var.name })  # render a template file</pre>
+
+<h3 class="qhead">Question 1 &mdash; What is a <code>for</code> expression, and give a practical example</h3>
+<pre>variable "subnets" {
+  type = list(object({ id = string, az = string }))
+}
+
+# Produce just the list of subnet IDs
+locals {
+  subnet_ids = [for s in var.subnets : s.id]
+}
+
+# Produce a map keyed by AZ
+locals {
+  subnets_by_az = { for s in var.subnets : s.az => s.id }
+}</pre>
+<h4>Answer</h4>
+<p>A <code>for</code> expression transforms a list or map into another list or map inline, similar to a Python list/dict comprehension. Extremely common for reshaping module inputs/outputs without a separate resource or data source.</p>
+
+<h3 class="qhead">Question 2 &mdash; What is a <code>dynamic</code> block, and when do you need one?</h3>
+<pre>resource "aws_security_group" "app" {
+  name = "app-sg"
+
+  dynamic "ingress" {
+    for_each = var.allowed_ports
+    content {
+      from_port   = ingress.value
+      to_port     = ingress.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+}</pre>
+<h4>Answer</h4>
+<p>Normal nested blocks (like <code>ingress {}</code> inside a security group) are static &mdash; you can't loop over them directly. A <code>dynamic</code> block generates a variable number of nested blocks from a list or map, which is essential when the number of ingress rules, tags, or similar repeated nested blocks is only known from a variable, not hardcoded.</p>
+
+<h3 class="qhead">Question 3 &mdash; What does <code>try()</code> protect against, and why not just use a ternary?</h3>
+<h4>Answer</h4>
+<p><code>try()</code> evaluates a sequence of expressions and returns the first one that doesn't produce an error &mdash; useful for safely accessing optional/nested attributes that might not exist without the whole plan erroring out. A ternary (<code>var.x != null ? var.x.value : "default"</code>) still errors if <code>var.x.value</code> itself is invalid to evaluate in some branch; <code>try()</code> is specifically built to swallow evaluation errors, which a ternary's untaken branch doesn't protect against in all cases.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Given a variable map of environment &rarr; instance count, write a <code>for</code> expression producing a list of "environment: count" strings.</p>
+<pre>variable "env_sizes" {
+  type    = map(number)
+  default = { dev = 1, staging = 2, prod = 5 }
+}
+
+locals {
+  summary = [for env, count in var.env_sizes : "${env}: ${count}"]
+}
+# ["dev: 1", "staging: 2", "prod: 5"]</pre>
+
+<div class="mistake"><b>Common mistake:</b> hardcoding repeated nested blocks (multiple <code>ingress {}</code> blocks copy-pasted with small tweaks) instead of using a <code>dynamic</code> block driven by a variable &mdash; makes the module inflexible and violates DRY for something that's inherently a list.</div>
+<div class="tip"><b>Interview tip:</b> know <code>lookup()</code> and <code>try()</code> by name for "safely handle an optional/missing value" questions &mdash; these come up constantly in module design discussions.</div>
+
+</section>
+<section class="chapter" id="ch14">
+<div class="chap-num">Chapter 14</div>
+<h2 class="chap-title">Workspaces &amp; Environment Strategies</h2>
+
+<p>Workspaces are a genuinely contested topic &mdash; interviewers use this chapter to see if you have an informed opinion, not just textbook knowledge, since teams disagree on this in practice.</p>
+
+<h3>Core Concepts</h3>
+<pre>terraform workspace new staging
+terraform workspace select staging
+terraform workspace list
+terraform workspace show
+
+# Referencing the current workspace in config
+resource "aws_instance" "app" {
+  instance_type = terraform.workspace == "prod" ? "m5.large" : "t3.micro"
+  tags          = { Environment = terraform.workspace }
+}</pre>
+
+<h3 class="qhead">Question 1 &mdash; What do Terraform workspaces actually do, mechanically?</h3>
+<h4>Answer</h4>
+<p>Workspaces let one set of <code>.tf</code> config files manage multiple, separate state files (all under the same backend configuration, differentiated by a workspace-suffixed key). Switching workspace (<code>terraform workspace select</code>) changes which state file subsequent commands read/write, without changing the config on disk.</p>
+
+<h3 class="qhead">Question 2 &mdash; What's the main risk of using workspaces for dev/staging/prod?</h3>
+<h4>Answer</h4>
+<p>Because all environments share the exact same config, a mistake in <code>terraform.workspace</code> conditional logic, or simply forgetting which workspace is currently selected, can apply changes intended for staging directly to prod &mdash; there's no structural separation, only a runtime switch. This is why many teams consider workspaces risky for genuinely separate environments with different blast-radius requirements.</p>
+
+<h3 class="qhead">Question 3 &mdash; What's the alternative, and when is each approach right?</h3>
+<h4>Answer</h4>
+<p>The alternative is separate directories/root modules per environment (<code>environments/dev</code>, <code>environments/prod</code>), each with its own backend config and <code>.tfvars</code>, calling shared modules &mdash; see Chapter 11's structure. This gives true isolation (different AWS accounts, different state files, different IAM permissions per environment are trivial to enforce) at the cost of some duplication. <b>Workspaces</b> are genuinely well-suited for short-lived, ephemeral, structurally-identical environments (e.g. a workspace per feature-branch preview environment, or per-PR test infrastructure) where the risk profile is low and the convenience of one config is worth it. <b>Separate directories</b> are the standard, safer choice for dev/staging/prod with real blast-radius differences.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Explain, as you would to an interviewer, why you'd choose separate root modules over workspaces for a company's production banking infrastructure.</p>
+<div class="tip"><b>Model answer:</b> "For prod banking infrastructure I'd use separate root modules and state per environment, likely in separate AWS accounts. The blast radius of a mistake matters more than convenience here &mdash; with separate state and accounts, IAM boundaries mean a bug or a wrong `terraform apply` literally cannot touch prod from a dev context. Workspaces sharing one config are a structural risk I wouldn't accept for something with this much downside."</div>
+
+<div class="mistake"><b>Common mistake:</b> using workspaces for dev/staging/prod and then relying purely on discipline ("just remember to check <code>terraform workspace show</code> before applying") instead of structural safeguards. Discipline fails under pressure; separate state/accounts don't.</div>
+<div class="tip"><b>Interview tip:</b> this is a "do you have real opinions from experience" question. A flat "workspaces are good" or "workspaces are bad" answer reads as textbook; naming the specific risk (shared config = no structural blast-radius isolation) reads as earned.</div>
+
+</section>
+<section class="chapter" id="ch15">
+<div class="chap-num">Chapter 15</div>
+<h2 class="chap-title">Provisioners (and Why to Avoid Them)</h2>
+
+<p>HashiCorp's own docs call provisioners a "last resort." Interviewers ask about them specifically to see if you know that and can explain why &mdash; not to see if you can write one.</p>
+
+<h3>Core Concepts</h3>
+<pre>resource "aws_instance" "web" {
+  ami           = var.ami_id
+  instance_type = "t3.micro"
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt-get update",
+      "sudo apt-get install -y nginx",
+    ]
+    connection {
+      type = "ssh"
+      user = "ubuntu"
+      host = self.public_ip
+    }
+  }
+
+  provisioner "local-exec" {
+    command = "echo ${self.public_ip} >> inventory.txt"
+  }
+}</pre>
+
+<h3 class="qhead">Question 1 &mdash; Why does HashiCorp recommend avoiding provisioners where possible?</h3>
+<h4>Answer</h4>
+<p>Provisioners step outside Terraform's declarative model &mdash; they run imperative scripts with no idempotency guarantee, no drift detection (Terraform can't know if the remote-exec commands' effects still hold later), and failures mid-provisioning can leave a resource in an inconsistent "tainted" state that's awkward to recover. They also create a hard runtime dependency on network/SSH connectivity to the resource at apply time, which is fragile in CI.</p>
+
+<h3 class="qhead">Question 2 &mdash; What should you use instead of a <code>remote-exec</code> provisioner to configure a new VM?</h3>
+<h4>Answer</h4>
+<p>Cloud-init / <code>user_data</code> (AWS/Azure both support this natively) baked into the instance launch itself &mdash; it's part of the resource's own lifecycle, idempotent by cloud-init design, and doesn't need live SSH connectivity from wherever <code>terraform apply</code> runs. For more complex configuration, build a custom AMI/image with Packer that already has software installed, so the instance boots ready rather than being configured after the fact. For ongoing configuration management, hand off to Ansible/Chef/Puppet as a separate step after provisioning, not as a Terraform provisioner.</p>
+<pre>resource "aws_instance" "web" {
+  ami           = var.ami_id
+  instance_type = "t3.micro"
+  user_data     = templatefile("user-data.tpl", { app_version = var.app_version })
+}</pre>
+
+<h3 class="qhead">Question 3 &mdash; What is <code>local-exec</code> still reasonably used for?</h3>
+<h4>Answer</h4>
+<p>Narrow, genuinely one-off local actions that have no Terraform-native equivalent &mdash; e.g. invalidating a CDN cache after a deploy, or triggering an external webhook notification. Even here, many teams prefer to do this in the CI/CD pipeline step after <code>terraform apply</code> rather than inside the Terraform run itself, keeping Terraform's job strictly to infrastructure state.</p>
+
+<h3 class="qhead">Question 4 &mdash; What does <code>when = destroy</code> do on a provisioner?</h3>
+<pre>provisioner "local-exec" {
+  when    = destroy
+  command = "curl -X POST https://hooks.example.com/instance-terminated"
+}</pre>
+<h4>Answer</h4>
+<p>Runs the provisioner during <code>terraform destroy</code> instead of on creation &mdash; useful for cleanup notifications or deregistration steps, but subject to the same "last resort" caution: if destroy fails partway, this may not run reliably.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Rewrite a provisioner-based Nginx install to use <code>user_data</code> instead.</p>
+<pre># Before — provisioner (fragile, needs live SSH at apply time)
+# provisioner "remote-exec" { inline = ["sudo apt-get install -y nginx"] }
+
+# After — user_data (idempotent, no runtime SSH dependency)
+resource "aws_instance" "web" {
+  ami           = var.ami_id
+  instance_type = "t3.micro"
+
+  user_data = <<-EOF
+    #!/bin/bash
+    apt-get update
+    apt-get install -y nginx
+    systemctl enable --now nginx
+  EOF
+}</pre>
+
+<div class="mistake"><b>Common mistake:</b> reaching for a provisioner as the default way to configure a new instance, rather than <code>user_data</code>/cloud-init or a pre-baked image. It's the single most common "this Terraform code smells like someone new to it wrote it" signal senior reviewers look for.</div>
+<div class="tip"><b>Interview tip:</b> if asked to write config that installs software on a new instance, default to <code>user_data</code> and mention provisioners only to explain why you're deliberately not using one &mdash; that framing itself answers the implicit follow-up question.</div>
+
+</section>
+<section class="chapter" id="ch16">
+<div class="chap-num">Chapter 16</div>
+<h2 class="chap-title">Terraform with AWS</h2>
+
+<p>Given your AWS depth, this chapter's interview value is in production patterns &mdash; not "what is an aws_instance" but "how do you structure real AWS infrastructure safely."</p>
+
+<h3 class="qhead">Question 1 &mdash; Design a minimal, production-shaped VPC module (public + private subnets, NAT)</h3>
+<pre>resource "aws_vpc" "main" {
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags                 = { Name = "${var.name}-vpc" }
+}
+
+resource "aws_subnet" "public" {
+  for_each                = var.public_subnets
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = each.value
+  availability_zone       = each.key
+  map_public_ip_on_launch = true
+  tags                    = { Name = "${var.name}-public-${each.key}" }
+}
+
+resource "aws_subnet" "private" {
+  for_each          = var.private_subnets
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = each.value
+  availability_zone = each.key
+  tags              = { Name = "${var.name}-private-${each.key}" }
+}
+
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+}
+
+resource "aws_eip" "nat" {
+  domain = "vpc"
+}
+
+resource "aws_nat_gateway" "main" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = values(aws_subnet.public)[0].id
+  depends_on    = [aws_internet_gateway.main]
+}</pre>
+
+<h3 class="qhead">Question 2 &mdash; How do you manage IAM least-privilege for the Terraform execution role itself?</h3>
+<h4>Answer</h4>
+<p>Scope the CI/CD deploy role's IAM policy to exactly the resource types and actions the config actually manages &mdash; not <code>AdministratorAccess</code>. Use separate roles per environment (a <code>prod</code> deploy role distinct from <code>staging</code>), enforce MFA/short-lived credentials via <code>assume_role</code> from CI's OIDC identity rather than long-lived access keys, and review the policy whenever new resource types are added to config. This is a common senior interview follow-up: "the plan looks right, but what CAN this pipeline actually do if compromised?"</p>
+
+<h3 class="qhead">Question 3 &mdash; How do you handle secrets (DB passwords, API keys) needed by AWS resources, without putting them in Terraform state as plain variables?</h3>
+<pre>data "aws_secretsmanager_secret_version" "db_password" {
+  secret_id = "prod/db/password"
+}
+
+resource "aws_db_instance" "main" {
+  # ...
+  password = data.aws_secretsmanager_secret_version.db_password.secret_string
+}</pre>
+<h4>Answer</h4>
+<p>Reference AWS Secrets Manager or SSM Parameter Store via a data source at apply time, rather than passing the raw secret as a Terraform variable. This keeps the secret's lifecycle (rotation, access policy) managed by the secrets service itself. Note the caveat from Chapter 8: the resolved value still ends up in state, so state encryption and access control remain mandatory regardless.</p>
+
+<h3 class="qhead">Question 4 &mdash; How would you structure Terraform for a multi-account AWS Organization (e.g. separate accounts per environment)?</h3>
+<h4>Answer</h4>
+<p>One state per account/environment (per Chapter 14's separate-directories pattern), a shared "tooling" account hosting the S3 state bucket and DynamoDB lock table (with cross-account bucket policies granting each environment's deploy role access to only its own state key), and per-account provider blocks using <code>assume_role</code> from a central CI identity. This gives IAM-enforced blast-radius isolation between environments, which is the actual goal.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write an S3 bucket resource with versioning, encryption, and a bucket policy blocking all public access &mdash; a common "security baseline" interview ask.</p>
+<pre>resource "aws_s3_bucket" "data" {
+  bucket = "acme-app-data"
+}
+
+resource "aws_s3_bucket_versioning" "data" {
+  bucket = aws_s3_bucket.data.id
+  versioning_configuration { status = "Enabled" }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "data" {
+  bucket = aws_s3_bucket.data.id
+  rule {
+    apply_server_side_encryption_by_default { sse_algorithm = "aws:kms" }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "data" {
+  bucket                  = aws_s3_bucket.data.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}</pre>
+
+<div class="mistake"><b>Common mistake:</b> giving the Terraform CI/CD execution role broad <code>AdministratorAccess</code> "to avoid permission errors while iterating," then never tightening it before production use &mdash; a significant blast-radius and security-audit finding.</div>
+<div class="tip"><b>Interview tip:</b> when designing any AWS resource live, narrate security defaults unprompted (encryption at rest, no public access, least-privilege IAM) &mdash; interviewers evaluating an 11-year SRE expect security-by-default thinking without being asked.</div>
+
+</section>
+<section class="chapter" id="ch17">
+<div class="chap-num">Chapter 17</div>
+<h2 class="chap-title">Terraform with Azure</h2>
+
+<p>The <code>azurerm</code> provider's resource model differs from AWS in a few structural ways interviewers like to probe &mdash; particularly resource groups and the identity/auth story.</p>
+
+<h3 class="qhead">Question 1 &mdash; What is a Resource Group, and how does it change how you structure Terraform on Azure vs AWS?</h3>
+<h4>Answer</h4>
+<p>Every Azure resource must belong to a Resource Group &mdash; a logical container that also scopes lifecycle (deleting the RG deletes everything in it) and often RBAC. Unlike AWS, where resources exist somewhat independently in a region/VPC, Azure configs almost always start with an <code>azurerm_resource_group</code> resource, and most other resources reference its <code>name</code> and <code>location</code>. This makes RG design (one per environment? per application? per team?) an early, consequential decision.</p>
+<pre>resource "azurerm_resource_group" "main" {
+  name     = "rg-checkout-prod"
+  location = "Central India"
+}
+
+resource "azurerm_virtual_network" "main" {
+  name                = "vnet-checkout-prod"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+}</pre>
+
+<h3 class="qhead">Question 2 &mdash; How do you authenticate the <code>azurerm</code> provider in CI/CD without long-lived secrets?</h3>
+<h4>Answer</h4>
+<p>Use a Service Principal with Federated Identity Credentials (Workload Identity Federation via OIDC) from the CI system (GitHub Actions, Azure DevOps) &mdash; this issues short-lived tokens with no stored secret at all. The older pattern (a Service Principal with a stored <code>client_secret</code> in a pipeline variable) still works but is a long-lived credential that needs rotation and is a bigger blast radius if leaked.</p>
+<pre>provider "azurerm" {
+  features {}
+  use_oidc        = true
+  subscription_id = var.subscription_id
+  tenant_id       = var.tenant_id
+  client_id       = var.client_id   # federated identity — no client_secret
+}</pre>
+
+<h3 class="qhead">Question 3 &mdash; Deploy an AKS cluster's core shape &mdash; what are the essential arguments?</h3>
+<pre>resource "azurerm_kubernetes_cluster" "main" {
+  name                = "aks-checkout-prod"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  dns_prefix          = "checkout-prod"
+
+  default_node_pool {
+    name       = "system"
+    node_count = 3
+    vm_size    = "Standard_D2s_v5"
+  }
+
+  identity {
+    type = "SystemAssigned"   # managed identity — no stored credentials for AKS itself
+  }
+}</pre>
+<h4>Answer</h4>
+<p>Resource group + location, <code>dns_prefix</code> (used in the cluster's generated FQDN), a <code>default_node_pool</code> block (the system node pool &mdash; additional pools are separate <code>azurerm_kubernetes_cluster_node_pool</code> resources), and an <code>identity</code> block &mdash; <code>SystemAssigned</code> managed identity is the standard, credential-free way for the cluster to authenticate to other Azure resources.</p>
+
+<h3 class="qhead">Question 4 &mdash; How do you read a secret from Azure Key Vault into a Terraform-managed resource?</h3>
+<pre>data "azurerm_key_vault" "main" {
+  name                = "kv-checkout-prod"
+  resource_group_name = azurerm_resource_group.main.name
+}
+
+data "azurerm_key_vault_secret" "db_password" {
+  name         = "db-password"
+  key_vault_id = data.azurerm_key_vault.main.id
+}
+
+resource "azurerm_postgresql_flexible_server" "main" {
+  administrator_password = data.azurerm_key_vault_secret.db_password.value
+  # ...
+}</pre>
+<h4>Answer</h4>
+<p>Same pattern as AWS Secrets Manager (Chapter 16): reference the vault and secret via data sources rather than a plain variable. The Terraform identity running this needs a Key Vault access policy or RBAC role (<code>Key Vault Secrets User</code>) granting <code>Get</code> permission on secrets.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write a Resource Group and a Storage Account with HTTPS-only traffic and public access disabled &mdash; a common Azure security-baseline ask.</p>
+<pre>resource "azurerm_resource_group" "data" {
+  name     = "rg-data-prod"
+  location = "Central India"
+}
+
+resource "azurerm_storage_account" "data" {
+  name                     = "stdataprod001"
+  resource_group_name      = azurerm_resource_group.data.name
+  location                 = azurerm_resource_group.data.location
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+
+  enable_https_traffic_only      = true
+  public_network_access_enabled  = false
+  min_tls_version                 = "TLS1_2"
+}</pre>
+
+<div class="mistake"><b>Common mistake:</b> treating Resource Group scoping as an afterthought &mdash; putting unrelated resources with different lifecycles in one RG means you can't tear down or manage them independently, and a broad RG-level role assignment ends up over-granting access.</div>
+<div class="tip"><b>Interview tip:</b> mention Workload Identity Federation (OIDC) unprompted when asked about Azure CI/CD authentication &mdash; it's the current best-practice answer and signals you're current, not working from a 2019 tutorial.</div>
+
+</section>
+<section class="chapter" id="ch18">
+<div class="chap-num">Chapter 18</div>
+<h2 class="chap-title">Terraform with Kubernetes &amp; Helm</h2>
+
+<p>Using Terraform to manage Kubernetes objects (versus <code>kubectl</code>/GitOps) is a genuinely debated pattern. Interviewers use this chapter to see if you know the trade-off, not just the provider syntax.</p>
+
+<h3>Core Concepts</h3>
+<pre>provider "kubernetes" {
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_ca_certificate)
+  token                  = data.aws_eks_cluster_auth.main.token
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_ca_certificate)
+    token                  = data.aws_eks_cluster_auth.main.token
+  }
+}
+
+resource "kubernetes_namespace" "app" {
+  metadata { name = "checkout" }
+}
+
+resource "helm_release" "nginx_ingress" {
+  name       = "nginx-ingress"
+  repository = "https://kubernetes.github.io/ingress-nginx"
+  chart      = "ingress-nginx"
+  version    = "4.10.0"
+  namespace  = "ingress-nginx"
+
+  set {
+    name  = "controller.service.type"
+    value = "LoadBalancer"
+  }
+}</pre>
+
+<h3 class="qhead">Question 1 &mdash; Should Terraform manage application workloads (Deployments, Services) inside Kubernetes, or just the cluster itself?</h3>
+<h4>Answer</h4>
+<p>The strong convention in most production setups: Terraform provisions the <b>cluster</b> (EKS/AKS control plane, node pools, networking) and cluster-level add-ons that change rarely (ingress controller, cert-manager, cluster autoscaler via the <code>helm</code> provider) &mdash; not day-to-day application workloads. Application Deployments/Services are better owned by GitOps (ArgoCD/Flux) or a CI/CD pipeline applying manifests directly, because those change far more frequently than infrastructure and have a different release cadence, review process, and team ownership than the cluster itself. Mixing both in one Terraform state creates a slow, high-blast-radius apply cycle for what should be a fast app deploy.</p>
+
+<h3 class="qhead">Question 2 &mdash; What's the practical risk of managing Helm releases via the <code>helm_release</code> resource at scale?</h3>
+<h4>Answer</h4>
+<p>The <code>helm_release</code> resource's plan/diff visibility into what a chart actually changes is weaker than native Helm/GitOps tooling &mdash; large or complex chart upgrades can behave unexpectedly under Terraform's model, and a failed <code>helm_release</code> apply can leave Terraform state and the actual Helm release out of sync, requiring manual <code>helm</code> CLI intervention to reconcile. It works well for a handful of stable, infrequently-changed cluster add-ons; it's a poor fit for frequently-deployed application charts.</p>
+
+<h3 class="qhead">Question 3 &mdash; How do you authenticate the <code>kubernetes</code>/<code>helm</code> providers to a cluster Terraform itself just created (a chicken-and-egg problem)?</h3>
+<h4>Answer</h4>
+<p>Reference the cluster module's outputs (endpoint, CA cert) and a data source for a short-lived auth token (<code>aws_eks_cluster_auth</code> for EKS, <code>azurerm_kubernetes_cluster</code>'s <code>kube_config</code> block for AKS) directly in the provider block, as shown above. This works within a single <code>apply</code> because Terraform resolves the dependency graph &mdash; the cluster is created first, then the token is fetched, then Kubernetes/Helm resources are applied. Some teams deliberately split cluster creation and in-cluster resources into two separate Terraform states/applies specifically to avoid this coupling and reduce blast radius.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write config that creates a namespace and deploys the cert-manager Helm chart into it &mdash; a realistic "cluster add-on" scenario.</p>
+<pre>resource "kubernetes_namespace" "cert_manager" {
+  metadata { name = "cert-manager" }
+}
+
+resource "helm_release" "cert_manager" {
+  name       = "cert-manager"
+  repository = "https://charts.jetstack.io"
+  chart      = "cert-manager"
+  version    = "v1.14.4"
+  namespace  = kubernetes_namespace.cert_manager.metadata[0].name
+
+  set {
+    name  = "installCRDs"
+    value = "true"
+  }
+}</pre>
+
+<div class="mistake"><b>Common mistake:</b> putting both cluster infrastructure and fast-moving application Deployments in the same Terraform state and root module &mdash; every app deploy then requires a full Terraform plan/apply cycle against cluster-critical infrastructure, which is slower and riskier than it needs to be.</div>
+<div class="tip"><b>Interview tip:</b> if asked "would you use Terraform or ArgoCD/GitOps for Kubernetes," the strong answer is "both, for different layers" &mdash; Terraform for the cluster and stable add-ons, GitOps for application workloads. A one-sided answer misses the actual production pattern.</div>
+
+</section>
+<section class="chapter" id="ch19">
+<div class="chap-num">Chapter 19</div>
+<h2 class="chap-title">CI/CD, Security &amp; Best Practices</h2>
+
+<p>The capstone-adjacent chapter on running Terraform safely as a team practice, not just a tool &mdash; policy enforcement, drift detection, and the pipeline shape interviewers expect a senior candidate to have opinions on.</p>
+
+<h3 class="qhead">Question 1 &mdash; Design a safe Terraform CI/CD pipeline, end to end</h3>
+<pre># .github/workflows/terraform.yml (conceptual shape)
+on:
+  pull_request:
+    paths: ["environments/**"]
+  push:
+    branches: [main]
+
+jobs:
+  plan:
+    if: github.event_name == 'pull_request'
+    steps:
+      - terraform init -input=false
+      - terraform validate
+      - tflint                          # linting
+      - checkov -d .                     # security/policy scan
+      - terraform plan -out=tfplan -input=false
+      - post plan as PR comment
+
+  apply:
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - terraform init -input=false
+      - terraform apply -input=false tfplan   # exact plan from the merged PR</pre>
+<h4>Answer</h4>
+<p>Plan runs on every PR against protected environment paths, posts the diff for human review as a PR comment, and includes automated linting (<code>tflint</code>) and security scanning (<code>checkov</code>/<code>tfsec</code>) as required checks. Apply only runs on merge to main, using the exact plan file approved in the PR &mdash; never a fresh <code>apply</code> that could diff differently. Production environments typically add a manual approval gate before the apply step regardless of automated checks passing.</p>
+
+<h3 class="qhead">Question 2 &mdash; What is policy-as-code (Sentinel/OPA), and what problem does it solve that code review doesn't?</h3>
+<h4>Answer</h4>
+<p>Sentinel (Terraform Cloud/Enterprise) and Open Policy Agent (via <code>conftest</code> against plan JSON, cloud-agnostic) let you codify and automatically enforce organizational rules against every plan &mdash; e.g. "no S3 bucket may be public," "all resources must have a <code>CostCenter</code> tag," "no instance type larger than X without an exception." Unlike human code review, policy-as-code is consistent, can't be missed by a tired reviewer, and blocks the <code>apply</code> automatically rather than relying on someone catching it.</p>
+<pre># Example: run OPA policy checks against a plan in CI
+terraform show -json tfplan > plan.json
+conftest test plan.json --policy policies/</pre>
+
+<h3 class="qhead">Question 3 &mdash; How do you detect and handle drift proactively, rather than discovering it during the next planned change?</h3>
+<h4>Answer</h4>
+<p>Run a scheduled (nightly/hourly) CI job that runs <code>terraform plan -detailed-exitcode</code> against production state and alerts (Slack/PagerDuty) if it exits <code>2</code> (meaning a non-empty diff exists) without applying anything. This surfaces manual console changes or out-of-band API calls quickly, before they compound or get discovered accidentally during an unrelated legitimate change.</p>
+<pre>terraform plan -detailed-exitcode
+# exit code 0 = no changes; 1 = error; 2 = changes present (drift detected)</pre>
+
+<h3 class="qhead">Question 4 &mdash; What are your top production best practices for a Terraform-managed org, summarized?</h3>
+<ul>
+<li>Remote backend with locking and versioning, from day one &mdash; never local state for anything shared.</li>
+<li>Pin provider and module versions; upgrade deliberately, not automatically.</li>
+<li>Separate state per environment with real blast-radius isolation (accounts/subscriptions, not just workspaces, for prod).</li>
+<li>Plan on every PR, apply only on merge, using the exact reviewed plan file.</li>
+<li>Least-privilege IAM for the CI execution identity, scoped per environment.</li>
+<li>Secrets via a secrets manager referenced by data source, never as plain committed variables.</li>
+<li>Policy-as-code (Sentinel/OPA) enforcing security/cost/tagging baselines automatically.</li>
+<li>Scheduled drift detection with alerting, not just reactive discovery.</li>
+<li><code>prevent_destroy</code> on genuinely critical stateful resources (prod databases).</li>
+</ul>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> A teammate proposes running <code>terraform apply -auto-approve</code> directly on every merge to main, skipping the plan-review-comment step "to move faster." How do you respond?</p>
+<div class="tip"><b>Model answer:</b> "I'd push back — the plan-then-review step is what makes infrastructure changes as reviewable as code changes; skipping it means merged PRs can apply a different diff than what was actually reviewed if anything drifted in between. If speed is the concern, I'd rather speed up the plan step itself (caching providers, narrowing the plan's scope) than remove the safety gate. For genuinely low-risk paths (e.g. a sandbox environment) I could see auto-apply being reasonable, but not for anything touching shared or production infrastructure."</div>
+
+<div class="mistake"><b>Common mistake:</b> treating Terraform security as "get the plan to succeed" rather than building in policy enforcement, least-privilege CI identities, and drift detection as first-class parts of the pipeline &mdash; the plan succeeding says nothing about whether what it's about to do is safe or compliant.</div>
+<div class="tip"><b>Interview tip:</b> if asked to design a pipeline, mention the manual approval gate before prod apply even if not asked &mdash; it's the detail that separates "runs Terraform" from "runs Terraform safely at a company that would get audited."</div>
+
+</section>
+<section class="chapter" id="ch20">
+<div class="chap-num">Chapter 20</div>
+<h2 class="chap-title">Troubleshooting &amp; Real-World Production Scenarios (Capstone)</h2>
+
+<p>The capstone chapter &mdash; the scenario-style questions a senior interview panel actually leans on to differentiate candidates. Each follows the same shape: symptoms, investigation, root cause, resolution, prevention.</p>
+
+<h3>Scenario 1 &mdash; "State locked" and nobody knows why</h3>
+<p><b>Symptoms:</b> every <code>terraform plan</code>/<code>apply</code> fails immediately with <code>Error acquiring the state lock</code>.</p>
+<p><b>Investigation:</b> check CI for any currently-running or recently-killed Terraform job; check the DynamoDB lock table directly for the lock record and its age/timestamp.</p>
+<p><b>Root cause:</b> a previous CI job was killed (timeout, cancelled pipeline) mid-apply and never released the lock.</p>
+<p><b>Resolution:</b> confirm nothing is genuinely still running, then <code>terraform force-unlock &lt;LOCK_ID&gt;</code>.</p>
+<p><b>Prevention:</b> set a reasonable CI job timeout that's longer than any expected apply, and alert on force-unlock usage so it's never silent.</p>
+
+<h3>Scenario 2 &mdash; A routine <code>apply</code> wants to destroy and recreate 40 unrelated resources</h3>
+<p><b>Symptoms:</b> plan shows dozens of <code>-/+</code> replacements for resources nobody touched.</p>
+<p><b>Investigation:</b> diff the actual config change &mdash; it's a one-line removal from a <code>count</code>-based list in the middle.</p>
+<p><b>Root cause:</b> classic <code>count</code> index-shift (Chapter 12) &mdash; removing an item mid-list shifted every subsequent index.</p>
+<p><b>Resolution:</b> abort the apply; migrate the resource to <code>for_each</code> with <code>terraform state mv</code> for each affected address to avoid the destroy/recreate, then remove the intended item cleanly.</p>
+<p><b>Prevention:</b> default to <code>for_each</code> over <code>count</code> for any list of distinct, individually-referenced resources going forward.</p>
+
+<h3>Scenario 3 &mdash; Terraform wants to recreate a database because someone renamed a resource block</h3>
+<p><b>Symptoms:</b> plan shows <code>aws_db_instance.old_name</code> being destroyed and <code>aws_db_instance.new_name</code> being created &mdash; for a live production database.</p>
+<p><b>Investigation:</b> confirm it's purely a naming refactor in the PR, not an intentional replacement.</p>
+<p><b>Root cause:</b> renaming a resource's local name changes its state address; Terraform has no way to know it's "the same" resource without being told.</p>
+<p><b>Resolution:</b> <code>terraform state mv aws_db_instance.old_name aws_db_instance.new_name</code> (or a <code>moved</code> block) before applying, so state is remapped without touching the real database.</p>
+<p><b>Prevention:</b> add <code>prevent_destroy = true</code> on the database resource as a hard backstop, and require <code>moved</code> blocks as a matter of course whenever a PR renames a resource.</p>
+
+<h3>Scenario 4 &mdash; CI's Terraform apply fails after a routine <code>terraform init</code> with no code changes</h3>
+<p><b>Symptoms:</b> pipeline that worked yesterday fails today; error references an argument that "doesn't exist" on a resource that hasn't changed.</p>
+<p><b>Investigation:</b> check the provider version actually downloaded &mdash; <code>terraform init</code> re-resolves within an unpinned or loosely-pinned version constraint.</p>
+<p><b>Root cause:</b> an unpinned (or <code>&gt;=</code>-only) provider version constraint let CI pull a new major version overnight with breaking schema changes.</p>
+<p><b>Resolution:</b> pin the provider to the last known-good version, verify <code>plan</code> is clean, then deliberately upgrade and test in a lower environment first.</p>
+<p><b>Prevention:</b> always use <code>~></code> pessimistic constraints (or exact pins) on provider versions in the <code>terraform</code> block, never open-ended <code>&gt;=</code>.</p>
+
+<h3>Scenario 5 &mdash; A secret value shows up in a CI log despite being marked <code>sensitive</code></h3>
+<p><b>Symptoms:</b> a database password appears in plaintext in a build log, even though the variable has <code>sensitive = true</code>.</p>
+<p><b>Investigation:</b> find where the value flows &mdash; it's being interpolated into a non-sensitive <code>local_exec</code> command or an unmarked output that references it indirectly.</p>
+<p><b>Root cause:</b> sensitivity doesn't automatically propagate through every expression in older Terraform versions the same way, and any place the value is echoed outside a properly-marked sensitive context can leak it. (Modern Terraform propagates sensitivity through most expressions, but provisioner commands and external scripts are common escape hatches.)</p>
+<p><b>Resolution:</b> remove the value from the offending command/output; rotate the leaked secret immediately regardless of the fix (assume anything that touched a log is compromised).</p>
+<p><b>Prevention:</b> avoid passing real secrets through Terraform variables at all where possible &mdash; reference secrets managers via data source at the point of use, and treat <code>sensitive = true</code> as a UX safeguard, not a security boundary.</p>
+
+<h3>Scenario 6 &mdash; State file appears to be missing several resources that definitely exist in AWS</h3>
+<p><b>Symptoms:</b> <code>terraform plan</code> wants to create resources that are already running in AWS &mdash; applying would create duplicates.</p>
+<p><b>Investigation:</b> <code>terraform state list</code> confirms those resources aren't tracked; check if someone ran <code>terraform state rm</code> previously, or if state was restored from an older backup.</p>
+<p><b>Root cause:</b> a stale state restore, or resources created manually outside Terraform that were never imported.</p>
+<p><b>Resolution:</b> do not apply. <code>terraform import</code> each missing resource individually, verifying an empty (or expected) diff via <code>plan</code> after each import before moving to the next.</p>
+<p><b>Prevention:</b> enable state file versioning on the backend (S3 bucket versioning) so any bad state write can be rolled back precisely, and restrict who can run <code>state rm</code>/<code>state push</code> in production.</p>
+
+<h3>Scenario 7 &mdash; Two engineers ran <code>apply</code> at nearly the same time against a local state file, and now state is corrupted</h3>
+<p><b>Symptoms:</b> <code>terraform plan</code> errors on invalid JSON in the state file, or shows resources with clearly wrong/duplicated attributes.</p>
+<p><b>Investigation:</b> confirm there's no remote backend (this only happens with local or unlocked state) and that two concurrent applies did in fact race.</p>
+<p><b>Root cause:</b> no state locking mechanism existed to prevent the concurrent write.</p>
+<p><b>Resolution:</b> restore the last valid state (from a manual backup, or reconstruct via careful <code>import</code> if none exists), verify against real infrastructure resource by resource.</p>
+<p><b>Prevention:</b> this incident is the canonical argument for a remote backend with locking (Chapter 9) from day one &mdash; it's precisely the failure mode locking exists to prevent, and is a strong real-world story to have ready for "tell me about a Terraform incident" interview questions.</p>
+
+<h3>Scenario 8 &mdash; A module upgrade silently changes behavior in production</h3>
+<p><b>Symptoms:</b> after a routine <code>terraform init -upgrade</code>, plan shows unexpected changes to resources managed by a third-party module.</p>
+<p><b>Investigation:</b> check the module source reference &mdash; it's pointed at a Git branch (<code>ref=main</code>) or an unpinned registry version, not a tagged release.</p>
+<p><b>Root cause:</b> the module's upstream maintainer pushed a breaking change to the branch/latest version being referenced.</p>
+<p><b>Resolution:</b> pin the module to the last known-good tagged version immediately; evaluate the new version's changelog deliberately before upgrading again.</p>
+<p><b>Prevention:</b> always pin module sources to specific tagged versions (<code>ref=v2.3.1</code>, or an exact registry version constraint), exactly as you would a provider.</p>
+
+<h3>Quick Answer Bank (Rapid Review)</h3>
+<ol>
+<li>What is Terraform state? A JSON mapping of config resources to real-world infrastructure, used to compute diffs and detect drift.</li>
+<li>Why remote backend over local state? Locking, shared source of truth, encryption, versioning/backup.</li>
+<li>count vs for_each? count is index-based (fragile on reordering); for_each is key-based (stable per-item tracking).</li>
+<li>What does terraform plan -out do? Saves an exact plan to apply later, guaranteeing apply matches what was reviewed.</li>
+<li>How to rename a resource without destroy/recreate? terraform state mv, or a moved block.</li>
+<li>What does prevent_destroy do? Blocks any plan from destroying that specific resource.</li>
+<li>What does terraform import not do? Generate matching HCL automatically (in most versions) — only updates state.</li>
+<li>Why avoid provisioners? No idempotency, no drift detection, fragile runtime SSH dependency; prefer user_data/cloud-init.</li>
+<li>What enforces org policy automatically on every plan? Policy-as-code — Sentinel or OPA/conftest.</li>
+<li>How to detect drift proactively? Scheduled terraform plan -detailed-exitcode with alerting on exit code 2.</li>
+<li>Workspaces vs separate directories for prod? Separate directories/accounts give real blast-radius isolation; workspaces share one config and are riskier for high-stakes environments.</li>
+<li>Where do secrets belong instead of plain variables? A secrets manager (Secrets Manager, Key Vault) referenced via data source.</li>
+<li>What causes "Error acquiring the state lock"? A previous operation still holds the lock, or was killed without releasing it.</li>
+<li>How to fix a stuck lock safely? Confirm nothing is actually running, then terraform force-unlock.</li>
+<li>Why pin provider and module versions? Prevents breaking changes from silently landing on a routine init/upgrade.</li>
+</ol>
+
+<h3>Interview Cheat Sheet</h3>
+<p>State = source of truth mapping config to reality. Remote backend + locking = team safety. count = index (fragile); for_each = key (stable). plan -out + apply tfplan = safe CI pattern. state mv / moved block = rename without destroy. prevent_destroy = hard stop on critical resources. Provisioners = last resort; prefer user_data. Policy-as-code = automated guardrails. Pin providers and modules, always.</p>
+
+</section>
+  <section class="chapter" id="closing">
+  <div class="chap-num">Closing Note</div>
+  <h2 class="chap-title">How to Use This Handbook</h2>
+  <p>Terraform interviews for Senior SRE / Platform Engineer roles cluster around three things: whether you understand <b>state</b> deeply (why it exists, how locking works, how to recover from drift or corruption), whether you can design <b>modules</b> that a team can actually reuse safely, and whether you've been burned by something in production and changed how you work because of it. Syntax questions are a warm-up, not the main event.</p>
+  <p><b>Suggested path:</b> if you're already comfortable with basic HCL, skim Chapters 1&ndash;7 and spend your time on Chapters 8&ndash;11 (state, backends, troubleshooting) and Chapters 16&ndash;20 (cloud-specific patterns, CI/CD, security, and the troubleshooting capstone) &mdash; that's where senior-level signal concentrates. Chapter 20 doubles as a rapid-fire scenario bank for the day before an interview.</p>
+  <p><b>Interview framing that works:</b> when asked a state or workflow question, anchor your answer in what goes wrong in production if you get it wrong (state corruption, a stuck lock, an accidental resource replacement) rather than reciting the textbook definition. That's the difference between "knows Terraform" and "has run Terraform in anger" &mdash; and it's exactly what a panel interviewing an 11-year SRE is listening for.</p>
+  </section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Senior SRE Interview Cheat Sheet — Kubernetes &amp; Observability</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16202e;
+  --ink2:#475569;
+  --paper:#ffffff;
+  --panel:#f5f7fa;
+  --line:#dde2ea;
+  --blue:#1f5fa6;     /* kubernetes */
+  --teal:#0f766e;     /* observability */
+  --green:#1f8a52;
+  --amber:#b8730a;
+  --red:#c0392b;
+  --say:#0b3d2e;
+  --saybg:#e7f4ec;
+}
+*{box-sizing:border-box;}
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:#e9edf2; color:var(--ink);
+  font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:13px; line-height:1.4;
+}
+.sheet{
+  max-width:1180px; margin:0 auto; background:var(--paper);
+  padding:30px 30px 50px;
+}
+code,kbd,.mono{ font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace; }
+
+/* ---------- masthead ---------- */
+.mast{ border-bottom:3px solid var(--ink); padding-bottom:14px; margin-bottom:18px; }
+.mast .kick{ font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.32em;
+  text-transform:uppercase; color:var(--ink2); }
+.mast h1{ font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:30px;
+  margin:6px 0 4px; letter-spacing:-.01em; line-height:1.05; }
+.mast h1 span{ color:var(--blue); }
+.mast h1 span.t{ color:var(--teal); }
+.mast .sub{ color:var(--ink2); font-size:12.5px; max-width:760px; }
+.legend{ display:flex; flex-wrap:wrap; gap:14px; margin-top:12px; font-size:11px; }
+.legend .lg{ display:flex; align-items:center; gap:6px; color:var(--ink2); }
+.dot{ width:11px; height:11px; border-radius:3px; display:inline-block; }
+.say-key{ display:inline-flex; align-items:center; gap:6px; }
+.say-key b{ font-family:"JetBrains Mono",monospace; font-size:9px; letter-spacing:.12em;
+  background:var(--saybg); color:var(--say); padding:2px 6px; border-radius:4px;
+  border:1px solid #bfe0cd; }
+
+/* ---------- part banners ---------- */
+.part{ display:flex; align-items:baseline; gap:14px; margin:26px 0 12px;
+  border-bottom:2px solid var(--line); padding-bottom:7px; }
+.part .num{ font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:13px;
+  color:#fff; padding:3px 10px; border-radius:5px; letter-spacing:.04em; }
+.part.k .num{ background:var(--blue); }
+.part.o .num{ background:var(--teal); }
+.part h2{ font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:18px; margin:0;
+  letter-spacing:-.01em; }
+.part .meta{ margin-left:auto; font-size:10.5px; color:var(--ink2);
+  font-family:"JetBrains Mono",monospace; letter-spacing:.04em; }
+
+/* ---------- card grid ---------- */
+.grid{ column-count:3; column-gap:14px; }
+.card{ break-inside:avoid; border:1px solid var(--line); border-radius:8px;
+  padding:11px 12px 12px; margin:0 0 14px; background:var(--paper);
+  border-left:3px solid var(--blue); }
+.o .card, .card.oc{ border-left-color:var(--teal); }
+.card h3{ font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:13.5px;
+  margin:0 0 7px; display:flex; align-items:center; gap:7px; }
+.card h3 .tag{ font-family:"JetBrains Mono",monospace; font-size:8.5px; font-weight:700;
+  letter-spacing:.08em; color:#fff; background:var(--blue); padding:2px 5px; border-radius:4px; }
+.o .card h3 .tag, .card.oc h3 .tag{ background:var(--teal); }
+.card p{ margin:0 0 6px; }
+.card ul{ margin:0 0 6px; padding-left:15px; }
+.card li{ margin:1.5px 0; }
+.card .small{ font-size:11.5px; }
+.muted{ color:var(--ink2); }
+
+/* SAY chip */
+.say{ background:var(--saybg); border:1px solid #bfe0cd; border-radius:6px;
+  padding:6px 8px; margin-top:7px; font-size:11.5px; color:var(--say); }
+.say b{ font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.12em;
+  display:block; margin-bottom:2px; color:#15795a; }
+
+/* mono block */
+.codeblk{ background:#0f1722; color:#e6edf6; border-radius:6px; padding:8px 9px;
+  font-family:"JetBrains Mono",monospace; font-size:10.5px; line-height:1.55;
+  overflow-x:auto; margin:0 0 6px; }
+.codeblk .c{ color:#7fd1a8; }    /* function/keyword */
+.codeblk .m{ color:#8ab4f8; }    /* metric */
+.codeblk .x{ color:#f0a868; }    /* literal */
+.codeblk .cm{ color:#6b7c93; }   /* comment */
+.kbd{ background:#eef1f6; border:1px solid #d3d9e2; border-bottom-width:2px;
+  border-radius:4px; padding:1px 5px; font-size:10.5px; }
+
+/* mini tables */
+table.mini{ width:100%; border-collapse:collapse; font-size:11px; margin:2px 0 6px; }
+.mini th,.mini td{ text-align:left; padding:3px 5px; border-bottom:1px solid var(--line);
+  vertical-align:top; }
+.mini th{ font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--ink2); border-bottom:1.5px solid var(--line); }
+.mini tr:last-child td{ border-bottom:none; }
+.mini td b{ color:var(--ink); }
+
+/* status pills */
+.pill{ display:inline-block; font-family:"JetBrains Mono",monospace; font-size:9px;
+  font-weight:700; padding:1px 6px; border-radius:20px; letter-spacing:.04em; }
+.p-g{ background:#e3f3ea; color:var(--green); }
+.p-a{ background:#fbf0dd; color:var(--amber); }
+.p-r{ background:#fbe6e3; color:var(--red); }
+
+/* flow chips */
+.flow{ display:flex; flex-wrap:wrap; align-items:center; gap:4px; margin:2px 0 7px; }
+.flow .n{ background:var(--panel); border:1px solid var(--line); border-radius:5px;
+  padding:2px 6px; font-size:10px; font-family:"JetBrains Mono",monospace; }
+.flow .a{ color:var(--ink2); font-size:11px; }
+
+/* decision tree */
+.tree{ font-size:11px; }
+.tree .row{ display:grid; grid-template-columns:96px 1fr; gap:6px; padding:4px 0;
+  border-bottom:1px dashed var(--line); }
+.tree .row:last-child{ border-bottom:none; }
+.tree .st{ font-family:"JetBrains Mono",monospace; font-weight:700; font-size:10px; color:var(--red); }
+.tree .st.ok{ color:var(--amber); }
+.tree .fix b{ color:var(--ink); }
+.tree code{ font-size:10px; background:#eef1f6; padding:0 3px; border-radius:3px; }
+
+/* svg wrap */
+.dia{ width:100%; height:auto; display:block; margin:2px 0 4px; }
+.cap{ font-size:10px; color:var(--ink2); margin-top:-1px; }
+
+/* full-width feature cards */
+.feature{ break-inside:avoid; border:1px solid var(--line); border-left:3px solid var(--blue);
+  border-radius:8px; padding:12px 14px; margin:0 0 14px; }
+.feature.oc{ border-left-color:var(--teal); }
+
+/* nines table */
+.nines{ width:100%; border-collapse:collapse; font-size:11.5px; }
+.nines th,.nines td{ padding:4px 8px; border-bottom:1px solid var(--line); text-align:left; }
+.nines th{ font-family:"JetBrains Mono",monospace; font-size:9px; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--ink2); }
+.nines td:first-child{ font-family:"JetBrains Mono",monospace; font-weight:700; }
+.nines tr:last-child td{ border-bottom:none; }
+
+/* mnemonics */
+.mn{ columns:2; column-gap:18px; font-size:11.5px; }
+.mn .m1{ break-inside:avoid; margin:0 0 8px; padding-left:14px; position:relative; }
+.mn .m1::before{ content:"▸"; position:absolute; left:0; color:var(--teal); }
+.mn .m1 b{ font-family:"JetBrains Mono",monospace; font-size:10.5px; color:var(--blue); }
+
+.footer{ margin-top:24px; border-top:2px solid var(--ink); padding-top:10px;
+  font-size:10.5px; color:var(--ink2); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+
+@media (max-width:900px){ .grid{ column-count:2; } .mn{ columns:1; } }
+@media (max-width:620px){ .grid{ column-count:1; } .sheet{ padding:18px; } }
+
+@media print{
+  body{ background:#fff; font-size:9.6px; }
+  .sheet{ max-width:none; padding:0; }
+  .grid{ column-count:3; column-gap:10px; }
+  .card,.feature{ margin-bottom:9px; box-shadow:none; }
+  .part{ break-inside:avoid; }
+  .part.o{ break-before:page; }
+  .codeblk{ font-size:8.6px; }
+  a{ color:inherit; text-decoration:none; }
+  @page{ margin:11mm 9mm; }
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header class="mast">
+    <div class="kick">Senior SRE / Platform Engineer · Interview Recall Card</div>
+    <h1><span>Kubernetes</span> &amp; <span class="t">Observability</span> Cheat Sheet</h1>
+    <p class="sub">Everything from both master guides, compressed to what you can hold in your head walking into the room. Each concept ends with the exact sentence to say out loud — lead with that line, then expand only if asked.</p>
+    <div class="legend">
+      <span class="lg say-key"><b>SAY:</b> the one-line interview answer</span>
+      <span class="lg"><span class="dot" style="background:var(--blue)"></span> Kubernetes</span>
+      <span class="lg"><span class="dot" style="background:var(--teal)"></span> Observability</span>
+      <span class="lg"><span class="pill p-g">GREEN</span> healthy</span>
+      <span class="lg"><span class="pill p-a">YELLOW</span> degraded</span>
+      <span class="lg"><span class="pill p-r">RED</span> critical</span>
+    </div>
+  </header>
+
+  <!-- ============================ PART K ============================ -->
+  <div class="part k">
+    <span class="num">K</span>
+    <h2>Kubernetes</h2>
+    <span class="meta">architecture · troubleshooting · workloads · networking · release · gitops</span>
+  </div>
+
+  <div class="grid k">
+
+    <!-- K1 architecture -->
+    <div class="card">
+      <h3><span class="tag">K1</span> Cluster Architecture</h3>
+      <svg class="dia" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace" font-size="8">
+        <rect x="6" y="6" width="288" height="60" rx="6" fill="#eef3fa" stroke="#cdd9ea"/>
+        <text x="12" y="18" fill="#1f5fa6" font-weight="700">CONTROL PLANE</text>
+        <g fill="#fff" stroke="#1f5fa6">
+          <rect x="12" y="24" width="62" height="16" rx="3"/><rect x="80" y="24" width="56" height="16" rx="3"/>
+          <rect x="142" y="24" width="74" height="16" rx="3"/><rect x="222" y="24" width="40" height="16" rx="3"/>
+        </g>
+        <g fill="#16202e" text-anchor="middle">
+          <text x="43" y="35">API Server</text><text x="108" y="35">Scheduler</text>
+          <text x="179" y="35">Controllers</text><text x="242" y="35">etcd</text>
+        </g>
+        <text x="12" y="55" fill="#475569">API Server = single entry point · etcd = state store</text>
+        <line x1="150" y1="66" x2="150" y2="80" stroke="#94a3b8"/>
+        <g>
+          <rect x="20" y="82" width="124" height="60" rx="6" fill="#f5f7fa" stroke="#cdd9ea"/>
+          <rect x="156" y="82" width="124" height="60" rx="6" fill="#f5f7fa" stroke="#cdd9ea"/>
+          <text x="26" y="94" fill="#1f5fa6" font-weight="700">WORKER NODE</text>
+          <text x="162" y="94" fill="#1f5fa6" font-weight="700">WORKER NODE</text>
+        </g>
+        <g fill="#16202e" font-size="7.5">
+          <text x="26" y="106">kubelet · kube-proxy</text><text x="26" y="117">container runtime</text><text x="26" y="128">Pods ▢ ▢ ▢</text>
+          <text x="162" y="106">kubelet · kube-proxy</text><text x="162" y="117">container runtime</text><text x="162" y="128">Pods ▢ ▢ ▢</text>
+        </g>
+      </svg>
+      <div class="say"><b>SAY</b>Control plane (API server, scheduler, controllers, etcd) holds desired state; worker nodes (kubelet, kube-proxy, runtime) run it. K8s constantly reconciles actual → desired.</div>
+    </div>
+
+    <!-- K2 apply flow -->
+    <div class="card">
+      <h3><span class="tag">K2</span> <code>kubectl apply</code> Flow</h3>
+      <div class="flow">
+        <span class="n">apply</span><span class="a">→</span><span class="n">API server</span><span class="a">→</span>
+        <span class="n">authN</span><span class="a">→</span><span class="n">authZ (RBAC)</span><span class="a">→</span>
+        <span class="n">admission</span><span class="a">→</span><span class="n">etcd</span><span class="a">→</span>
+        <span class="n">controller→ReplicaSet</span><span class="a">→</span><span class="n">scheduler</span><span class="a">→</span>
+        <span class="n">kubelet</span><span class="a">→</span><span class="n">runtime pulls+starts</span><span class="a">→</span><span class="n">Running</span>
+      </div>
+      <div class="say"><b>SAY</b>The request hits the API server, passes authentication, RBAC, and admission, is stored in etcd as desired state, then controllers, scheduler, and kubelet drive the pod to Running.</div>
+    </div>
+
+    <!-- K3 troubleshooting — the money card -->
+    <div class="card">
+      <h3><span class="tag">K3 ★</span> Pod Troubleshooting Tree</h3>
+      <div class="tree">
+        <div class="row"><span class="st">Pending</span><span class="fix"><b>No node fits.</b> CPU/mem, PVC, taints, affinity. → <code>describe pod</code> (Events)</span></div>
+        <div class="row"><span class="st">ImagePull<br>BackOff</span><span class="fix"><b>Can't get image.</b> name/tag, registry, pull secret, DNS → <code>describe pod</code></span></div>
+        <div class="row"><span class="st">CrashLoop<br>BackOff</span><span class="fix"><b>Starts then dies.</b> bad config, missing secret, OOM, dependency → <code>logs --previous</code></span></div>
+        <div class="row"><span class="st">OOMKilled</span><span class="fix"><b>Hit mem limit.</b> leak, heap, low limit → <code>top pod</code>, raise limit / fix leak</span></div>
+        <div class="row"><span class="st ok">503</span><span class="fix"><b>No healthy backend.</b> readiness failing, selector mismatch → <code>get endpoints</code></span></div>
+        <div class="row"><span class="st ok">Running ≠<br>Ready</span><span class="fix"><b>Readiness probe / port / health endpoint.</b> → <code>describe</code> + logs</span></div>
+      </div>
+      <div class="say"><b>SAY</b>I scope impact first, then walk pod state → events → logs → endpoints, fix the cause, and add a check so it can't recur.</div>
+    </div>
+
+    <!-- K4 workloads -->
+    <div class="card">
+      <h3><span class="tag">K4</span> Workloads</h3>
+      <table class="mini">
+        <tr><th>Kind</th><th>Use for</th></tr>
+        <tr><td><b>Deployment</b></td><td>stateless, rolling updates</td></tr>
+        <tr><td><b>StatefulSet</b></td><td>stable IDs/storage (DBs, Kafka)</td></tr>
+        <tr><td><b>DaemonSet</b></td><td>one pod per node (agents, Fluent Bit)</td></tr>
+        <tr><td><b>Job</b></td><td>run-to-completion</td></tr>
+        <tr><td><b>CronJob</b></td><td>scheduled jobs</td></tr>
+        <tr><td><b>ReplicaSet</b></td><td>keeps N pods (managed by Deployment)</td></tr>
+      </table>
+      <div class="say"><b>SAY</b>Deployments for stateless apps; StatefulSets when pods need stable identity and storage; DaemonSets for node-level agents.</div>
+    </div>
+
+    <!-- K5 networking -->
+    <div class="card">
+      <h3><span class="tag">K5</span> Networking</h3>
+      <table class="mini">
+        <tr><th>Thing</th><th>Role</th></tr>
+        <tr><td><b>ClusterIP</b></td><td>internal-only service (default)</td></tr>
+        <tr><td><b>NodePort</b></td><td>port on every node</td></tr>
+        <tr><td><b>LoadBalancer</b></td><td>cloud external LB</td></tr>
+        <tr><td><b>Ingress</b></td><td>L7 host/path routing + TLS</td></tr>
+        <tr><td><b>kube-proxy</b></td><td>service → pod routing rules</td></tr>
+        <tr><td><b>CoreDNS</b></td><td>service discovery (DNS)</td></tr>
+        <tr><td><b>CNI</b></td><td>pod networking (Calico/Cilium)</td></tr>
+        <tr><td><b>NetworkPolicy</b></td><td>firewall between pods</td></tr>
+      </table>
+      <div class="say"><b>SAY</b>Service gives a stable virtual IP + DNS over changing pods; Ingress does L7 routing and TLS; NetworkPolicy controls pod-to-pod traffic.</div>
+    </div>
+
+    <!-- K6 storage -->
+    <div class="card">
+      <h3><span class="tag">K6</span> Storage</h3>
+      <div class="flow"><span class="n">StorageClass</span><span class="a">→</span><span class="n">PVC (claim)</span><span class="a">→</span><span class="n">PV (volume)</span><span class="a">→</span><span class="n">Pod</span></div>
+      <p class="small"><b>Access modes:</b> RWO (one node), ROX (read-many), RWX (read-write-many). <b>CSI</b> = pluggable driver. <b>Snapshots</b> for point-in-time.</p>
+      <div class="say"><b>SAY</b>A PVC requests storage; a StorageClass dynamically provisions a PV via a CSI driver; the pod mounts the PVC.</div>
+    </div>
+
+    <!-- K7 scheduling -->
+    <div class="card">
+      <h3><span class="tag">K7</span> Scheduling &amp; Resources</h3>
+      <ul class="small">
+        <li><b>requests</b> = reserved (scheduling); <b>limits</b> = cap (throttle/OOM)</li>
+        <li><b>Taints/Tolerations</b> repel; <b>Affinity</b> attracts; <b>nodeSelector</b> pins</li>
+        <li><b>QoS:</b> Guaranteed &gt; Burstable &gt; BestEffort (evict order reversed)</li>
+      </ul>
+      <div class="say"><b>SAY</b>Requests drive scheduling and limits cap usage; CPU over-limit throttles, memory over-limit gets OOMKilled.</div>
+    </div>
+
+    <!-- K8 release -->
+    <div class="card">
+      <h3><span class="tag">K8</span> Release Strategies</h3>
+      <table class="mini">
+        <tr><th>Strategy</th><th>How</th></tr>
+        <tr><td><b>Rolling</b></td><td>replace gradually, zero downtime (default)</td></tr>
+        <tr><td><b>Blue-Green</b></td><td>two envs, flip traffic instantly</td></tr>
+        <tr><td><b>Canary</b></td><td>small % first, watch metrics, expand</td></tr>
+      </table>
+      <p class="small mono">rollback: kubectl rollout undo deploy/&lt;name&gt;</p>
+      <div class="say"><b>SAY</b>Rolling for everyday deploys, canary when I want to validate on real traffic before full rollout, blue-green when I need instant rollback.</div>
+    </div>
+
+    <!-- K9 autoscaling -->
+    <div class="card">
+      <h3><span class="tag">K9</span> Autoscaling</h3>
+      <table class="mini">
+        <tr><th>Scaler</th><th>Adjusts</th></tr>
+        <tr><td><b>HPA</b></td><td>pod count (CPU/mem/custom)</td></tr>
+        <tr><td><b>VPA</b></td><td>pod requests/limits</td></tr>
+        <tr><td><b>Cluster AS</b></td><td>node count</td></tr>
+      </table>
+      <div class="say"><b>SAY</b>HPA scales pods out, Cluster Autoscaler adds nodes when pods can't be scheduled; prefer horizontal scaling in production.</div>
+    </div>
+
+    <!-- K10 security -->
+    <div class="card">
+      <h3><span class="tag">K10</span> Security</h3>
+      <ul class="small">
+        <li><b>RBAC</b> = who can do what (Role + RoleBinding)</li>
+        <li><b>ServiceAccount</b> = pod identity</li>
+        <li><b>Secrets</b> (encrypt at rest), <b>Pod Security</b> standards</li>
+        <li><b>OPA/Kyverno</b> policy · <b>Falco</b> runtime threat detection</li>
+      </ul>
+      <div class="say"><b>SAY</b>Least privilege via RBAC and ServiceAccounts, policy enforcement with Kyverno/OPA, and runtime detection with Falco.</div>
+    </div>
+
+    <!-- K11 gitops -->
+    <div class="card">
+      <h3><span class="tag">K11</span> GitOps / ArgoCD</h3>
+      <p class="small">Git = single source of truth. Controller compares <b>desired (Git)</b> vs <b>live (cluster)</b> and reconciles.</p>
+      <ul class="small">
+        <li><b>Drift</b> = live ≠ Git · <b>selfHeal</b> reverts manual changes</li>
+        <li><b>prune</b> deletes orphans · <b>ApplicationSet</b> = many clusters from one template</li>
+      </ul>
+      <div class="say"><b>SAY</b>GitOps makes Git the source of truth; ArgoCD continuously reconciles the cluster to match Git, with self-heal and pruning to kill drift.</div>
+    </div>
+
+    <!-- K12 performance -->
+    <div class="card">
+      <h3><span class="tag">K12</span> Performance Traps</h3>
+      <table class="mini">
+        <tr><th></th><th>CPU throttle</th><th>OOMKilled</th></tr>
+        <tr><td>Cause</td><td>over CPU limit</td><td>over mem limit</td></tr>
+        <tr><td>Effect</td><td>slow, no restart</td><td>killed, restart</td></tr>
+        <tr><td>Kill</td><td>Linux CFS</td><td>OOM killer</td></tr>
+      </table>
+      <p class="small"><b>etcd</b> latency slows the whole API. Small images = fast startup. JVM heap ≤ container mem (MaxRAMPercentage).</p>
+      <div class="say"><b>SAY</b>CPU over-limit throttles silently; memory over-limit is OOMKilled and restarted — so I size limits from real usage, not guesses.</div>
+    </div>
+
+    <!-- K13 commands -->
+    <div class="card">
+      <h3><span class="tag">K13</span> Command Reflexes</h3>
+      <div class="codeblk">
+kubectl get pods -A
+kubectl describe pod &lt;p&gt;   <span class="cm"># Events</span>
+kubectl logs &lt;p&gt; --previous
+kubectl get endpoints &lt;svc&gt;
+kubectl top pod / top node
+kubectl rollout undo deploy/&lt;d&gt;
+kubectl get events \
+  --sort-by=.lastTimestamp
+      </div>
+    </div>
+
+  </div><!-- /grid k -->
+
+  <!-- ============================ PART O ============================ -->
+  <div class="part o">
+    <span class="num">O</span>
+    <h2>Monitoring &amp; Observability</h2>
+    <span class="meta">pillars · promql · slo · alerting · logging · tracing · incidents · dr</span>
+  </div>
+
+  <!-- three pillars feature -->
+  <div class="feature oc">
+    <h3 style="font-family:'Space Grotesk';font-size:14px;margin:0 0 8px;display:flex;gap:7px;align-items:center;"><span class="tag" style="font-family:'JetBrains Mono';font-size:8.5px;font-weight:700;color:#fff;background:var(--teal);padding:2px 5px;border-radius:4px;">O1 ★</span> The Three Pillars — what each one answers</h3>
+    <table class="mini" style="font-size:11.5px;">
+      <tr><th>Pillar</th><th>Answers</th><th>Examples</th><th>Tool</th></tr>
+      <tr><td><b>Metrics</b></td><td><i>Is something wrong?</i> (symptom)</td><td>latency, error rate, CPU</td><td>Prometheus</td></tr>
+      <tr><td><b>Traces</b></td><td><i>Where is it wrong?</i> (location)</td><td>request path across services</td><td>OTel + Tempo/Jaeger</td></tr>
+      <tr><td><b>Logs</b></td><td><i>Why is it wrong?</i> (evidence)</td><td>stack trace, SQL timeout</td><td>Loki / OpenSearch</td></tr>
+    </table>
+    <div class="say"><b>SAY</b>Monitoring tells me something is wrong; observability tells me why. Metrics detect, traces locate, logs explain — I correlate all three with a shared trace/request ID.</div>
+  </div>
+
+  <div class="grid o">
+
+    <!-- O2 stack -->
+    <div class="card oc">
+      <h3><span class="tag">O2</span> Observability Stack</h3>
+      <svg class="dia" viewBox="0 0 300 132" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace" font-size="7.5">
+        <rect x="100" y="4" width="100" height="14" rx="4" fill="#e6f2f0" stroke="#0f766e"/>
+        <text x="150" y="14" text-anchor="middle" fill="#16202e">Apps + OTel SDK</text>
+        <line x1="150" y1="18" x2="150" y2="26" stroke="#94a3b8"/>
+        <rect x="92" y="26" width="116" height="14" rx="4" fill="#e6f2f0" stroke="#0f766e"/>
+        <text x="150" y="36" text-anchor="middle" fill="#16202e">OTel Collector</text>
+        <g fill="#fff" stroke="#0f766e">
+          <rect x="14" y="52" width="80" height="16" rx="3"/><rect x="110" y="52" width="80" height="16" rx="3"/><rect x="206" y="52" width="80" height="16" rx="3"/>
+        </g>
+        <g text-anchor="middle" fill="#16202e">
+          <text x="54" y="63">Prometheus</text><text x="150" y="63">Loki</text><text x="246" y="63">Tempo</text>
+        </g>
+        <g text-anchor="middle" fill="#475569" font-size="6.5">
+          <text x="54" y="78">+ Thanos/Mimir</text><text x="150" y="78">logs</text><text x="246" y="78">traces</text>
+        </g>
+        <line x1="54" y1="84" x2="150" y2="92" stroke="#94a3b8"/><line x1="150" y1="80" x2="150" y2="92" stroke="#94a3b8"/><line x1="246" y1="84" x2="150" y2="92" stroke="#94a3b8"/>
+        <rect x="118" y="92" width="64" height="14" rx="4" fill="#0f766e"/>
+        <text x="150" y="102" text-anchor="middle" fill="#fff">Grafana</text>
+        <line x1="150" y1="106" x2="150" y2="113" stroke="#94a3b8"/>
+        <rect x="92" y="113" width="116" height="14" rx="4" fill="#fbe6e3" stroke="#c0392b"/>
+        <text x="150" y="123" text-anchor="middle" fill="#16202e">Alertmanager → PagerDuty</text>
+      </svg>
+      <div class="say"><b>SAY</b>Standardize collection on OpenTelemetry, fan out to Prometheus/Loki/Tempo, visualize in Grafana, and alert through Alertmanager.</div>
+    </div>
+
+    <!-- O3 metric types -->
+    <div class="card oc">
+      <h3><span class="tag">O3</span> Metric Types</h3>
+      <table class="mini">
+        <tr><th>Type</th><th>Meaning</th></tr>
+        <tr><td><b>Counter</b></td><td>only goes up (requests) → use rate()</td></tr>
+        <tr><td><b>Gauge</b></td><td>up/down (memory)</td></tr>
+        <tr><td><b>Histogram</b></td><td>buckets → P95/P99, aggregates</td></tr>
+        <tr><td><b>Summary</b></td><td>client-side quantiles, hard to aggregate</td></tr>
+      </table>
+      <div class="say"><b>SAY</b>Counters for cumulative events with rate(), gauges for current state, histograms for latency percentiles because they aggregate across instances.</div>
+    </div>
+
+    <!-- O4 PromQL -->
+    <div class="card oc">
+      <h3><span class="tag">O4 ★</span> PromQL Essentials</h3>
+      <div class="codeblk">
+<span class="cm"># req/sec (Counter only!)</span>
+<span class="c">rate</span>(<span class="m">http_requests_total</span>[<span class="x">5m</span>])
+<span class="cm"># error rate %</span>
+<span class="c">sum</span>(<span class="c">rate</span>(<span class="m">..._total</span>{status=~<span class="x">"5.."</span>}[<span class="x">5m</span>]))
+ / <span class="c">sum</span>(<span class="c">rate</span>(<span class="m">..._total</span>[<span class="x">5m</span>]))
+<span class="cm"># P95 latency</span>
+<span class="c">histogram_quantile</span>(<span class="x">0.95</span>,
+ <span class="c">sum</span>(<span class="c">rate</span>(<span class="m">..._bucket</span>[<span class="x">5m</span>])) <span class="c">by</span>(le))
+<span class="cm"># top 10 CPU pods</span>
+<span class="c">topk</span>(<span class="x">10</span>, <span class="c">sum</span>(<span class="c">rate</span>(<span class="m">cpu_..._total</span>[<span class="x">5m</span>])) <span class="c">by</span>(pod))
+<span class="cm"># forecast disk full</span>
+<span class="c">predict_linear</span>(<span class="m">fs_free</span>[<span class="x">6h</span>], <span class="x">86400</span>)
+      </div>
+      <p class="small"><b>rate vs irate:</b> rate = stable (alerts); irate = reactive (debug). <b>Recording rules</b> precompute heavy queries.</p>
+      <div class="say"><b>SAY</b>rate() only on counters, histogram_quantile for percentiles, sum by() to aggregate replicas, recording rules for expensive queries.</div>
+    </div>
+
+    <!-- O5 SLO + nines -->
+    <div class="card oc">
+      <h3><span class="tag">O5 ★</span> SLI · SLO · SLA · Budget</h3>
+      <ul class="small">
+        <li><b>SLI</b> measures (actual 99.96%)</li>
+        <li><b>SLO</b> targets (goal 99.9%)</li>
+        <li><b>SLA</b> promises (contract + penalty)</li>
+        <li><b>Error budget</b> = 100% − SLO · <b>burn rate</b> = how fast it's spent</li>
+      </ul>
+      <table class="nines">
+        <tr><th>SLO</th><th>Downtime / month</th></tr>
+        <tr><td>99%</td><td>~7h 18m</td></tr>
+        <tr><td>99.9%</td><td>~43m</td></tr>
+        <tr><td>99.95%</td><td>~22m</td></tr>
+        <tr><td>99.99%</td><td>~4m 23s</td></tr>
+        <tr><td>99.999%</td><td>~26s</td></tr>
+      </table>
+      <div class="say"><b>SAY</b>SLI measures, SLO targets, SLA promises. Error budget = 1 − SLO; if it's exhausted we freeze risky releases and fix reliability.</div>
+    </div>
+
+    <!-- O6 golden signals -->
+    <div class="card oc">
+      <h3><span class="tag">O6</span> Golden Signals</h3>
+      <p class="small"><b>L-T-E-S:</b> <b>L</b>atency · <b>T</b>raffic · <b>E</b>rrors · <b>S</b>aturation.</p>
+      <table class="mini">
+        <tr><th>Model</th><th>Use</th></tr>
+        <tr><td><b>RED</b></td><td>services: Rate, Errors, Duration</td></tr>
+        <tr><td><b>USE</b></td><td>resources: Utilization, Saturation, Errors</td></tr>
+      </table>
+      <div class="say"><b>SAY</b>Latency, traffic, errors, saturation on every dashboard; RED for request-driven services, USE for resources.</div>
+    </div>
+
+    <!-- O7 prometheus scaling -->
+    <div class="card oc">
+      <h3><span class="tag">O7</span> Scaling Prometheus</h3>
+      <table class="mini">
+        <tr><th>Option</th><th>For</th></tr>
+        <tr><td><b>Federation</b></td><td>pull aggregated metrics (hierarchy)</td></tr>
+        <tr><td><b>Remote Write</b></td><td>push all metrics to long-term store</td></tr>
+        <tr><td><b>Thanos</b></td><td>HA + long-term, extends Prometheus</td></tr>
+        <tr><td><b>Mimir/Cortex</b></td><td>cloud-scale, multi-tenant TSDB</td></tr>
+      </table>
+      <p class="small">One Prometheus <b>per cluster</b>; aggregate globally. Cut cost via cardinality + downsampling.</p>
+      <div class="say"><b>SAY</b>Local Prometheus per cluster, then Thanos or Mimir over object storage for HA, long-term retention, and a global view.</div>
+    </div>
+
+    <!-- O8 alertmanager -->
+    <div class="card oc">
+      <h3><span class="tag">O8</span> Alertmanager</h3>
+      <table class="mini">
+        <tr><th>Feature</th><th>Does</th></tr>
+        <tr><td><b>route</b></td><td>send to right team (by label)</td></tr>
+        <tr><td><b>group</b></td><td>collapse related alerts → 1 page</td></tr>
+        <tr><td><b>dedup</b></td><td>drop duplicates (HA)</td></tr>
+        <tr><td><b>inhibit</b></td><td>suppress symptoms under root cause</td></tr>
+        <tr><td><b>silence</b></td><td>mute during maintenance</td></tr>
+      </table>
+      <p class="small"><b>labels</b>=routing · <b>annotations</b>=context+runbook · <b>for:</b> kills transient spikes.</p>
+      <div class="say"><b>SAY</b>Alert on customer-impacting symptoms (SLO/burn-rate), route by ownership, group and inhibit to kill noise, and attach a runbook to every page.</div>
+    </div>
+
+    <!-- O9 grafana -->
+    <div class="card oc">
+      <h3><span class="tag">O9</span> Grafana</h3>
+      <ul class="small">
+        <li><b>Does NOT store metrics</b> — queries Prometheus/Loki/Tempo</li>
+        <li><b>Variables</b> = one dashboard, all clusters</li>
+        <li><b>Annotations</b> overlay deploys on graphs</li>
+        <li><b>Exec</b> = business KPIs · <b>Ops</b> = technical metrics</li>
+      </ul>
+      <div class="say"><b>SAY</b>Grafana is the visualization layer — if it's down, Prometheus still scrapes and Alertmanager still pages; only dashboards are gone.</div>
+    </div>
+
+    <!-- O10 logging -->
+    <div class="card oc">
+      <h3><span class="tag">O10</span> Logging</h3>
+      <div class="flow"><span class="n">stdout</span><span class="a">→</span><span class="n">Fluent Bit</span><span class="a">→</span><span class="n">parse/enrich</span><span class="a">→</span><span class="n">Loki/OpenSearch</span><span class="a">→</span><span class="n">Grafana</span></div>
+      <ul class="small">
+        <li><b>Loki</b> indexes labels only → cheap; <b>ELK</b> full-text → costly</li>
+        <li><b>Fluent Bit</b> = light DaemonSet; <b>Fluentd</b> = heavy aggregator</li>
+        <li><b>Correlation ID</b> ties a request across services</li>
+        <li>Log JSON to <b>stdout</b>; never log secrets/PII</li>
+      </ul>
+      <div class="say"><b>SAY</b>Structured JSON to stdout, collected by Fluent Bit, enriched with k8s metadata, into Loki, correlated to traces by request ID.</div>
+    </div>
+
+    <!-- O11 tracing -->
+    <div class="card oc">
+      <h3><span class="tag">O11</span> Distributed Tracing</h3>
+      <ul class="small">
+        <li><b>Trace</b> = whole request · <b>Span</b> = one operation</li>
+        <li><b>Trace ID</b> shared across all services; <b>Span ID</b> per span</li>
+        <li><b>Context propagation</b> via W3C <code>traceparent</code> header</li>
+        <li><b>Tail sampling</b> keeps slow/failed traces (prod)</li>
+        <li><b>Tempo</b> = cheap, Grafana-native · <b>Jaeger</b> = rich UI</li>
+      </ul>
+      <div class="say"><b>SAY</b>One trace ID flows through every service via the traceparent header; I find the slowest span, then pivot to logs by that ID.</div>
+    </div>
+
+    <!-- O12 incidents -->
+    <div class="card oc">
+      <h3><span class="tag">O12 ★</span> Incident Response</h3>
+      <div class="flow"><span class="n">detect</span><span class="a">→</span><span class="n">classify SEV</span><span class="a">→</span><span class="n">IC + war room</span><span class="a">→</span><span class="n">mitigate</span><span class="a">→</span><span class="n">recover</span><span class="a">→</span><span class="n">RCA</span><span class="a">→</span><span class="n">postmortem</span></div>
+      <table class="mini">
+        <tr><th>Metric</th><th>Meaning</th></tr>
+        <tr><td><b>MTTD</b></td><td>time to detect</td></tr>
+        <tr><td><b>MTTA</b></td><td>time to acknowledge</td></tr>
+        <tr><td><b>MTTR</b></td><td>time to recover</td></tr>
+      </table>
+      <p class="small"><b>SEV1</b> = full outage · <b>IC</b> coordinates, doesn't debug · update every 15–30 min · <b>blameless</b> postmortem.</p>
+      <div class="say"><b>SAY</b>I scope customer impact, declare severity, assign an Incident Commander, mitigate first, then run a blameless RCA with tracked actions.</div>
+    </div>
+
+    <!-- O13 DR/HA -->
+    <div class="card oc">
+      <h3><span class="tag">O13</span> HA &amp; Disaster Recovery</h3>
+      <table class="mini">
+        <tr><th></th><th>HA</th><th>DR</th></tr>
+        <tr><td>Scope</td><td>node/pod</td><td>region</td></tr>
+        <tr><td>Recover</td><td>seconds</td><td>min–hrs</td></tr>
+        <tr><td>How</td><td>multi-AZ</td><td>multi-region</td></tr>
+      </table>
+      <ul class="small">
+        <li><b>RTO</b> = max downtime · <b>RPO</b> = max data loss</li>
+        <li><b>Active-Active</b> = both serve · <b>Active-Passive</b> = standby</li>
+        <li>Replicas ≠ backups; <b>snapshots = backups</b>. Test restores!</li>
+      </ul>
+      <div class="say"><b>SAY</b>HA handles local failures in seconds via multi-AZ; DR handles a region loss in minutes via multi-region. RTO is downtime, RPO is data loss.</div>
+    </div>
+
+  </div><!-- /grid o -->
+
+  <!-- mnemonics feature -->
+  <div class="feature oc" style="border-left-color:var(--ink);">
+    <h3 style="font-family:'Space Grotesk';font-size:14px;margin:0 0 9px;">⚡ Rapid-Fire Mnemonics — say these verbatim</h3>
+    <div class="mn">
+      <div class="m1"><b>SLI/SLO/SLA</b> — "measures · targets · promises."</div>
+      <div class="m1"><b>rate()</b> — counters only; gauges go up and down.</div>
+      <div class="m1"><b>P95/P99</b> — histograms, never averages (averages hide outliers).</div>
+      <div class="m1"><b>Cluster health</b> — Green all assigned · Yellow replica missing · Red primary missing.</div>
+      <div class="m1"><b>Throttle vs OOM</b> — CPU over-limit throttles; memory over-limit is killed.</div>
+      <div class="m1"><b>HA vs DR</b> — seconds/multi-AZ vs minutes/multi-region.</div>
+      <div class="m1"><b>RTO vs RPO</b> — Time to recover vs amount of data lost.</div>
+      <div class="m1"><b>JVM/ES heap</b> — keep under ~31 GB (compressed OOPs), ≤50% RAM.</div>
+      <div class="m1"><b>Replicas ≠ backups</b> — snapshots are backups; test the restore.</div>
+      <div class="m1"><b>Grafana</b> — doesn't store data; it queries backends.</div>
+      <div class="m1"><b>Alert quality</b> — page on symptoms (SLO), not CPU; group + inhibit to cut noise.</div>
+      <div class="m1"><b>The nines</b> — 99.9% ≈ 43 min/mo · 99.99% ≈ 4 min · 99.999% ≈ 26 sec.</div>
+      <div class="m1"><b>GitOps</b> — Git is truth; controller reconciles live → desired.</div>
+      <div class="m1"><b>Incident first move</b> — scope impact before touching anything.</div>
+      <div class="m1"><b>Three pillars</b> — metrics detect, traces locate, logs explain.</div>
+      <div class="m1"><b>Golden signals</b> — Latency, Traffic, Errors, Saturation.</div>
+    </div>
+  </div>
+
+  <!-- closing posture -->
+  <div class="feature" style="border-left-color:var(--ink);">
+    <h3 style="font-family:'Space Grotesk';font-size:14px;margin:0 0 7px;">The senior posture (use it on every scenario question)</h3>
+    <div class="flow" style="font-size:11px;">
+      <span class="n">1 scope impact</span><span class="a">→</span>
+      <span class="n">2 check dashboards/SLOs</span><span class="a">→</span>
+      <span class="n">3 gather evidence (metrics→traces→logs)</span><span class="a">→</span>
+      <span class="n">4 form &amp; test hypothesis</span><span class="a">→</span>
+      <span class="n">5 mitigate / rollback</span><span class="a">→</span>
+      <span class="n">6 verify recovery</span><span class="a">→</span>
+      <span class="n">7 blameless RCA + prevent</span>
+    </div>
+    <p class="small muted" style="margin:4px 0 0;">Interviewers reward <b>methodology over the first guess</b>. Always say what you'd check and how you'd prevent recurrence — that's the difference between mid-level and senior.</p>
+  </div>
+
+  <div class="footer">
+    <span>Senior SRE Interview Cheat Sheet · companion to the Kubernetes &amp; Observability master books</span>
+    <span>Print: Ctrl/⌘ + P → Save as PDF · fits ~3 pages</span>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1793 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python for SRE Interview Handbook — DevOps, Platform Engineering &amp; Cloud</title>
+<style>
+:root{
+  --ink:#1a1a1a; --soft:#444; --line:#d9d4c8; --rule:#c9c2b2;
+  --accent:#2f5233; --accent2:#c9820a; --bg:#ffffff; --code:#f3f5ee;
+  --codeink:#22331f; --label:#2f5233; --qbg:#f6f3ec;
+}
+*{box-sizing:border-box;}
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  font-size:11.2pt; line-height:1.5;
+}
+.wrap{ max-width:780px; margin:0 auto; padding:48px 40px 72px; }
+
+/* Title page */
+.cover{ text-align:center; padding:90px 0 70px; border-bottom:3px double var(--rule); margin-bottom:8px; }
+.cover .kicker{ font-family:Georgia,serif; letter-spacing:.32em; text-transform:uppercase;
+  font-size:10pt; color:var(--accent2); margin-bottom:26px; }
+.cover h1{ font-size:32pt; line-height:1.1; margin:0 0 10px; font-weight:700; }
+.cover h1 .accent{ color:var(--accent); }
+.cover .sub{ font-size:13pt; color:var(--soft); font-style:italic; margin-top:14px; }
+.cover .meta{ margin-top:40px; font-size:10.5pt; color:var(--soft); letter-spacing:.04em; }
+.cover .rule{ width:70px; height:2px; background:var(--accent2); margin:30px auto 0; }
+
+/* TOC */
+.toc{ padding:34px 0 10px; }
+.toc h2{ font-size:15pt; letter-spacing:.18em; text-transform:uppercase; color:var(--accent);
+  border-bottom:1px solid var(--line); padding-bottom:8px; margin:0 0 14px; }
+.toc ol{ list-style:none; margin:0; padding:0; }
+.toc li{ margin:0; }
+.toc a{ display:flex; gap:12px; align-items:baseline; text-decoration:none; color:var(--ink);
+  padding:5px 0; border-bottom:1px dotted var(--line); }
+.toc .toc-n{ font-family:Georgia,serif; color:var(--accent2); font-weight:700; min-width:26px; }
+.toc .toc-t{ flex:1; }
+
+/* Chapter */
+.chapter{ padding-top:18px; }
+.chap-num{ font-family:Georgia,serif; letter-spacing:.3em; text-transform:uppercase;
+  font-size:10pt; color:var(--accent2); margin-bottom:4px; }
+.chap-title{ font-size:21pt; line-height:1.12; margin:0 0 18px; padding-bottom:14px;
+  border-bottom:3px double var(--rule); font-weight:700; }
+
+h3{ font-size:13.5pt; margin:26px 0 8px; color:var(--ink); font-weight:700;
+  padding-left:12px; border-left:4px solid var(--accent); }
+h4{ font-size:11pt; margin:16px 0 4px; color:var(--label); text-transform:uppercase;
+  letter-spacing:.08em; font-family:Georgia,serif; }
+h4.qhead{ text-transform:none; letter-spacing:0; color:var(--accent2); font-size:11.5pt;
+  border-top:1px solid var(--line); padding-top:12px; }
+
+p{ margin:0 0 9px; text-align:left; }
+ul,ol{ margin:4px 0 12px; padding-left:24px; }
+li{ margin:2px 0; }
+ul{ list-style:square; }
+ul li::marker{ color:var(--accent2); }
+ol li::marker{ color:var(--accent2); font-family:Georgia,serif; }
+
+pre{ background:var(--code); color:var(--codeink); border:1px solid var(--line);
+  border-left:3px solid var(--accent); border-radius:3px; padding:11px 13px;
+  font-family:"SF Mono","DejaVu Sans Mono",Menlo,Consolas,monospace; font-size:9.2pt;
+  line-height:1.42; white-space:pre-wrap; word-break:break-word; margin:8px 0 12px; }
+
+code{ font-family:"SF Mono","DejaVu Sans Mono",Menlo,Consolas,monospace; font-size:9.5pt;
+  background:var(--qbg); border:1px solid var(--line); border-radius:3px; padding:0 3px; }
+
+table{ width:100%; border-collapse:collapse; font-size:9.6pt; margin:8px 0 12px; }
+th,td{ border:1px solid var(--line); padding:5px 8px; text-align:left; vertical-align:top; }
+th{ background:var(--qbg); color:var(--label); }
+
+.mistake{ background:#fbeee0; border:1px solid #e0b47a; border-left:3px solid var(--accent2);
+  border-radius:3px; padding:8px 12px; margin:8px 0 12px; font-size:10.2pt; }
+.mistake b{ color:var(--accent2); }
+.tip{ background:#eef3ec; border:1px solid #b9cdb4; border-left:3px solid var(--accent);
+  border-radius:3px; padding:8px 12px; margin:8px 0 12px; font-size:10.2pt; }
+.tip b{ color:var(--accent); }
+
+a{ color:var(--accent); }
+
+/* Print */
+@media print{
+  @page{ size:A4; margin:18mm 16mm; }
+  body{ font-size:10.6pt; }
+  .wrap{ padding:0; max-width:none; }
+  .cover{ height:auto; page-break-after:always; padding-top:60px; }
+  .toc{ page-break-after:always; }
+  .chapter{ page-break-before:always; }
+  h3,h4{ page-break-after:avoid; }
+  pre,ul,ol,table{ page-break-inside:avoid; }
+  a{ color:var(--ink); text-decoration:none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="cover">
+    <div class="kicker">Senior SRE &middot; DevOps &middot; Platform Engineer &middot; Cloud</div>
+    <h1>The <span class="accent">Python</span><br>for SRE Interview Handbook</h1>
+    <div class="sub">Automation-first Python &middot; Not algorithms &mdash; the scripting interviewers actually ask for</div>
+    <div class="rule"></div>
+    <div class="meta">A complete study guide &middot; 20 chapters &middot; worked examples, interview Q&amp;A, exercises &amp; real SRE scripts</div>
+  </header>
+
+  <nav class="toc">
+    <h2>Contents</h2>
+    <ol>
+<li><a href="#ch1"><span class="toc-n">1</span><span class="toc-t">Python Fundamentals</span></a></li>
+<li><a href="#ch2"><span class="toc-n">2</span><span class="toc-t">Conditional Statements</span></a></li>
+<li><a href="#ch3"><span class="toc-n">3</span><span class="toc-t">Loops</span></a></li>
+<li><a href="#ch4"><span class="toc-n">4</span><span class="toc-t">Functions</span></a></li>
+<li><a href="#ch5"><span class="toc-n">5</span><span class="toc-t">Strings</span></a></li>
+<li><a href="#ch6"><span class="toc-n">6</span><span class="toc-t">Lists</span></a></li>
+<li><a href="#ch7"><span class="toc-n">7</span><span class="toc-t">Dictionary</span></a></li>
+<li><a href="#ch8"><span class="toc-n">8</span><span class="toc-t">Sets</span></a></li>
+<li><a href="#ch9"><span class="toc-n">9</span><span class="toc-t">File Handling</span></a></li>
+<li><a href="#ch10"><span class="toc-n">10</span><span class="toc-t">Exception Handling</span></a></li>
+<li><a href="#ch11"><span class="toc-n">11</span><span class="toc-t">JSON</span></a></li>
+<li><a href="#ch12"><span class="toc-n">12</span><span class="toc-t">OS Module</span></a></li>
+<li><a href="#ch13"><span class="toc-n">13</span><span class="toc-t">Subprocess</span></a></li>
+<li><a href="#ch14"><span class="toc-n">14</span><span class="toc-t">Requests Module</span></a></li>
+<li><a href="#ch15"><span class="toc-n">15</span><span class="toc-t">Regular Expressions</span></a></li>
+<li><a href="#ch16"><span class="toc-n">16</span><span class="toc-t">Automation Scripts</span></a></li>
+<li><a href="#ch17"><span class="toc-n">17</span><span class="toc-t">Kubernetes Automation</span></a></li>
+<li><a href="#ch18"><span class="toc-n">18</span><span class="toc-t">AWS / Azure Automation</span></a></li>
+<li><a href="#ch19"><span class="toc-n">19</span><span class="toc-t">Top 50 Coding Questions — Rapid-Fire Bank</span></a></li>
+<li><a href="#ch20"><span class="toc-n">20</span><span class="toc-t">SRE Real-World Python Scripts (Portfolio Chapter)</span></a></li>
+    </ol>
+  </nav>
+<section class="chapter" id="ch1">
+<div class="chap-num">Chapter 1</div>
+<h2 class="chap-title">Python Fundamentals</h2>
+
+<p>Interviewers use this chapter to confirm baseline fluency before moving into automation scenarios. Expect quick, rapid-fire questions rather than deep ones &mdash; the bar is "can you write correct Python without hesitation," not depth.</p>
+
+<h3>Core Concepts</h3>
+<pre>name = "Saroj"       # str
+age = 11              # int
+years_exp = 11.5       # float
+is_oncall = True      # bool
+
+print(f"{name} has {years_exp} years of experience")
+
+# Type conversion
+str(42); int("42"); float("3.14"); bool(0)   # bool(0) is False, bool(1) is True
+
+# Multiple assignment
+host, port = "prod-db-01", 5432
+
+# f-strings (preferred over % or .format() in modern interviews)
+print(f"Connecting to {host}:{port}")</pre>
+
+<h3 class="qhead">Question 1 &mdash; Is Python statically or dynamically typed?</h3>
+<h4>Answer</h4>
+<p>Dynamically typed: a variable's type is determined at runtime and can change, e.g. <code>x = 5</code> then <code>x = "five"</code> is legal. Python is also strongly typed &mdash; it won't silently coerce <code>"5" + 5</code>; that raises a <code>TypeError</code>.</p>
+
+<h3 class="qhead">Question 2 &mdash; Mutable vs immutable types?</h3>
+<h4>Answer</h4>
+<p>Immutable: <code>int, float, str, tuple, frozenset, bool</code>. Mutable: <code>list, dict, set</code>. This matters operationally &mdash; passing a mutable default argument, or mutating a list while iterating it, are two of the most common production bugs.</p>
+<pre># Classic mutable-default-argument bug
+def add_host(host, pool=[]):     # BUG: default list is shared across calls
+    pool.append(host)
+    return pool
+
+# Fix
+def add_host(host, pool=None):
+    if pool is None:
+        pool = []
+    pool.append(host)
+    return pool</pre>
+
+<h3 class="qhead">Question 3 &mdash; <code>is</code> vs <code>==</code>?</h3>
+<h4>Answer</h4>
+<p><code>==</code> compares values; <code>is</code> compares object identity (same memory reference). Use <code>is</code> for <code>None</code> checks (<code>if x is None</code>), and <code>==</code> for everything else. <code>if x == None</code> works but is considered non-idiomatic.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write a script that stores a service name, port, and a list of environment tags, then prints a one-line summary using an f-string.</p>
+<pre>service = "checkout-api"
+port = 8080
+tags = ["prod", "payments", "tier-1"]
+print(f"{service} listens on :{port} [{', '.join(tags)}]")
+# checkout-api listens on :8080 [prod, payments, tier-1]</pre>
+
+<div class="mistake"><b>Common mistake:</b> using mutable default arguments (<code>def f(x=[])</code>), which persist across calls and cause hard-to-trace state leaks &mdash; a favorite trick question.</div>
+<div class="tip"><b>Interview tip:</b> if asked "is Python interpreted or compiled," the accurate answer is both: source compiles to bytecode (.pyc) which the CPython VM interprets. Saying "purely interpreted" is a minor red flag to strong interviewers.</div>
+
+</section>
+<section class="chapter" id="ch2">
+<div class="chap-num">Chapter 2</div>
+<h2 class="chap-title">Conditional Statements</h2>
+
+<p>Simple on the surface, but interviewers use these to see if you write clean, readable branching logic instead of nested pyramids &mdash; a real production-readability signal.</p>
+
+<h3>Core Concepts</h3>
+<pre>status_code = 503
+
+if status_code < 300:
+    print("OK")
+elif status_code < 500:
+    print("Client error")
+else:
+    print("Server error")
+
+# Ternary (ideal for short assignments)
+health = "healthy" if status_code < 300 else "unhealthy"
+
+# Truthiness: 0, "", [], {}, None, False are all falsy
+if not error_list:
+    print("No errors")</pre>
+
+<h3 class="qhead">Question 1 &mdash; Check even or odd</h3>
+<pre>def is_even(n):
+    return n % 2 == 0
+
+print(is_even(17))   # False</pre>
+
+<h3 class="qhead">Question 2 &mdash; Largest of three numbers</h3>
+<pre>def largest(a, b, c):
+    return max(a, b, c)   # built-in max() beats manual if/elif in interviews
+
+print(largest(4, 19, 7))   # 19</pre>
+
+<h3 class="qhead">Question 3 &mdash; Leap year check</h3>
+<pre>def is_leap(year):
+    return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+
+print(is_leap(2024), is_leap(1900), is_leap(2000))  # True False True</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Given an HTTP status code, classify it as Informational / Success / Redirect / Client Error / Server Error using a dict-based lookup instead of a long if/elif chain (a pattern interviewers like to see for scalability).</p>
+<pre>def classify(code):
+    ranges = {1: "Informational", 2: "Success", 3: "Redirect",
+              4: "Client Error", 5: "Server Error"}
+    return ranges.get(code // 100, "Unknown")
+
+print(classify(404), classify(200), classify(503))
+# Client Error Success Server Error</pre>
+
+<div class="mistake"><b>Common mistake:</b> deeply nested if/elif/else pyramids instead of early returns or dict-based dispatch &mdash; interviewers reading this as a readability/maintainability red flag for production code.</div>
+<div class="tip"><b>Interview tip:</b> mention guard clauses (<code>if not valid: return</code> early) as your default style &mdash; it signals you write for the next reader, which matters heavily in on-call codebases.</div>
+
+</section>
+<section class="chapter" id="ch3">
+<div class="chap-num">Chapter 3</div>
+<h2 class="chap-title">Loops</h2>
+
+<p>Loops are the backbone of every automation script &mdash; iterating over log lines, pods, hosts, files. Interviewers watch for <code>enumerate()</code>, list comprehensions, and correct use of <code>break</code>/<code>continue</code> as fluency signals.</p>
+
+<h3>Core Concepts</h3>
+<pre>for i in range(5):
+    print(i)              # 0 1 2 3 4
+
+hosts = ["web-1", "web-2", "web-3"]
+for idx, host in enumerate(hosts, start=1):
+    print(f"{idx}: {host}")
+
+i = 0
+while i < 3:
+    i += 1
+    if i == 2:
+        continue           # skip this iteration
+    print(i)
+
+for host in hosts:
+    if host == "web-2":
+        break               # stop the loop entirely
+    print(host)</pre>
+
+<h3 class="qhead">Question 1 &mdash; Multiplication table</h3>
+<pre>n = 7
+for i in range(1, 11):
+    print(f"{n} x {i} = {n*i}")</pre>
+
+<h3 class="qhead">Question 2 &mdash; Fibonacci sequence</h3>
+<pre>def fibonacci(n):
+    a, b = 0, 1
+    result = []
+    for _ in range(n):
+        result.append(a)
+        a, b = b, a + b
+    return result
+
+print(fibonacci(8))  # [0, 1, 1, 2, 3, 5, 8, 13]</pre>
+
+<h3 class="qhead">Question 3 &mdash; Check for prime numbers</h3>
+<pre>def is_prime(n):
+    if n < 2:
+        return False
+    for i in range(2, int(n ** 0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
+
+print([x for x in range(2, 30) if is_prime(x)])</pre>
+
+<h3 class="qhead">Question 4 &mdash; Factorial</h3>
+<pre>def factorial(n):
+    result = 1
+    for i in range(2, n + 1):
+        result *= i
+    return result
+
+print(factorial(6))  # 720</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Given a list of pod restart counts, use a list comprehension to find pods restarting more than 5 times.</p>
+<pre>pods = {"api-1": 2, "api-2": 9, "worker-1": 12, "worker-2": 0}
+flapping = [name for name, restarts in pods.items() if restarts > 5]
+print(flapping)  # ['api-2', 'worker-1']</pre>
+
+<div class="mistake"><b>Common mistake:</b> mutating a list while iterating over it (<code>for x in items: items.remove(x)</code>) &mdash; silently skips elements. Iterate over a copy (<code>items[:]</code>) or build a new list instead.</div>
+<div class="tip"><b>Interview tip:</b> when the task is "transform every item," reach for a list comprehension by default &mdash; interviewers read this as idiomatic Python, not just working Python.</div>
+
+</section>
+<section class="chapter" id="ch4">
+<div class="chap-num">Chapter 4</div>
+<h2 class="chap-title">Functions</h2>
+
+<p>Functions are where interviewers check whether you understand scope, argument passing, and when to reach for a lambda versus a named function &mdash; all of which show up constantly in automation scripts and Kubernetes/AWS SDK callbacks.</p>
+
+<h3>Core Concepts</h3>
+<pre>def restart_service(name, retries=3, *, dry_run=False):
+    # Keyword-only dry_run forces callers to be explicit.
+    for attempt in range(1, retries + 1):
+        if dry_run:
+            print(f"[dry-run] would restart {name} (attempt {attempt})")
+        else:
+            print(f"restarting {name} (attempt {attempt})")
+
+restart_service("nginx", dry_run=True)
+
+# *args / **kwargs
+def run_command(cmd, *args, **kwargs):
+    print(cmd, args, kwargs)
+
+run_command("kubectl", "get", "pods", namespace="prod")
+# kubectl ('get', 'pods') {'namespace': 'prod'}
+
+# Lambda — short, single-expression only
+square = lambda x: x ** 2
+sorted_hosts = sorted(["web-10", "web-2", "web-1"], key=lambda h: int(h.split("-")[1]))</pre>
+
+<h3 class="qhead">Question 1 &mdash; Default vs keyword arguments?</h3>
+<h4>Answer</h4>
+<p>Default arguments supply a fallback value if the caller omits it (<code>def f(x=5)</code>). Keyword arguments are supplied by name at the call site (<code>f(x=5)</code>), independent of position. You can force keyword-only arguments with a bare <code>*</code> in the signature &mdash; useful for flags like <code>dry_run</code> where positional use would be error-prone.</p>
+
+<h3 class="qhead">Question 2 &mdash; What is a closure, and where would you use one in SRE tooling?</h3>
+<h4>Answer</h4>
+<p>A closure is a function that remembers variables from its enclosing scope even after that scope has exited. Common use: building a retry decorator that "remembers" a configured max-retries value.</p>
+<pre>def make_retrier(max_attempts):
+    def retrier(func):
+        def wrapper(*args, **kwargs):
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    print(f"attempt {attempt} failed: {e}")
+            raise RuntimeError("all retries exhausted")
+        return wrapper
+    return retrier
+
+@make_retrier(3)
+def call_api():
+    ...</pre>
+
+<h3 class="qhead">Question 3 &mdash; Recursion example: sum of digits</h3>
+<pre>def sum_digits(n):
+    if n < 10:
+        return n
+    return n % 10 + sum_digits(n // 10)
+
+print(sum_digits(9875))  # 29</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write a simple calculator function that takes an operator string and two numbers, dispatching via a dict instead of if/elif.</p>
+<pre>import operator
+
+OPS = {"+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv}
+
+def calculate(op, a, b):
+    if op not in OPS:
+        raise ValueError(f"unsupported operator: {op}")
+    return OPS[op](a, b)
+
+print(calculate("*", 6, 7))  # 42</pre>
+
+<div class="mistake"><b>Common mistake:</b> forgetting that Python passes object references &mdash; mutating a mutable argument (a list/dict) inside a function mutates the caller's object too, unless you explicitly copy it first.</div>
+<div class="tip"><b>Interview tip:</b> if asked to write a "calculator" or "dispatcher," using a dict of callables instead of if/elif signals you think about extensibility &mdash; a small but noticeable senior-level signal.</div>
+
+</section>
+<section class="chapter" id="ch5">
+<div class="chap-num">Chapter 5</div>
+<h2 class="chap-title">Strings</h2>
+
+<p>String manipulation questions are near-universal in SRE interviews because log parsing, config templating, and text processing all live here. Expect at least two or three of these in any Python round.</p>
+
+<h3 class="qhead">Question 1 &mdash; Reverse a string</h3>
+<pre>def reverse(s):
+    return s[::-1]
+
+print(reverse("kubernetes"))  # setenrebuk</pre>
+
+<h3 class="qhead">Question 2 &mdash; Palindrome check</h3>
+<pre>def is_palindrome(s):
+    s = s.lower().replace(" ", "")
+    return s == s[::-1]
+
+print(is_palindrome("A man a plan a canal Panama"))  # True</pre>
+
+<h3 class="qhead">Question 3 &mdash; Anagram check</h3>
+<pre>def is_anagram(a, b):
+    return sorted(a.lower()) == sorted(b.lower())
+
+print(is_anagram("listen", "silent"))  # True</pre>
+
+<h3 class="qhead">Question 4 &mdash; Count vowels</h3>
+<pre>def count_vowels(s):
+    return sum(1 for ch in s.lower() if ch in "aeiou")
+
+print(count_vowels("Site Reliability Engineering"))  # 11</pre>
+
+<h3 class="qhead">Question 5 &mdash; Count words</h3>
+<pre>def word_count(s):
+    return len(s.split())
+
+print(word_count("kubectl get pods -n prod"))  # 5</pre>
+
+<h3 class="qhead">Question 6 &mdash; First non-repeating character</h3>
+<pre>def first_unique(s):
+    for ch in s:
+        if s.count(ch) == 1:
+            return ch
+    return None
+
+print(first_unique("swiss"))  # w</pre>
+
+<h3 class="qhead">Question 7 &mdash; Remove duplicate characters (preserve order)</h3>
+<pre>def remove_dupes(s):
+    seen = set()
+    result = []
+    for ch in s:
+        if ch not in seen:
+            seen.add(ch)
+            result.append(ch)
+    return "".join(result)
+
+print(remove_dupes("mississippi"))  # misp</pre>
+
+<h3 class="qhead">Question 8 &mdash; String compression</h3>
+<pre>def compress(s):
+    if not s:
+        return s
+    result = []
+    count = 1
+    for i in range(1, len(s) + 1):
+        if i < len(s) and s[i] == s[i - 1]:
+            count += 1
+        else:
+            result.append(s[i - 1] + (str(count) if count > 1 else ""))
+            count = 1
+    compressed = "".join(result)
+    return compressed if len(compressed) < len(s) else s
+
+print(compress("aaabbbccd"))  # a3b3c2d</pre>
+
+<h3 class="qhead">Question 9 &mdash; Character frequency</h3>
+<pre>from collections import Counter
+
+def char_frequency(s):
+    return dict(Counter(s.replace(" ", "")))
+
+print(char_frequency("error error warn"))
+# {'e': 2, 'r': 6, 'o': 2, 'w': 1, 'a': 1, 'n': 1}</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Given a raw log line, extract just the log level (INFO/WARN/ERROR) using string methods &mdash; no regex.</p>
+<pre>line = "2026-07-07 10:12:03 ERROR failed to connect to db"
+
+def extract_level(line):
+    for level in ("ERROR", "WARN", "INFO"):
+        if level in line:
+            return level
+    return "UNKNOWN"
+
+print(extract_level(line))  # ERROR</pre>
+
+<div class="mistake"><b>Common mistake:</b> using <code>+=</code> to build a string inside a large loop. Each concatenation creates a new string object (strings are immutable), which is O(n&sup2;) for n appends. Use <code>"".join(list_of_parts)</code> instead.</div>
+<div class="tip"><b>Interview tip:</b> <code>collections.Counter</code> is the fastest way to answer any "count frequency of X" question &mdash; naming it unprompted is a strong signal you know the standard library, not just the language.</div>
+
+</section>
+<section class="chapter" id="ch6">
+<div class="chap-num">Chapter 6</div>
+<h2 class="chap-title">Lists</h2>
+
+<p>Lists back most SRE data wrangling &mdash; host inventories, pod lists, metric samples. Interviewers look for comfort with slicing, comprehensions, and knowing when <em>not</em> to use a list (e.g. membership testing is O(n) on a list vs O(1) on a set).</p>
+
+<h3 class="qhead">Question 1 &mdash; Find the largest and smallest number</h3>
+<pre>nums = [45, 3, 89, 12, 67]
+print(max(nums), min(nums))  # 89 3</pre>
+
+<h3 class="qhead">Question 2 &mdash; Remove duplicates (order doesn't matter)</h3>
+<pre>nums = [1, 2, 2, 3, 3, 3, 4]
+unique = list(set(nums))
+print(sorted(unique))  # [1, 2, 3, 4]</pre>
+
+<h3 class="qhead">Question 3 &mdash; Find duplicates</h3>
+<pre>from collections import Counter
+
+nums = [1, 2, 2, 3, 3, 3, 4]
+dupes = [n for n, c in Counter(nums).items() if c > 1]
+print(dupes)  # [2, 3]</pre>
+
+<h3 class="qhead">Question 4 &mdash; Second largest number</h3>
+<pre>def second_largest(nums):
+    uniq = sorted(set(nums), reverse=True)
+    return uniq[1] if len(uniq) > 1 else None
+
+print(second_largest([45, 3, 89, 12, 89]))  # 45</pre>
+
+<h3 class="qhead">Question 5 &mdash; Rotate an array by k positions</h3>
+<pre>def rotate(arr, k):
+    k %= len(arr)
+    return arr[-k:] + arr[:-k]
+
+print(rotate([1, 2, 3, 4, 5], 2))  # [4, 5, 1, 2, 3]</pre>
+
+<h3 class="qhead">Question 6 &mdash; Merge two sorted lists</h3>
+<pre>def merge_sorted(a, b):
+    return sorted(a + b)
+
+print(merge_sorted([1, 3, 5], [2, 4, 6]))  # [1, 2, 3, 4, 5, 6]</pre>
+
+<h3 class="qhead">Question 7 &mdash; Sort without using <code>sort()</code> (bubble sort)</h3>
+<pre>def bubble_sort(arr):
+    arr = arr[:]
+    n = len(arr)
+    for i in range(n):
+        for j in range(n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+    return arr
+
+print(bubble_sort([5, 1, 4, 2, 8]))  # [1, 2, 4, 5, 8]</pre>
+
+<h3 class="qhead">Question 8 &mdash; Common elements between two lists</h3>
+<pre>a = ["web-1", "web-2", "web-3"]
+b = ["web-2", "web-3", "web-4"]
+print(list(set(a) & set(b)))  # ['web-2', 'web-3'] (order not guaranteed)</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Given CPU utilization samples for a host, find how many exceeded an 80% threshold, and the average.</p>
+<pre>samples = [45, 82, 91, 76, 88, 33, 95]
+threshold = 80
+over = [s for s in samples if s > threshold]
+print(len(over), sum(samples) / len(samples))
+# 4 72.85714285714286</pre>
+
+<div class="mistake"><b>Common mistake:</b> using <code>in</code> to check membership repeatedly on a large list inside a loop &mdash; O(n) per check. Convert to a <code>set</code> first if you're checking membership many times; that's O(1) per check.</div>
+<div class="tip"><b>Interview tip:</b> know the difference between <code>list.sort()</code> (in-place, returns <code>None</code>) and <code>sorted(list)</code> (returns a new list). Returning <code>None</code> from a chained <code>.sort()</code> call is a classic bug interviewers plant on purpose.</div>
+
+</section>
+<section class="chapter" id="ch7">
+<div class="chap-num">Chapter 7</div>
+<h2 class="chap-title">Dictionary</h2>
+
+<p>Dictionaries are the workhorse of config parsing, JSON handling, and building lookup tables from log/metric data &mdash; expect heavy use across the automation chapters that follow.</p>
+
+<h3 class="qhead">Question 1 &mdash; Word frequency count</h3>
+<pre>from collections import Counter
+
+text = "error timeout error connection error timeout"
+freq = Counter(text.split())
+print(freq)
+# Counter({'error': 3, 'timeout': 2, 'connection': 1})
+print(freq.most_common(1))  # [('error', 3)]</pre>
+
+<h3 class="qhead">Question 2 &mdash; Character frequency (dict comprehension)</h3>
+<pre>s = "kubernetes"
+freq = {ch: s.count(ch) for ch in set(s)}
+print(freq)</pre>
+
+<h3 class="qhead">Question 3 &mdash; Merge dictionaries</h3>
+<pre>defaults = {"timeout": 30, "retries": 3}
+overrides = {"retries": 5, "region": "ap-south-1"}
+
+merged = {**defaults, **overrides}   # Python 3.5+
+print(merged)  # {'timeout': 30, 'retries': 5, 'region': 'ap-south-1'}
+
+# Python 3.9+
+merged2 = defaults | overrides</pre>
+
+<h3 class="qhead">Question 4 &mdash; Invert a dictionary</h3>
+<pre>status_codes = {"OK": 200, "NOT_FOUND": 404, "SERVER_ERROR": 500}
+inverted = {v: k for k, v in status_codes.items()}
+print(inverted)  # {200: 'OK', 404: 'NOT_FOUND', 500: 'SERVER_ERROR'}</pre>
+
+<h3 class="qhead">Question 5 &mdash; Group items by key</h3>
+<pre>pods = [
+    {"name": "api-1", "node": "node-a"},
+    {"name": "api-2", "node": "node-b"},
+    {"name": "worker-1", "node": "node-a"},
+]
+
+from collections import defaultdict
+by_node = defaultdict(list)
+for pod in pods:
+    by_node[pod["node"]].append(pod["name"])
+
+print(dict(by_node))
+# {'node-a': ['api-1', 'worker-1'], 'node-b': ['api-2']}</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Given a dict of service &rarr; response times (ms), find the service with the highest latency safely, without crashing on an empty dict.</p>
+<pre>latencies = {"checkout": 340, "search": 120, "auth": 890}
+
+def slowest(latencies):
+    if not latencies:
+        return None
+    return max(latencies, key=latencies.get)
+
+print(slowest(latencies))  # auth</pre>
+
+<div class="mistake"><b>Common mistake:</b> using <code>dict[key]</code> and letting a <code>KeyError</code> crash the script instead of <code>dict.get(key, default)</code> or checking membership first &mdash; a frequent source of production automation failures on missing config keys.</div>
+<div class="tip"><b>Interview tip:</b> mention <code>collections.defaultdict</code> unprompted when grouping data by key &mdash; it removes the "if key not in dict: dict[key] = []" boilerplate and reads as idiomatic.</div>
+
+</section>
+<section class="chapter" id="ch8">
+<div class="chap-num">Chapter 8</div>
+<h2 class="chap-title">Sets</h2>
+
+<p>Sets come up in interviews for exactly one reason: fast membership testing and clean set-algebra for comparing inventories &mdash; "which hosts are in Terraform but not actually running," "which pods are new since last deploy," etc.</p>
+
+<h3>Core Concepts</h3>
+<pre>desired = {"web-1", "web-2", "web-3", "web-4"}
+running = {"web-1", "web-2", "web-3", "web-5"}
+
+missing = desired - running        # in desired but not running: {'web-4'}
+unexpected = running - desired     # running but not desired: {'web-5'}
+healthy = desired & running        # intersection: {'web-1','web-2','web-3'}
+all_hosts = desired | running      # union
+only_one_side = desired ^ running  # symmetric difference: {'web-4','web-5'}</pre>
+
+<h3 class="qhead">Question 1 &mdash; Remove duplicates while ignoring order</h3>
+<pre>ips = ["10.0.0.1", "10.0.0.2", "10.0.0.1", "10.0.0.3"]
+unique_ips = set(ips)
+print(unique_ips)</pre>
+
+<h3 class="qhead">Question 2 &mdash; Union of two sets</h3>
+<pre>team_a = {"alice", "bob"}
+team_b = {"bob", "carol"}
+print(team_a | team_b)  # {'alice', 'bob', 'carol'}</pre>
+
+<h3 class="qhead">Question 3 &mdash; Intersection</h3>
+<pre>print(team_a & team_b)  # {'bob'}</pre>
+
+<h3 class="qhead">Question 4 &mdash; Difference</h3>
+<pre>print(team_a - team_b)  # {'alice'}</pre>
+
+<h3 class="qhead">Question 5 &mdash; Symmetric difference</h3>
+<pre>print(team_a ^ team_b)  # {'alice', 'carol'}</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Reconcile a Terraform-managed host list against what's actually reporting into monitoring, and report drift in both directions.</p>
+<pre>terraform_hosts = {"db-1", "db-2", "db-3", "cache-1"}
+monitored_hosts = {"db-1", "db-2", "cache-1", "cache-2"}
+
+not_monitored = terraform_hosts - monitored_hosts
+orphaned = monitored_hosts - terraform_hosts
+
+print(f"Provisioned but not monitored: {not_monitored}")
+print(f"Monitored but not in Terraform: {orphaned}")
+# Provisioned but not monitored: {'db-3'}
+# Monitored but not in Terraform: {'cache-2'}</pre>
+
+<div class="mistake"><b>Common mistake:</b> forgetting sets are unordered and unindexable &mdash; <code>my_set[0]</code> raises <code>TypeError</code>. If you need order, use a list or a <code>dict</code> (which preserves insertion order in Python 3.7+).</div>
+<div class="tip"><b>Interview tip:</b> when asked to compare "what's expected vs what's actually running" &mdash; a very common SRE framing &mdash; reach for set difference immediately. It's the cleanest, most senior-reading answer.</div>
+
+</section>
+<section class="chapter" id="ch9">
+<div class="chap-num">Chapter 9</div>
+<h2 class="chap-title">File Handling</h2>
+
+<p>This is where SRE Python interviews diverge sharply from generic Python interviews. Expect a live-coding request to parse a log file &mdash; almost guaranteed in some form.</p>
+
+<h3>Core Concepts</h3>
+<pre># Always use a context manager — guarantees the file is closed even on exception
+with open("app.log") as f:
+    for line in f:              # streams line-by-line, doesn't load whole file into memory
+        process(line.strip())
+
+with open("report.txt", "w") as f:
+    f.write("deploy complete\n")
+
+with open("report.txt", "a") as f:
+    f.write("post-deploy check passed\n")</pre>
+
+<h3 class="qhead">Question 1 &mdash; Count ERROR lines in a log file</h3>
+<pre>def count_errors(path):
+    count = 0
+    with open(path) as f:
+        for line in f:
+            if "ERROR" in line:
+                count += 1
+    return count
+
+print(count_errors("app.log"))</pre>
+
+<h3 class="qhead">Question 2 &mdash; Count WARN lines</h3>
+<pre>def count_level(path, level):
+    with open(path) as f:
+        return sum(1 for line in f if level in line)
+
+print(count_level("app.log", "WARN"))</pre>
+
+<h3 class="qhead">Question 3 &mdash; Find the latest timestamp in a log</h3>
+<pre>from datetime import datetime
+
+def latest_timestamp(path):
+    latest = None
+    with open(path) as f:
+        for line in f:
+            ts_str = line[:19]   # "2026-07-07 10:12:03"
+            try:
+                ts = datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                continue
+            if latest is None or ts > latest:
+                latest = ts
+    return latest
+
+print(latest_timestamp("app.log"))</pre>
+
+<h3 class="qhead">Question 4 &mdash; Extract IP addresses from a log file</h3>
+<pre>import re
+
+def extract_ips(path):
+    pattern = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
+    ips = []
+    with open(path) as f:
+        for line in f:
+            ips.extend(pattern.findall(line))
+    return ips
+
+print(extract_ips("access.log"))</pre>
+
+<h3 class="qhead">Question 5 &mdash; Read a CSV and write a summary report</h3>
+<pre>import csv
+
+def summarize_incidents(path):
+    total, by_severity = 0, {}
+    with open(path, newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            total += 1
+            sev = row["severity"]
+            by_severity[sev] = by_severity.get(sev, 0) + 1
+    return total, by_severity
+
+total, by_sev = summarize_incidents("incidents.csv")
+with open("summary.txt", "w") as f:
+    f.write(f"Total incidents: {total}\n")
+    for sev, count in by_sev.items():
+        f.write(f"  {sev}: {count}\n")</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write a function that safely reads a log file that may not exist, returning an empty list instead of crashing.</p>
+<pre>from pathlib import Path
+
+def read_log_safe(path):
+    p = Path(path)
+    if not p.exists():
+        print(f"warning: {path} not found, skipping")
+        return []
+    return p.read_text().splitlines()
+
+lines = read_log_safe("maybe-missing.log")</pre>
+
+<div class="mistake"><b>Common mistake:</b> using <code>f.read()</code> on a multi-gigabyte log file &mdash; loads the entire file into memory. Always iterate line-by-line (<code>for line in f</code>) for anything that could be large, which is the default assumption for production logs.</div>
+<div class="tip"><b>Interview tip:</b> always open files with a <code>with</code> block. Forgetting it, or manually calling <code>f.close()</code>, reads as a junior habit &mdash; and if an exception is raised before <code>close()</code>, the file handle leaks.</div>
+
+</section>
+<section class="chapter" id="ch10">
+<div class="chap-num">Chapter 10</div>
+<h2 class="chap-title">Exception Handling</h2>
+
+<p>SRE code runs unattended, often at 3 a.m. with nobody watching. Interviewers use this chapter to see if you handle failure explicitly instead of letting a script die silently or crash the whole pipeline over one bad record.</p>
+
+<h3>Core Concepts</h3>
+<pre>try:
+    value = int(input("Enter port: "))
+except ValueError:
+    print("Invalid input — must be an integer")
+else:
+    print(f"Port set to {value}")   # only runs if no exception occurred
+finally:
+    print("Input handling complete")  # always runs — cleanup goes here
+
+# Raising your own exceptions with context
+def get_config(cfg, key):
+    if key not in cfg:
+        raise KeyError(f"missing required config key: {key}")
+    return cfg[key]</pre>
+
+<h3 class="qhead">Question 1 &mdash; Handle divide-by-zero safely</h3>
+<pre>def safe_divide(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return None
+
+print(safe_divide(10, 0))  # None</pre>
+
+<h3 class="qhead">Question 2 &mdash; Handle invalid user input in a loop</h3>
+<pre>def get_int(prompt):
+    while True:
+        try:
+            return int(input(prompt))
+        except ValueError:
+            print("Please enter a valid integer")</pre>
+
+<h3 class="qhead">Question 3 &mdash; Handle file-not-found gracefully</h3>
+<pre>def load_config(path):
+    try:
+        with open(path) as f:
+            return f.read()
+    except FileNotFoundError:
+        print(f"config not found at {path}, using defaults")
+        return None</pre>
+
+<h3 class="qhead">Question 4 &mdash; Handle JSON parsing errors</h3>
+<pre>import json
+
+def parse_response(raw):
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        print(f"invalid JSON: {e}")
+        return None</pre>
+
+<h3 class="qhead">Question 5 &mdash; Catching specific exceptions vs bare <code>except:</code>?</h3>
+<h4>Answer</h4>
+<p>Always catch the specific exception you expect (<code>ValueError</code>, <code>KeyError</code>, <code>requests.Timeout</code>). A bare <code>except:</code> also swallows <code>KeyboardInterrupt</code> and <code>SystemExit</code>, and hides bugs you didn't anticipate &mdash; a script that silently continues after an unexpected error is more dangerous in production than one that fails loudly.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write a function that calls an unreliable API and retries up to 3 times with a short delay, re-raising after the last failure.</p>
+<pre>import time
+
+def call_with_retry(func, max_attempts=3, delay=2):
+    last_error = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return func()
+        except Exception as e:
+            last_error = e
+            print(f"attempt {attempt}/{max_attempts} failed: {e}")
+            if attempt < max_attempts:
+                time.sleep(delay)
+    raise last_error</pre>
+
+<div class="mistake"><b>Common mistake:</b> using a bare <code>except:</code> (or <code>except Exception: pass</code>) to make an error "go away." In an automation script this hides real failures &mdash; a deploy script that swallows every exception can report success while doing nothing.</div>
+<div class="tip"><b>Interview tip:</b> mention logging the exception (<code>logging.exception(...)</code>, which captures the traceback) rather than just <code>print()</code>-ing it &mdash; shows you're thinking about how this script behaves unattended in production, not just in a demo.</div>
+
+</section>
+<section class="chapter" id="ch11">
+<div class="chap-num">Chapter 11</div>
+<h2 class="chap-title">JSON</h2>
+
+<p>Virtually every API response, Kubernetes object (via <code>kubectl -o json</code>), and cloud SDK call returns JSON. This is one of the highest-value chapters for DevOps interviews specifically.</p>
+
+<h3>Core Concepts</h3>
+<pre>import json
+
+# Read from file
+with open("config.json") as f:
+    data = json.load(f)          # file -> dict
+print(data["name"])
+
+# Write to file
+with open("output.json", "w") as f:
+    json.dump(data, f, indent=2)  # dict -> file, pretty-printed
+
+# String <-> dict (common with API responses)
+raw = '{"service": "checkout", "healthy": true}'
+parsed = json.loads(raw)          # string -> dict
+back_to_str = json.dumps(parsed, indent=2)  # dict -> string</pre>
+
+<h3 class="qhead">Question 1 &mdash; Parse an API response and extract nested fields</h3>
+<pre>import requests
+
+response = requests.get("https://api.example.com/status")
+data = response.json()
+
+# Safe nested access — avoids KeyError on missing fields
+region = data.get("cluster", {}).get("region", "unknown")</pre>
+
+<h3 class="qhead">Question 2 &mdash; Pretty-print JSON for a report</h3>
+<pre>print(json.dumps(data, indent=2, sort_keys=True))</pre>
+
+<h3 class="qhead">Question 3 &mdash; What happens if the JSON is malformed?</h3>
+<h4>Answer</h4>
+<p><code>json.loads()</code> raises <code>json.JSONDecodeError</code> (a subclass of <code>ValueError</code>). Always wrap external JSON parsing (API responses, files you don't control) in a try/except &mdash; see Chapter 10.</p>
+
+<h3 class="qhead">Question 4 &mdash; Convert a list of Kubernetes pod objects into a name-to-status map</h3>
+<pre>import json
+
+with open("pods.json") as f:
+    data = json.load(f)   # output of: kubectl get pods -o json
+
+status_map = {
+    item["metadata"]["name"]: item["status"]["phase"]
+    for item in data["items"]
+}
+print(status_map)
+# {'api-1': 'Running', 'api-2': 'CrashLoopBackOff', ...}</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Given a JSON API response with a list of services, write out only the unhealthy ones to a new JSON file.</p>
+<pre>import json
+
+with open("services.json") as f:
+    services = json.load(f)
+
+unhealthy = [s for s in services if not s.get("healthy", False)]
+
+with open("unhealthy.json", "w") as f:
+    json.dump(unhealthy, f, indent=2)
+
+print(f"{len(unhealthy)} unhealthy services written to unhealthy.json")</pre>
+
+<div class="mistake"><b>Common mistake:</b> using <code>data["key"]["nested"]</code> chains on API responses without <code>.get()</code> fallbacks. Real APIs omit optional fields; a direct chain throws <code>KeyError</code> on the first missing one and crashes the whole script.</div>
+<div class="tip"><b>Interview tip:</b> know the mnemonic <b>load(s) reads, dump(s) writes</b>, and that the <code>s</code>-suffixed versions (<code>loads</code>/<code>dumps</code>) work on strings while the non-<code>s</code> versions work on file objects. Mixing these up under interview pressure is common &mdash; say the mnemonic out loud if you blank.</div>
+
+</section>
+<section class="chapter" id="ch12">
+<div class="chap-num">Chapter 12</div>
+<h2 class="chap-title">OS Module</h2>
+
+<p>The <code>os</code> module (and modern <code>pathlib</code>) is how Python scripts touch the filesystem and environment &mdash; the layer where SRE scripting actually meets the machine.</p>
+
+<h3>Core Concepts</h3>
+<pre>import os
+from pathlib import Path
+
+os.getcwd()                      # current working directory
+os.listdir(".")                  # list directory contents
+os.mkdir("backup")               # create one directory (fails if parent missing)
+os.makedirs("backup/2026/07", exist_ok=True)   # create nested dirs, no error if exists
+os.path.exists("app.log")        # True/False
+os.path.join("var", "log", "app.log")          # OS-safe path joining
+os.environ.get("HOME")           # read an env var safely (None if missing)
+os.environ["LOG_LEVEL"] = "DEBUG"               # set an env var for this process
+
+# Modern equivalent — pathlib (preferred in new code)
+p = Path("backup/2026/07")
+p.mkdir(parents=True, exist_ok=True)
+p.joinpath("report.txt").write_text("done")</pre>
+
+<h3 class="qhead">Question 1 &mdash; Get the current working directory</h3>
+<pre>import os
+print(os.getcwd())</pre>
+
+<h3 class="qhead">Question 2 &mdash; Create a folder safely (no error if it exists)</h3>
+<pre>os.makedirs("logs/archive", exist_ok=True)</pre>
+
+<h3 class="qhead">Question 3 &mdash; Delete a folder and its contents</h3>
+<pre>import shutil
+shutil.rmtree("old_logs", ignore_errors=True)</pre>
+
+<h3 class="qhead">Question 4 &mdash; Read a required environment variable and fail clearly if missing</h3>
+<pre>def get_required_env(name):
+    value = os.environ.get(name)
+    if value is None:
+        raise EnvironmentError(f"required environment variable {name} is not set")
+    return value
+
+db_host = get_required_env("DB_HOST")</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write a script that finds and deletes log files older than 7 days in a given directory.</p>
+<pre>import os, time
+from pathlib import Path
+
+def cleanup_old_logs(directory, days=7):
+    cutoff = time.time() - (days * 86400)
+    deleted = []
+    for path in Path(directory).glob("*.log"):
+        if path.stat().st_mtime < cutoff:
+            path.unlink()
+            deleted.append(str(path))
+    return deleted
+
+print(cleanup_old_logs("/var/log/myapp"))</pre>
+
+<div class="mistake"><b>Common mistake:</b> hardcoding path separators (<code>"logs" + "/" + "app.log"</code>) instead of <code>os.path.join()</code> or <code>pathlib</code> &mdash; breaks on Windows and is fragile even on Linux when a variable already has a trailing slash.</div>
+<div class="tip"><b>Interview tip:</b> if asked to write any filesystem script in 2024+, default to <code>pathlib.Path</code> over the older <code>os.path</code> functions &mdash; it's the modern idiomatic choice and interviewers notice.</div>
+
+</section>
+<section class="chapter" id="ch13">
+<div class="chap-num">Chapter 13</div>
+<h2 class="chap-title">Subprocess</h2>
+
+<p>Every SRE script eventually needs to shell out to <code>kubectl</code>, <code>terraform</code>, <code>aws</code>, or a system command. This chapter is near-guaranteed in a Senior SRE interview.</p>
+
+<h3>Core Concepts</h3>
+<pre>import subprocess
+
+result = subprocess.run(
+    ["kubectl", "get", "pods", "-n", "prod"],
+    capture_output=True,
+    text=True,          # decode stdout/stderr as str, not bytes
+    timeout=30,
+)
+
+print(result.returncode)   # 0 = success
+print(result.stdout)
+print(result.stderr)</pre>
+
+<h3 class="qhead">Question 1 &mdash; Run a Linux command and capture output</h3>
+<pre>result = subprocess.run(["df", "-h"], capture_output=True, text=True)
+print(result.stdout)</pre>
+
+<h3 class="qhead">Question 2 &mdash; Handle command failures properly</h3>
+<pre>def run_command(cmd):
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(f"command failed ({result.returncode}): {result.stderr.strip()}")
+    return result.stdout
+
+output = run_command(["kubectl", "get", "pods", "-n", "prod"])</pre>
+
+<h3 class="qhead">Question 3 &mdash; Why is passing a list preferred over a shell string?</h3>
+<h4>Answer</h4>
+<p><code>subprocess.run(["rm", "-rf", user_input])</code> is safe because each argument is passed directly to the process &mdash; no shell interprets it. <code>subprocess.run(f"rm -rf {user_input}", shell=True)</code> is a shell-injection vulnerability if <code>user_input</code> is ever attacker- or user-controlled (e.g. <code>"; rm -rf / #"</code>). Avoid <code>shell=True</code> unless you specifically need shell features like pipes, and never combine it with unsanitized input.</p>
+
+<h3 class="qhead">Question 4 &mdash; Enforce a timeout so a hung command doesn't hang your script forever</h3>
+<pre>try:
+    result = subprocess.run(["curl", url], capture_output=True, text=True, timeout=10)
+except subprocess.TimeoutExpired:
+    print(f"command timed out after 10s")</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write a function that checks whether a systemd service is active, returning a boolean.</p>
+<pre>def is_service_active(name):
+    result = subprocess.run(
+        ["systemctl", "is-active", name],
+        capture_output=True, text=True
+    )
+    return result.stdout.strip() == "active"
+
+if not is_service_active("nginx"):
+    print("nginx is down — triggering restart")</pre>
+
+<div class="mistake"><b>Common mistake:</b> using the older <code>os.system()</code> or <code>subprocess.call()</code> instead of <code>subprocess.run()</code> (the modern, recommended API since Python 3.5) &mdash; older APIs make capturing output and checking exit codes clumsier and easier to get wrong.</div>
+<div class="tip"><b>Interview tip:</b> always mention <code>timeout=</code> and checking <code>returncode</code> even if not asked &mdash; a subprocess call with neither is a script that can hang a pipeline indefinitely or silently proceed after a failed command.</div>
+
+</section>
+<section class="chapter" id="ch14">
+<div class="chap-num">Chapter 14</div>
+<h2 class="chap-title">Requests Module</h2>
+
+<p>The <code>requests</code> library is how Python scripts talk to REST APIs &mdash; health checks, webhook notifications, cloud/monitoring API calls. Expect questions on timeouts, retries, and auth.</p>
+
+<h3>Core Concepts</h3>
+<pre>import requests
+
+response = requests.get("https://api.example.com/health", timeout=5)
+print(response.status_code)
+print(response.json())
+
+response.raise_for_status()   # raises requests.HTTPError on 4xx/5xx
+
+# POST with a JSON body
+requests.post(
+    "https://hooks.slack.com/services/xxx",
+    json={"text": "Deployment completed"},
+    timeout=5,
+)
+
+# Authentication
+requests.get(url, headers={"Authorization": f"Bearer {token}"})
+requests.get(url, auth=("user", "password"))</pre>
+
+<h3 class="qhead">Question 1 &mdash; GET request with error handling</h3>
+<pre>def check_health(url):
+    try:
+        r = requests.get(url, timeout=5)
+        r.raise_for_status()
+        return True
+    except requests.RequestException as e:
+        print(f"health check failed: {e}")
+        return False</pre>
+
+<h3 class="qhead">Question 2 &mdash; POST request with a JSON payload and auth</h3>
+<pre>def trigger_deploy(api_url, token, service):
+    resp = requests.post(
+        f"{api_url}/deploy",
+        json={"service": service},
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=10,
+    )
+    resp.raise_for_status()
+    return resp.json()</pre>
+
+<h3 class="qhead">Question 3 &mdash; Why must you always set a timeout?</h3>
+<h4>Answer</h4>
+<p>By default <code>requests</code> calls block <b>forever</b> if the server never responds. In an automation script or monitoring probe, one hung request without a timeout can freeze the entire pipeline. Always pass <code>timeout=</code> on every call.</p>
+
+<h3 class="qhead">Question 4 &mdash; Retry with backoff</h3>
+<pre>from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+session = requests.Session()
+retries = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+session.mount("https://", HTTPAdapter(max_retries=retries))
+
+response = session.get("https://api.example.com/status", timeout=5)</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write a URL health checker that pings a list of endpoints and reports which are down.</p>
+<pre>def check_all(urls):
+    down = []
+    for url in urls:
+        try:
+            r = requests.get(url, timeout=5)
+            if r.status_code >= 400:
+                down.append((url, r.status_code))
+        except requests.RequestException as e:
+            down.append((url, str(e)))
+    return down
+
+endpoints = ["https://api.example.com/health", "https://web.example.com"]
+print(check_all(endpoints))</pre>
+
+<div class="mistake"><b>Common mistake:</b> calling <code>requests.get(url)</code> with no <code>timeout</code> in a monitoring or automation script &mdash; the single most common real production incident this chapter's topic causes: one unresponsive endpoint hangs the entire check loop.</div>
+<div class="tip"><b>Interview tip:</b> mention <code>raise_for_status()</code> as your default pattern for treating 4xx/5xx as errors, rather than manually checking <code>if response.status_code != 200</code> everywhere &mdash; cleaner and less error-prone.</div>
+
+</section>
+<section class="chapter" id="ch15">
+<div class="chap-num">Chapter 15</div>
+<h2 class="chap-title">Regular Expressions</h2>
+
+<p>Regex is the tool for the log-parsing questions this book's source material calls out specifically. Interviewers usually want to see you reach for <code>re</code> confidently on real, messy text &mdash; not write a regex from memory perfectly on a whiteboard.</p>
+
+<h3>Core Concepts</h3>
+<pre>import re
+
+re.search(pattern, text)    # find first match anywhere, or None
+re.match(pattern, text)     # match only at the start of the string
+re.findall(pattern, text)   # list of ALL matches
+re.sub(pattern, repl, text) # replace matches
+re.compile(pattern)         # precompile for reuse in a loop (faster, cleaner)</pre>
+
+<h3 class="qhead">Question 1 &mdash; Extract IP addresses from text</h3>
+<pre>text = "Connection from 192.168.1.10 refused, retry from 10.0.0.5"
+ips = re.findall(r"\b(?:\d{1,3}\.){3}\d{1,3}\b", text)
+print(ips)  # ['192.168.1.10', '10.0.0.5']</pre>
+
+<h3 class="qhead">Question 2 &mdash; Extract email addresses</h3>
+<pre>text = "Alerts go to oncall@example.com and backup@example.org"
+emails = re.findall(r"[\w.\-]+@[\w\-]+\.[a-zA-Z]{2,}", text)
+print(emails)</pre>
+
+<h3 class="qhead">Question 3 &mdash; Extract a timestamp from a log line</h3>
+<pre>line = "2026-07-07 10:12:03 ERROR db connection refused"
+match = re.match(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", line)
+if match:
+    print(match.group(1))  # 2026-07-07 10:12:03</pre>
+
+<h3 class="qhead">Question 4 &mdash; Validate a phone number</h3>
+<pre>def is_valid_phone(number):
+    return bool(re.match(r"^\+?\d{10,13}$", number))
+
+print(is_valid_phone("+919876543210"))  # True</pre>
+
+<h3 class="qhead">Question 5 &mdash; Named groups for structured log parsing</h3>
+<pre>pattern = re.compile(
+    r"(?P<timestamp>\S+ \S+) (?P<level>\w+) (?P<message>.+)"
+)
+line = "2026-07-07T10:12:03 ERROR db connection refused"
+m = pattern.match(line)
+if m:
+    print(m.group("level"), "-", m.group("message"))
+    # ERROR - db connection refused</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Parse an Nginx-style access log line and extract the client IP, HTTP method, path, and status code.</p>
+<pre>line = '10.0.0.5 - - [07/Jul/2026:10:12:03] "GET /api/health HTTP/1.1" 200 512'
+
+pattern = re.compile(
+    r'(?P<ip>\S+) .* \[(?P<time>[^\]]+)\] '
+    r'"(?P<method>\w+) (?P<path>\S+) [^"]+" (?P<status>\d{3})'
+)
+m = pattern.match(line)
+if m:
+    print(m.group("ip"), m.group("method"), m.group("path"), m.group("status"))
+    # 10.0.0.5 GET /api/health 200</pre>
+
+<div class="mistake"><b>Common mistake:</b> writing one giant, unreadable regex instead of using named groups (<code>(?P&lt;name&gt;...)</code>) and <code>re.compile()</code> with comments (<code>re.VERBOSE</code>) for anything non-trivial &mdash; unmaintainable regex is a real production liability, and interviewers notice if you default to it.</div>
+<div class="tip"><b>Interview tip:</b> if you're unsure of exact regex syntax under pressure, say so and write a slightly looser pattern plus a follow-up validation step in Python &mdash; that's honest and still solves the problem, versus freezing trying to recall an exact quantifier.</div>
+
+</section>
+<section class="chapter" id="ch16">
+<div class="chap-num">Chapter 16</div>
+<h2 class="chap-title">Automation Scripts</h2>
+
+<p>This chapter compiles the scripts interviewers actually ask candidates to sketch live: system health checks, the "watch and act" pattern that underlies most SRE tooling. Each combines concepts from every earlier chapter.</p>
+
+<h3 class="qhead">Question 1 &mdash; Disk usage monitor</h3>
+<pre>import shutil
+
+def check_disk_usage(path="/", threshold_pct=85):
+    total, used, free = shutil.disk_usage(path)
+    pct_used = (used / total) * 100
+    if pct_used > threshold_pct:
+        print(f"ALERT: {path} is {pct_used:.1f}% full (threshold {threshold_pct}%)")
+        return False
+    print(f"OK: {path} is {pct_used:.1f}% full")
+    return True</pre>
+
+<h3 class="qhead">Question 2 &mdash; Memory and CPU monitor</h3>
+<pre>import psutil   # pip install psutil — the standard library for this
+
+def check_resources(cpu_threshold=90, mem_threshold=90):
+    cpu = psutil.cpu_percent(interval=1)
+    mem = psutil.virtual_memory().percent
+    if cpu > cpu_threshold:
+        print(f"ALERT: CPU at {cpu}%")
+    if mem > mem_threshold:
+        print(f"ALERT: memory at {mem}%")
+    return cpu, mem</pre>
+
+<h3 class="qhead">Question 3 &mdash; Restart a service if it's down</h3>
+<pre>import subprocess
+
+def ensure_running(service):
+    check = subprocess.run(["systemctl", "is-active", service],
+                            capture_output=True, text=True)
+    if check.stdout.strip() != "active":
+        print(f"{service} is down — restarting")
+        subprocess.run(["systemctl", "restart", service], check=True)
+    else:
+        print(f"{service} is healthy")</pre>
+
+<h3 class="qhead">Question 4 &mdash; Check URL availability</h3>
+<pre>import requests
+
+def check_url(url, expected_status=200, timeout=5):
+    try:
+        r = requests.get(url, timeout=timeout)
+        return r.status_code == expected_status
+    except requests.RequestException:
+        return False</pre>
+
+<h3 class="qhead">Question 5 &mdash; Check Kubernetes pod status</h3>
+<pre>import subprocess, json
+
+def get_unhealthy_pods(namespace="prod"):
+    result = subprocess.run(
+        ["kubectl", "get", "pods", "-n", namespace, "-o", "json"],
+        capture_output=True, text=True
+    )
+    data = json.loads(result.stdout)
+    unhealthy = [
+        pod["metadata"]["name"]
+        for pod in data["items"]
+        if pod["status"]["phase"] not in ("Running", "Succeeded")
+    ]
+    return unhealthy</pre>
+
+<h3 class="qhead">Question 6 &mdash; Delete old files / backup logs</h3>
+<pre>import shutil
+from pathlib import Path
+from datetime import datetime
+
+def backup_logs(source_dir, backup_dir):
+    Path(backup_dir).mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    archive_name = f"{backup_dir}/logs_{stamp}"
+    shutil.make_archive(archive_name, "gztar", source_dir)
+    print(f"backed up {source_dir} -> {archive_name}.tar.gz")</pre>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Combine several of the above into a single health-check script that checks disk, a service, and a URL, then prints a one-line PASS/FAIL summary suitable for a cron job.</p>
+<pre>def run_health_checks():
+    results = {
+        "disk": check_disk_usage("/", 85),
+        "nginx": True,   # ensure_running() returning would need refactor to bool
+        "api": check_url("https://api.example.com/health"),
+    }
+    failed = [name for name, ok in results.items() if not ok]
+    if failed:
+        print(f"FAIL: {', '.join(failed)}")
+        return 1   # non-zero exit code — cron/CI treats this as failure
+    print("PASS: all checks green")
+    return 0
+
+import sys
+sys.exit(run_health_checks())</pre>
+
+<div class="mistake"><b>Common mistake:</b> writing a monitoring script that prints results but always exits 0. Cron, systemd timers, and CI all key off the exit code &mdash; a script that never signals failure via <code>sys.exit(1)</code> is invisible to anything automated watching it.</div>
+<div class="tip"><b>Interview tip:</b> when sketching any of these live, say "this would run as a cron job / systemd timer and page via Slack/PagerDuty on failure" &mdash; it shows you're thinking about the whole operational loop, not just the Python.</div>
+
+</section>
+<section class="chapter" id="ch17">
+<div class="chap-num">Chapter 17</div>
+<h2 class="chap-title">Kubernetes Automation</h2>
+
+<p>Two valid approaches exist and interviewers want to know both: shelling out to <code>kubectl</code>/<code>helm</code> (simple, ubiquitous) versus the official <code>kubernetes</code> Python client (structured, better for larger tooling).</p>
+
+<h3 class="qhead">Question 1 &mdash; Get pod status via subprocess (the quick way)</h3>
+<pre>import subprocess, json
+
+def get_pod_statuses(namespace):
+    result = subprocess.run(
+        ["kubectl", "get", "pods", "-n", namespace, "-o", "json"],
+        capture_output=True, text=True, check=True
+    )
+    data = json.loads(result.stdout)
+    return {p["metadata"]["name"]: p["status"]["phase"] for p in data["items"]}</pre>
+
+<h3 class="qhead">Question 2 &mdash; Same task using the official Python client (the structured way)</h3>
+<pre># pip install kubernetes
+from kubernetes import client, config
+
+def get_pod_statuses_sdk(namespace):
+    config.load_kube_config()   # or load_incluster_config() when running inside a cluster
+    v1 = client.CoreV1Api()
+    pods = v1.list_namespaced_pod(namespace)
+    return {p.metadata.name: p.status.phase for p in pods.items}</pre>
+
+<h3 class="qhead">Question 3 &mdash; List all namespaces</h3>
+<pre>result = subprocess.run(["kubectl", "get", "ns", "-o", "name"],
+                         capture_output=True, text=True)
+namespaces = [line.split("/")[-1] for line in result.stdout.splitlines()]</pre>
+
+<h3 class="qhead">Question 4 &mdash; Scale a deployment programmatically</h3>
+<pre>def scale_deployment(name, namespace, replicas):
+    subprocess.run(
+        ["kubectl", "scale", f"deployment/{name}",
+         "-n", namespace, f"--replicas={replicas}"],
+        check=True
+    )</pre>
+
+<h3 class="qhead">Question 5 &mdash; Parse Helm release status</h3>
+<pre>def get_helm_releases(namespace):
+    result = subprocess.run(
+        ["helm", "list", "-n", namespace, "-o", "json"],
+        capture_output=True, text=True
+    )
+    return json.loads(result.stdout)   # list of {name, status, chart, app_version, ...}</pre>
+
+<h3 class="qhead">Question 6 &mdash; When would you use the SDK over shelling out to <code>kubectl</code>?</h3>
+<h4>Answer</h4>
+<p>Shelling out is fine for one-off scripts and quick automation &mdash; it's what most people reach for first, and it's what's already installed anywhere <code>kubectl</code> works. The official SDK is worth the extra setup when you're building something that runs continuously (an operator, a controller, a long-running reconciliation loop), needs typed responses, or needs to watch resources for changes (<code>watch.Watch()</code>) rather than poll &mdash; subprocess-based polling doesn't scale to that pattern cleanly.</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write a script that finds all pods in <code>CrashLoopBackOff</code> across all namespaces and prints them with their restart counts.</p>
+<pre>def find_crashlooping_pods():
+    result = subprocess.run(
+        ["kubectl", "get", "pods", "--all-namespaces", "-o", "json"],
+        capture_output=True, text=True
+    )
+    data = json.loads(result.stdout)
+    crashing = []
+    for pod in data["items"]:
+        for cs in pod["status"].get("containerStatuses", []):
+            waiting = cs.get("state", {}).get("waiting", {})
+            if waiting.get("reason") == "CrashLoopBackOff":
+                crashing.append({
+                    "namespace": pod["metadata"]["namespace"],
+                    "pod": pod["metadata"]["name"],
+                    "restarts": cs["restartCount"],
+                })
+    return crashing
+
+for p in find_crashlooping_pods():
+    print(f"{p['namespace']}/{p['pod']} — {p['restarts']} restarts")</pre>
+
+<div class="mistake"><b>Common mistake:</b> parsing <code>kubectl get pods</code> plain-text output with string splitting instead of <code>-o json</code> and <code>json.loads()</code>. Plain-text output format is not a stable contract and can silently change between kubectl versions.</div>
+<div class="tip"><b>Interview tip:</b> always mention <code>check=True</code> (or explicitly checking <code>returncode</code>) on <code>subprocess.run()</code> calls that mutate cluster state (scale, delete, apply) &mdash; a failed <code>kubectl scale</code> that goes unnoticed is a real incident waiting to happen.</div>
+
+</section>
+<section class="chapter" id="ch18">
+<div class="chap-num">Chapter 18</div>
+<h2 class="chap-title">AWS / Azure Automation</h2>
+
+<p>Cloud SDK questions check whether you can drive infrastructure programmatically instead of only through the console or CLI &mdash; boto3 for AWS, the Azure SDK for Python for Azure.</p>
+
+<h3>Core Concepts — AWS (boto3)</h3>
+<pre># pip install boto3
+import boto3
+
+ec2 = boto3.client("ec2", region_name="ap-south-1")
+s3 = boto3.client("s3")</pre>
+
+<h3 class="qhead">Question 1 &mdash; Start / stop an EC2 instance</h3>
+<pre>def stop_instance(instance_id):
+    ec2.stop_instances(InstanceIds=[instance_id])
+
+def start_instance(instance_id):
+    ec2.start_instances(InstanceIds=[instance_id])</pre>
+
+<h3 class="qhead">Question 2 &mdash; List all S3 buckets</h3>
+<pre>def list_buckets():
+    response = s3.list_buckets()
+    return [b["Name"] for b in response["Buckets"]]</pre>
+
+<h3 class="qhead">Question 3 &mdash; Upload a file to S3</h3>
+<pre>def upload_backup(local_path, bucket, key):
+    s3.upload_file(local_path, bucket, key)
+    print(f"uploaded {local_path} -> s3://{bucket}/{key}")</pre>
+
+<h3 class="qhead">Question 4 &mdash; Find EC2 instances tagged for a given environment</h3>
+<pre>def get_instances_by_tag(tag_key, tag_value):
+    response = ec2.describe_instances(
+        Filters=[{"Name": f"tag:{tag_key}", "Values": [tag_value]}]
+    )
+    instances = []
+    for reservation in response["Reservations"]:
+        for inst in reservation["Instances"]:
+            instances.append(inst["InstanceId"])
+    return instances
+
+prod_instances = get_instances_by_tag("Environment", "production")</pre>
+
+<h3>Core Concepts — Azure (azure-sdk-for-python)</h3>
+<pre># pip install azure-identity azure-mgmt-compute azure-keyvault-secrets
+from azure.identity import DefaultAzureCredential
+from azure.mgmt.compute import ComputeManagementClient
+
+credential = DefaultAzureCredential()
+compute_client = ComputeManagementClient(credential, subscription_id)</pre>
+
+<h3 class="qhead">Question 5 &mdash; Stop / deallocate an Azure VM</h3>
+<pre>def stop_vm(resource_group, vm_name):
+    compute_client.virtual_machines.begin_deallocate(resource_group, vm_name).wait()</pre>
+
+<h3 class="qhead">Question 6 &mdash; Read a secret from Azure Key Vault</h3>
+<pre>from azure.keyvault.secrets import SecretClient
+
+def get_secret(vault_url, secret_name):
+    client = SecretClient(vault_url=vault_url, credential=DefaultAzureCredential())
+    secret = client.get_secret(secret_name)
+    return secret.value</pre>
+
+<h3 class="qhead">Question 7 &mdash; Why <code>DefaultAzureCredential</code> instead of hardcoding a service principal secret?</h3>
+<h4>Answer</h4>
+<p><code>DefaultAzureCredential</code> tries multiple auth methods in order (environment variables, managed identity, Azure CLI login, etc.) so the same code authenticates correctly whether it's running on your laptop, in CI, or on an Azure VM/AKS pod with a managed identity &mdash; without ever putting a credential in source code. Hardcoded secrets in scripts are both a security risk and an operational one (rotation becomes a code change).</p>
+
+<h3>Practice Exercise</h3>
+<p><b>Task:</b> Write a script that finds and stops all EC2 instances tagged <code>AutoStop=true</code> outside business hours &mdash; a common real cost-control automation.</p>
+<pre>from datetime import datetime
+
+def stop_non_business_hours():
+    now = datetime.now()
+    if 9 <= now.hour < 19 and now.weekday() < 5:
+        print("within business hours — no action")
+        return
+
+    response = ec2.describe_instances(
+        Filters=[
+            {"Name": "tag:AutoStop", "Values": ["true"]},
+            {"Name": "instance-state-name", "Values": ["running"]},
+        ]
+    )
+    ids = [i["InstanceId"] for r in response["Reservations"] for i in r["Instances"]]
+    if ids:
+        ec2.stop_instances(InstanceIds=ids)
+        print(f"stopped {len(ids)} instance(s): {ids}")</pre>
+
+<div class="mistake"><b>Common mistake:</b> hardcoding AWS access keys or Azure secrets directly in scripts instead of using IAM roles / managed identities and the SDK's default credential chain. This is both a security finding and an operational headache the first time a key needs rotating.</div>
+<div class="tip"><b>Interview tip:</b> if you don't remember an exact boto3/Azure SDK method name, say what you'd search for ("boto3 EC2 client, describe_instances with a Filters param") &mdash; interviewers care far more that you know the SDK exists and roughly how it's shaped than that you have it memorized verbatim.</div>
+
+</section>
+<section class="chapter" id="ch19">
+<div class="chap-num">Chapter 19</div>
+<h2 class="chap-title">Top 50 Coding Questions — Rapid-Fire Bank</h2>
+
+<p>A warm-up drill bank for the day before an interview. Each is intentionally terse &mdash; the point is speed and correctness, not explanation. Solutions favor idiomatic one-liners where reasonable, since that's what a fluent SRE would actually write.</p>
+
+<h3>Strings &amp; Text (1&ndash;10)</h3>
+<pre> 1. Reverse a string            s[::-1]
+ 2. Reverse words in a sentence " ".join(s.split()[::-1])
+ 3. Check anagram               sorted(a) == sorted(b)
+ 4. Check palindrome            s == s[::-1]
+ 5. First non-repeating char    next((c for c in s if s.count(c)==1), None)
+ 6. Count each character        collections.Counter(s)
+ 7. Remove duplicate chars      dict.fromkeys(s)  # preserves order, Python 3.7+
+ 8. Longest word in a sentence  max(s.split(), key=len)
+ 9. Title-case a sentence       s.title()
+10. Check if string is numeric  s.isdigit() / s.isnumeric()</pre>
+
+<h3>Lists &amp; Arrays (11&ndash;20)</h3>
+<pre>11. Merge two lists                 a + b
+12. Merge & dedupe two lists        list(set(a) | set(b))
+13. Rotate array by k                arr[-k:] + arr[:-k]
+14. Find the largest element         max(arr)
+15. Find the second largest          sorted(set(arr))[-2]
+16. Find missing number (1..n)       n*(n+1)//2 - sum(arr)
+17. Find duplicate values            [x for x,c in Counter(arr).items() if c>1]
+18. Find common elements             set(a) & set(b)
+19. Flatten a nested list            [x for sub in nested for x in sub]
+20. Count frequency of each element  Counter(arr)</pre>
+
+<h3>Two Sum &amp; Classic Patterns (21&ndash;25)</h3>
+<pre>21. Two Sum (return indices of pair summing to target)
+def two_sum(nums, target):
+    seen = {}
+    for i, n in enumerate(nums):
+        if target - n in seen:
+            return [seen[target - n], i]
+        seen[n] = i
+
+22. Check if array contains duplicates within k distance      (sliding window + set)
+23. Move all zeros to the end, preserving order                 (two-pointer)
+24. Find the intersection of two arrays with counts              Counter(a) & Counter(b)
+25. Chunk a list into batches of size n
+def chunk(lst, n):
+    return [lst[i:i+n] for i in range(0, len(lst), n)]</pre>
+
+<h3>Dicts, JSON &amp; Files (26&ndash;33)</h3>
+<pre>26. Word frequency in a sentence         Counter(text.split())
+27. Merge two dicts (Python 3.9+)        d1 | d2
+28. Invert a dict                        {v: k for k, v in d.items()}
+29. Group items by a key                 defaultdict(list) + append loop
+30. Parse a JSON string safely           try/except json.JSONDecodeError
+31. Read a file line by line             for line in open(path)
+32. Count lines in a file                sum(1 for _ in open(path))
+33. Write a dict to a JSON file          json.dump(d, f, indent=2)</pre>
+
+<h3>Exceptions, Regex &amp; Environment (34&ndash;40)</h3>
+<pre>34. Divide safely, return None on error    try/except ZeroDivisionError
+35. Validate an email with regex           re.match(r"[\w.-]+@[\w-]+\.\w+", s)
+36. Extract all numbers from a string      re.findall(r"\d+", s)
+37. Read an env var with a default         os.environ.get("KEY", "default")
+38. Check a file exists before reading     Path(p).exists()
+39. Retry a flaky function 3 times          for loop + try/except + break
+40. Time how long a function takes          time.perf_counter() before/after</pre>
+
+<h3>SRE / Cloud-Flavored (41&ndash;50)</h3>
+<pre>41. Parse "kubectl get pods -o json" and list non-Running pods  (Ch.17 pattern)
+42. Find hosts in list A but not list B                          set(a) - set(b)
+43. Compute average response time from a list of samples          sum(x)/len(x)
+44. Find the slowest service from a dict of latencies              max(d, key=d.get)
+45. Count HTTP 5xx responses in a log file                         sum("50" in l[:x] ...)
+46. Convert bytes to human-readable size (KB/MB/GB)
+def human_size(n):
+    for unit in ["B","KB","MB","GB","TB"]:
+        if n < 1024:
+            return f"{n:.1f}{unit}"
+        n /= 1024
+
+47. Parse a .env file into a dict
+def parse_env(path):
+    result = {}
+    for line in open(path):
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            result[k] = v
+    return result
+
+48. Deduplicate a list of dicts by a key
+def dedupe_by(items, key):
+    seen, out = set(), []
+    for item in items:
+        if item[key] not in seen:
+            seen.add(item[key])
+            out.append(item)
+    return out
+
+49. Compute uptime percentage from a list of "up"/"down" checks
+def uptime_pct(checks):
+    return round(100 * checks.count("up") / len(checks), 2)
+
+50. Simple exponential backoff sequence generator
+def backoff(base=1, factor=2, max_delay=30, attempts=5):
+    return [min(base * (factor ** i), max_delay) for i in range(attempts)]</pre>
+
+<div class="tip"><b>Interview tip:</b> for this style of rapid-fire round, narrate the approach in one short sentence before typing ("I'll use a set difference for this") &mdash; it lets the interviewer follow your reasoning even when you're moving fast, and recovers gracefully if you make a small syntax slip.</div>
+
+</section>
+<section class="chapter" id="ch20">
+<div class="chap-num">Chapter 20</div>
+<h2 class="chap-title">SRE Real-World Python Scripts (Portfolio Chapter)</h2>
+
+<p>These are complete, slightly-more-production-shaped scripts &mdash; the kind worth having on GitHub as evidence of applied skill, not just interview answers. Each combines multiple earlier chapters and includes basic logging, error handling, and a clear exit code, matching real operational expectations.</p>
+
+<h3 class="qhead">1. Kubernetes Pod Health Checker</h3>
+<pre>#!/usr/bin/env python3
+# Exits non-zero if any pod in the namespace is unhealthy.
+import json, subprocess, sys, logging
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+
+def get_pods(namespace):
+    result = subprocess.run(
+        ["kubectl", "get", "pods", "-n", namespace, "-o", "json"],
+        capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"kubectl failed: {result.stderr.strip()}")
+    return json.loads(result.stdout)["items"]
+
+def main(namespace="prod"):
+    unhealthy = []
+    for pod in get_pods(namespace):
+        phase = pod["status"]["phase"]
+        name = pod["metadata"]["name"]
+        if phase not in ("Running", "Succeeded"):
+            unhealthy.append((name, phase))
+
+    if unhealthy:
+        for name, phase in unhealthy:
+            logging.warning(f"unhealthy pod: {name} ({phase})")
+        sys.exit(1)
+
+    logging.info(f"all pods healthy in {namespace}")
+    sys.exit(0)
+
+if __name__ == "__main__":
+    main()</pre>
+
+<h3 class="qhead">2. Disk Cleanup Automation</h3>
+<pre>#!/usr/bin/env python3
+# Deletes files older than N days under a directory, logging what was removed.
+import argparse, logging, time
+from pathlib import Path
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+
+def cleanup(directory, days, pattern, dry_run):
+    cutoff = time.time() - days * 86400
+    freed_bytes = 0
+    for path in Path(directory).rglob(pattern):
+        if path.is_file() and path.stat().st_mtime < cutoff:
+            size = path.stat().st_size
+            if dry_run:
+                logging.info(f"[dry-run] would delete {path} ({size} bytes)")
+            else:
+                path.unlink()
+                logging.info(f"deleted {path} ({size} bytes)")
+            freed_bytes += size
+    logging.info(f"total freed: {freed_bytes / 1024 / 1024:.2f} MB")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("directory")
+    parser.add_argument("--days", type=int, default=7)
+    parser.add_argument("--pattern", default="*.log")
+    parser.add_argument("--dry-run", action="store_true")
+    args = parser.parse_args()
+    cleanup(args.directory, args.days, args.pattern, args.dry_run)</pre>
+
+<h3 class="qhead">3. SSL Certificate Expiry Checker</h3>
+<pre>#!/usr/bin/env python3
+# Warns if a domain's TLS cert expires within N days.
+import ssl, socket, logging
+from datetime import datetime
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+
+def days_until_expiry(hostname, port=443):
+    ctx = ssl.create_default_context()
+    with socket.create_connection((hostname, port), timeout=5) as sock:
+        with ctx.wrap_socket(sock, server_hostname=hostname) as ssock:
+            cert = ssock.getpeercert()
+    expires = datetime.strptime(cert["notAfter"], "%b %d %H:%M:%S %Y %Z")
+    return (expires - datetime.utcnow()).days
+
+def check_domains(domains, warn_days=14):
+    for domain in domains:
+        try:
+            days_left = days_until_expiry(domain)
+            level = logging.WARNING if days_left < warn_days else logging.INFO
+            logging.log(level, f"{domain}: {days_left} days until cert expiry")
+        except Exception as e:
+            logging.error(f"{domain}: could not check — {e}")
+
+if __name__ == "__main__":
+    check_domains(["example.com", "api.example.com"])</pre>
+
+<h3 class="qhead">4. Log Analyzer &mdash; Error Rate Summary</h3>
+<pre>#!/usr/bin/env python3
+# Summarizes error/warn rate from a log file over the last N lines.
+import argparse
+from collections import Counter
+
+def analyze(path, tail=10000):
+    with open(path) as f:
+        lines = f.readlines()[-tail:]
+
+    levels = Counter()
+    for line in lines:
+        for level in ("ERROR", "WARN", "INFO"):
+            if level in line:
+                levels[level] += 1
+                break
+
+    total = sum(levels.values()) or 1
+    print(f"Analyzed {len(lines)} lines:")
+    for level, count in levels.most_common():
+        print(f"  {level:6s}: {count:6d}  ({100*count/total:.1f}%)")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("logfile")
+    parser.add_argument("--tail", type=int, default=10000)
+    args = parser.parse_args()
+    analyze(args.logfile, args.tail)</pre>
+
+<h3 class="qhead">5. Slack / Teams Alert Notifier</h3>
+<pre>#!/usr/bin/env python3
+# Sends a formatted alert to a Slack (or Teams) incoming webhook.
+import requests, logging
+
+logging.basicConfig(level=logging.INFO)
+
+def send_slack_alert(webhook_url, title, message, severity="warning"):
+    color = {"critical": "#c0392b", "warning": "#d4a017", "info": "#1f8a4c"}.get(severity, "#888")
+    payload = {
+        "attachments": [{
+            "color": color,
+            "title": title,
+            "text": message,
+            "fields": [{"title": "Severity", "value": severity.upper(), "short": True}],
+        }]
+    }
+    try:
+        r = requests.post(webhook_url, json=payload, timeout=5)
+        r.raise_for_status()
+        logging.info("alert sent")
+    except requests.RequestException as e:
+        logging.error(f"failed to send alert: {e}")
+
+if __name__ == "__main__":
+    send_slack_alert(
+        webhook_url="https://hooks.slack.com/services/XXX",
+        title="High error rate on checkout-api",
+        message="Error rate crossed 5% over the last 5 minutes.",
+        severity="critical",
+    )</pre>
+
+<h3 class="qhead">6. Daily Report Generator</h3>
+<pre>#!/usr/bin/env python3
+# Combines several checks into a single daily ops report, written to a file.
+from datetime import datetime
+
+def generate_report(checks: dict, output_path="daily_report.txt"):
+    lines = [f"Daily SRE Report — {datetime.now():%Y-%m-%d %H:%M}", "=" * 40]
+    for name, result in checks.items():
+        status = "PASS" if result else "FAIL"
+        lines.append(f"{name:<30s} {status}")
+    lines.append("=" * 40)
+    passed = sum(1 for v in checks.values() if v)
+    lines.append(f"{passed}/{len(checks)} checks passed")
+
+    report = "\n".join(lines)
+    with open(output_path, "w") as f:
+        f.write(report)
+    print(report)
+    return all(checks.values())
+
+if __name__ == "__main__":
+    results = {
+        "disk usage < 85%": True,
+        "all pods running": True,
+        "SSL certs valid": False,
+        "API health check": True,
+    }
+    ok = generate_report(results)
+    raise SystemExit(0 if ok else 1)</pre>
+
+<div class="tip"><b>Portfolio tip:</b> pushing 3&ndash;4 of these (cleaned up, with a README and a <code>requirements.txt</code>) to a public GitHub repo is a concrete, checkable artifact that differentiates a resume line ("automated X with Python") from a resume line an interviewer can actually go read. Pair it with the SRE fundamentals repo for a cohesive portfolio.</div>
+<div class="mistake"><b>Common mistake across all of these:</b> writing the happy path only and demoing it once. Every script above assumes something will eventually fail (a host unreachable, a cert lookup timing out, a webhook down) and handles it without crashing the whole run &mdash; that's the actual skill being evaluated, more than the specific script.</div>
+
+</section>
+  <section class="chapter" id="closing">
+  <div class="chap-num">Closing Note</div>
+  <h2 class="chap-title">How to Use This Handbook</h2>
+  <p>This handbook is deliberately scoped to what actually gets asked in Senior SRE, DevOps, Platform Engineering, and Cloud interviews: scripting fundamentals, file and log processing, system automation, API/CLI integration, and real production scripts &mdash; not competitive-programming algorithms. Interviewers in this space are checking whether you can automate an operational task cleanly, handle failure modes, and write something a teammate could read at 3 a.m. during an incident.</p>
+  <p><b>Suggested path:</b> work Chapters 1&ndash;10 (fundamentals through exception handling) if you need a refresher on core Python; if you are already fluent, skim those and focus on Chapters 9&ndash;20, which is where SRE-specific value concentrates &mdash; file/log handling, subprocess, requests, regex, and the automation script chapters. Chapter 19 is a rapid-fire bank for warm-up drills the day before an interview; Chapter 20 is the portfolio chapter &mdash; scripts worth actually having on GitHub.</p>
+  <p><b>Interview framing that works:</b> when asked to write a script live, narrate your plan in one sentence, handle the obvious failure case (file missing, API timeout, empty input) without being asked, and mention what you'd add for production (logging, retries, argparse) even if you don't have time to write it. That signals SRE judgment, not just Python syntax.</p>
+  </section>
+
+</div>
+</body>
+</html>
