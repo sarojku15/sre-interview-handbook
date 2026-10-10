@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python for Automation &amp; SRE — Cheat Sheet</title>
+<style>
+:root{
+  --navy:#132342; --bg:#F4F6FA; --line:#DBE1EC; --text:#1B2436; --mut:#5B6B87; --card:#fff;
+  --py-blue:#2F73B8; --py-yellow:#D4A017;
+  --mono:"SF Mono","Cascadia Code","JetBrains Mono",Consolas,Menlo,monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5}
+.wrap{max-width:1450px;margin:0 auto;padding:28px 24px 60px}
+header{background:linear-gradient(90deg,var(--navy),#1B3A66);color:#fff;border-radius:12px;padding:20px 26px}
+header h1{margin:0;font-size:24px}
+header p{margin:8px 0 0;color:#CBD8F0;font-size:14px}
+.fixnote{background:#FCEAEA;border:1px solid #C23A3A;color:#7A1E1E;border-radius:10px;padding:12px 16px;margin:16px 0 22px;font-size:13.5px}
+.fixnote b{color:#C23A3A}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card h2{margin:0 0 8px;font-size:13px;letter-spacing:.02em;text-transform:uppercase;color:var(--navy);border-bottom:2px solid var(--line);padding-bottom:6px}
+.c3{grid-column:span 3}.c4{grid-column:span 4}.c6{grid-column:span 6}.c12{grid-column:span 12}
+pre{font-family:var(--mono);font-size:12px;background:#0F1B33;color:#DCE6FA;border-radius:7px;padding:10px 12px;overflow-x:auto;line-height:1.5;margin:4px 0}
+pre .fix{background:#1F3A22;border-left:3px solid #4CD37A;padding:0 4px}
+code{font-family:var(--mono);font-size:12px;background:#F0F3F9;border:1px solid var(--line);border-radius:4px;padding:1px 4px}
+ul{margin:4px 0;padding-left:18px}
+li{font-size:12.6px;margin:3px 0}
+table{width:100%;border-collapse:collapse;font-size:12.3px;margin-top:4px}
+th,td{border:1px solid var(--line);padding:5px 7px;text-align:left}
+th{background:var(--bg);color:var(--navy)}
+.check li{list-style:none;position:relative;padding-left:18px}
+.check li:before{content:"✓";position:absolute;left:0;color:#1F8A4C;font-weight:700}
+.qa{font-size:12.6px;margin:6px 0}
+.qa b{color:var(--navy)}
+.pill{display:inline-block;background:#E9F1FD;color:#1D5FBF;border-radius:99px;padding:2px 9px;font-size:11px;font-weight:700;margin:2px 4px 2px 0}
+footer{text-align:center;color:var(--mut);font-size:12px;margin-top:26px;font-family:var(--mono)}
+@media(max-width:900px){.c3,.c4,.c6{grid-column:span 12}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Python for automation &amp; SRE — complete cheat sheet</h1>
+  <p>From basics to advanced — real-world SRE / DevOps scripting. Automate everything.</p>
+</header>
+<div class="fixnote"><b>Corrected from the original poster:</b> <code>raise ValuoError(...)</code> → <code>ValueError</code>; the socket example printed <code>respose.decode()</code> → fixed to <code>response.decode()</code>; the header subtitle text was garbled in the source image and has been rewritten cleanly.</div>
+
+<div class="grid">
+
+<div class="card c4">
+<h2>1. Python basics</h2>
+<ul>
+<li>Easy to learn, high level, interpreted</li>
+<li>Dynamically typed, open source</li>
+<li>Great for scripting &amp; automation</li>
+</ul>
+<pre>x = 10          # int
+name = "SRE"    # str
+pi = 3.14       # float
+is_active = True# bool
+items = [1,2,3] # list
+data = {"a":1}  # dict
+t = (1,2)       # tuple
+s = {1,2,3}     # set</pre>
+<p><b>Operators:</b> <code>+ - / // % **</code>&nbsp;&nbsp;<code>== != &lt; &gt; &gt;= &lt;=</code>&nbsp;&nbsp;<code>and or not</code>&nbsp;&nbsp;<code>in, not in, is, is not</code></p>
+</div>
+
+<div class="card c4">
+<h2>2. Control flow</h2>
+<pre>if condition:
+    pass
+elif condition:
+    pass
+else:
+    pass
+
+for i in range(5):
+    pass
+
+while condition:
+    break, continue, pass
+
+try:
+    pass
+except Exception as e:
+    pass
+finally:
+    pass
+
+raise ValueError("error")</pre>
+</div>
+
+<div class="card c4">
+<h2>3. Functions</h2>
+<pre>def add(a, b):
+    return a + b
+
+def greet(name="User"):
+    return f"Hello {name}"
+
+# *args - variable positional args
+# **kwargs - variable keyword args
+
+# Lambda
+add = lambda a, b: a + b</pre>
+</div>
+
+<div class="card c4">
+<h2>4. Data structures</h2>
+<pre>l = [1,2,3]           # List (ordered, mutable)
+l.append(4); l.pop()
+
+d = {"a": 1}           # Dict (key-value)
+d["b"] = 2; d.get("a")
+
+s = {1,2,3}            # Set (unique items)
+s.add(4); s.remove(2)
+
+t = (1,2,3)            # Tuple (ordered, immutable)
+t[0]
+
+s = "hello"            # String (immutable)
+s.upper(); s.split("_")</pre>
+</div>
+
+<div class="card c4">
+<h2>5. File handling</h2>
+<pre># Read
+with open("file.txt","r") as f:
+    data = f.read()
+
+# Write
+with open("file.txt","w") as f:
+    f.write("hello")
+
+# Append
+with open("file.txt","a") as f:
+    f.write("more")
+
+# Read line by line
+with open("log.log") as f:
+    for line in f:
+        print(line.strip())</pre>
+</div>
+
+<div class="card c4">
+<h2>6. Modules &amp; packages</h2>
+<pre>import os, sys
+from datetime import datetime
+from math import sqrt
+
+# mymodule.py
+def add(a,b):
+    return a+b
+
+# usage
+import mymodule
+mymodule.add(2,3)</pre>
+</div>
+
+<div class="card c6">
+<h2>7. Standard libraries (most used for automation)</h2>
+<table>
+<tr><td><code>os</code></td><td>OS operations</td><td><code>sys</code></td><td>System-specific params</td></tr>
+<tr><td><code>subprocess</code></td><td>Run shell commands</td><td><code>shutil</code></td><td>High-level file ops</td></tr>
+<tr><td><code>datetime</code></td><td>Date &amp; time</td><td><code>time</code></td><td>Time-related funcs</td></tr>
+<tr><td><code>re</code></td><td>Regular expressions</td><td><code>json</code></td><td>JSON handling</td></tr>
+<tr><td><code>csv</code></td><td>CSV read/write</td><td><code>logging</code></td><td>Structured logging</td></tr>
+<tr><td><code>argparse</code></td><td>CLI arguments</td><td><code>socket</code></td><td>Networking</td></tr>
+<tr><td><code>urllib / requests</code></td><td>HTTP requests</td><td><code>threading / concurrent.futures</code></td><td>Concurrency</td></tr>
+</table>
+</div>
+
+<div class="card c6">
+<h2>8 &amp; 9. OS module + subprocess</h2>
+<pre>import os
+os.getcwd(); os.listdir("/var/log")
+os.mkdir("test"); os.remove("file.txt")
+os.environ["HOME"]; os.path.exists("file.txt")
+os.path.join("a","b")
+
+import subprocess
+result = subprocess.run("uptime", shell=True,
+    capture_output=True, text=True)
+print(result.stdout)
+if result.returncode == 0:
+    print("Success")
+
+output = subprocess.getoutput("df -h")</pre>
+</div>
+
+<div class="card c4">
+<h2>10. Date &amp; time</h2>
+<pre>from datetime import datetime, timedelta
+now = datetime.now()
+today = datetime.today().strftime("%Y-%m-%d")
+future = now + timedelta(days=7)
+
+import time
+ts = time.time()   # epoch time
+time.sleep(5)</pre>
+</div>
+
+<div class="card c4">
+<h2>11. Regular expressions</h2>
+<pre>import re
+text = "Error: Disk Full in /dev/sda1"
+
+m = re.search(r"Disk (.*) in", text)
+m.group(1)
+
+re.findall(r"\d+", "CPU 100% MEM 70%")
+re.sub(r"\s+", " ", "a   b   c")</pre>
+</div>
+
+<div class="card c4">
+<h2>12. JSON</h2>
+<pre>import json
+data = {"name":"SRE","role":"DevOps"}
+js = json.dumps(data)
+py = json.loads(js)
+py["name"]
+
+with open("data.json") as f:
+    d = json.load(f)
+with open("data.json","w") as f:
+    json.dump(data, f, indent=4)</pre>
+</div>
+
+<div class="card c6">
+<h2>13. CSV</h2>
+<pre>import csv
+with open("users.csv") as f:
+    r = csv.reader(f)
+    for row in r:
+        print(row)
+
+with open("out.csv","w",newline="") as f:
+    w = csv.writer(f)
+    w.writerow(["Name","Role"])
+    w.writerow(["SRE","Automation"])</pre>
+</div>
+
+<div class="card c6">
+<h2>14. Logging</h2>
+<pre>import logging
+logging.basicConfig(
+    filename="app.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s")
+
+logging.info("Automation started")
+logging.error("Something failed")</pre>
+</div>
+
+<div class="card c6">
+<h2>15. Exception handling</h2>
+<pre>try:
+    x = 1/0
+except ZeroDivisionError as e:
+    print("Cannot divide by zero")
+except Exception as e:
+    print("Error:", e)
+else:
+    print("All good")
+finally:
+    print("Cleanup code")</pre>
+</div>
+
+<div class="card c6">
+<h2>16. argparse (CLI arguments)</h2>
+<pre>import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--name")
+parser.add_argument("--age", type=int)
+args = parser.parse_args()
+print(args.name, args.age)
+
+# Run: python script.py --name SRE --age 5</pre>
+</div>
+
+<div class="card c6">
+<h2>17. HTTP requests (requests)</h2>
+<pre>import requests
+r = requests.get("https://api.github.com", timeout=5)
+print(r.status_code); print(r.json())
+
+payload = {"name":"sre"}
+r = requests.post("http://httpbin.org/post", json=payload)
+
+headers = {"Authorization": "Bearer token"}
+r = requests.get(url, headers=headers)</pre>
+<p style="color:var(--mut);font-size:11.5px">Always set <code>timeout=</code> — requests has no default timeout and will hang forever on a stuck endpoint.</p>
+</div>
+
+<div class="card c6">
+<h2>18 &amp; 19. Threading &amp; concurrency</h2>
+<pre>import threading
+def task(n):
+    print(f"Task {n} started")
+
+threads = []
+for i in range(5):
+    t = threading.Thread(target=task, args=(i,))
+    t.start(); threads.append(t)
+for t in threads:
+    t.join()
+
+# Better way: ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
+def square(n): return n*n
+with ThreadPoolExecutor(max_workers=5) as ex:
+    results = list(ex.map(square, range(5)))</pre>
+</div>
+
+<div class="card c6">
+<h2>20. Socket programming (basics) <span class="pill">fixed typo</span></h2>
+<pre>import socket
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(("google.com", 80))
+s.send(b"GET / HTTP/1.1\r\nHost: google.com\r\n\r\n")
+
+response = s.recv(1024)
+print(<span class="fix">response</span>.decode())
+s.close()</pre>
+</div>
+
+<div class="card c6">
+<h2>21 &amp; 22. YAML &amp; environment variables</h2>
+<pre>import yaml
+data = {"app":"web","replicas":3}
+with open("config.yaml","w") as f:
+    yaml.dump(data, f)
+with open("config.yaml") as f:
+    d = yaml.safe_load(f)
+
+import os
+os.environ["MY_VAR"] = "value"
+value = os.getenv("MY_VAR")</pre>
+</div>
+
+<div class="card c6">
+<h2>23. SSH automation (paramiko)</h2>
+<pre>import paramiko
+ssh = paramiko.SSHClient()
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+ssh.connect("host", username="user", password="pass")
+
+stdin, stdout, stderr = ssh.exec_command("uptime")
+print(stdout.read().decode())
+ssh.close()</pre>
+</div>
+
+<div class="card c6">
+<h2>24. Email automation (smtplib)</h2>
+<pre>import smtplib
+from email.mime.text import MIMEText
+
+msg = MIMEText("Alert: High CPU")
+msg["Subject"] = "SRE Alert"
+msg["From"] = "alert@example.com"
+msg["To"] = "admin@example.com"
+
+s = smtplib.SMTP("smtp.gmail.com", 587)
+s.starttls()
+s.login("user", "pass")
+s.send_message(msg)
+s.quit()</pre>
+</div>
+
+<div class="card c12">
+<h2>25. Example — log monitor script</h2>
+<pre># Monitor error lines in a log file, live
+import time
+logfile = "/var/log/app.log"
+with open(logfile) as f:
+    f.seek(0, 2)  # jump to end of file
+    while True:
+        line = f.readline()
+        if not line:
+            time.sleep(1)
+            continue
+        if "ERROR" in line:
+            print(line.strip())</pre>
+</div>
+
+<div class="card c4">
+<h2>26. Real-world SRE/DevOps use cases</h2>
+<ul class="check">
+<li>System health check (CPU, memory, disk)</li>
+<li>Log monitoring &amp; alerting</li>
+<li>Auto-restart failed services</li>
+<li>Send alerts (email / Slack / Teams)</li>
+<li>Backup databases / files</li>
+<li>Deploy applications</li>
+<li>Kubernetes automation</li>
+<li>Cloud resource management (AWS/GCP/Azure)</li>
+<li>Network monitoring</li>
+<li>CI/CD pipeline automation</li>
+<li>User management</li>
+<li>Certificate expiry monitoring</li>
+<li>Security scanning</li>
+<li>Incident reporting</li>
+<li>Cost optimization scripts</li>
+</ul>
+</div>
+
+<div class="card c4">
+<h2>27. Python in the SRE/DevOps ecosystem</h2>
+<ul>
+<li><b>IaC:</b> Terraform, Ansible</li>
+<li><b>CI/CD:</b> Jenkins, GitLab CI</li>
+<li><b>Orchestration:</b> Kubernetes, AWS/GCP/Azure SDKs</li>
+<li><b>Monitoring:</b> Prometheus, Grafana</li>
+</ul>
+<p style="font-size:11.5px;color:var(--mut)">Python is the glue layer — most SRE tools expose a Python SDK or CLI that scripting wraps around.</p>
+</div>
+
+<div class="card c4">
+<h2>28. Best practices</h2>
+<ul class="check">
+<li>Write readable, modular code (functions/modules)</li>
+<li>Add logging to every script</li>
+<li>Handle exceptions gracefully</li>
+<li>Validate inputs</li>
+<li>Use virtual environments</li>
+<li>Keep secrets in env vars or a vault — never hardcoded</li>
+<li>Write idempotent scripts (safe to re-run)</li>
+<li>Test scripts before production</li>
+<li>Follow PEP 8 style</li>
+</ul>
+</div>
+
+<div class="card c6">
+<h2>29. Interview quick Q&amp;A</h2>
+<div class="qa"><b>Q:</b> Difference between list and tuple? &nbsp;<b>A:</b> List is mutable; tuple is immutable.</div>
+<div class="qa"><b>Q:</b> What are *args and **kwargs? &nbsp;<b>A:</b> *args = variable positional arguments; **kwargs = variable keyword arguments.</div>
+<div class="qa"><b>Q:</b> What is subprocess used for? &nbsp;<b>A:</b> To run shell commands and automate system tasks from Python.</div>
+<div class="qa"><b>Q:</b> How do you read environment variables? &nbsp;<b>A:</b> <code>os.getenv("VAR_NAME")</code></div>
+<div class="qa"><b>Q:</b> Difference between threading and multiprocessing? &nbsp;<b>A:</b> Threads share memory (good for I/O-bound); processes have separate memory (good for CPU-bound, side-step the GIL).</div>
+</div>
+
+<div class="card c6">
+<h2>30. Useful one-liners</h2>
+<table>
+<tr><td>Current directory</td><td><code>os.getcwd()</code></td></tr>
+<tr><td>List files</td><td><code>os.listdir('.')</code></td></tr>
+<tr><td>Current time</td><td><code>datetime.now()</code></td></tr>
+<tr><td>Check file exists</td><td><code>os.path.exists('a.txt')</code></td></tr>
+<tr><td>Get file size</td><td><code>os.path.getsize('a.txt')</code></td></tr>
+<tr><td>Read JSON</td><td><code>json.load(open('a.json'))</code></td></tr>
+<tr><td>Write JSON</td><td><code>json.dump(data, open('a.json','w'), indent=4)</code></td></tr>
+<tr><td>Run command &amp; get output</td><td><code>subprocess.getoutput('uptime')</code></td></tr>
+<tr><td>Sleep 10 sec</td><td><code>time.sleep(10)</code></td></tr>
+<tr><td>Find IP by hostname</td><td><code>socket.gethostbyname('google.com')</code></td></tr>
+</table>
+</div>
+
+<div class="card c12">
+<h2>31. Python CLIs you should know</h2>
+<table>
+<tr><td><code>python --version</code></td><td>Check Python version</td>
+    <td><code>python -m venv env</code></td><td>Create virtual environment</td></tr>
+<tr><td><code>source env/bin/activate</code></td><td>Activate venv (Linux/Mac)</td>
+    <td><code>env\Scripts\activate</code></td><td>Activate venv (Windows)</td></tr>
+<tr><td><code>pip install package</code></td><td>Install a package</td>
+    <td><code>pip list</code></td><td>List installed packages</td></tr>
+<tr><td><code>pip freeze</code></td><td>Export dependencies</td>
+    <td><code>python script.py</code></td><td>Run a script</td></tr>
+</table>
+</div>
+
+<div class="card c12">
+<h2>Common automation workflow</h2>
+<div style="display:flex;flex-wrap:wrap;gap:10px;font-size:12.6px;align-items:center">
+<span class="pill" style="background:#E9F1FD;color:#1D5FBF">Trigger (cron / alert)</span>→
+<span class="pill" style="background:#E9F7EF;color:#1F8A4C">Python script runs</span>→
+<span class="pill" style="background:#FCF2E0;color:#B5760A">Execute task (check / fix / collect)</span>→
+<span class="pill" style="background:#F0EAFB;color:#6A3FBF">Log &amp; metrics</span>→
+<span class="pill" style="background:#FCEAEA;color:#C23A3A">Alert / notify</span>
+</div>
+<h2 style="margin-top:16px">Common Python packages for automation</h2>
+<table>
+<tr><th>Task</th><th>Package</th><th>Task</th><th>Package</th></tr>
+<tr><td>HTTP APIs</td><td><code>requests</code></td><td>AWS SDK</td><td><code>boto3</code></td></tr>
+<tr><td>SSH</td><td><code>paramiko</code></td><td>Azure SDK</td><td><code>azure-identity</code></td></tr>
+<tr><td>System &amp; process control</td><td><code>psutil</code></td><td>K8s Python client</td><td><code>kubernetes</code></td></tr>
+<tr><td>YAML</td><td><code>pyyaml</code></td><td>Metrics</td><td><code>prometheus-client</code></td></tr>
+<tr><td>Email</td><td><code>smtplib</code></td><td>Templates</td><td><code>jinja2</code></td></tr>
+<tr><td>Table output</td><td><code>tabulate</code></td><td>Rich terminal output</td><td><code>rich</code></td></tr>
+</table>
+</div>
+
+</div>
+<footer>Python for automation &amp; SRE reference · corrected &amp; reformatted for readability at any zoom level</footer>
+</div>
+</body>
+</html>

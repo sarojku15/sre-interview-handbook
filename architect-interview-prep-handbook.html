@@ -1,0 +1,2209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architect Interview — Master Prep Handbook</title>
+<style>
+:root{
+  --bg:#0a0d12;
+  --bg-elev:#0f141b;
+  --surface:#141a22;
+  --surface-2:#182029;
+  --border:#232c37;
+  --border-2:#2e3947;
+  --text:#e7edf4;
+  --text-dim:#93a1b0;
+  --text-faint:#5c6a79;
+  --accent:#39d98a;
+  --accent-dim:#279962;
+  --amber:#f0b429;
+  --red:#f0656a;
+  --blue:#5aa8f0;
+  --mono:ui-monospace,SFMono-Regular,'Cascadia Code',Consolas,'Liberation Mono',monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;font-size:15.5px;}
+.hidden{display:none !important;}
+a{color:inherit;}
+
+.sticky-wrap{position:sticky;top:0;z-index:50;background:rgba(10,13,18,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+header{padding:14px 24px 10px;}
+.header-inner{max-width:980px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;}
+.title-block h1{font-size:17px;margin:0 0 3px;font-weight:650;letter-spacing:.2px;font-family:var(--sans);}
+.title-block .subtitle{font-size:12.5px;color:var(--text-dim);margin:0;font-family:var(--mono);}
+.controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+#search{background:var(--surface);border:1px solid var(--border-2);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13.5px;width:230px;font-family:var(--sans);}
+#search:focus{outline:none;border-color:var(--accent-dim);box-shadow:0 0 0 3px rgba(57,217,138,.15);}
+.progress-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);font-family:var(--mono);}
+.progress-bar{width:100px;height:6px;background:var(--surface-2);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent-dim),var(--accent));transition:width .3s;}
+.reset-btn{background:none;border:1px solid var(--border-2);color:var(--text-faint);font-size:11px;padding:5px 9px;border-radius:6px;cursor:pointer;font-family:var(--mono);}
+.reset-btn:hover{color:var(--text-dim);border-color:var(--border-2);}
+.reset-btn:focus-visible{outline:2px solid var(--accent-dim);outline-offset:2px;}
+
+nav.toc{max-width:980px;margin:0 auto;padding:10px 24px 12px;display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--border-2) transparent;}
+nav.toc::-webkit-scrollbar{height:4px;}
+nav.toc::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px;}
+.toc-chip{flex-shrink:0;font-size:12.5px;font-family:var(--mono);color:var(--text-dim);border:1px solid var(--border);padding:6px 11px;border-radius:20px;text-decoration:none;transition:.15s;white-space:nowrap;}
+.toc-chip:hover{border-color:var(--accent-dim);color:var(--accent);}
+.toc-chip:focus-visible{outline:2px solid var(--accent-dim);outline-offset:2px;}
+.toc-chip.alert{border-color:rgba(240,101,106,.4);color:var(--red);}
+.toc-chip.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600;}
+.toc-chip.active:hover{color:var(--bg);}
+
+main{max-width:980px;margin:0 auto;padding:30px 24px 100px;}
+
+.no-results{display:none;text-align:center;color:var(--text-faint);padding:50px 0;font-family:var(--mono);font-size:13px;}
+.no-results.show{display:block;}
+
+.intro-note{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent-dim);border-radius:8px;padding:16px 18px;margin-bottom:34px;font-size:13.8px;color:var(--text-dim);}
+.intro-note strong{color:var(--text);}
+
+.chapter{margin-bottom:52px;scroll-margin-top:150px;}
+.chapter-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:14px;}
+.chapter-head h2{font-size:18px;margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-weight:600;letter-spacing:.2px;}
+.chapter-num{color:var(--text-faint);font-size:14px;}
+.chapter-progress{font-family:var(--mono);font-size:12px;color:var(--text-faint);white-space:nowrap;}
+.badge{font-size:10.5px;font-family:var(--mono);padding:3px 8px;border-radius:5px;letter-spacing:.4px;font-weight:600;}
+.badge-p1{background:rgba(240,101,106,.13);color:var(--red);border:1px solid rgba(240,101,106,.35);}
+.badge-p2{background:rgba(90,168,240,.13);color:var(--blue);border:1px solid rgba(90,168,240,.35);}
+.badge-p3{background:rgba(240,180,41,.13);color:var(--amber);border:1px solid rgba(240,180,41,.35);}
+.badge-p4{background:rgba(147,161,176,.13);color:var(--text-dim);border:1px solid rgba(147,161,176,.35);}
+.badge-p5{background:rgba(57,217,138,.13);color:var(--accent);border:1px solid rgba(57,217,138,.35);}
+.badge-bonus{background:rgba(90,168,240,.08);color:var(--blue);border:1px dashed rgba(90,168,240,.4);}
+.chapter-intro{color:var(--text-dim);font-size:14px;margin-bottom:20px;font-family:var(--sans);}
+.subhead{margin:30px 0 12px;font-size:12.5px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.6px;text-transform:uppercase;}
+
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px 20px;margin-bottom:14px;}
+.qa-head{display:flex;align-items:flex-start;gap:11px;margin-bottom:10px;}
+.mastery-check{margin-top:4px;width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+.mastery-check:focus-visible{outline:2px solid var(--accent-dim);outline-offset:2px;}
+.qa-q{font-weight:600;font-size:14.5px;color:var(--text);cursor:pointer;font-family:var(--sans);}
+.qa-a{margin-left:27px;color:var(--text-dim);font-size:14px;font-family:var(--sans);}
+.qa-a p{margin:0 0 10px;}
+.qa-a ul{margin:6px 0 12px;padding-left:20px;}
+.qa-a li{margin-bottom:4px;}
+.qa-a strong{color:var(--text);}
+
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:12px 0;}
+.flow-step{background:var(--bg-elev);border:1px solid var(--border-2);color:var(--accent);font-family:var(--mono);font-size:12.5px;padding:5px 10px;border-radius:6px;}
+.flow-arrow{color:var(--text-faint);font-size:13px;}
+
+pre{background:var(--bg-elev);border:1px solid var(--border-2);border-radius:8px;padding:12px 14px;overflow-x:auto;margin:10px 0 14px;}
+code{font-family:var(--mono);font-size:12.8px;color:#a8e6c1;}
+.qa-a code:not(pre code){background:var(--bg-elev);padding:1px 5px;border-radius:4px;color:var(--accent);}
+
+table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:13px;}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);}
+th{color:var(--text-faint);font-family:var(--mono);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;}
+td{color:var(--text-dim);}
+td strong{color:var(--text);}
+
+.followup{margin-top:12px;padding:11px 14px;background:rgba(240,180,41,.06);border-left:3px solid var(--amber);border-radius:6px;font-size:13.3px;}
+.followup strong{color:var(--amber);}
+
+.scenario-card{background:var(--surface);border:1px solid rgba(240,101,106,.3);border-radius:10px;padding:22px 24px;margin-bottom:18px;}
+.scenario-card .qa-head{margin-bottom:14px;}
+.scenario-card .qa-q{font-size:16px;}
+.scenario-card .qa-a{margin-left:27px;color:var(--text-dim);font-size:14px;}
+
+footer{max-width:980px;margin:0 auto;padding:0 24px 60px;color:var(--text-faint);font-size:12.5px;font-family:var(--mono);border-top:1px solid var(--border);padding-top:20px;}
+footer a{color:var(--text-dim);}
+
+@media(max-width:640px){
+  .header-inner{flex-direction:column;align-items:flex-start;}
+  #search{width:100%;}
+  .qa-a,.scenario-card .qa-a{margin-left:0;margin-top:8px;}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *{transition:none !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="sticky-wrap">
+<header>
+  <div class="header-inner">
+    <div class="title-block">
+      <h1>Platform / SRE Architect Interview — Master Prep Handbook</h1>
+      <p class="subtitle">Kubernetes · AWS · GitOps · CI/CD · Terraform · FinOps — scenario-first, architect-level</p>
+    </div>
+    <div class="controls">
+      <input id="search" type="text" placeholder="Search questions, commands, topics…" oninput="filterCards(this.value)">
+      <div class="progress-wrap">
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+        <span id="progress-text">0 / 0 mastered</span>
+        <button class="reset-btn" onclick="resetProgress()" type="button">reset</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" id="toc">
+  <a href="#ch-eks" class="toc-chip">01 · EKS Cluster</a>
+  <a href="#ch-net" class="toc-chip">02 · Networking</a>
+  <a href="#ch-sec" class="toc-chip">03 · Security</a>
+  <a href="#ch-tsh" class="toc-chip">04 · Troubleshooting</a>
+  <a href="#ch-helm" class="toc-chip">05 · Helm</a>
+  <a href="#ch-gitops" class="toc-chip">06 · GitOps</a>
+  <a href="#ch-cicd" class="toc-chip">07 · CI/CD</a>
+  <a href="#ch-aws" class="toc-chip">08 · AWS Cloud</a>
+  <a href="#ch-sh" class="toc-chip">09 · Shell</a>
+  <a href="#ch-tf" class="toc-chip">10 · Terraform</a>
+  <a href="#ch-fin" class="toc-chip">11 · FinOps</a>
+  <a href="#ch-scn" class="toc-chip alert">War-Room Scenarios</a>
+  <a href="#ch-ai" class="toc-chip">13 · AI/ML Platform (bonus)</a>
+  <a href="#ch-aks" class="toc-chip alert">14 · AKS Round (tomorrow)</a>
+</nav>
+</div>
+
+<main>
+<div class="no-results" id="no-results">No matches — try a different term, like "drain", "RBAC", "NAT", or "rollback".</div>
+
+<div class="intro-note">
+  <strong>How this is organized:</strong> exactly around the blueprint's own priority tiers. Priority 1 (Kubernetes core, Helm, GitOps, CI/CD) is roughly 70% of a 60–90 minute architect-style interview — start there and don't move on until you can explain each flow from memory, out loud, without looking. Every question includes the expected flow, the commands you'd actually type, and — where it matters — the follow-up an architect is likely to probe with next. Check off each question once you can explain it cold; progress saves automatically in this file.
+</div>
+
+<section class="chapter" id="ch-eks">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">01</span> Kubernetes Cluster — Creation &amp; Upgrade <span class="badge badge-p1">P1 · 70% weight</span></h2>
+    <span class="chapter-progress">0/7</span>
+  </div>
+  <p class="chapter-intro">The client's #1 topic. Expect a live whiteboard walk-through, not a definitions quiz — be ready to draw the VPC-to-application flow from memory and narrate every hop.</p>
+
+  <div class="qa-card" data-search="explain how you created an eks cluster from scratch vpc subnet nat gateway iam eks cluster node group kubeconfig verify nodes">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-1" data-qid="eks-1" onchange="toggleMastery('eks-1', this.checked)">
+      <label for="cb-eks-1" class="qa-q">Q1. Explain how you created an EKS cluster from scratch.</label>
+    </div>
+    <div class="qa-a">
+      <p>This is the flow the client is listening for — say it in this order before diving into any one box:</p>
+      <div class="flow">
+        <span class="flow-step">VPC</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Public Subnets</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Private Subnets</span><span class="flow-arrow">→</span>
+        <span class="flow-step">NAT Gateway</span><span class="flow-arrow">→</span>
+        <span class="flow-step">EKS Control Plane</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Managed Node Group</span><span class="flow-arrow">→</span>
+        <span class="flow-step">kubectl access</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Deploy app</span>
+      </div>
+      <ul>
+        <li><strong>VPC:</strong> one CIDR (e.g. <code>10.0.0.0/16</code>) spanning at least 2–3 AZs for HA.</li>
+        <li><strong>Public subnets:</strong> host the NAT Gateway and any internet-facing ALB. Tag <code>kubernetes.io/role/elb=1</code> and <code>kubernetes.io/cluster/&lt;name&gt;=shared</code> so the AWS Load Balancer Controller can auto-discover them.</li>
+        <li><strong>Private subnets:</strong> host the worker nodes — no direct public IP. Tag <code>kubernetes.io/role/internal-elb=1</code>.</li>
+        <li><strong>IGW + route table</strong> on public subnets (<code>0.0.0.0/0 → IGW</code>); <strong>NAT Gateway + route table</strong> on private subnets (<code>0.0.0.0/0 → NAT</code>).</li>
+        <li><strong>IAM:</strong> an EKS cluster role (trusted entity <code>eks.amazonaws.com</code>, policy <code>AmazonEKSClusterPolicy</code>) and a node role (<code>AmazonEKSWorkerNodePolicy</code>, <code>AmazonEKS_CNI_Policy</code>, <code>AmazonEC2ContainerRegistryReadOnly</code>).</li>
+        <li><strong>Control plane + managed node group</strong> created against the private subnets.</li>
+        <li><strong>kubeconfig</strong> and verification.</li>
+      </ul>
+      <pre><code>eksctl create cluster \
+  --name prod-cluster --region ap-south-1 --version 1.29 \
+  --vpc-private-subnets=subnet-aaa,subnet-bbb \
+  --vpc-public-subnets=subnet-ccc,subnet-ddd \
+  --nodegroup-name ng-1 --node-type m5.large \
+  --nodes 3 --nodes-min 2 --nodes-max 6 --managed
+
+aws eks update-kubeconfig --region ap-south-1 --name prod-cluster
+kubectl get nodes -o wide
+kubectl get pods -n kube-system   # coredns, aws-node, kube-proxy all Running</code></pre>
+      <div class="followup"><strong>Likely follow-up:</strong> "Why private subnets for nodes?" — blast-radius reduction; nodes reach the internet only via NAT, egress-only, nothing inbound from the public internet directly.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="why private subnets worker nodes nat gateway role security public ip">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-2" data-qid="eks-2" onchange="toggleMastery('eks-2', this.checked)">
+      <label for="cb-eks-2" class="qa-q">Q2. Why private subnets for worker nodes, and what exactly does the NAT Gateway do?</label>
+    </div>
+    <div class="qa-a">
+      <p>Nodes in private subnets have no route to the internet except through the NAT Gateway, and no public IP at all — nothing on the internet can initiate a connection to a node. The NAT Gateway sits in a public subnet with an Elastic IP and translates outbound traffic from private-subnet resources (pulling images, calling AWS APIs, hitting external endpoints) so the reply routes back, without exposing the node's private IP externally.</p>
+      <ul>
+        <li>One NAT per AZ in production (HA) — a single NAT is a single point of failure and a cross-AZ data-transfer cost.</li>
+        <li>VPC endpoints (S3 gateway endpoint, ECR/STS interface endpoints) reduce NAT data-processing cost for high-volume traffic like image pulls.</li>
+      </ul>
+      <div class="followup"><strong>Likely follow-up:</strong> "What if NAT goes down?" — nodes lose egress (no new image pulls, no AWS API calls), but already-running pods with no external dependency keep serving. Exactly why multi-AZ NAT matters.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="iam roles eks cluster role node role irsa iam roles for service accounts oidc">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-3" data-qid="eks-3" onchange="toggleMastery('eks-3', this.checked)">
+      <label for="cb-eks-3" class="qa-q">Q3. What IAM roles does EKS need, and what is IRSA?</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Role</th><th>Trust</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Cluster role</strong></td><td>eks.amazonaws.com</td><td>Lets the EKS service manage the control plane (ENIs, load balancers on your behalf)</td></tr>
+          <tr><td><strong>Node role</strong></td><td>ec2.amazonaws.com</td><td>Lets EC2 instances join the cluster, pull from ECR, run the VPC CNI</td></tr>
+          <tr><td><strong>IRSA role</strong></td><td>OIDC provider (per-cluster)</td><td>Lets a specific pod assume fine-grained IAM permissions</td></tr>
+        </tbody>
+      </table>
+      <p><strong>IRSA (IAM Roles for Service Accounts):</strong> EKS exposes an OIDC provider; you create an IAM role whose trust policy trusts that OIDC provider for a specific Kubernetes ServiceAccount (via annotation <code>eks.amazonaws.com/role-arn</code>). The pod using that ServiceAccount gets short-lived, auto-rotated AWS credentials injected — no static AWS keys stored in the cluster, and permissions scoped per-workload instead of one broad node-wide role.</p>
+      <div class="followup"><strong>Why it matters to the client:</strong> without IRSA, every pod on a node effectively inherits the node role's permissions if it can reach the instance metadata service — IRSA (with IMDSv2 + hop-limit hardening) is the standard least-privilege answer.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="how do you upgrade kubernetes without downtime eks cluster upgrade control plane node group">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-4" data-qid="eks-4" onchange="toggleMastery('eks-4', this.checked)">
+      <label for="cb-eks-4" class="qa-q">Q4. How do you upgrade Kubernetes without downtime?</label>
+    </div>
+    <div class="qa-a">
+      <p>Two phases, always control plane first, only one minor version at a time (K8s doesn't support skipping — e.g. 1.27 → 1.29 needs a stop at 1.28):</p>
+      <div class="flow">
+        <span class="flow-step">Check deprecated APIs</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Upgrade control plane</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Upgrade add-ons</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Upgrade node group</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Validate</span>
+      </div>
+      <pre><code>aws eks update-cluster-version --name prod-cluster --kubernetes-version 1.29
+aws eks update-nodegroup-version --cluster-name prod-cluster --nodegroup-name ng-1</code></pre>
+      <p>A managed node group upgrade replaces nodes for you following its configured update config, but it's still cordon → drain → replace → uncordon under the hood — exactly why PodDisruptionBudgets and readiness probes matter (next question).</p>
+      <div class="followup"><strong>Likely follow-up:</strong> "What do you check before upgrading?" — a tool like Pluto or kube-no-trouble (or <code>kubectl get pods -A -o yaml | grep apiVersion</code>) to catch removed/deprecated API usage before it breaks post-upgrade.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="manual node upgrade cordon drain uncordon sequence commands ignore-daemonsets">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-5" data-qid="eks-5" onchange="toggleMastery('eks-5', this.checked)">
+      <label for="cb-eks-5" class="qa-q">Q5. Walk through the manual node upgrade sequence.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl cordon node-1                                    # stop new scheduling
+kubectl drain node-1 --ignore-daemonsets --delete-emptydir-data   # evict pods gracefully
+# replace / upgrade the node (new AMI or kubelet version)
+kubectl get nodes                                         # confirm new node Ready
+kubectl uncordon node-1                                    # allow scheduling again</code></pre>
+      <ul>
+        <li><code>cordon</code> marks the node unschedulable — existing pods keep running.</li>
+        <li><code>drain</code> evicts pods respecting PodDisruptionBudgets, terminating them gracefully (respecting <code>terminationGracePeriodSeconds</code>) so ReplicaSets reschedule them elsewhere first.</li>
+        <li><code>--ignore-daemonsets</code> is required or the drain hangs — DaemonSet pods relaunch on the new node automatically instead.</li>
+      </ul>
+      <div class="followup"><strong>Likely follow-up:</strong> "What if drain hangs?" — usually a PDB with <code>minAvailable</code> that can't be satisfied while draining, or a bare pod with no controller that drain refuses to evict without <code>--force</code>.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="what guarantees zero downtime rolling upgrade poddisruptionbudget readiness probe replicas rolling update strategy maxsurge maxunavailable">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-6" data-qid="eks-6" onchange="toggleMastery('eks-6', this.checked)">
+      <label for="cb-eks-6" class="qa-q">Q6. What actually guarantees zero downtime during a node/version upgrade?</label>
+    </div>
+    <div class="qa-a">
+      <p>Four things working together — name all four, this is a favorite follow-up:</p>
+      <ul>
+        <li><strong>Multiple replicas</strong> spread across nodes/AZs (podAntiAffinity or topology spread constraints) so draining one node never removes every replica at once.</li>
+        <li><strong>Readiness probes</strong> so the Service/LB only sends traffic to pods that are actually ready — a new pod isn't added to Endpoints until it passes.</li>
+        <li><strong>PodDisruptionBudget</strong> (<code>minAvailable</code> or <code>maxUnavailable</code>) so drain/eviction is throttled and never takes availability below your floor.</li>
+        <li><strong>RollingUpdate strategy</strong> on the Deployment (<code>maxSurge</code>/<code>maxUnavailable</code>) controlling how many new pods come up before old ones go down.</li>
+      </ul>
+      <pre><code>apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: web-pdb
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels: {app: web}</code></pre>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="what else needs upgrading addons coredns kube-proxy vpc cni compatibility version skew">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-7" data-qid="eks-7" onchange="toggleMastery('eks-7', this.checked)">
+      <label for="cb-eks-7" class="qa-q">Q7. Besides control plane and nodes, what else needs upgrading?</label>
+    </div>
+    <div class="qa-a">
+      <p>Add-ons versioned independently, which must stay compatible with the new control-plane version: <strong>CoreDNS</strong>, <strong>kube-proxy</strong>, and the <strong>VPC CNI</strong>. Check compatible versions before upgrading nodes:</p>
+      <pre><code>aws eks describe-addon-versions --addon-name vpc-cni --kubernetes-version 1.29
+aws eks update-addon --cluster-name prod-cluster --addon-name coredns --addon-version &lt;version&gt;</code></pre>
+      <p>Also worth naming: the <strong>version skew policy</strong> — kubelet can trail the control plane by a couple of minor versions depending on the release, which is why a mixed-version cluster mid-upgrade is still supported and safe, but shouldn't be left that way for long.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-net">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">02</span> Kubernetes Networking <span class="badge badge-p1">P1 · 70% weight</span></h2>
+    <span class="chapter-progress">0/7</span>
+  </div>
+  <p class="chapter-intro">Second-most-tested area. The client wants the actual packet path, not just service-type definitions — narrate the hop-by-hop flow first, every time.</p>
+
+  <div class="qa-card" data-search="how does pod a talk to pod b service discovery coredns endpoints same node cross node">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-1" data-qid="net-1" onchange="toggleMastery('net-1', this.checked)">
+      <label for="cb-net-1" class="qa-q">Q1. How does Pod A talk to Pod B?</label>
+    </div>
+    <div class="qa-a">
+      <p>Going through a Service (the normal case, since pod IPs are ephemeral):</p>
+      <div class="flow">
+        <span class="flow-step">Pod A</span><span class="flow-arrow">→</span>
+        <span class="flow-step">CoreDNS</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Service (ClusterIP)</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Endpoints/EndpointSlice</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Pod B</span>
+      </div>
+      <ul>
+        <li>Pod A resolves <code>service-name.namespace.svc.cluster.local</code> via CoreDNS to the Service's ClusterIP.</li>
+        <li>kube-proxy's iptables/IPVS rules on the node DNAT that ClusterIP to one healthy backend pod IP, chosen from the Endpoints/EndpointSlice object (kept in sync with pods matching the Service selector and passing readiness).</li>
+        <li><strong>Same node:</strong> traffic goes through the node's local bridge/veth pairs directly, no extra routing hop.</li>
+        <li><strong>Cross node:</strong> in EKS with the VPC CNI, pod IPs are real VPC IPs (assigned from ENIs), so cross-node pod traffic is native VPC routing — no overlay/encapsulation needed. Overlay CNIs (Flannel, some Calico modes) instead wrap the packet (VXLAN) or use BGP routing between nodes.</li>
+      </ul>
+      <div class="followup"><strong>Likely follow-up:</strong> "What if you bypass the Service and hit the pod IP directly?" — works, but pod IPs churn on every reschedule, so nothing production-grade should hard-code them; that's precisely the problem Services solve.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="clusterip nodeport loadbalancer ingress difference table production examples layer 4 layer 7">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-2" data-qid="net-2" onchange="toggleMastery('net-2', this.checked)">
+      <label for="cb-net-2" class="qa-q">Q2. Difference between ClusterIP, NodePort, LoadBalancer, and Ingress.</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Type</th><th>Scope</th><th>Typical use</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ClusterIP</strong></td><td>Internal-only virtual IP</td><td>Service-to-service traffic inside the cluster (default type)</td></tr>
+          <tr><td><strong>NodePort</strong></td><td>Static port (30000–32767) on every node</td><td>Dev/test, or manual integration with an external LB</td></tr>
+          <tr><td><strong>LoadBalancer</strong></td><td>Cloud LB (ALB/NLB) pointing at NodePort</td><td>Production L4 internet- or internal-facing exposure</td></tr>
+          <tr><td><strong>Ingress</strong></td><td>L7 HTTP(S) routing, needs a controller</td><td>Host/path routing, TLS termination, one LB for many services</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Production example:</strong> Ingress + AWS Load Balancer Controller provisioning a single ALB with path-based routing across microservices and TLS via ACM annotation for the public web tier; a <code>type: LoadBalancer</code> Service with an NLB annotation for a Kafka/gRPC workload needing static IPs and raw TCP throughput; plain ClusterIP for internal-only service-to-service calls.</p>
+      <div class="followup"><strong>Likely follow-up:</strong> "Why not just use NodePort in production?" — no health-aware load balancing across nodes, ports are unmemorable/hard to firewall cleanly, and you'd still need something in front distributing across node IPs — you've just reinvented a worse LoadBalancer.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="cni container network interface vpc cni calico flannel overlay vxlan pod ip allocation eni">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-3" data-qid="net-3" onchange="toggleMastery('net-3', this.checked)">
+      <label for="cb-net-3" class="qa-q">Q3. What is CNI, and how does the AWS VPC CNI differ from overlay CNIs?</label>
+    </div>
+    <div class="qa-a">
+      <p>CNI (Container Network Interface) is the plugin contract that assigns each pod an IP and wires up its networking when the kubelet creates it. The <strong>AWS VPC CNI</strong> assigns pods real, routable VPC IPs directly from ENIs attached to the node (secondary IPs, or IP prefixes with prefix delegation for higher pod density) — no encapsulation, so pod traffic is native VPC traffic and shows up in VPC Flow Logs; security groups can (with security-groups-for-pods) apply directly to pods.</p>
+      <p>Overlay CNIs (Flannel, Calico in overlay mode) instead give pods IPs from a separate virtual CIDR and encapsulate pod traffic (VXLAN) to move it between nodes, decoupling pod networking from the underlying VPC — more portable across clouds, but with encapsulation overhead and less native visibility.</p>
+      <div class="followup"><strong>Likely follow-up:</strong> "What's the downside of the VPC CNI?" — IP exhaustion: each node can only hold as many pods as it has spare ENI secondary-IP slots (instance-type dependent); prefix delegation raises the ceiling significantly and is the standard mitigation.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="kube-proxy modes iptables ipvs difference performance">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-4" data-qid="net-4" onchange="toggleMastery('net-4', this.checked)">
+      <label for="cb-net-4" class="qa-q">Q4. What does kube-proxy actually do, and iptables vs IPVS?</label>
+    </div>
+    <div class="qa-a">
+      <p>kube-proxy runs on every node and programs the traffic rules that implement Services — it watches the API server for Service/Endpoints changes and keeps the node's packet-handling rules in sync.</p>
+      <ul>
+        <li><strong>iptables mode (default, most common):</strong> a chain of iptables NAT rules; matching is sequential, so lookup time grows roughly linearly with Service count — fine for most clusters.</li>
+        <li><strong>IPVS mode:</strong> uses the kernel's IP Virtual Server, backed by a hash table — O(1) lookup regardless of Service count, plus more load-balancing algorithm choices. Better for very large clusters.</li>
+      </ul>
+      <div class="followup"><strong>Worth naming:</strong> newer setups increasingly replace kube-proxy entirely with eBPF (Cilium) for lower overhead and richer policy/observability — mention it if the client is clearly infra-modernization focused.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="coredns dns resolution service discovery cluster.local how does it work">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-5" data-qid="net-5" onchange="toggleMastery('net-5', this.checked)">
+      <label for="cb-net-5" class="qa-q">Q5. Walk through DNS-based service discovery end to end.</label>
+    </div>
+    <div class="qa-a">
+      <p>Every pod's <code>/etc/resolv.conf</code> points at the <code>kube-dns</code> Service, which fronts the CoreDNS Deployment. A query for <code>svc-name.namespace.svc.cluster.local</code> is answered by CoreDNS's Kubernetes plugin, which reads Service/Endpoints objects from the API server (via watch, so it's always current) and returns the ClusterIP. Pods also get a shorter search-domain form (just <code>svc-name</code> within the same namespace) via the pod's DNS search list.</p>
+      <div class="followup"><strong>Likely follow-up:</strong> "What if CoreDNS itself is unhealthy?" — cluster-wide DNS failures, which is why CoreDNS should always run with 2+ replicas and its own PDB/HPA — it's a critical-path system component, not just another workload.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="network policy default deny ingress egress does aws vpc cni enforce calico">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-6" data-qid="net-6" onchange="toggleMastery('net-6', this.checked)">
+      <label for="cb-net-6" class="qa-q">Q6. What does a NetworkPolicy actually do, and does the VPC CNI enforce it?</label>
+    </div>
+    <div class="qa-a">
+      <p>NetworkPolicy is a namespace-scoped allow-list for pod traffic — by default (no policy at all) every pod can talk to every other pod. Once <em>any</em> policy selects a pod for ingress or egress, that direction becomes deny-by-default except for what's explicitly allowed (selector-based, by pod label and/or namespace label).</p>
+      <p>Enforcement is a CNI responsibility, not a core Kubernetes feature — the object can exist without anything acting on it. Traditionally, the plain AWS VPC CNI did <em>not</em> enforce NetworkPolicy on its own, so teams paired it with Calico purely for policy enforcement; the VPC CNI has since added native, eBPF-based NetworkPolicy enforcement as an option, but Calico is still very common in the field. Always confirm which is actually running before assuming policies are enforced.</p>
+      <div class="followup"><strong>Likely follow-up:</strong> "Give me a default-deny example." — a policy with an empty <code>podSelector: {}</code> and no ingress rules, applied per namespace, then explicit allow policies layered on top per app.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="dns troubleshooting inside cluster nslookup busybox debug pod coredns logs">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-7" data-qid="net-7" onchange="toggleMastery('net-7', this.checked)">
+      <label for="cb-net-7" class="qa-q">Q7. A pod can't resolve a Service name. How do you debug it?</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl run debug --image=busybox:1.36 --rm -it -- sh
+# inside: nslookup my-service.my-namespace.svc.cluster.local
+
+kubectl get pods -n kube-system -l k8s-app=kube-dns    # CoreDNS pods Running?
+kubectl logs -n kube-system -l k8s-app=kube-dns         # errors, SERVFAIL, throttling?
+kubectl get svc -n my-namespace my-service               # does the Service even exist / right name?
+kubectl get endpoints -n my-namespace my-service          # any backing pod IPs at all?
+cat /etc/resolv.conf   # inside the debug pod — confirm nameserver points at kube-dns ClusterIP</code></pre>
+      <p>Common root causes, roughly in order of frequency: wrong namespace in the query, Service selector not matching any pod's labels (empty Endpoints), CoreDNS under resource pressure/CrashLoop, or a NetworkPolicy blocking egress to port 53.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-sec">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">03</span> Kubernetes Security <span class="badge badge-p1">P1 · 70% weight</span></h2>
+    <span class="chapter-progress">0/8</span>
+  </div>
+  <p class="chapter-intro">Expect a layered answer, not a single control. Structure every security answer as: cluster → network → workload → supply chain → runtime.</p>
+
+  <div class="qa-card" data-search="how do you secure kubernetes end to end rbac namespaces network policies secrets image scanning least privilege">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sec-1" data-qid="sec-1" onchange="toggleMastery('sec-1', this.checked)">
+      <label for="cb-sec-1" class="qa-q">Q1. How do you secure a Kubernetes cluster end to end?</label>
+    </div>
+    <div class="qa-a">
+      <p>Give it in layers — the structure itself signals seniority:</p>
+      <ul>
+        <li><strong>Cluster:</strong> private API endpoint (or restricted public CIDR allow-list), RBAC least privilege, encrypted etcd/Secrets at rest (KMS envelope encryption).</li>
+        <li><strong>Network:</strong> NetworkPolicy default-deny + explicit allow, Security Groups, mTLS via service mesh if present.</li>
+        <li><strong>Workload:</strong> non-root, read-only root filesystem, dropped capabilities, resource limits, no privileged containers.</li>
+        <li><strong>Supply chain:</strong> image scanning (Trivy) in CI, signed images, admission control blocking unscanned/unsigned images.</li>
+        <li><strong>Runtime:</strong> Falco for anomalous syscall detection, audit logging enabled and shipped off-cluster.</li>
+        <li><strong>Compliance:</strong> CIS Kubernetes Benchmark via kube-bench, regular access reviews.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="rbac role clusterrole rolebinding clusterrolebinding difference namespace scoped cluster scoped example yaml">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sec-2" data-qid="sec-2" onchange="toggleMastery('sec-2', this.checked)">
+      <label for="cb-sec-2" class="qa-q">Q2. Role vs ClusterRole vs RoleBinding vs ClusterRoleBinding.</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Object</th><th>Scope</th><th>Grants</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Role</strong></td><td>One namespace</td><td>Permissions within that namespace only</td></tr>
+          <tr><td><strong>ClusterRole</strong></td><td>Cluster-wide definition</td><td>Reusable permission set — bindable cluster-wide or to a single namespace</td></tr>
+          <tr><td><strong>RoleBinding</strong></td><td>One namespace</td><td>Binds a Role (or a ClusterRole, scoped to just this namespace) to a subject</td></tr>
+          <tr><td><strong>ClusterRoleBinding</strong></td><td>Cluster-wide</td><td>Binds a ClusterRole to a subject across every namespace</td></tr>
+        </tbody>
+      </table>
+      <pre><code>apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {namespace: payments, name: pod-reader}
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: read-pods, namespace: payments}
+subjects:
+- kind: ServiceAccount
+  name: ci-deployer
+  namespace: payments
+roleRef: {kind: Role, name: pod-reader, apiGroup: rbac.authorization.k8s.io}</code></pre>
+      <div class="followup"><strong>Likely follow-up:</strong> "When would you use a ClusterRole bound with a RoleBinding instead of a plain Role?" — reusing a common permission set (e.g. "view") across many namespaces without redefining rules each time.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="service account least privilege default service account automount irsa pod identity">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sec-3" data-qid="sec-3" onchange="toggleMastery('sec-3', this.checked)">
+      <label for="cb-sec-3" class="qa-q">Q3. How do you apply least privilege to ServiceAccounts?</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li>Never run workloads on the <code>default</code> ServiceAccount in a namespace — create a dedicated SA per app with only the RBAC it needs.</li>
+        <li>Set <code>automountServiceAccountToken: false</code> on pods/SAs that never call the K8s API — removes a token that's otherwise sitting in every container by default.</li>
+        <li>For AWS permissions, tie the SA to an IRSA IAM role (Chapter 1) instead of broad node-level IAM permissions.</li>
+        <li>Bound service account tokens (time-limited, audience-scoped, since K8s 1.22+) reduce blast radius vs the old non-expiring Secret-based tokens.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="secrets vs configmap encryption base64 not encrypted external secrets vault">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sec-4" data-qid="sec-4" onchange="toggleMastery('sec-4', this.checked)">
+      <label for="cb-sec-4" class="qa-q">Q4. Secrets vs ConfigMaps — and why isn't a Secret automatically "secure"?</label>
+    </div>
+    <div class="qa-a">
+      <p>ConfigMaps hold non-sensitive config; Secrets are meant for sensitive data — but a Secret is only <strong>base64-encoded</strong>, not encrypted, by default. Anyone with <code>get</code> RBAC on that Secret (or etcd access) can trivially decode it. Two things actually make it secure:</p>
+      <ul>
+        <li><strong>Encryption at rest:</strong> enable envelope encryption of Secrets in etcd via KMS (EKS supports this natively).</li>
+        <li><strong>Tight RBAC</strong> on who can <code>get</code>/<code>list</code> Secret objects — usually the bigger real-world gap.</li>
+      </ul>
+      <p>For production-grade secret management, most architects expect an external secrets manager (AWS Secrets Manager or Vault) paired with the <strong>External Secrets Operator</strong>, which syncs secrets into the cluster and supports rotation — rather than hand-managing raw Secret manifests.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="security context runasnonroot runasuser readonlyrootfilesystem allowprivilegeescalation capabilities drop">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sec-5" data-qid="sec-5" onchange="toggleMastery('sec-5', this.checked)">
+      <label for="cb-sec-5" class="qa-q">Q5. What goes in a pod's securityContext, and why each field?</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>securityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile: {type: RuntimeDefault}</code></pre>
+      <ul>
+        <li><code>runAsNonRoot</code> / <code>runAsUser</code> — a compromised process shouldn't get root inside the container, limiting container-breakout impact.</li>
+        <li><code>readOnlyRootFilesystem</code> — malware/tampering can't write to the container's own filesystem; app writes go to an explicit mounted volume instead.</li>
+        <li><code>allowPrivilegeEscalation: false</code> — blocks setuid-style privilege escalation inside the container.</li>
+        <li><code>capabilities.drop: [ALL]</code> — strips Linux capabilities the process almost never needs, add back only the one or two it truly requires.</li>
+      </ul>
+      <p>These are also exactly what <strong>Pod Security Admission</strong> (the "restricted" standard) enforces at the namespace level, replacing the deprecated PodSecurityPolicy.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="admission controllers opa gatekeeper kyverno policy as code what policies enforce">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sec-6" data-qid="sec-6" onchange="toggleMastery('sec-6', this.checked)">
+      <label for="cb-sec-6" class="qa-q">Q6. What's the role of admission controllers like OPA Gatekeeper or Kyverno?</label>
+    </div>
+    <div class="qa-a">
+      <p>They sit in the API request path (ValidatingAdmissionWebhook/MutatingAdmissionWebhook) and enforce policy-as-code before an object is persisted — turning security requirements from "documentation" into something mechanically impossible to violate. Typical policies: deny privileged containers, require resource requests/limits on every pod, require specific labels for cost allocation, deny <code>:latest</code> image tags, restrict allowed image registries to your trusted ECR.</p>
+      <div class="followup"><strong>Likely follow-up:</strong> "Gatekeeper vs Kyverno?" — Gatekeeper policies are written in Rego (OPA's policy language, steeper learning curve, very expressive); Kyverno policies are plain Kubernetes YAML (faster to adopt for teams already fluent in K8s manifests).</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="image scanning trivy signed images cosign sigstore falco runtime security supply chain">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sec-7" data-qid="sec-7" onchange="toggleMastery('sec-7', this.checked)">
+      <label for="cb-sec-7" class="qa-q">Q7. How do you secure the image supply chain, and what does Falco add?</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>Scan on build</strong> (Trivy in CI) and again <strong>scan on push</strong> (ECR scanning) — fail the pipeline on CRITICAL/HIGH CVEs above threshold.</li>
+        <li><strong>Sign images</strong> (cosign/Sigstore) and enforce signature verification at admission — unsigned images simply can't run.</li>
+        <li><strong>SBOM</strong> (software bill of materials) for auditability of exactly what's in a running image.</li>
+        <li><strong>Falco</strong> operates after all of that, at runtime — it watches syscalls (via eBPF) for anomalous behavior a scan can't catch: a shell spawned inside a container that never should spawn one, an unexpected outbound connection, a write to a sensitive path. It's the detective control for the "scanning missed it or it's a zero-day" case.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="prevent secrets leaking public repo git-secrets pre-commit github push protection secrets manager layered defense credential leak">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sec-8" data-qid="sec-8" onchange="toggleMastery('sec-8', this.checked)">
+      <label for="cb-sec-8" class="qa-q">Q8. How do you stop credentials from ever leaking into a repo — and what's your runbook if one does?</label>
+    </div>
+    <div class="qa-a">
+      <p>Credential-harvesting bots scan GitHub's public event stream continuously and can find a leaked AWS key within minutes of a push — CI/CD scanning alone is too late, because by the time a pipeline runs, the secret is already in git history and possibly already seen. The fix is layered, each layer catching what the one before it misses:</p>
+      <div class="flow">
+        <span class="flow-step">git-secrets pre-commit hook</span><span class="flow-arrow">→</span>
+        <span class="flow-step">GitHub push protection</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Secrets Manager (never in code)</span>
+      </div>
+      <ul>
+        <li><strong>Layer 1 — pre-commit hook (git-secrets):</strong> blocks the commit on the developer's own machine, before it ever leaves — but it's bypassable with <code>git commit --no-verify</code>, so it stops accidents, not deliberate bypasses.</li>
+        <li><strong>Layer 2 — GitHub secret scanning + push protection:</strong> server-side backstop; rejects the push itself if a recognizable secret pattern is detected, even if Layer 1 was skipped or never installed on that machine.</li>
+        <li><strong>Layer 3 — a real secrets manager (AWS Secrets Manager/Vault):</strong> the actual fix — if the credential is never in code at all, there's nothing to leak regardless of what slips past the first two layers.</li>
+      </ul>
+      <p><strong>If a key does leak, the runbook is time-critical — every minute it's valid is more exposure:</strong></p>
+      <pre><code>aws iam delete-access-key --access-key-id AKIAXXXXXXXXXXXXXXXX     # 1. revoke first, before anything else
+
+aws cloudtrail lookup-events \
+  --lookup-attributes AttributeKey=AccessKeyId,AttributeValue=AKIAXXXXX \
+  --query 'Events[*].{Time:EventTime,Event:EventName}'              # 2. audit blast radius
+
+git filter-repo --path secrets.env --invert-paths --force            # 3. purge from git history
+git push origin --force --all --tags                                  #    (coordinate — this rewrites history for everyone)
+
+# 4. rotate every credential the leaked key could have touched, not just the one key
+# 5. file an AWS Support billing case — unauthorized-access charges are often refunded if you act fast</code></pre>
+      <div class="followup"><strong>Likely follow-up:</strong> "Why still revoke it if you already deleted the file?" — deleting the file doesn't remove it from git history; any past commit still has it in plaintext until <code>git filter-repo</code> (or BFG) actually rewrites history, and by then bots may already have it. Treat anything that touched a public repo as compromised the moment it's pushed, not when someone notices.</div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-tsh">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">04</span> Kubernetes Troubleshooting <span class="badge badge-p1">P1 · most important</span></h2>
+    <span class="chapter-progress">0/6</span>
+  </div>
+  <p class="chapter-intro">The client called this "most important." For every scenario, narrate the diagnostic <em>sequence</em>, not just the final cause — that's what's actually being graded.</p>
+
+  <div class="qa-card" data-search="crashloopbackoff diagnostic flow kubectl describe logs previous oomkilled liveness probe">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tsh-1" data-qid="tsh-1" onchange="toggleMastery('tsh-1', this.checked)">
+      <label for="cb-tsh-1" class="qa-q">Q1. A pod is in CrashLoopBackOff — walk through your diagnosis.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl get pods                      # confirm status + RESTARTS count
+kubectl describe pod &lt;pod&gt;            # Events: OOMKilled? failing probe? image pull error?
+kubectl logs &lt;pod&gt;                    # current attempt's output
+kubectl logs &lt;pod&gt; --previous         # the crash BEFORE this restart — usually the real clue</code></pre>
+      <p><code>--previous</code> is the detail people forget: the current container may be freshly restarted with no logs yet, but the previous instance's logs show exactly why it died. Common root causes in rough order of frequency: missing/wrong env var or config, an overly aggressive liveness probe killing a slow-starting app, <strong>OOMKilled</strong> (check <code>describe pod</code> for reason, then compare memory <code>limits</code> against actual usage), or a dependency (DB, downstream API) unreachable at startup.</p>
+      <div class="followup"><strong>Likely follow-up:</strong> "How do you tell OOMKill apart from a probe failure?" — <code>describe pod</code> shows <code>Last State: Terminated, Reason: OOMKilled</code> explicitly for the former; a probe failure shows up as repeated "Liveness probe failed" Warning events instead.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="pod stuck pending insufficient cpu memory pvc taints node selector scheduling">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tsh-2" data-qid="tsh-2" onchange="toggleMastery('tsh-2', this.checked)">
+      <label for="cb-tsh-2" class="qa-q">Q2. A pod is stuck Pending — what do you check?</label>
+    </div>
+    <div class="qa-a">
+      <p><code>kubectl describe pod</code> Events again — the scheduler tells you exactly why it can't place the pod:</p>
+      <ul>
+        <li><strong>"Insufficient cpu/memory"</strong> — no node has room; needs Cluster Autoscaler/Karpenter to add capacity, or the request is oversized.</li>
+        <li><strong>Unbound PVC</strong> — check PVC status, whether the StorageClass/provisioner exists and can actually provision in that AZ.</li>
+        <li><strong>Taints without a matching toleration</strong> — e.g. dedicated GPU nodes tainted, pod has no toleration for it.</li>
+        <li><strong>nodeSelector/affinity</strong> that doesn't match any node's labels — typo or a label that was never applied.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="node not ready diagnostic kubelet journalctl describe node memorypressure diskpressure">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tsh-3" data-qid="tsh-3" onchange="toggleMastery('tsh-3', this.checked)">
+      <label for="cb-tsh-3" class="qa-q">Q3. A node shows NotReady — how do you diagnose it?</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl get nodes                     # confirm NotReady + how long
+kubectl describe node &lt;node&gt;          # Conditions: MemoryPressure / DiskPressure / PIDPressure / NetworkUnavailable
+# SSH or SSM into the node:
+systemctl status kubelet
+journalctl -u kubelet -f
+df -h                                  # disk pressure?
+systemctl status containerd
+# check node-to-control-plane connectivity / security group rules</code></pre>
+      <p>The control plane marks a node NotReady after it misses heartbeats for <code>node-monitor-grace-period</code> (default 40s), and starts evicting its pods after <code>pod-eviction-timeout</code> (default 5 min) if it stays unreachable — that eviction timer is worth naming, it's exactly why "one node down" doesn't mean instant pod loss.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="application slow root cause grafana prometheus cpu memory database recent deployment">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tsh-4" data-qid="tsh-4" onchange="toggleMastery('tsh-4', this.checked)">
+      <label for="cb-tsh-4" class="qa-q">Q4. The application is slow — where do you look first?</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Grafana/Prometheus</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Pod CPU/Mem</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Downstream (DB/API)</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Recent deploy?</span>
+      </div>
+      <ul>
+        <li><code>kubectl top pod</code> / <code>kubectl top node</code> and the Grafana dashboards for CPU throttling (<code>container_cpu_cfs_throttled_periods_total</code> — not the same signal as raw usage) and memory trend.</li>
+        <li>HPA status — is it scaling as expected, or maxed out at its ceiling?</li>
+        <li>Database — connection pool exhaustion, slow query log, lock contention.</li>
+        <li><code>kubectl rollout history</code> — did the slowdown start right after a deploy? Correlate the timestamp.</li>
+        <li>Noisy-neighbor — another pod on the same node hogging shared resources.</li>
+      </ul>
+      <div class="followup"><strong>Likely follow-up:</strong> "CPU limit is set but usage looks fine — still slow?" — check throttling metrics specifically; a container can look "under its limit" on average while still getting throttled in short CFS periods, which shows up as latency, not as an obvious usage spike.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="imagepullbackoff pvc stuck pending storage class provisioner registry auth">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tsh-5" data-qid="tsh-5" onchange="toggleMastery('tsh-5', this.checked)">
+      <label for="cb-tsh-5" class="qa-q">Q5. Quick-fire: ImagePullBackOff, and PVC stuck Pending.</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>ImagePullBackOff:</strong> wrong image tag/typo, private registry without an <code>imagePullSecret</code> (or an expired ECR token), or a network path issue reaching the registry from private subnets (missing VPC endpoint/NAT).</li>
+        <li><strong>PVC stuck Pending:</strong> <code>kubectl describe pvc</code> — no StorageClass matches, the provisioner isn't running, or (for EBS) the pod is scheduled in an AZ where the requested volume can't attach — usually a topology/zone mismatch between the StorageClass's <code>volumeBindingMode</code> and the pod's actual AZ.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="service not routing traffic endpoints empty selector mismatch labels">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tsh-6" data-qid="tsh-6" onchange="toggleMastery('tsh-6', this.checked)">
+      <label for="cb-tsh-6" class="qa-q">Q6. Pods are healthy, the Service exists, but no traffic reaches them. Now what?</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl get endpoints &lt;service&gt;      # empty? → selector problem
+kubectl get pods --show-labels        # compare against the Service's selector exactly
+kubectl describe svc &lt;service&gt;        # confirm targetPort matches the container's actual listening port</code></pre>
+      <p>The number one cause here is a label mismatch — the Service selector doesn't match the pod's labels (often after a deploy template change), so Endpoints is silently empty and the Service routes to nowhere. Second most common: <code>targetPort</code> pointing at the wrong container port.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-helm">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">05</span> Helm Charts <span class="badge badge-p1">P1 · 70% weight</span></h2>
+    <span class="chapter-progress">0/5</span>
+  </div>
+  <p class="chapter-intro">"Client loves scenarios" — expect them to push past definitions into override precedence, rollback mechanics, and secret handling.</p>
+
+  <div class="qa-card" data-search="chart structure chart.yaml values.yaml templates helpers.tpl">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-helm-1" data-qid="helm-1" onchange="toggleMastery('helm-1', this.checked)">
+      <label for="cb-helm-1" class="qa-q">Q1. Walk through a Helm chart's structure.</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Chart.yaml</span><span class="flow-arrow">→</span>
+        <span class="flow-step">values.yaml</span><span class="flow-arrow">→</span>
+        <span class="flow-step">templates/*.yaml</span><span class="flow-arrow">→</span>
+        <span class="flow-step">_helpers.tpl</span><span class="flow-arrow">→</span>
+        <span class="flow-step">charts/ (subcharts)</span>
+      </div>
+      <ul>
+        <li><strong>Chart.yaml:</strong> metadata — name, chart version, <code>appVersion</code>, dependencies.</li>
+        <li><strong>values.yaml:</strong> the default configuration every template reads from.</li>
+        <li><strong>templates/:</strong> the actual K8s manifests, written with Go templating (<code>{{ .Values.image.tag }}</code>) plus Sprig functions.</li>
+        <li><strong>_helpers.tpl:</strong> reusable named templates (e.g. a standard label block) to avoid repeating the same snippet in every manifest.</li>
+        <li><strong>charts/:</strong> subcharts/dependencies for umbrella-chart patterns.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="why values.yaml how to override values precedence set -f prod.yaml">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-helm-2" data-qid="helm-2" onchange="toggleMastery('helm-2', this.checked)">
+      <label for="cb-helm-2" class="qa-q">Q2. Why values.yaml, and how do you override it?</label>
+    </div>
+    <div class="qa-a">
+      <p><strong>Why:</strong> it separates configuration from manifest logic — the same chart deploys to dev/staging/prod just by swapping values, instead of editing templates (unreviewable, error-prone, defeats the point of templating).</p>
+      <pre><code>helm install myapp ./mychart -f values-prod.yaml --set image.tag=1.2.3</code></pre>
+      <p><strong>Precedence (lowest to highest):</strong> chart's default <code>values.yaml</code> → <code>-f</code> file(s), applied left-to-right so the last one wins → <code>--set</code> flags, which always win over any file.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="helm upgrade rollback history atomic revision">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-helm-3" data-qid="helm-3" onchange="toggleMastery('helm-3', this.checked)">
+      <label for="cb-helm-3" class="qa-q">Q3. helm upgrade, rollback, and --atomic.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>helm upgrade myapp ./mychart -f values-prod.yaml --set image.tag=1.3.0 --atomic
+helm history myapp
+helm rollback myapp 4</code></pre>
+      <p><code>--atomic</code> rolls the release back automatically if the upgrade fails health checks — without it, a failed upgrade can leave the release in a broken, half-applied state that needs a manual <code>helm rollback</code>. <code>helm history</code> lists every revision so you know exactly which number to roll back to.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="secrets in helm charts sops sealed secrets external secrets operator vault">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-helm-4" data-qid="helm-4" onchange="toggleMastery('helm-4', this.checked)">
+      <label for="cb-helm-4" class="qa-q">Q4. How do you manage secrets in a Helm chart safely?</label>
+    </div>
+    <div class="qa-a">
+      <p>Never plaintext secrets in <code>values.yaml</code> committed to Git. Standard options: the <strong>helm-secrets</strong> plugin encrypting values with SOPS, <strong>Sealed Secrets</strong> (encrypt client-side, only the controller in-cluster can decrypt), or — most common at scale — keep secrets out of Helm entirely and let the <strong>External Secrets Operator</strong> pull them from AWS Secrets Manager/Vault directly into the cluster, with the chart only referencing the resulting Secret name.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="structure charts microservices umbrella chart library chart subcharts">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-helm-5" data-qid="helm-5" onchange="toggleMastery('helm-5', this.checked)">
+      <label for="cb-helm-5" class="qa-q">Q5. How would you structure Helm charts for 20 microservices?</label>
+    </div>
+    <div class="qa-a">
+      <p>Two proven patterns, pick based on how similar the services are:</p>
+      <ul>
+        <li><strong>One chart per service</strong> + a shared <strong>library chart</strong> (Helm's <code>type: library</code>) providing common templates/helpers (standard labels, probes, security context) — best when services genuinely differ in shape.</li>
+        <li><strong>Umbrella chart</strong> with each service as a subchart dependency — best when one <code>helm install</code> should stand up the whole stack together.</li>
+      </ul>
+      <p>In practice, most orgs land on "one generic chart, many values files" — a single templated chart parameterized enough to serve every stateless microservice, with each service just supplying its own <code>values-&lt;service&gt;.yaml</code>. Far less template duplication to maintain than either extreme.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-gitops">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">06</span> GitOps — ArgoCD <span class="badge badge-p1">P1 · 70% weight</span></h2>
+    <span class="chapter-progress">0/5</span>
+  </div>
+  <p class="chapter-intro">Marked "must know." Get Auto Sync / Self Heal / Prune exact and crisp — these three get mixed up constantly and it's an easy tell of real experience.</p>
+
+  <div class="qa-card" data-search="explain gitops git argocd sync kubernetes source of truth declarative">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-gitops-1" data-qid="gitops-1" onchange="toggleMastery('gitops-1', this.checked)">
+      <label for="cb-gitops-1" class="qa-q">Q1. Explain GitOps.</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Git (desired state)</span><span class="flow-arrow">→</span>
+        <span class="flow-step">ArgoCD (watches &amp; compares)</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Sync</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Kubernetes (actual state)</span>
+      </div>
+      <p>Git is the single source of truth for what the cluster <em>should</em> look like. An operator (ArgoCD) continuously compares Git's desired state against the cluster's live state and reconciles any drift. Everything is declarative, versioned, and auditable — rollback is just "go back to an older commit," and every change has a PR trail.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="jenkins vs argocd ci cd push pull difference security">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-gitops-2" data-qid="gitops-2" onchange="toggleMastery('gitops-2', this.checked)">
+      <label for="cb-gitops-2" class="qa-q">Q2. Jenkins vs ArgoCD — why do you need both?</label>
+    </div>
+    <div class="qa-a">
+      <p><strong>Jenkins = CI</strong> — build, test, package, push the image, update the manifest/values with the new tag. It's <strong>push-based</strong>: it has to push into the cluster or into Git.</p>
+      <p><strong>ArgoCD = CD</strong> — <strong>pull-based</strong>: it watches Git and pulls/applies changes itself; cluster credentials never need to live inside the CI system. That separation is the real answer the client wants — it's a security boundary (CI can't accidentally or maliciously touch the cluster directly) as much as a workflow split.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="auto sync self heal prune argocd definitions difference">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-gitops-3" data-qid="gitops-3" onchange="toggleMastery('gitops-3', this.checked)">
+      <label for="cb-gitops-3" class="qa-q">Q3. Define Auto Sync, Self Heal, and Prune precisely.</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>Auto Sync:</strong> applies Git changes to the cluster automatically the moment drift is detected, instead of waiting for a manual "Sync" click.</li>
+        <li><strong>Self Heal:</strong> if someone <code>kubectl edit</code>s a resource directly in the cluster, ArgoCD detects that drift and reverts it back to match Git — automatically, without anyone asking it to.</li>
+        <li><strong>Prune:</strong> if a resource is <em>removed</em> from the Git manifests, ArgoCD deletes the corresponding live resource instead of leaving it orphaned — keeps the cluster in exact 1:1 sync with Git.</li>
+      </ul>
+      <div class="followup"><strong>Likely follow-up:</strong> "Would you enable all three in production day one?" — Self Heal + Prune are powerful but unforgiving; most teams enable Auto Sync first, prove it out, then turn on Self Heal/Prune once they trust the manifests are complete and reviewed (an accidental Prune can delete something no one meant to remove from Git).</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="argocd rollback how does it work revision history app rollback">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-gitops-4" data-qid="gitops-4" onchange="toggleMastery('gitops-4', this.checked)">
+      <label for="cb-gitops-4" class="qa-q">Q4. How does rollback work in ArgoCD?</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>argocd app history myapp
+argocd app rollback myapp &lt;revision-id&gt;</code></pre>
+      <p>ArgoCD keeps a history of every synced Git revision, so you can roll back instantly to a known-good one without waiting on a PR. The GitOps-correct follow-up: also <code>git revert</code> the offending commit — otherwise the next Auto Sync (or Self Heal) just re-applies the bad state from Git again, since Git is still the source of truth.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="app of apps applicationset multi cluster sync waves hooks presync postsync">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-gitops-5" data-qid="gitops-5" onchange="toggleMastery('gitops-5', this.checked)">
+      <label for="cb-gitops-5" class="qa-q">Q5. How do you manage GitOps across many services or clusters?</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>App of Apps:</strong> one root ArgoCD Application that manages a folder of other Application manifests — bootstrap the whole platform from a single sync.</li>
+        <li><strong>ApplicationSet:</strong> templates Applications automatically from a generator (e.g. one per cluster, or one per Git directory) — scales to many services/clusters without hand-writing each Application.</li>
+        <li><strong>Sync waves:</strong> ordering annotation (<code>argocd.argoproj.io/sync-wave</code>) so, say, a namespace or CRD applies before the Deployment that needs it.</li>
+        <li><strong>Sync hooks:</strong> PreSync/Sync/PostSync/SyncFail — e.g. run a DB migration Job PreSync, before the new app version rolls out.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-cicd">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">07</span> CI/CD Pipeline <span class="badge badge-p1">P1 · 70% weight</span></h2>
+    <span class="chapter-progress">0/5</span>
+  </div>
+  <p class="chapter-intro">Know this pipeline stage-by-stage — the client explicitly said "know the output of every stage."</p>
+
+  <div class="qa-card" data-search="pipeline stages git jenkins sonarqube maven docker trivy registry argocd kubernetes output each stage">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-cicd-1" data-qid="cicd-1" onchange="toggleMastery('cicd-1', this.checked)">
+      <label for="cb-cicd-1" class="qa-q">Q1. Walk through this pipeline, stage by stage, and what each one outputs.</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Git</span><span class="flow-arrow">→</span><span class="flow-step">Jenkins</span><span class="flow-arrow">→</span>
+        <span class="flow-step">SonarQube</span><span class="flow-arrow">→</span><span class="flow-step">Maven</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Docker</span><span class="flow-arrow">→</span><span class="flow-step">Trivy</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Registry</span><span class="flow-arrow">→</span><span class="flow-step">ArgoCD</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Kubernetes</span>
+      </div>
+      <table>
+        <thead><tr><th>Stage</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr><td>Git</td><td>Webhook fires, source checked out at a commit SHA</td></tr>
+          <tr><td>Jenkins</td><td>Pipeline run orchestrating every downstream stage</td></tr>
+          <tr><td>SonarQube</td><td>Static analysis report + quality gate pass/fail (can hard-fail the build)</td></tr>
+          <tr><td>Maven</td><td>Compiled/packaged artifact (.jar) + unit test report</td></tr>
+          <tr><td>Docker</td><td>Image built (ideally multi-stage), tagged with commit SHA or semver</td></tr>
+          <tr><td>Trivy</td><td>Vulnerability scan report, fails build on CRITICAL/HIGH CVEs above threshold</td></tr>
+          <tr><td>Registry</td><td>Image pushed to ECR, now pullable by the cluster</td></tr>
+          <tr><td>ArgoCD</td><td>Detects the new tag (via a GitOps repo update), syncs the manifest</td></tr>
+          <tr><td>Kubernetes</td><td>Rolling update executes; readiness gates the rollout</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="separate app repo gitops config repo why two repos">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-cicd-2" data-qid="cicd-2" onchange="toggleMastery('cicd-2', this.checked)">
+      <label for="cb-cicd-2" class="qa-q">Q2. Why keep the application repo separate from the GitOps/manifest repo?</label>
+    </div>
+    <div class="qa-a">
+      <p>The app repo triggers CI (build/test/scan/push image); CI then commits just the new image tag into a <em>separate</em> config/GitOps repo, which is the only thing ArgoCD watches. This keeps deploy history clean and auditable on its own (every commit in the GitOps repo <em>is</em> a deployment event), lets you review infra/config changes independently of app code changes, and avoids CI needing write access to anything ArgoCD directly acts on beyond that one repo.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="secrets in pipeline jenkins credentials vault plugin never hardcode">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-cicd-3" data-qid="cicd-3" onchange="toggleMastery('cicd-3', this.checked)">
+      <label for="cb-cicd-3" class="qa-q">Q3. How do you handle secrets inside the pipeline itself?</label>
+    </div>
+    <div class="qa-a">
+      <p>Never hardcoded in the Jenkinsfile or repo. Use Jenkins' built-in credentials store (injected as env vars scoped to the job) or a Vault plugin that fetches short-lived tokens at pipeline runtime. Registry auth, in particular, should ideally be an IAM role attached to the CI runner (for ECR) rather than a static access key sitting in a credentials store at all.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="canary blue green deployment argo rollouts progressive delivery">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-cicd-4" data-qid="cicd-4" onchange="toggleMastery('cicd-4', this.checked)">
+      <label for="cb-cicd-4" class="qa-q">Q4. How would you add canary or blue-green to this pipeline?</label>
+    </div>
+    <div class="qa-a">
+      <p>Swap the plain Deployment for <strong>Argo Rollouts</strong>, which ArgoCD understands natively. For canary: define steps (e.g. 10% traffic → pause/analyze → 50% → 100%), with automated analysis (Prometheus query on error rate/latency) gating each step — auto-abort and roll back if metrics regress. For blue-green: Rollouts stands up the new version fully alongside the old, runs pre-promotion checks, then flips the Service selector — instant cutover, instant rollback by flipping back.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="rollback bad release pipeline git revert argocd rollback previous image tag">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-cicd-5" data-qid="cicd-5" onchange="toggleMastery('cicd-5', this.checked)">
+      <label for="cb-cicd-5" class="qa-q">Q5. A release just went bad in production. How do you roll it back through this pipeline?</label>
+    </div>
+    <div class="qa-a">
+      <p>Fastest mitigation: <code>argocd app rollback</code> to the last known-good synced revision — seconds, no pipeline re-run needed. Immediately follow with a <code>git revert</code> of the commit that bumped the image tag in the GitOps repo, so the source of truth is accurate again and Auto Sync/Self Heal doesn't silently re-apply the bad version later. Then RCA: did the quality gate or Trivy scan actually run and pass? Was there a canary step that should have caught this before 100% rollout?</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-aws">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">08</span> AWS Cloud — EC2 · S3 · RDS · Load Balancer · VPC <span class="badge badge-p2">P2</span></h2>
+    <span class="chapter-progress">0/19</span>
+  </div>
+  <p class="chapter-intro">Need production examples for every answer here, not textbook definitions — the client called this out explicitly.</p>
+
+  <h3 class="subhead">EC2</h3>
+
+  <div class="qa-card" data-search="spot reserved on-demand instances difference when to use each">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-ec2-1" data-qid="ec2-1" onchange="toggleMastery('ec2-1', this.checked)">
+      <label for="cb-ec2-1" class="qa-q">Q1. Spot vs Reserved vs On-Demand — when do you use each?</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Type</th><th>Cost</th><th>Best for</th></tr></thead>
+        <tbody>
+          <tr><td><strong>On-Demand</strong></td><td>Highest, no commitment</td><td>Unpredictable or short-lived workloads</td></tr>
+          <tr><td><strong>Reserved</strong></td><td>Up to ~70% off, 1–3yr commit</td><td>Steady-state, predictable baseline load</td></tr>
+          <tr><td><strong>Spot</strong></td><td>Up to ~90% off, reclaimable (2-min warning)</td><td>Fault-tolerant, stateless, batch/CI, K8s worker nodes with proper draining</td></tr>
+        </tbody>
+      </table>
+      <p>Production pattern: baseline capacity on Reserved (or Savings Plans), burst/elastic capacity on Spot with a mix of instance types (reduces simultaneous-reclaim risk) plus the Node Termination Handler in K8s to drain gracefully on the interruption notice, and On-Demand as the safety net for anything that can't tolerate interruption.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="auto scaling group launch template min max desired scaling policies target tracking">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-ec2-2" data-qid="ec2-2" onchange="toggleMastery('ec2-2', this.checked)">
+      <label for="cb-ec2-2" class="qa-q">Q2. What makes up an Auto Scaling Group?</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>Launch Template</strong> — AMI, instance type, user data, security groups.</li>
+        <li><strong>min / max / desired</strong> capacity, spread across subnets/AZs.</li>
+        <li><strong>Scaling policies:</strong> target tracking (e.g. hold CPU at 60%), step scaling (different scale amounts per breach severity), or scheduled scaling (known traffic patterns).</li>
+        <li><strong>Health checks:</strong> EC2-level or ELB-level — ELB health checks catch app-level failures EC2 status checks miss.</li>
+        <li><strong>Lifecycle hooks:</strong> pause an instance in Pending/Terminating to run custom actions (deregister cleanly, warm-up script) before it goes live or is removed.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="security groups stateful how rules evaluate allow only implicit deny">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-ec2-3" data-qid="ec2-3" onchange="toggleMastery('ec2-3', this.checked)">
+      <label for="cb-ec2-3" class="qa-q">Q3. How do Security Groups actually evaluate traffic?</label>
+    </div>
+    <div class="qa-a">
+      <p>Stateful, instance-level, <strong>allow-only</strong> — no explicit deny rule, only an implicit deny for anything not matched. Stateful means a response to allowed inbound traffic is automatically permitted back out, regardless of outbound rules. All matching Security Groups attached to an ENI are evaluated together as a union — if <em>any</em> attached SG allows it, it's allowed.</p>
+      <p>Production pattern: SG-to-SG references instead of CIDR blocks — e.g. the DB's SG allows port 5432 only <em>from the App SG</em>, not from an IP range, so it stays correct automatically as instances scale up/down.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="iam role ec2 instance profile imdsv2 metadata service ssrf">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-ec2-4" data-qid="ec2-4" onchange="toggleMastery('ec2-4', this.checked)">
+      <label for="cb-ec2-4" class="qa-q">Q4. How does an EC2 instance get AWS permissions, and what's IMDSv2?</label>
+    </div>
+    <div class="qa-a">
+      <p>An IAM role attached via an <strong>instance profile</strong> — the instance metadata service (IMDS) at <code>169.254.169.254</code> serves temporary, auto-rotated credentials to anything running on the box, no static keys needed.</p>
+      <p><strong>IMDSv2</strong> requires a session token (via a PUT request) before any credential GET — closes the classic SSRF path where a vulnerable app could be tricked into fetching IMDSv1 credentials with a simple GET request from attacker-controlled input. Enforce it via <code>HttpTokens: required</code> on the instance/launch template, with a low hop-limit so the token isn't usable from inside a container that shouldn't reach it.</p>
+    </div>
+  </div>
+
+  <h3 class="subhead">S3</h3>
+
+  <div class="qa-card" data-search="s3 versioning what protects against delete marker accidental">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-s3-1" data-qid="s3-1" onchange="toggleMastery('s3-1', this.checked)">
+      <label for="cb-s3-1" class="qa-q">Q1. What does S3 Versioning actually protect against?</label>
+    </div>
+    <div class="qa-a">
+      <p>Accidental overwrite or delete. Once enabled, every PUT to the same key creates a new version rather than replacing it; a DELETE just adds a <strong>delete marker</strong> on top (the object is hidden but every prior version is still recoverable) — a true, permanent delete requires explicitly deleting a specific version ID. Pair with MFA Delete for an extra guard on destructive actions in regulated environments.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="s3 lifecycle rules transition glacier expiration incomplete multipart">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-s3-2" data-qid="s3-2" onchange="toggleMastery('s3-2', this.checked)">
+      <label for="cb-s3-2" class="qa-q">Q2. How do S3 Lifecycle rules work?</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Standard</span><span class="flow-arrow">→</span><span class="flow-step">Standard-IA</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Glacier</span><span class="flow-arrow">→</span><span class="flow-step">Glacier Deep Archive</span>
+      </div>
+      <p>Age-based transition rules move objects down that cost tier automatically, plus expiration rules that delete old object versions or clean up incomplete multipart uploads (a common, easy-to-miss cost leak). Exactly the kind of FinOps-adjacent detail worth surfacing unprompted — see Chapter 11.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="s3 encryption sse-s3 sse-kms sse-c client side difference">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-s3-3" data-qid="s3-3" onchange="toggleMastery('s3-3', this.checked)">
+      <label for="cb-s3-3" class="qa-q">Q3. S3 encryption options — SSE-S3 vs SSE-KMS vs SSE-C.</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>SSE-S3:</strong> AWS-managed keys (AES-256), simplest, no extra cost, no per-key access control.</li>
+        <li><strong>SSE-KMS:</strong> customer-managed KMS keys — adds a CloudTrail audit trail of every key use and fine-grained key policy control, small per-request cost. The regulated-industry default.</li>
+        <li><strong>SSE-C:</strong> you supply the encryption key on every request; AWS never stores it — maximum control, maximum operational burden (lose the key, lose the data).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="cross region replication crr requirements versioning use cases dr">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-s3-4" data-qid="s3-4" onchange="toggleMastery('s3-4', this.checked)">
+      <label for="cb-s3-4" class="qa-q">Q4. When and how do you set up Cross-Region Replication?</label>
+    </div>
+    <div class="qa-a">
+      <p>Asynchronous, requires <strong>Versioning enabled on both</strong> source and destination buckets. Used for DR (a region-level failure shouldn't lose data), compliance (data residency requirements), or reducing latency for a geographically distant read audience. It's async and eventual — not a substitute for application-level DR testing, since replication lag exists and isn't instantaneous during a real regional event.</p>
+    </div>
+  </div>
+
+  <h3 class="subhead">RDS</h3>
+
+  <div class="qa-card" data-search="read replica vs multi-az difference confused pair async sync failover">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-rds-1" data-qid="rds-1" onchange="toggleMastery('rds-1', this.checked)">
+      <label for="cb-rds-1" class="qa-q">Q1. Read Replica vs Multi-AZ — the pair everyone mixes up.</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th></th><th>Read Replica</th><th>Multi-AZ</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Replication</strong></td><td>Asynchronous</td><td>Synchronous</td></tr>
+          <tr><td><strong>Purpose</strong></td><td>Read scaling</td><td>High availability</td></tr>
+          <tr><td><strong>Readable?</strong></td><td>Yes</td><td>Classic: no · newer Multi-AZ DB Cluster: yes, up to 2 readable standbys</td></tr>
+          <tr><td><strong>Failover</strong></td><td>Manual promotion</td><td>Automatic (DNS CNAME flip)</td></tr>
+        </tbody>
+      </table>
+      <p>Say it in one line if pressed: <strong>Read Replica scales reads, Multi-AZ survives failure.</strong> They're complementary, not substitutes — production databases commonly run both.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="rds backups automated point in time recovery manual snapshots retention">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-rds-2" data-qid="rds-2" onchange="toggleMastery('rds-2', this.checked)">
+      <label for="cb-rds-2" class="qa-q">Q2. Automated backups vs manual snapshots in RDS.</label>
+    </div>
+    <div class="qa-a">
+      <p><strong>Automated backups:</strong> storage snapshot plus continuous transaction log shipping, giving point-in-time recovery to any second within the retention window (1–35 days) — then they age out automatically. <strong>Manual snapshots:</strong> triggered explicitly (classically, right before a risky schema change or major upgrade), retained forever until deleted.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="parameter groups static dynamic reboot required db engine config">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-rds-3" data-qid="rds-3" onchange="toggleMastery('rds-3', this.checked)">
+      <label for="cb-rds-3" class="qa-q">Q3. What are Parameter Groups, and static vs dynamic parameters?</label>
+    </div>
+    <div class="qa-a">
+      <p>Parameter Groups hold the DB engine config (e.g. <code>max_connections</code>, slow-query logging thresholds) applied to an instance. <strong>Dynamic</strong> parameters apply immediately (or at next connection); <strong>static</strong> parameters require a full instance reboot to take effect — worth checking before pushing a "quick" config change mid-business-hours and accidentally triggering a restart.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="rds failover minimal downtime multi-az dns cname flip time">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-rds-4" data-qid="rds-4" onchange="toggleMastery('rds-4', this.checked)">
+      <label for="cb-rds-4" class="qa-q">Q4. How do you achieve minimal-downtime failover?</label>
+    </div>
+    <div class="qa-a">
+      <p>Multi-AZ handles it automatically on primary failure — typically a 60–120 second DNS CNAME flip to the standby, no manual action needed. Application-side, this means the app must reconnect on failure rather than caching a resolved IP forever, and connection pooling/retry logic should tolerate a short blip. For planned maintenance, a manual failover (<code>reboot-db-instance --force-failover</code>) during a low-traffic window tests the failover path proactively rather than discovering issues during a real incident.</p>
+    </div>
+  </div>
+
+  <h3 class="subhead">Load Balancer</h3>
+
+  <div class="qa-card" data-search="alb nlb clb difference layer 4 layer 7 protocol use case">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-elb-1" data-qid="elb-1" onchange="toggleMastery('elb-1', this.checked)">
+      <label for="cb-elb-1" class="qa-q">Q1. ALB vs NLB vs CLB.</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Type</th><th>Layer</th><th>Best for</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ALB</strong></td><td>L7 (HTTP/HTTPS)</td><td>Host/path routing, WebSocket, gRPC, TLS termination — most web apps and K8s Ingress</td></tr>
+          <tr><td><strong>NLB</strong></td><td>L4 (TCP/UDP/TLS)</td><td>Ultra-low latency, static IP per AZ, millions of req/sec, non-HTTP protocols</td></tr>
+          <tr><td><strong>CLB</strong></td><td>Legacy L4/basic L7</td><td>Being phased out — avoid for anything new</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="kubernetes ingress alb aws load balancer controller how does it map">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-elb-2" data-qid="elb-2" onchange="toggleMastery('elb-2', this.checked)">
+      <label for="cb-elb-2" class="qa-q">Q2. How does a K8s Ingress become an actual ALB?</label>
+    </div>
+    <div class="qa-a">
+      <p>The <strong>AWS Load Balancer Controller</strong> runs in-cluster, watches for Ingress objects, and provisions/configures a real ALB to match — target groups pointing at pod IPs directly (IP target-type, bypassing NodePort/kube-proxy for lower latency) or at node ports, depending on mode. Annotations on the Ingress drive ALB-specific config: scheme (internet-facing/internal), ACM cert ARN for TLS, health check path, WAF association.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="when choose nlb over alb kubernetes static ip tcp grpc kafka">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-elb-3" data-qid="elb-3" onchange="toggleMastery('elb-3', this.checked)">
+      <label for="cb-elb-3" class="qa-q">Q3. When would you pick NLB over ALB for a K8s workload?</label>
+    </div>
+    <div class="qa-a">
+      <p>Whenever you need a static IP an external partner can allowlist (an NLB gets a fixed IP per AZ, an ALB's IP can change), raw TCP/gRPC that doesn't need L7 routing, or extreme throughput/low-latency requirements where ALB's extra L7 processing hop isn't worth it — e.g. a Kafka broker or a partner-facing integration with IP-based firewall rules on their end.</p>
+    </div>
+  </div>
+
+  <h3 class="subhead">VPC</h3>
+
+  <div class="qa-card" data-search="vpc create from scratch components public private subnet igw nat route table security group nacl">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-vpc-1" data-qid="vpc-1" onchange="toggleMastery('vpc-1', this.checked)">
+      <label for="cb-vpc-1" class="qa-q">Q1. Build a VPC from scratch — list every component in order.</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">VPC CIDR</span><span class="flow-arrow">→</span><span class="flow-step">Public Subnet</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Private Subnet</span><span class="flow-arrow">→</span><span class="flow-step">IGW</span><span class="flow-arrow">→</span>
+        <span class="flow-step">NAT</span><span class="flow-arrow">→</span><span class="flow-step">Route Table</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Security Group</span><span class="flow-arrow">→</span><span class="flow-step">NACL</span>
+      </div>
+      <ul>
+        <li>VPC with a CIDR block (e.g. <code>10.0.0.0/16</code>), DNS support/hostnames enabled.</li>
+        <li>Public and private subnets in at least 2–3 AZs each.</li>
+        <li>Internet Gateway attached to the VPC.</li>
+        <li>NAT Gateway(s) in the public subnet(s), one per AZ for HA.</li>
+        <li>Public route table (<code>0.0.0.0/0 → IGW</code>) associated with public subnets; private route table (<code>0.0.0.0/0 → NAT</code>) associated with private subnets.</li>
+        <li>Security Groups per resource tier (ALB, app, DB), referencing each other rather than CIDR ranges.</li>
+        <li>NACLs as an additional subnet-level layer if the environment needs defense-in-depth beyond Security Groups.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="security group vs nacl stateful stateless classic distinction rule numbers">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-vpc-2" data-qid="vpc-2" onchange="toggleMastery('vpc-2', this.checked)">
+      <label for="cb-vpc-2" class="qa-q">Q2. Security Group vs NACL.</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th></th><th>Security Group</th><th>NACL</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Level</strong></td><td>Instance/ENI</td><td>Subnet</td></tr>
+          <tr><td><strong>State</strong></td><td>Stateful (return traffic auto-allowed)</td><td>Stateless (must allow both directions explicitly)</td></tr>
+          <tr><td><strong>Rules</strong></td><td>Allow only</td><td>Allow AND deny, evaluated in rule-number order</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="vpc endpoints gateway interface privatelink s3 dynamodb cost security nat">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-vpc-3" data-qid="vpc-3" onchange="toggleMastery('vpc-3', this.checked)">
+      <label for="cb-vpc-3" class="qa-q">Q3. What are VPC Endpoints, and why do they matter?</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>Gateway endpoints</strong> (S3, DynamoDB only) — free, route-table based, keeps that traffic off the NAT Gateway entirely.</li>
+        <li><strong>Interface endpoints</strong> (PrivateLink, most other services — ECR, STS, Secrets Manager, etc.) — an ENI in your subnet, small hourly + per-GB cost, but keeps traffic on the AWS backbone instead of traversing NAT/the public internet.</li>
+      </ul>
+      <p>Matters for both security (private subnets never need public internet access for AWS API calls) and cost (NAT Gateway data-processing charges add up fast for high-volume traffic like frequent ECR image pulls).</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="vpc peering vs transit gateway when to use each transitive hub spoke">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-vpc-4" data-qid="vpc-4" onchange="toggleMastery('vpc-4', this.checked)">
+      <label for="cb-vpc-4" class="qa-q">Q4. VPC Peering vs Transit Gateway — when does each make sense?</label>
+    </div>
+    <div class="qa-a">
+      <p><strong>Peering:</strong> point-to-point, non-transitive (if A peers with B, and B peers with C, A cannot reach C through B) — fine for a handful of VPCs. <strong>Transit Gateway:</strong> hub-and-spoke, transitive, centrally managed routing — the answer once you're past roughly half a dozen VPCs, since peering connections grow combinatorially and become unmanageable fast.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-sh">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">09</span> Shell Scripting <span class="badge badge-p3">P3</span></h2>
+    <span class="chapter-progress">0/5</span>
+  </div>
+  <p class="chapter-intro">Practical one-liners the client expects you to write live, not recite.</p>
+
+  <div class="qa-card" data-search="script delete old logs find mtime exec rm">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sh-1" data-qid="sh-1" onchange="toggleMastery('sh-1', this.checked)">
+      <label for="cb-sh-1" class="qa-q">Q1. Write a one-liner to delete logs older than 7 days.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>find /var/log/myapp -name "*.log" -mtime +7 -exec rm -f {} \;
+
+# safer dry-run first:
+find /var/log/myapp -name "*.log" -mtime +7 -print</code></pre>
+      <p>Always run the <code>-print</code> version first in production before swapping to <code>-exec rm</code> — habit worth mentioning out loud, it signals caution.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="disk cpu memory check alert script threshold df awk">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sh-2" data-qid="sh-2" onchange="toggleMastery('sh-2', this.checked)">
+      <label for="cb-sh-2" class="qa-q">Q2. Script to alert on high disk usage.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>#!/bin/bash
+THRESHOLD=80
+USAGE=$(df -h / | awk 'NR==2 {print $5}' | tr -d '%')
+if [ "$USAGE" -gt "$THRESHOLD" ]; then
+  echo "Disk usage high: ${USAGE}%" | mail -s "Disk Alert - $(hostname)" ops@company.com
+fi</code></pre>
+      <p>Same pattern for CPU (<code>top -bn1 | grep "Cpu(s)"</code> or <code>vmstat 1 2</code>) and memory (<code>free -m</code>) — parse with awk, compare against a threshold, alert. In production this logic usually lives in Prometheus/Alertmanager instead, but the client wants to see the raw check can be built by hand too.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="watchdog script restart service if down cron systemctl is-active">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sh-3" data-qid="sh-3" onchange="toggleMastery('sh-3', this.checked)">
+      <label for="cb-sh-3" class="qa-q">Q3. Watchdog script to restart a service if it's down, on a schedule.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>#!/bin/bash
+if ! systemctl is-active --quiet myservice; then
+  systemctl restart myservice
+  echo "$(date): myservice restarted" >> /var/log/watchdog.log
+fi</code></pre>
+      <pre><code>*/5 * * * * /opt/scripts/watchdog.sh
+crontab -e     # edit
+crontab -l     # list current crontab</code></pre>
+      <p>Worth flagging in the answer: a watchdog that silently restarts a crashing service forever hides the real problem — pair it with alerting on restart <em>frequency</em>, not just presence, so a crash-loop still pages someone.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="find awk sed grep cut sort uniq xargs one-liners text processing toolbox">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sh-4" data-qid="sh-4" onchange="toggleMastery('sh-4', this.checked)">
+      <label for="cb-sh-4" class="qa-q">Q4. The core text-processing toolbox — one real example each.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>find  /var/log -type f -mtime +30 -size +100M          # old, large files
+awk   -F',' '{print $2}' file.csv                        # extract a CSV field
+awk   '{sum+=$3} END {print sum}' file.txt                # sum a column
+sed   -i 's/old/new/g' file.txt                            # in-place replace
+sed   -n '5,10p' file.txt                                   # print line range
+grep  -i "error" app.log                                    # case-insensitive search
+grep  -rn "pattern" /path                                     # recursive, with line numbers
+cut   -d':' -f1 /etc/passwd                                   # field extraction
+sort  -k2 -n file.txt                                          # numeric sort by field 2
+uniq  -c                                                        # count consecutive duplicates
+xargs -n1 -P4 curl -O                                            # parallelize over a list</code></pre>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="parse access log top 10 ips awk sort uniq scenario real">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sh-5" data-qid="sh-5" onchange="toggleMastery('sh-5', this.checked)">
+      <label for="cb-sh-5" class="qa-q">Q5. Scenario: find the top 10 IPs hitting the server from an access log.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>awk '{print $1}' access.log | sort | uniq -c | sort -nr | head -10</code></pre>
+      <p>This exact chain — <code>sort | uniq -c | sort -nr</code> — is the single most reusable log-analysis pattern in the toolbox: extract the field you care about, sort so identical values are adjacent, count consecutive duplicates, then sort by that count descending. Worth having memorized cold.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-tf">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">10</span> Terraform <span class="badge badge-p4">P4</span></h2>
+    <span class="chapter-progress">0/6</span>
+  </div>
+  <p class="chapter-intro">State, backend, and lifecycle are where real experience shows — anyone can recite plan/apply/destroy.</p>
+
+  <div class="qa-card" data-search="terraform state what is it why matters real world mapping">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tf-1" data-qid="tf-1" onchange="toggleMastery('tf-1', this.checked)">
+      <label for="cb-tf-1" class="qa-q">Q1. What is Terraform state, and why does it matter so much?</label>
+    </div>
+    <div class="qa-a">
+      <p>State is Terraform's record of what it believes actually exists — the mapping between your config and the real resource IDs in the cloud. Every <code>plan</code> diffs config against state (then optionally refreshes against real infra) to decide what needs to change. Without accurate state, Terraform can't tell a resource apart from "doesn't exist yet," so it's also sensitive data (can contain secrets in plaintext attributes) and must be protected — never commit it to Git.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="remote backend s3 dynamodb state locking team collaboration">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tf-2" data-qid="tf-2" onchange="toggleMastery('tf-2', this.checked)">
+      <label for="cb-tf-2" class="qa-q">Q2. Why a remote backend, and what does DynamoDB do there?</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>terraform {
+  backend "s3" {
+    bucket         = "company-tf-state"
+    key            = "prod/network/terraform.tfstate"
+    region         = "ap-south-1"
+    dynamodb_table = "tf-state-lock"
+    encrypt        = true
+  }
+}</code></pre>
+      <p>S3 holds the shared state file so the whole team works off the same source of truth instead of a laptop-local file. DynamoDB provides <strong>state locking</strong> — while one person runs <code>apply</code>, anyone else's run blocks rather than racing and corrupting the state file. Without locking, two simultaneous applies against the same state is a real, repeatable way to break an environment.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="terraform modules reusable structure source registry versioning">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tf-3" data-qid="tf-3" onchange="toggleMastery('tf-3', this.checked)">
+      <label for="cb-tf-3" class="qa-q">Q3. How do you structure Terraform with modules?</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>module "vpc" {
+  source   = "./modules/vpc"
+  cidr     = "10.0.0.0/16"
+  az_count = 3
+}</code></pre>
+      <p>A module is a reusable, parameterized unit of config — a VPC module, an EKS module, an RDS module — called from a root module per environment. Pin versions when pulling from the Terraform Registry or a Git tag, so a module update never silently changes prod on the next <code>init</code>. This is what makes dev/staging/prod consistent instead of copy-pasted and drifting.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="variables outputs tfvars per environment sensitive values">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tf-4" data-qid="tf-4" onchange="toggleMastery('tf-4', this.checked)">
+      <label for="cb-tf-4" class="qa-q">Q4. Variables, outputs, and per-environment tfvars.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>variable "instance_type" {
+  type    = string
+  default = "t3.medium"
+}
+output "vpc_id" {
+  value = aws_vpc.main.id
+}
+
+terraform apply -var-file="prod.tfvars"</code></pre>
+      <p><strong>Variables</strong> parameterize a module's input; <strong>outputs</strong> expose values for use by another module (e.g. the VPC module's <code>vpc_id</code> output feeds straight into the EKS module) or for display after apply. Separate <code>.tfvars</code> files per environment keep dev/staging/prod config isolated from the shared module logic. Mark anything sensitive (DB passwords, API keys) with <code>sensitive = true</code> so it's masked in CLI output and plan logs.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="plan apply destroy safe workflow pipeline prevent auto approve">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tf-5" data-qid="tf-5" onchange="toggleMastery('tf-5', this.checked)">
+      <label for="cb-tf-5" class="qa-q">Q5. What does a safe plan/apply/destroy workflow look like in a pipeline?</label>
+    </div>
+    <div class="qa-a">
+      <p><code>terraform plan</code> is a dry-run — always review it, never skip in prod. In a pipeline: <code>plan</code> runs on every PR and posts the diff for human review; <code>apply</code> only runs after merge/approval, never with <code>-auto-approve</code> in production without an explicit review gate in front of it. <code>destroy</code> should essentially never run automatically — <code>prevent_destroy = true</code> on critical resources (a prod database, for instance) makes an accidental destroy fail loudly instead of silently succeeding.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="lifecycle block create_before_destroy prevent_destroy ignore_changes">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tf-6" data-qid="tf-6" onchange="toggleMastery('tf-6', this.checked)">
+      <label for="cb-tf-6" class="qa-q">Q6. Explain the lifecycle block — all three meta-arguments.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>lifecycle {
+  create_before_destroy = true
+  prevent_destroy        = true
+  ignore_changes          = [desired_capacity]
+}</code></pre>
+      <ul>
+        <li><strong>create_before_destroy:</strong> builds the replacement resource first, then tears down the old one — avoids a downtime gap when a change forces replacement (e.g. a launch template change on an ASG).</li>
+        <li><strong>prevent_destroy:</strong> hard-blocks <code>destroy</code> on that resource — the guardrail for anything catastrophic to lose.</li>
+        <li><strong>ignore_changes:</strong> tells Terraform to stop caring about drift on specific attributes — classic case: <code>desired_capacity</code> on an ASG that's actively managed by an autoscaler outside Terraform, so Terraform doesn't fight it back to a stale value on every apply.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-fin">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">11</span> FinOps — Kubernetes Cost Optimization <span class="badge badge-p5">P5</span></h2>
+    <span class="chapter-progress">0/10</span>
+  </div>
+  <p class="chapter-intro">The client shared a FinOps article directly — they expect you to connect cost to reliability, not treat them as separate topics.</p>
+
+  <div class="qa-card" data-search="reduce kubernetes cost 50% without hurting availability priority order">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-fin-1" data-qid="fin-1" onchange="toggleMastery('fin-1', this.checked)">
+      <label for="cb-fin-1" class="qa-q">Q1. How would you cut Kubernetes cost by 50% without hurting availability?</label>
+    </div>
+    <div class="qa-a">
+      <p>Structure the answer as a priority-ordered list, not a random pile of tactics — this is what separates a senior answer from a checklist recital:</p>
+      <ul>
+        <li><strong>1. Right-size first</strong> — usually the single biggest, lowest-risk win; most clusters run requests 2-3x actual usage "just in case."</li>
+        <li><strong>2. Autoscaling</strong> — HPA so replica count tracks real demand instead of being pinned at peak sizing 24/7; Cluster Autoscaler/Karpenter so node count tracks pod demand.</li>
+        <li><strong>3. Spot for the right workloads</strong> — stateless, fault-tolerant, batch — often 60-90% cheaper for that slice of the fleet.</li>
+        <li><strong>4. Clean up orphaned resources</strong> — unused PVCs, unused LoadBalancers, idle dev/test environments left running 24/7.</li>
+        <li><strong>5. Commit for the baseline</strong> — Reserved Instances/Savings Plans once the true steady-state floor is known (only after right-sizing, or the commitment locks in an inflated number).</li>
+      </ul>
+      <div class="followup"><strong>Likely follow-up:</strong> "How do you make sure this doesn't hurt availability?" — every step above is additive to existing PDBs/readiness probes/multi-AZ design (Chapter 1), not a replacement for them; cost work should never touch availability guardrails.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="right sizing requests limits vpa vertical pod autoscaler over provisioned">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-fin-2" data-qid="fin-2" onchange="toggleMastery('fin-2', this.checked)">
+      <label for="cb-fin-2" class="qa-q">Q2. How do you actually right-size CPU/memory requests?</label>
+    </div>
+    <div class="qa-a">
+      <p>Use real historical usage — Prometheus/<code>kubectl top</code> data over a representative window (including peak, not just average) — rather than guessing. The Vertical Pod Autoscaler can generate sizing recommendations automatically in "recommendation-only" mode without actually resizing anything live, a safe way to surface the gap between requested and actual usage across a whole cluster at once. Over-provisioned requests waste reserved node capacity; under-provisioned requests cause throttling (CPU) or OOMKills (memory) — right-sizing is a balance, not a race to the bottom.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="cluster autoscaler vs karpenter difference node provisioning">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-fin-3" data-qid="fin-3" onchange="toggleMastery('fin-3', this.checked)">
+      <label for="cb-fin-3" class="qa-q">Q3. Cluster Autoscaler vs Karpenter — what's the actual difference?</label>
+    </div>
+    <div class="qa-a">
+      <p>Cluster Autoscaler scales predefined Auto Scaling Groups up/down based on pending pods — the instance types/node group shapes are decided in advance. <strong>Karpenter</strong> provisions nodes directly, just-in-time, picking the instance type and size that best fits the actual pending pod's requirements (bin-packing aware) — no pre-defined node groups needed, faster provisioning, and native, first-class Spot support. Most new EKS builds default to Karpenter now for exactly that efficiency gain.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="spot nodes production safely node termination handler interruption pdb">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-fin-4" data-qid="fin-4" onchange="toggleMastery('fin-4', this.checked)">
+      <label for="cb-fin-4" class="qa-q">Q4. How do you run Spot nodes in production safely?</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li>Only for workloads that tolerate interruption — stateless, multiple replicas, quick to reschedule.</li>
+        <li>Diversify instance types/sizes in the node group — reduces the odds of many nodes being reclaimed simultaneously.</li>
+        <li>Run the <strong>Node Termination Handler</strong> (or Karpenter's built-in equivalent) to catch the 2-minute interruption notice and cordon/drain gracefully before the instance disappears.</li>
+        <li>Keep PodDisruptionBudgets in place — Spot interruption is still a disruption event PDBs should govern.</li>
+        <li>Mix with On-Demand/Reserved via node group weighting so a bad Spot market doesn't take out capacity entirely.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="namespace quotas resourcequota limitrange cost visibility chargeback kubecost">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-fin-5" data-qid="fin-5" onchange="toggleMastery('fin-5', this.checked)">
+      <label for="cb-fin-5" class="qa-q">Q5. How do you give teams cost visibility and prevent runaway spend?</label>
+    </div>
+    <div class="qa-a">
+      <p><strong>ResourceQuota</strong> caps total CPU/memory/object count per namespace; <strong>LimitRange</strong> sets default and max per-pod requests/limits within it — together they stop one team's misconfigured deployment from starving the whole cluster. For visibility, tools like <strong>Kubecost</strong> or <strong>OpenCost</strong> attribute real cost per namespace/label back to the AWS bill, enabling chargeback or at least showback — teams behave very differently once they can see their own number.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="cost visibility cogs cost of goods sold gross margin per namespace per team per service allocation">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-fin-6" data-qid="fin-6" onchange="toggleMastery('fin-6', this.checked)">
+      <label for="cb-fin-6" class="qa-q">Q6. Why frame Kubernetes cost as COGS, and how do you get visibility into it?</label>
+    </div>
+    <div class="qa-a">
+      <p>For a SaaS platform, cluster spend is <strong>Cost of Goods Sold</strong>, not just an engineering line item — every dollar saved on infrastructure drops straight to gross margin. A platform going from, say, 40% to 60% gross margin by cutting infra cost from $6M to $4M on flat $10M revenue is the kind of number that gets a platform team a seat at the leadership table, and it's the framing that makes a FinOps initiative fundable in the first place.</p>
+      <p>Visibility means being able to answer, per namespace/team/service: what does this workload actually cost, not just what does the whole cluster cost. Without that breakdown, nobody can be held accountable for their own consumption, and nobody has the information needed to optimize it.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="bin packing scheduling efficiency node consolidation utilization underutilized nodes">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-fin-7" data-qid="fin-7" onchange="toggleMastery('fin-7', this.checked)">
+      <label for="cb-fin-7" class="qa-q">Q7. The cluster "looks busy" but the bill is high — what's bin packing telling you?</label>
+    </div>
+    <div class="qa-a">
+      <p>A cluster can show nodes at high pod-count while still running at 30% CPU / 35% memory utilization — pods are scheduled across many nodes without being packed efficiently, so you're paying for capacity that's never actually used. Better bin-packing (letting the scheduler consolidate workloads onto fewer, fuller nodes rather than spreading them thin) directly reduces the node count needed to run the same workload — Karpenter's just-in-time provisioning (Chapter 11, Q3) already optimizes for this by design, which is exactly why it tends to beat a statically-sized Cluster Autoscaler node group on cost.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="shut down idle non production environments schedule dev test nights weekends">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-fin-8" data-qid="fin-8" onchange="toggleMastery('fin-8', this.checked)">
+      <label for="cb-fin-8" class="qa-q">Q8. Dev/test clusters run 24/7 but are only used in business hours — what do you do?</label>
+    </div>
+    <div class="qa-a">
+      <p>Automate the schedule — scale non-prod environments down (or to zero) outside working hours instead of leaving them running around the clock for convenience. A simple 9 AM–7 PM active window, suspended nights and weekends, is a very common, very cheap win on non-prod spend specifically, with no availability risk at all since nothing there is customer-facing.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="persistent storage optimization orphan volumes storage class ssd oversized">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-fin-9" data-qid="fin-9" onchange="toggleMastery('fin-9', this.checked)">
+      <label for="cb-fin-9" class="qa-q">Q9. Where does storage quietly waste money in a cluster?</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>Orphaned PVCs</strong> left behind after a workload is deleted — nothing deletes the underlying volume automatically unless the reclaim policy and cleanup automation are set up for it.</li>
+        <li><strong>Oversized allocations</strong> — provisioning far more capacity than the workload will ever use.</li>
+        <li><strong>Wrong storage class</strong> for the workload — expensive SSD-backed storage for something that's really just logging/archival data that would be fine on standard disks.</li>
+      </ul>
+      <p>The fix is matching storage class to actual performance need (high-I/O databases get SSD, cold/archival data doesn't) plus routine automated cleanup of anything orphaned.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="cost governance policies cost aware engineering culture resource limits mandatory namespace budgets">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-fin-10" data-qid="fin-10" onchange="toggleMastery('fin-10', this.checked)">
+      <label for="cb-fin-10" class="qa-q">Q10. Beyond tooling, how do you make cost efficiency stick culturally?</label>
+    </div>
+    <div class="qa-a">
+      <p><strong>Governance:</strong> make it a hard rule that every workload defines CPU/memory requests and limits before it can deploy at all (enforced via admission policy — Chapter 3, Q6 — not a wiki page), plus namespace-level budgets so a team's spend has a visible ceiling.</p>
+      <p><strong>Culture:</strong> the bigger lever, longer-term — expose cost per API request, per tenant, per microservice back to the engineers who own that service. Developers who can actually see the financial impact of their own architecture choices start designing more efficient systems on their own, without being told to; cost awareness becomes a design input instead of an afterthought bolted on by a platform team after the fact.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-scn">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">12</span> Production War-Room Scenarios <span class="badge badge-p1">Will definitely come up</span></h2>
+    <span class="chapter-progress">0/5</span>
+  </div>
+  <p class="chapter-intro">These four are named directly in the blueprint as certain to come up. Practice narrating each flow out loud, start to finish, in under 90 seconds.</p>
+
+  <div class="scenario-card" data-search="production down alert dashboard infra pods logs recent deployment rollback stakeholders rca incident commander">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-scn-1" data-qid="scn-1" onchange="toggleMastery('scn-1', this.checked)">
+      <label for="cb-scn-1" class="qa-q">Scenario 1 — Production is down. Walk me through it.</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Alert</span><span class="flow-arrow">→</span><span class="flow-step">Dashboard</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Infra</span><span class="flow-arrow">→</span><span class="flow-step">Pods</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Logs</span><span class="flow-arrow">→</span><span class="flow-step">Recent Deploy</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Rollback</span><span class="flow-arrow">→</span><span class="flow-step">Stakeholders</span><span class="flow-arrow">→</span>
+        <span class="flow-step">RCA</span>
+      </div>
+      <ul>
+        <li><strong>Alert:</strong> PagerDuty/Alertmanager fires, acknowledge immediately (stops the re-page while you work).</li>
+        <li><strong>Dashboard:</strong> Grafana — error rate, latency, saturation (the RED/USE metrics) — get the blast radius in under a minute.</li>
+        <li><strong>Infra:</strong> nodes healthy? AWS status page clean? Rule out "not our code" first — fast to check, re-frames everything downstream.</li>
+        <li><strong>Pods:</strong> <code>kubectl get pods -A</code> — anything CrashLooping or Pending right now?</li>
+        <li><strong>Logs:</strong> centralized logging (Loki/ELK) or <code>kubectl logs</code> for the specific failing service.</li>
+        <li><strong>Recent Deployment:</strong> <code>kubectl rollout history</code> — does the incident start line up with a deploy timestamp? This correlation check happens early, not last.</li>
+        <li><strong>Rollback:</strong> if correlated, roll back first, investigate root cause after — restoring service always outranks understanding it in the moment.</li>
+        <li><strong>Stakeholders:</strong> status page update, incident channel, a communication cadence (even "still investigating, next update in 15 min" beats silence).</li>
+        <li><strong>RCA:</strong> blameless postmortem — timeline, contributing factors, concrete follow-up actions with owners.</li>
+      </ul>
+      <div class="followup"><strong>Leadership-layer follow-up:</strong> name the Incident Commander role and severity levels (Sev1/2/3) if the conversation turns toward process — it signals you've run incidents, not just fixed them.</div>
+    </div>
+  </div>
+
+  <div class="scenario-card" data-search="node down maintain availability poddisruptionbudget replica rolling update cluster autoscaler">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-scn-2" data-qid="scn-2" onchange="toggleMastery('scn-2', this.checked)">
+      <label for="cb-scn-2" class="qa-q">Scenario 2 — A node just went down. How do you maintain availability?</label>
+    </div>
+    <div class="qa-a">
+      <p>This scenario really tests whether the design was already correct <em>before</em> the failure — the answer is mostly about what's already in place:</p>
+      <ul>
+        <li>Multiple replicas spread across nodes/AZs via topology spread constraints or podAntiAffinity — so losing one node never removes every replica of a service at once.</li>
+        <li>The control plane marks the node NotReady after ~40s of missed heartbeats, then evicts its pods after the ~5 min pod-eviction-timeout if it stays unreachable — the ReplicaSet controller reschedules them onto healthy nodes automatically.</li>
+        <li>PodDisruptionBudget matters more for <em>planned</em> disruptions (upgrades, scale-downs) than a sudden failure — but it's part of the same design conversation being probed here.</li>
+        <li>Cluster Autoscaler/Karpenter replaces the lost node's capacity automatically.</li>
+        <li>For stateful workloads: EBS-backed volumes need the pod rescheduled in the <em>same AZ</em> as the volume — the CSI driver and StorageClass need to be AZ-aware, or recovery stalls waiting for capacity in the right zone.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="scenario-card" data-search="one pod high cpu top pod logs profiling scale hpa throttling">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-scn-3" data-qid="scn-3" onchange="toggleMastery('scn-3', this.checked)">
+      <label for="cb-scn-3" class="qa-q">Scenario 3 — One pod is spiking CPU. What do you do?</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">kubectl top pod</span><span class="flow-arrow">→</span><span class="flow-step">Logs</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Profiling</span><span class="flow-arrow">→</span><span class="flow-step">Scale</span><span class="flow-arrow">→</span>
+        <span class="flow-step">HPA</span>
+      </div>
+      <ul>
+        <li><code>kubectl top pod</code> confirms and quantifies it; <code>kubectl logs</code> checks for a retry storm, an infinite loop, or a legitimate traffic spike hitting that one pod.</li>
+        <li><strong>Profiling</strong> if the cause isn't obvious from logs — language-specific (py-spy for Python, pprof for Go, Java Flight Recorder for JVM) to find the actual hot code path.</li>
+        <li>Distinguish real usage from <strong>throttling</strong>: <code>container_cpu_cfs_throttled_periods_total</code> tells you if the CPU <em>limit</em> is the bottleneck, not the workload itself — a different fix (raise the limit) than a genuine hot loop (fix the code).</li>
+        <li>Immediate mitigation: manual <code>kubectl scale</code> to spread load across more replicas while investigating.</li>
+        <li>Long-term fix: make sure HPA is actually configured with a sensible target so this scales automatically next time instead of paging someone.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="scenario-card" data-search="developer deployed wrong version argocd rollback git revert sync verify">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-scn-4" data-qid="scn-4" onchange="toggleMastery('scn-4', this.checked)">
+      <label for="cb-scn-4" class="qa-q">Scenario 4 — A developer deployed the wrong version. Walk it through.</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Detect (ArgoCD/alerts)</span><span class="flow-arrow">→</span><span class="flow-step">ArgoCD rollback</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Git revert</span><span class="flow-arrow">→</span><span class="flow-step">Sync</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Verify</span><span class="flow-arrow">→</span><span class="flow-step">RCA</span>
+      </div>
+      <ul>
+        <li><strong>Detect:</strong> ArgoCD shows the app OutOfSync/Degraded, or health-check/error-rate alerts fire.</li>
+        <li><strong>Immediate mitigation:</strong> <code>argocd app rollback myapp &lt;revision&gt;</code> — instant, doesn't wait on a PR/pipeline cycle.</li>
+        <li><strong>Fix the source of truth:</strong> <code>git revert</code> the commit that bumped the bad image tag/values — otherwise the next Auto Sync or Self Heal re-applies the bad version right back.</li>
+        <li><strong>Sync</strong> and verify the rollout is healthy (readiness, error rate back to baseline).</li>
+        <li><strong>RCA:</strong> why did it reach prod at all — did it skip a canary step? Did CI's quality gate or Trivy scan get bypassed? Was the PR review process too permissive on the GitOps repo specifically? This is the question that separates "fixed the symptom" from "fixed the pipeline."</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="scenario-card" data-search="leaked aws credential incident api key public repo bots git-secrets push protection revoke rotate refund case study">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-scn-5" data-qid="scn-5" onchange="toggleMastery('scn-5', this.checked)">
+      <label for="cb-scn-5" class="qa-q">Scenario 5 — A documented case: a test file with a live AWS key hit a public repo. Walk through what happens and how you'd handle it.</label>
+    </div>
+    <div class="qa-a">
+      <p>A well-known pattern worth knowing cold, from a real published incident: a developer pushed a test file containing a live AWS key to a public GitHub repo, meaning to clean it up, then got pulled onto something else. Credential-harvesting bots continuously scan GitHub's public event stream for key patterns — in the documented case, a bot validated the key within about 3 minutes of the push, and compute spun up across multiple countries within 15 minutes. The bill showed up 11 days later: roughly $23,000 in unauthorized usage.</p>
+      <div class="flow">
+        <span class="flow-step">Revoke key</span><span class="flow-arrow">→</span><span class="flow-step">Audit via CloudTrail</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Purge from git history</span><span class="flow-arrow">→</span><span class="flow-step">Rotate everything</span><span class="flow-arrow">→</span>
+        <span class="flow-step">File billing dispute</span>
+      </div>
+      <p>The response sequence (see the runbook in Chapter 3, Q8 for the exact commands) is revoke-first, always — every minute a leaked key stays valid is more exposure, so it comes before investigation, before notifying anyone, before anything else. In the documented case, roughly $18,000 of the $23,000 was refunded by AWS after the key was revoked quickly and the unauthorized-access case was filed promptly.</p>
+      <div class="followup"><strong>The line worth repeating if asked "whose fault was it?":</strong> the honest framing is that the system failed, not the person — a competent, careful developer did a completely normal thing (got distracted, forgot a cleanup) and there was no guardrail (pre-commit hook, push protection) to catch it. A team that blames the individual will see this again; a team that builds the guardrail generally won't.</div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-ai">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">13</span> Bonus — AI/ML Platform Engineering <span class="badge badge-bonus">not in the original blueprint</span></h2>
+    <span class="chapter-progress">0/6</span>
+  </div>
+  <p class="chapter-intro">Not part of the client's stated blueprint, but good breadth if the conversation drifts toward where platform engineering is heading — DataOps, MLOps, and AIOps as one system rather than three separate stacks.</p>
+
+  <div class="qa-card" data-search="why traditional observability fails ai ml data drift model degradation silent failure three pillars">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-ai-1" data-qid="ai-1" onchange="toggleMastery('ai-1', this.checked)">
+      <label for="cb-ai-1" class="qa-q">Q1. Why does traditional DevOps observability fail for AI/ML systems?</label>
+    </div>
+    <div class="qa-a">
+      <p>Traditional monitoring is built around the idea that a problem throws an error: latency spikes, an error rate crosses a threshold, an alert fires. AI systems fail differently — a model can be technically healthy (fast, up, low error rate) while being <em>business-wise wrong</em>, and that kind of failure is silent. A fraud model trained on last year's patterns, a recommender that slowly drifts stale as behavior shifts, a churn model thrown off by a seasonal change — none of these throw an exception, they just quietly lose accuracy.</p>
+      <p>That's why AI observability needs three layers instead of one: <strong>data</strong> (drift, schema changes, missing values), <strong>model</strong> (accuracy over time, prediction distribution, bias/fairness), and <strong>system</strong> (the traditional latency/throughput/error-rate layer). Watching only the third layer is exactly how a model degrades for weeks before anyone notices.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="dataops mlops aiops three loops why unify platform">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-ai-2" data-qid="ai-2" onchange="toggleMastery('ai-2', this.checked)">
+      <label for="cb-ai-2" class="qa-q">Q2. What are the three loops — DataOps, MLOps, AIOps — and why unify them?</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">DataOps (raw → governed data)</span><span class="flow-arrow">→</span>
+        <span class="flow-step">MLOps (features → deployed models)</span><span class="flow-arrow">→</span>
+        <span class="flow-step">AIOps (telemetry → auto-remediation &amp; retrain triggers)</span>
+      </div>
+      <p>Each loop can be built as its own stack, but the value compounds only when they share a registry, a common observability plane, and one governance contract. Run them as three disconnected efforts and you get exactly the failure mode most orgs hit: models trained on data nobody trusts, deployed through heroics instead of a paved road, monitored by a system that can't see model behavior at all — three siloed tools, no closed loop, and audit prep that takes weeks because lineage lives in three different places.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="production grade mlops lineage staged promotion canary shadow deployment event driven retraining tiering">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-ai-3" data-qid="ai-3" onchange="toggleMastery('ai-3', this.checked)">
+      <label for="cb-ai-3" class="qa-q">Q3. What does "production-grade MLOps" actually require, and how do you tier models?</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>Lineage:</strong> every model traceable to its code commit, training-data snapshot, hyperparameters, and evaluation metrics — the ML equivalent of a build provenance record.</li>
+        <li><strong>Staged promotion:</strong> dev → staging → prod with automated gates, not a manual heroic push to production.</li>
+        <li><strong>Canary/shadow deployment:</strong> a new model competes against the incumbent on live traffic before it's trusted with 100% of it — the same instinct as Argo Rollouts canary analysis (Chapter 7, Q4), applied to models instead of application code.</li>
+        <li><strong>Event-driven retraining:</strong> drift detected → pipeline triggered → candidate registered → A/B tested → promoted on a win, not on a calendar schedule.</li>
+      </ul>
+      <p><strong>Tiering</strong> is the governance decision that makes all of this affordable: Tier 1 (revenue/safety-critical) gets a human approval gate and full audit trail; Tier 2 (internal decisioning/recommendations) gets automated canary and monitoring; Tier 3 (experimental, low blast radius) can auto-promote on a metric win. Applying Tier-1 rigor to every model is over-engineering; applying Tier-3 looseness to a revenue-critical model is the incident waiting to happen.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="aiops closed loop collect correlate detect diagnose heal alert noise reduction auto remediation">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-ai-4" data-qid="ai-4" onchange="toggleMastery('ai-4', this.checked)">
+      <label for="cb-ai-4" class="qa-q">Q4. What does the AIOps "closed loop" actually look like end to end?</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Collect</span><span class="flow-arrow">→</span><span class="flow-step">Correlate</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Detect</span><span class="flow-arrow">→</span><span class="flow-step">Diagnose</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Heal</span>
+      </div>
+      <ul>
+        <li><strong>Collect:</strong> telemetry across every service <em>and</em> every model — metrics, logs, traces, predictions, feature distributions, not just infra signals.</li>
+        <li><strong>Correlate:</strong> topology-aware grouping and dedup collapse a large volume of raw alerts down to a much smaller number of actual incidents — this is where most of the "alert fatigue" problem actually gets solved.</li>
+        <li><strong>Detect:</strong> anomaly models (forecasting, outlier detection) catch drift that a static threshold would miss entirely, ideally with real lead time before customers notice.</li>
+        <li><strong>Diagnose:</strong> causal inference over the service dependency graph points at a root cause automatically instead of a human tracing it by hand.</li>
+        <li><strong>Heal:</strong> pre-approved playbooks execute automatically — scale, roll back, reroute — with a human gate retained only for the highest-risk (Tier 1) changes.</li>
+      </ul>
+      <p>The loop only counts as AIOps, rather than "monitoring with extra steps," when the same telemetry that triggers an incident can also trigger a model retrain when the root cause turns out to be drift.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="ai observability key metrics data model business metrics feature drift accuracy conversion">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-ai-5" data-qid="ai-5" onchange="toggleMastery('ai-5', this.checked)">
+      <label for="cb-ai-5" class="qa-q">Q5. What metrics actually matter for AI observability?</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Layer</th><th>Metrics</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Data</strong></td><td>Feature drift, missing values, data freshness</td></tr>
+          <tr><td><strong>Model</strong></td><td>Accuracy, precision/recall, AUC, prediction confidence</td></tr>
+          <tr><td><strong>Business</strong></td><td>Conversion rate, fraud prevented, churn reduction, revenue impact</td></tr>
+        </tbody>
+      </table>
+      <p>The business layer is the one platform teams most often skip, and it's the one leadership actually asks about — MTTR and accuracy numbers only matter to the extent they move a number the business already tracks.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="quantify roi platform ai mlops aiops boardroom numbers mttr deploy frequency toil reduction">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-ai-6" data-qid="ai-6" onchange="toggleMastery('ai-6', this.checked)">
+      <label for="cb-ai-6" class="qa-q">Q6. If leadership asks "what did this actually deliver," what's the answer?</label>
+    </div>
+    <div class="qa-a">
+      <p>Quantify the loop, not the experiment — model accuracy alone never convinces a CFO. The numbers that do: MTTR (a documented case reported roughly 4 hours down to under an hour), alert volume (thousands of raw alerts per day collapsed to a couple hundred grouped incidents through correlation), deploy frequency going up rather than down as governance is added, and audit prep time collapsing from weeks of senior engineer time to hours once lineage and access logs live in one place instead of scattered across disconnected tools.</p>
+      <div class="followup"><strong>Likely follow-up:</strong> "Isn't this a huge platform team investment?" — yes, and that's exactly why model tiering (Q3) matters: it's what stops the investment from being uniform (and therefore wasteful) across every model regardless of how much that model actually matters to the business.</div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-aks">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">14</span> AKS / Multi-Cloud Round — Tomorrow's Prep <span class="badge badge-p1">Fresh · review first</span></h2>
+    <span class="chapter-progress">0/19</span>
+  </div>
+  <p class="chapter-intro">Built directly from a prior round's feedback — the two flagged gaps were <strong>Terraform/CI-CD depth</strong> and <strong>infrastructure experience skewing toward standalone VMs rather than cloud-native</strong>. Give the Terraform and AKS-networking cards below extra attention; they're the direct answer to that feedback.</p>
+
+  <h3 class="subhead">Kubernetes &amp; Cloud Experience</h3>
+
+  <div class="qa-card" data-search="kubernetes cloud experience aks eks terraform node pools rbac irsa helm argocd github actions azure devops">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-1" data-qid="aks-1" onchange="toggleMastery('aks-1', this.checked)">
+      <label for="cb-aks-1" class="qa-q">Q1. Walk me through your Kubernetes and cloud experience.</label>
+    </div>
+    <div class="qa-a">
+      <p>Hands-on across both AKS and EKS. On AKS: provisioning clusters via Terraform, managing node pools, RBAC, and upgrades. On EKS: managed node groups, IRSA, and ALB ingress integration. Day-to-day: Helm deployments, pod/node troubleshooting, namespace management, Prometheus + Grafana for monitoring, GitOps via ArgoCD, and CI/CD through both GitHub Actions and Azure DevOps.</p>
+      <div class="followup"><strong>Why this opener matters:</strong> it's doing double duty — proving multi-cloud range (AKS <em>and</em> EKS, not just one) and directly countering the "standalone VMs" feedback by leading with Terraform, GitOps, and managed services rather than manual server admin.</div>
+    </div>
+  </div>
+
+  <h3 class="subhead">AKS Networking &amp; Ingress</h3>
+
+  <div class="qa-card" data-search="network policy not working aks troubleshoot kubenet azure cni calico azure npm">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-2" data-qid="aks-2" onchange="toggleMastery('aks-2', this.checked)">
+      <label for="cb-aks-2" class="qa-q">Q2. A NetworkPolicy isn't working on AKS. How do you troubleshoot it?</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Policy exists?</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Selectors correct?</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Labels match?</span><span class="flow-arrow">→</span>
+        <span class="flow-step">CNI supports policy?</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Policy engine running?</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Test with debug pod</span>
+      </div>
+      <pre><code>kubectl get networkpolicy -n &lt;namespace&gt;
+kubectl describe networkpolicy &lt;name&gt; -n &lt;namespace&gt;   # selectors, ingress/egress, ports
+kubectl get pods --show-labels -n &lt;namespace&gt;            # do labels actually match the selector?
+kubectl get pods -n kube-system                            # is the policy engine (Calico/Azure NPM) running?</code></pre>
+      <p>The AKS-specific gotcha: <strong>Kubenet does not enforce NetworkPolicy at all</strong> — the object can exist and look correct while doing nothing, because the CNI never enforces it. You need Azure CNI with Calico, or Azure Network Policy Manager, enabled. Root cause is almost always one of: label mismatch, wrong namespace selector, or policy enforcement never enabled on the CNI in the first place.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="azure networking options aks kubenet azure cni overlay difference ip exhaustion">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-3" data-qid="aks-3" onchange="toggleMastery('aks-3', this.checked)">
+      <label for="cb-aks-3" class="qa-q">Q3. What are the Azure networking options for AKS?</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Mode</th><th>Pod IPs</th><th>NetworkPolicy support</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Kubenet</strong></td><td>Private overlay (nodes get VNet IPs, pods don't)</td><td>No — not natively enforced</td></tr>
+          <tr><td><strong>Azure CNI</strong></td><td>Direct from the VNet subnet</td><td>Yes — needs more IP space planned up front</td></tr>
+          <tr><td><strong>Azure CNI Overlay</strong></td><td>Private CIDR overlay (nodes still get VNet IPs)</td><td>Yes — avoids the IP-exhaustion cost of full CNI</td></tr>
+        </tbody>
+      </table>
+      <p>The critical detail to state out loud: <strong>this choice cannot be changed after cluster creation.</strong> If NetworkPolicy isn't working, the first thing to confirm is whether the cluster was even created with Azure CNI (not Kubenet) and whether Azure Network Policy or Calico was selected as the policy engine at creation time — not something you can retrofit later.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="routers traffic routing familiarity nginx ingress agic alb coredns kube-proxy">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-4" data-qid="aks-4" onchange="toggleMastery('aks-4', this.checked)">
+      <label for="cb-aks-4" class="qa-q">Q4. How familiar are you with routers / traffic routing?</label>
+    </div>
+    <div class="qa-a">
+      <p>No physical router experience, but deep operational experience with cloud-native routing layers — which is the more honest and more relevant answer for this role:</p>
+      <ul>
+        <li><strong>Nginx Ingress Controller</strong> — L7 host/path routing.</li>
+        <li><strong>AGIC</strong> (Application Gateway Ingress Controller) — wires Azure Application Gateway to AKS.</li>
+        <li><strong>AWS ALB Ingress Controller</strong> — provisions ALBs directly from K8s Ingress resources.</li>
+        <li><strong>CoreDNS</strong> — internal cluster DNS.</li>
+        <li><strong>kube-proxy</strong> — service-level routing via iptables/IPVS.</li>
+      </ul>
+      <div class="followup"><strong>Framing tip:</strong> don't apologize for not knowing physical networking gear — pivot immediately to what you do know, and make it clear that's the actually relevant skill set for this role.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="application gateway auto created manual agic add-on terraform lifecycle">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-5" data-qid="aks-5" onchange="toggleMastery('aks-5', this.checked)">
+      <label for="cb-aks-5" class="qa-q">Q5. Is Application Gateway auto-created, or do you provision it manually?</label>
+    </div>
+    <div class="qa-a">
+      <p>Both are possible: enabling the AGIC add-on at AKS creation time can auto-provision a new Application Gateway, or you provision it separately (Terraform/ARM) first and then attach the AGIC add-on to an existing one. In enterprise environments, provisioning it separately via Terraform is the better answer — it gives independent lifecycle control over the gateway rather than coupling its lifecycle to the cluster's.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="10 helm charts 10 hostnames dns routing strategy external-dns ingress class shared load balancer">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-6" data-qid="aks-6" onchange="toggleMastery('aks-6', this.checked)">
+      <label for="cb-aks-6" class="qa-q">Q6. You have 10 Helm charts and 10 hostnames — what's your DNS routing strategy?</label>
+    </div>
+    <div class="qa-a">
+      <p>Each chart defines its own Ingress with a unique hostname, but all reference the same ingress class (nginx) — so all 10 share a single ingress controller and a single external IP/load balancer, instead of provisioning 10 separate load balancers. The ingress controller reads the <code>Host</code> header on each request and routes to the correct backend Service.</p>
+      <p>On the DNS side: 10 CNAME/A records (Route 53 / Azure DNS) all pointing at that one external IP. At scale, <strong>external-dns</strong> automates this entirely — it watches Ingress annotations and creates/updates the DNS records automatically, removing manual DNS management as a step in every new-hostname rollout.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="aws alb multiple hostnames eks load balancer controller listener rules target groups acm">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-7" data-qid="aks-7" onchange="toggleMastery('aks-7', this.checked)">
+      <label for="cb-aks-7" class="qa-q">Q7. Same scenario on EKS — ALB with multiple hostnames?</label>
+    </div>
+    <div class="qa-a">
+      <p>Install the AWS Load Balancer Controller via Helm — it watches for Ingress resources annotated <code>kubernetes.io/ingress.class: alb</code> and provisions the ALB automatically. Each Helm chart's Ingress (unique hostname) becomes one listener rule on that shared ALB, each forwarding to its own target group. Route 53 gets one alias record per hostname, all pointing at the same ALB DNS name; TLS is a single ACM certificate attached to the listener. Target type is typically <code>ip</code> mode, for direct pod targeting.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="end to end traffic flow abc.com dns route 53 alb listener target group ip mode instance mode">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-8" data-qid="aks-8" onchange="toggleMastery('aks-8', this.checked)">
+      <label for="cb-aks-8" class="qa-q">Q8. Trace the full request path when someone types abc.com in a browser.</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Browser DNS lookup</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Route 53 → ALB DNS name</span><span class="flow-arrow">→</span>
+        <span class="flow-step">ALB listener (443)</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Listener rule matches host</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Target group</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Pod</span>
+      </div>
+      <p>Route 53 resolves <code>abc.com</code> to the ALB's DNS name; the request hits the ALB listener; the ALB evaluates its listener rules and matches on the <code>abc.com</code> host header, forwarding to the corresponding target group; the target group holds pod IPs registered by the AWS Load Balancer Controller; the pod processes the request and the response retraces the same path.</p>
+      <p><strong>Key distinction worth stating explicitly:</strong> in <code>ip</code> target mode, the ALB bypasses kube-proxy entirely and hits pods directly. In <code>instance</code> target mode, traffic lands on the node first, and kube-proxy forwards it to the pod via the Service — an extra hop that <code>ip</code> mode skips.</p>
+    </div>
+  </div>
+
+  <h3 class="subhead">Terraform Patterns</h3>
+
+  <div class="qa-card" data-search="terraform snippet node pools scaling for_each aks node pool variable map">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-9" data-qid="aks-9" onchange="toggleMastery('aks-9', this.checked)">
+      <label for="cb-aks-9" class="qa-q">Q9. Write the Terraform for an AKS node pool — then for multiple node pools.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>resource "azurerm_kubernetes_cluster_node_pool" "app_pool" {
+  name                  = "apppool"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
+  vm_size               = "Standard_D2s_v3"
+  node_count            = 3
+  mode                  = "User"
+}</code></pre>
+      <p>For several distinct pools, <code>for_each</code> over a map beats copy-pasting the resource block:</p>
+      <pre><code>variable "node_pools" {
+  default = {
+    pool1 = { vm_size = "Standard_D2s_v3", node_count = 2 }
+    pool2 = { vm_size = "Standard_D4s_v3", node_count = 3 }
+    pool3 = { vm_size = "Standard_D2s_v3", node_count = 2 }
+  }
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "pools" {
+  for_each              = var.node_pools
+  name                  = each.key
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
+  vm_size               = each.value.vm_size
+  node_count            = each.value.node_count
+  mode                  = "User"
+}</code></pre>
+      <p><code>for_each</code> gives each pool a stable identity in state, keyed by name — see Q10 for why that matters.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="loops terraform count vs for_each difference stable identity destroy recreate">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-10" data-qid="aks-10" onchange="toggleMastery('aks-10', this.checked)">
+      <label for="cb-aks-10" class="qa-q">Q10. count vs for_each in Terraform — when does the choice actually matter?</label>
+    </div>
+    <div class="qa-a">
+      <p><code>count</code> is integer-indexed (<code>count.index</code>) — fine for a set of truly identical resources. <code>for_each</code> is map/set-keyed (<code>each.key</code>, <code>each.value</code>) — the right choice for named, distinct resources like node pools.</p>
+      <p>The concrete reason it matters: with <code>count</code>, removing an item from the <em>middle</em> of the list shifts every subsequent index down by one — Terraform sees that as every one of those resources changing identity, and destroys and recreates all of them, not just the one you removed. With <code>for_each</code>, each resource is tracked independently by its key, so removing <code>pool2</code> only touches <code>pool2</code>.</p>
+    </div>
+  </div>
+
+  <h3 class="subhead">Scripting &amp; Linux</h3>
+
+  <div class="qa-card" data-search="bash vs python when to use each devops automation">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-11" data-qid="aks-11" onchange="toggleMastery('aks-11', this.checked)">
+      <label for="cb-aks-11" class="qa-q">Q11. Bash vs Python — how do you decide?</label>
+    </div>
+    <div class="qa-a">
+      <p><strong>Bash</strong> for operational, glue-layer work: log parsing, health checks, kubectl wrappers, cron jobs, quick one-liners. <strong>Python</strong> for anything needing real logic: API calls, JSON manipulation, config generation, and any script that needs proper error handling and reusability beyond a one-off. In practice both, side by side — Bash for the operational layer, Python for tooling and pipeline scripts.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="find ip address nested directories grep recursive filenames line numbers">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-12" data-qid="aks-12" onchange="toggleMastery('aks-12', this.checked)">
+      <label for="cb-aks-12" class="qa-q">Q12. Find every occurrence of an IP address across nested directories.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>grep -r "192.168.1.100" /path/to/directory        # recursive search
+grep -rl "192.168.1.100" /path/to/directory        # filenames only
+grep -rn "192.168.1.100" /path/to/directory        # with line numbers
+grep -r --include="*.log" "192.168.1.100" /path    # narrow scope on large trees</code></pre>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="top 10 daily linux commands kubectl grep tail ps top df netstat systemctl awk sed">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-13" data-qid="aks-13" onchange="toggleMastery('aks-13', this.checked)">
+      <label for="cb-aks-13" class="qa-q">Q13. What are your top 10 daily Linux commands?</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>kubectl</code></td><td>Cluster operations</td></tr>
+          <tr><td><code>grep -r</code></td><td>Search logs/configs</td></tr>
+          <tr><td><code>tail -f</code></td><td>Live log streaming</td></tr>
+          <tr><td><code>cat</code> / <code>less</code></td><td>File inspection</td></tr>
+          <tr><td><code>ps aux</code></td><td>Process status</td></tr>
+          <tr><td><code>top</code> / <code>htop</code></td><td>CPU/memory monitoring</td></tr>
+          <tr><td><code>df -h</code></td><td>Disk usage</td></tr>
+          <tr><td><code>netstat -lntp</code></td><td>Port/service check</td></tr>
+          <tr><td><code>systemctl</code></td><td>Service management</td></tr>
+          <tr><td><code>awk</code> / <code>sed</code></td><td>Log parsing, text processing</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3 class="subhead">Process, Security &amp; Role</h3>
+
+  <div class="qa-card" data-search="ai tools usage github copilot chatgpt claude aiops agentic automation">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-14" data-qid="aks-14" onchange="toggleMastery('aks-14', this.checked)">
+      <label for="cb-aks-14" class="qa-q">Q14. How do you use AI tools in your workflow?</label>
+    </div>
+    <div class="qa-a">
+      <p>GitHub Copilot for Terraform/Helm/shell boilerplate — meaningful speed-up on the repetitive parts. ChatGPT/Claude for architectural reasoning, debugging complex issues, and getting up to speed on unfamiliar concepts quickly. AI-assisted meeting notes for team collaboration. Currently exploring AIOps and agentic automation patterns specifically — how agents could plug into CI/CD for autonomous remediation (see the bonus AI/ML Platform chapter for the deeper version of this).</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="day to day role breakdown platform engineering sre aks eks helm argocd terraform">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-15" data-qid="aks-15" onchange="toggleMastery('aks-15', this.checked)">
+      <label for="cb-aks-15" class="qa-q">Q15. Break down your day-to-day role.</label>
+    </div>
+    <div class="qa-a">
+      <p>Sits at the intersection of platform engineering and SRE: managing AKS/EKS clusters, deploying/maintaining apps via Helm and ArgoCD, writing and maintaining Terraform, supporting CI/CD pipelines, handling production incidents (pods, nodes, networking), and maintaining observability. Plus access control (RBAC/IAM), secret management, and cost governance through resource quotas and namespace-level controls.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="devsecops secret management key vault secrets manager vault irsa managed identity trivy checkov tfsec">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-16" data-qid="aks-16" onchange="toggleMastery('aks-16', this.checked)">
+      <label for="cb-aks-16" class="qa-q">Q16. What DevSecOps practices do you actually run?</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>Secret management:</strong> Azure Key Vault, AWS Secrets Manager, HashiCorp Vault for multi-cloud centralization.</li>
+        <li><strong>IAM &amp; least privilege:</strong> IRSA on EKS, Managed Identity on AKS — no long-lived credentials anywhere.</li>
+        <li><strong>Image scanning:</strong> Trivy in CI, blocks deploys on critical CVEs.</li>
+        <li><strong>IaC scanning:</strong> Checkov / tfsec on every Terraform PR.</li>
+        <li><strong>Pipeline security:</strong> branch protection, mandatory PR review, no direct commits to main.</li>
+        <li><strong>Runtime security:</strong> NetworkPolicy to restrict lateral movement, Pod Security Standards enforced.</li>
+        <li><strong>Audit:</strong> CloudTrail / Azure Monitor for access and change trails.</li>
+      </ul>
+      <div class="followup"><strong>Cross-reference:</strong> this maps almost directly onto Chapter 3's layered security answer (Q1) and the secret-leak prevention layers (Q8) — worth explicitly connecting the two if the conversation moves between AKS-specific and general K8s security questions.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="kubernetes upgrade management aks terraform kubernetes_version surge upgrade pdb pvc">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-17" data-qid="aks-17" onchange="toggleMastery('aks-17', this.checked)">
+      <label for="cb-aks-17" class="qa-q">Q17. How do you manage a Kubernetes upgrade end to end?</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Review deprecations</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Dev → QA → Staging</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Control plane</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Node pools (surge)</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Monitor</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Promote</span>
+      </div>
+      <p>Review the version support matrix and release notes for deprecated APIs affecting current workloads; test the upgrade in dev, then QA, then staging before touching production. Control plane first, then node pools — on AKS this is done through Terraform by bumping <code>kubernetes_version</code> and running plan + apply, which is itself a nice concrete answer to "how is this not just manual VM patching."</p>
+      <p><strong>AKS-specific detail:</strong> node <em>surge</em> upgrade settings control how many nodes are replaced at a time, minimizing disruption during the node-pool rollover. For stateful workloads, PodDisruptionBudgets must be in place and PVC compatibility verified before starting. Monitor with Prometheus alerts post-upgrade and don't promote to the next environment until everything's confirmed healthy — in practice this whole flow runs through a pipeline with approval gates between environments.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="operational guardrails ci cd terraform environment promotion rbac secrets observability change management">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-18" data-qid="aks-18" onchange="toggleMastery('aks-18', this.checked)">
+      <label for="cb-aks-18" class="qa-q">Q18. What operational guardrails do you have in place?</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>CI/CD:</strong> all changes via PR, mandatory peer review, branch protection, pipeline must pass before merge.</li>
+        <li><strong>Infrastructure:</strong> Terraform-only, no manual changes — everything through plan → review → apply, separate state files per environment.</li>
+        <li><strong>Environment promotion:</strong> dev → QA → staging before production; production requires explicit approval.</li>
+        <li><strong>Kubernetes:</strong> RBAC least privilege, namespace isolation, resource quotas/limits enforced.</li>
+        <li><strong>Secrets:</strong> never in code or pipelines — always sourced from a vault/secret manager.</li>
+        <li><strong>Observability:</strong> alerts on SLO breaches, automated incident notifications, maintained runbooks.</li>
+        <li><strong>Change management:</strong> documented SOPs for infra changes, post-incident reviews for every production issue.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="subhead">Scenario: S3 Public Bucket Remediation</h3>
+
+  <div class="qa-card" data-search="s3 public bucket remediation discovery api gateway migration cutover config as code new environment onboarding">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-19" data-qid="aks-19" onchange="toggleMastery('aks-19', this.checked)">
+      <label for="cb-aks-19" class="qa-q">Q19. A JSON config file is sitting in a public S3 bucket. Walk through the full remediation.</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Discovery</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Design (API layer)</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Migration / cutover</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Lock down bucket</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Config-as-code going forward</span>
+      </div>
+      <ul>
+        <li><strong>Phase 1 — Discovery:</strong> use CloudTrail S3 access logs and CloudWatch to identify every consumer of the bucket; map which applications/services/external systems actually read the file, and classify the data's sensitivity before touching anything — you can't safely cut off access you haven't mapped.</li>
+        <li><strong>Phase 2 — Solution design:</strong> build an API service as the new access layer — <code>consumers → API Gateway → backend service → private S3 bucket</code>. The bucket policy is updated to allow access only from the backend service's IAM role, and public access block gets enabled at this point (on the plan, not yet enforced).</li>
+        <li><strong>Phase 3 — Migration &amp; cutover:</strong> deploy the API to lower environments first and validate every consumer against it; update all consumers to call the API instead of hitting S3 directly; run both paths in parallel during the transition, using CloudTrail to confirm direct S3 access has actually dropped to zero before flipping the public access block on for real.</li>
+        <li><strong>Phase 4 — Ongoing (new environment onboarding):</strong> treat the JSON file as config-as-code in Git from here on — a new environment entry is a PR, peer-reviewed, pipeline-validated against a schema (and checked for duplicates), then CI/CD deploys the update to the API service. Never hand-edit S3 and the API service separately in two places — Git is the single source of truth and the pipeline is what keeps both in sync.</li>
+      </ul>
+      <div class="followup"><strong>Likely follow-up:</strong> "Why not just lock the bucket down immediately on day one?" — because you don't yet know who's consuming it; an immediate lockdown without discovery first is how you turn a security fix into an outage. Discovery always comes before enforcement.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Built from your prep blueprint — Kubernetes internals via <a href="https://www.youtube.com/@bitbybitpro" target="_blank" rel="noopener">BitByBitPro</a>, cost strategy and platform-engineering deep dives via Samadhan Patil's Medium posts, plus a fresh AKS round straight from today's notes. 113 questions across 14 areas (13 core + 1 bonus). Progress saves automatically in this file — use the search box to jump straight to any topic, command, or scenario.
+</footer>
+
+<script>
+let masteryState = {};
+const STORAGE_KEY = 'architect-prep-mastery';
+const hasStorage = typeof window.storage !== 'undefined';
+
+async function loadProgress(){
+  if(hasStorage){
+    try{
+      const result = await window.storage.get(STORAGE_KEY);
+      if(result && result.value) masteryState = JSON.parse(result.value);
+    }catch(e){ /* nothing saved yet on first run */ }
+  }
+  applyProgressToCheckboxes();
+  updateProgressBar();
+}
+
+async function toggleMastery(id, checked){
+  if(checked) masteryState[id] = true; else delete masteryState[id];
+  updateProgressBar();
+  if(!hasStorage) return;
+  try{ await window.storage.set(STORAGE_KEY, JSON.stringify(masteryState)); }
+  catch(e){ console.error('save failed', e); }
+}
+
+function applyProgressToCheckboxes(){
+  document.querySelectorAll('.mastery-check').forEach(cb=>{
+    if(masteryState[cb.dataset.qid]) cb.checked = true;
+  });
+}
+
+function updateProgressBar(){
+  const all = document.querySelectorAll('.mastery-check');
+  const total = all.length;
+  const done = Object.keys(masteryState).length;
+  const textEl = document.getElementById('progress-text');
+  const fillEl = document.getElementById('progress-fill');
+  if(textEl) textEl.textContent = done + ' / ' + total + ' mastered';
+  if(fillEl) fillEl.style.width = (total ? (done/total*100) : 0) + '%';
+  document.querySelectorAll('.chapter').forEach(ch=>{
+    const boxes = ch.querySelectorAll('.mastery-check');
+    let d = 0;
+    boxes.forEach(b=>{ if(masteryState[b.dataset.qid]) d++; });
+    const label = ch.querySelector('.chapter-progress');
+    if(label) label.textContent = d + '/' + boxes.length;
+  });
+}
+
+function filterCards(term){
+  term = term.trim().toLowerCase();
+  let anyVisible = false;
+  document.querySelectorAll('.chapter').forEach(ch=>{
+    let chVisible = false;
+    ch.querySelectorAll('.qa-card, .scenario-card').forEach(card=>{
+      const match = !term || (card.dataset.search || '').includes(term);
+      card.classList.toggle('hidden', !match);
+      if(match) chVisible = true;
+    });
+    ch.classList.toggle('hidden', !chVisible);
+    if(chVisible) anyVisible = true;
+  });
+  const noRes = document.getElementById('no-results');
+  if(noRes) noRes.classList.toggle('show', !anyVisible);
+}
+
+async function resetProgress(){
+  if(!confirm('Clear all mastery checkmarks?')) return;
+  masteryState = {};
+  document.querySelectorAll('.mastery-check').forEach(cb=> cb.checked = false);
+  updateProgressBar();
+  if(hasStorage){
+    try{ await window.storage.set(STORAGE_KEY, JSON.stringify({})); }catch(e){}
+  }
+}
+
+function setupActiveTocTracking(){
+  const chips = Array.from(document.querySelectorAll('.toc-chip'));
+  const chipByHref = {};
+  chips.forEach(c => { chipByHref[c.getAttribute('href')] = c; });
+
+  if(!('IntersectionObserver' in window)) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const chip = chipByHref['#' + entry.target.id];
+      if(!chip) return;
+      if(entry.isIntersecting){
+        chips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        // keep the active chip scrolled into view within the horizontally-scrolling bar
+        chip.scrollIntoView({block:'nearest', inline:'nearest', behavior:'smooth'});
+      }
+    });
+  }, { rootMargin: '-140px 0px -70% 0px', threshold: 0 });
+
+  document.querySelectorAll('.chapter').forEach(ch => observer.observe(ch));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadProgress();
+  setupActiveTocTracking();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Platform Engineering &amp; Enterprise DevOps Handbook — Vol. 1-5</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+  --bg:#0a0e14; --bg2:#0e131b; --panel:#111827; --panel-border:#1f2937;
+  --text:#c9d5e0; --text-dim:#7d8ba1; --accent:#39d98a; --accent2:#f0b429;
+  --danger:#ff5d5d; --mono:'JetBrains Mono','Fira Code',Consolas,monospace;
+  --sans:'IBM Plex Sans',-apple-system,Segoe UI,sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;}
+::selection{background:var(--accent);color:#04120a;}
+
+/* ===== top bar ===== */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(10,14,20,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--panel-border);padding:14px 24px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+.brand{font-family:var(--mono);font-weight:700;color:var(--accent);font-size:15px;white-space:nowrap;}
+.brand small{display:block;color:var(--text-dim);font-weight:400;font-size:11px;letter-spacing:.04em;}
+.searchwrap{flex:1;min-width:220px;position:relative;}
+.searchwrap input{width:100%;background:var(--panel);border:1px solid var(--panel-border);color:var(--text);
+  padding:9px 12px 9px 32px;border-radius:6px;font-family:var(--mono);font-size:13px;}
+.searchwrap input:focus{outline:none;border-color:var(--accent);}
+.searchwrap::before{content:'⌕';position:absolute;left:11px;top:6px;color:var(--text-dim);font-size:16px;}
+.progress-pill{font-family:var(--mono);font-size:12px;background:var(--panel);border:1px solid var(--panel-border);
+  padding:7px 12px;border-radius:20px;color:var(--accent2);white-space:nowrap;}
+
+/* ===== volume switcher ===== */
+.volbar{max-width:1400px;margin:0 auto;padding:12px 24px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.volbar .lbl{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-right:4px;}
+.volbtn{font-family:var(--mono);font-size:12px;background:var(--panel);border:1px solid var(--panel-border);
+  color:var(--text-dim);padding:7px 14px;border-radius:20px;cursor:pointer;transition:.15s;}
+.volbtn:hover{color:var(--text);border-color:var(--text-dim);}
+.volbtn.active{background:rgba(57,217,138,.12);border-color:var(--accent);color:var(--accent);}
+
+/* ===== layout ===== */
+.shell{display:flex;max-width:1400px;margin:0 auto;}
+.sidebar{width:250px;flex-shrink:0;padding:20px 12px;position:sticky;top:62px;align-self:flex-start;
+  max-height:calc(100vh - 62px);overflow-y:auto;}
+.sidebar a{display:flex;justify-content:space-between;gap:6px;color:var(--text-dim);text-decoration:none;
+  padding:8px 10px;border-radius:6px;font-size:13px;margin-bottom:2px;border-left:2px solid transparent;}
+.sidebar a:hover{background:var(--panel);color:var(--text);}
+.sidebar a.active{color:var(--accent);border-left-color:var(--accent);background:var(--panel);}
+.sidebar a .ct{font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+.main{flex:1;padding:28px 32px 90px;min-width:0;}
+
+/* ===== hero ===== */
+.hero{border:1px solid var(--panel-border);background:linear-gradient(160deg,#0e1b16,var(--panel) 60%);
+  border-radius:12px;padding:26px 28px;margin-bottom:30px;}
+.hero h1{margin:0 0 6px;font-size:24px;color:#fff;}
+.hero p{margin:0;color:var(--text-dim);font-size:14px;max-width:760px;}
+.hero .tags{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;}
+.hero .tags span{font-family:var(--mono);font-size:11px;background:rgba(57,217,138,.1);color:var(--accent);
+  border:1px solid rgba(57,217,138,.3);padding:3px 9px;border-radius:20px;}
+
+/* ===== chapter blocks ===== */
+.chapter{margin-bottom:46px;scroll-margin-top:75px;}
+.chapter-head{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--panel-border);
+  padding-bottom:10px;margin-bottom:16px;}
+.chapter-head .num{font-family:var(--mono);color:var(--accent2);font-size:13px;}
+.chapter-head h2{font-size:19px;margin:0;color:#fff;}
+.chapter-intro{color:var(--text-dim);font-size:13.5px;margin-bottom:18px;}
+
+/* ===== qa cards ===== */
+.qa{border:1px solid var(--panel-border);background:var(--panel);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+.qa summary{list-style:none;cursor:pointer;padding:13px 16px;display:flex;gap:12px;align-items:flex-start;
+  font-size:14px;color:var(--text);}
+.qa summary::-webkit-details-marker{display:none;}
+.qa summary .chev{font-family:var(--mono);color:var(--text-dim);flex-shrink:0;transition:transform .15s;}
+.qa[open] summary .chev{transform:rotate(90deg);color:var(--accent);}
+.qa .mastered-box{flex-shrink:0;width:17px;height:17px;border:1px solid var(--text-dim);border-radius:4px;
+  margin-top:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.qa .mastered-box.on{background:var(--accent);border-color:var(--accent);color:#04120a;}
+.qa .body{padding:0 16px 16px 45px;color:var(--text-dim);font-size:13.5px;}
+.qa .body p{margin:0 0 10px;}
+.qa .body code{background:#0a0e14;padding:1px 6px;border-radius:4px;color:var(--accent2);font-family:var(--mono);font-size:12px;}
+.qa .body pre{background:#0a0e14;border:1px solid var(--panel-border);border-radius:8px;padding:12px 14px;
+  overflow-x:auto;font-family:var(--mono);font-size:12px;color:#a8e6c1;margin:10px 0;}
+.qa .body ul{margin:6px 0 10px;padding-left:18px;}
+.qa .tag-row{margin-top:8px;}
+.qa .tag-row span{font-family:var(--mono);font-size:10px;color:var(--text-dim);background:#0a0e14;
+  padding:2px 7px;border-radius:10px;margin-right:5px;}
+
+/* ===== diagram box ===== */
+.diagram-box{border:1px solid var(--panel-border);background:#0a0e14;border-radius:10px;padding:18px;margin:16px 0 22px;}
+.diagram-box .cap{font-family:var(--mono);font-size:11px;color:var(--accent2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;}
+.diagram-box svg text{font-family:var(--mono);}
+
+/* ===== scenario ===== */
+.scenario{border-left:3px solid var(--danger);background:rgba(255,93,93,.06);border-radius:0 8px 8px 0;
+  padding:14px 16px;margin:14px 0;font-size:13.5px;}
+.scenario .sh{font-family:var(--mono);color:var(--danger);font-size:12px;margin-bottom:6px;}
+
+footer{text-align:center;color:var(--text-dim);font-size:12px;padding:30px 0;font-family:var(--mono);}
+.hidden{display:none !important;}
+@media(max-width:900px){.sidebar{display:none;} .main{padding:20px;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">PLATFORM/ENGX<small>Enterprise Interview Handbook · Vol. 1-5</small></div>
+  <div class="searchwrap"><input id="search" placeholder="search questions, topics, tags... (e.g. argocd, oidc, drift)"></div>
+  <div class="progress-pill" id="progressPill">0 / 0 mastered</div>
+</div>
+
+<div class="volbar" id="volbar">
+  <span class="lbl">READING:</span>
+  <button class="volbtn" data-vol="all">All Volumes</button>
+  <button class="volbtn" data-vol="1">Vol. 1 — Platform &amp; GitOps Foundations (Ch 1–8)</button>
+  <button class="volbtn" data-vol="2">Vol. 2 — Terraform, K8s Scale &amp; Observability (Ch 9–12)</button>
+  <button class="volbtn" data-vol="3">Vol. 3 — Architecture, Troubleshooting &amp; Interview Rounds (Ch 13–16)</button>
+  <button class="volbtn" data-vol="4">Vol. 4 — Networking &amp; Hands-On Labs (Ch 17–19)</button>
+  <button class="volbtn" data-vol="5">Vol. 5 — Cloud Architecture, Compliance &amp; Leadership (Ch 20–22)</button>
+</div>
+
+<div class="shell">
+  <nav class="sidebar" id="sidebar"></nav>
+  <main class="main">
+
+    <div class="hero">
+      <h1>Enterprise Platform Engineering &amp; DevOps — Complete Handbook</h1>
+      <p><strong>Vol. 1 (Ch 1–8):</strong> Platform Engineering foundations, GitHub Enterprise administration, Enterprise GitHub Actions,
+      Enterprise GitOps (Argo CD), Helm at scale, CI/CD Supply-Chain Security.
+      <strong>Vol. 2 (Ch 9–12):</strong> Terraform Enterprise, Kubernetes at scale, the modern Observability stack, Incident
+      Management / SLI-SLO / error budgets.
+      <strong>Vol. 3 (Ch 13–16):</strong> Architecture design questions, an expanded production troubleshooting quick-reference
+      (19 scenarios spanning Kubernetes internals, etcd, CNI, CI/CD), Python/Bash automation, and mock interview rounds by seniority.
+      <strong>Vol. 4 (Ch 17–19):</strong> Enterprise networking (VPC peering vs Transit Gateway, mTLS, Private Endpoints,
+      hybrid DNS), plus hands-on Terraform and Kubernetes labs with runnable code and validation steps.
+      <strong>Vol. 5 (Ch 20–22, new):</strong> AWS/Azure architecture &amp; FinOps (landing zones, IAM vs Conditional Access,
+      cost optimization), regulated-industry change management (ITIL/CAB, PCI-DSS, SOX audit evidence — bank-interview specific),
+      and AVP-level people leadership (team design, hiring, budget ownership, influence, mentoring).
+      Built for Senior SRE / Platform Engineer / DevOps Architect / AVP-level interviews.</p>
+      <div class="tags"><span>Use the READING bar to jump to a volume</span><span>Click ✓ to mark mastered</span><span>Type to filter live</span></div>
+    </div>
+
+    <div id="chapters"></div>
+
+    <footer>Volumes 1-5 complete — 22 chapters. Use the READING selector above to focus on one volume, or "All Volumes" to browse everything.</footer>
+  </main>
+</div>
+
+<script>
+const DATA = [
+{
+  id:"ch1", vol:1, title:"Chapter 1 — What Is Platform Engineering?",
+  intro:"The differentiator question in almost every senior interview: can you articulate why Platform Engineering exists as a discipline distinct from DevOps and SRE, not just define it.",
+  diagram:{cap:"DevOps vs SRE vs Platform Engineering — where each sits",
+    svg:`<svg viewBox="0 0 760 200" width="100%">
+      <rect x="10" y="30" width="220" height="140" rx="10" fill="none" stroke="#39d98a" stroke-width="1.5"/>
+      <text x="120" y="55" fill="#39d98a" font-size="13" text-anchor="middle">DevOps (culture)</text>
+      <text x="120" y="80" fill="#7d8ba1" font-size="11" text-anchor="middle">Dev + Ops collaboration</text>
+      <text x="120" y="98" fill="#7d8ba1" font-size="11" text-anchor="middle">CI/CD, automation mindset</text>
+      <text x="120" y="116" fill="#7d8ba1" font-size="11" text-anchor="middle">Every team owns its pipeline</text>
+
+      <rect x="270" y="30" width="220" height="140" rx="10" fill="none" stroke="#f0b429" stroke-width="1.5"/>
+      <text x="380" y="55" fill="#f0b429" font-size="13" text-anchor="middle">SRE (discipline)</text>
+      <text x="380" y="80" fill="#7d8ba1" font-size="11" text-anchor="middle">SLI / SLO / error budgets</text>
+      <text x="380" y="98" fill="#7d8ba1" font-size="11" text-anchor="middle">Reliability engineering</text>
+      <text x="380" y="116" fill="#7d8ba1" font-size="11" text-anchor="middle">On-call, incident response</text>
+
+      <rect x="530" y="30" width="220" height="140" rx="10" fill="none" stroke="#5da8ff" stroke-width="1.5"/>
+      <text x="640" y="55" fill="#5da8ff" font-size="13" text-anchor="middle">Platform Eng (product)</text>
+      <text x="640" y="80" fill="#7d8ba1" font-size="11" text-anchor="middle">Self-service IDP</text>
+      <text x="640" y="98" fill="#7d8ba1" font-size="11" text-anchor="middle">Golden paths / templates</text>
+      <text x="640" y="116" fill="#7d8ba1" font-size="11" text-anchor="middle">Platform-as-a-product for devs</text>
+
+      <text x="380" y="190" fill="#7d8ba1" font-size="11" text-anchor="middle">All three overlap in practice — the interview signal is knowing which team owns which outcome</text>
+    </svg>`},
+  qa:[
+    {q:"What problems does Platform Engineering solve?",
+     a:`<p>Without a platform team, every application team re-solves the same problems: CI/CD wiring, Kubernetes manifests, secrets management, observability, and security scanning. That produces N inconsistent implementations, N security postures, and N onboarding curves.</p>
+        <p>Platform Engineering treats infrastructure capability as an <strong>internal product</strong>. It builds paved, self-service paths (a portal, golden templates, reusable workflows) so product teams consume capability instead of rebuilding it. The org gets consistency, auditability, and faster onboarding; developers get to stay focused on business logic.</p>
+        <p><strong>Concrete example:</strong> instead of 200 teams writing their own GitHub Actions, the platform team ships <code>deploy-java.yml</code>, <code>deploy-node.yml</code>, <code>deploy-python.yml</code> as reusable workflows, and every repo just does:</p>
+        <pre>uses: company/platform/.github/workflows/deploy-java.yml@v3</pre>`,
+     tags:["platform-engineering","fundamentals"]},
+    {q:"How is Platform Engineering different from DevOps?",
+     a:`<p>DevOps is a cultural philosophy — breaking down the wall between Dev and Ops so teams own their own pipeline end-to-end. It doesn't prescribe who builds the tooling.</p>
+        <p>Platform Engineering is the practical answer to DevOps at scale: when every team owning its own pipeline creates duplicated, inconsistent tooling, a dedicated platform team builds the paved road so teams don't have to be infra experts to ship. Platform Engineering is DevOps with an internal product team behind it.</p>`,
+     tags:["platform-engineering","devops"]},
+    {q:"How is Platform Engineering different from SRE?",
+     a:`<p>SRE is primarily about <em>reliability outcomes</em> — SLOs, error budgets, incident response, capacity, toil reduction — often applied to a specific service or set of services.</p>
+        <p>Platform Engineering is primarily about <em>developer experience and leverage</em> — building the tooling and abstractions that let every team ship reliably without reinventing infrastructure. In many orgs, SRE principles (SLOs, error budgets) are what the platform team uses to justify and prioritize its own roadmap; the platform is what SREs stand on.</p>`,
+     tags:["platform-engineering","sre"]},
+    {q:"How would you measure whether a platform is succeeding?",
+     a:`<p>Standard signals interviewers want to hear:</p>
+        <ul>
+          <li><strong>Adoption</strong> — % of services onboarded to golden paths / IDP</li>
+          <li><strong>Lead time</strong> — time from "new service idea" to "first deploy to prod"</li>
+          <li><strong>Cognitive load reduction</strong> — developer survey / NPS on the platform, ticket volume for infra support</li>
+          <li><strong>Reliability</strong> — % of services meeting SLOs, drift incidents, security findings per service</li>
+          <li><strong>Self-service ratio</strong> — % of provisioning done without a platform engineer in the loop</li>
+        </ul>
+        <p>Treating the platform as a product means running it against a roadmap and usage metrics, not just uptime.</p>`,
+     tags:["platform-engineering","metrics"]},
+  ]
+},
+{
+  id:"ch2", vol:1, title:"Chapter 2 — Internal Developer Platform (IDP)",
+  intro:"Backstage-style portals, service catalogs, and self-service provisioning come up constantly at AVP/architect level — expect a whiteboard design question.",
+  qa:[
+    {q:"How would you design an Internal Developer Platform from scratch?",
+     a:`<p>Structure the answer around four layers:</p>
+        <ul>
+          <li><strong>Developer Portal</strong> — Backstage (or similar) as the single pane of glass: service catalog, docs, scorecards, "create new service" templates.</li>
+          <li><strong>Golden templates</strong> — scaffolds that generate Dockerfile, Terraform, GitHub Actions workflow, Argo CD app, Helm chart, README, and security tooling wiring (Sonar, Trivy, Dependabot) in one command.</li>
+          <li><strong>Provisioning layer</strong> — Terraform modules + a thin API (or Crossplane/Terraform Cloud) so infra requests are declarative and reviewable, not tickets.</li>
+          <li><strong>Guardrails</strong> — OPA/Sentinel policy checks baked into the templates so "self-service" never means "ungoverned."</li>
+        </ul>
+        <p>Close by naming the tradeoff: over-standardizing kills team autonomy; under-standardizing recreates the sprawl problem. The platform's job is to make the golden path the easiest path, not the only path.</p>`,
+     tags:["idp","backstage","design-question"]},
+    {q:"How do you reduce cognitive load for application teams?",
+     a:`<p>Team Topologies' language is the expected frame here: a <em>platform team</em> should expose infra as <strong>thinnable, self-service APIs</strong> so <em>stream-aligned teams</em> don't need deep infra expertise.</p>
+        <p>Concretely: golden templates that pre-wire CI/CD and security; a service catalog with scorecards instead of tribal knowledge; sane defaults with escape hatches (a team can override, but the default just works); and abstracting Kubernetes/Terraform complexity behind a portal action rather than requiring YAML fluency from every developer.</p>`,
+     tags:["idp","cognitive-load","team-topologies"]},
+    {q:"What's the difference between a service catalog and a software catalog?",
+     a:`<p>Interviewers use these terms loosely, but the precise distinction: a <strong>service catalog</strong> tracks runtime services (ownership, SLOs, on-call, dependencies). A <strong>software catalog</strong> (Backstage's core model) is broader — it also tracks libraries, APIs, websites, and resources, with entities related to each other via a graph (a service <em>depends on</em> a library, <em>is part of</em> a system).</p>`,
+     tags:["idp","backstage"]},
+    {q:"How do scorecards drive platform adoption without being punitive?",
+     a:`<p>Scorecards (Backstage Tech Insights, or homegrown) grade each service against golden-path checks — has SLOs defined, dependency scanning enabled, on-call rotation configured, up-to-date base image. Framed correctly they're a <em>self-service diagnostic</em>, not a compliance stick: teams see their own gaps and a one-click remediation (usually re-running the golden template) rather than getting a ticket from a central team. That framing is what actually drives adoption.</p>`,
+     tags:["idp","scorecards"]},
+  ]
+},
+{
+  id:"ch3", vol:1, title:"Chapter 3 — Golden Paths",
+  intro:"Golden paths are the single most concrete, demo-able artifact of a platform team — have a real example ready.",
+  qa:[
+    {q:"Why do Golden Templates matter, and what goes inside one?",
+     a:`<p>A golden template encodes the org's best practice once, so every new service inherits it instead of a developer re-deciding it. A typical scaffold produces, on <code>platform create-service</code>:</p>
+        <pre>my-service/
+├── Dockerfile
+├── terraform/            # infra-as-code for this service's resources
+├── .github/workflows/    # calls the platform's reusable CI/CD workflow
+├── argocd/application.yaml
+├── helm/                 # chart + values per environment
+├── README.md
+├── sonar-project.properties
+├── .trivyignore
+└── .github/dependabot.yml</pre>
+        <p>Everything downstream — security scanning, GitOps sync, observability wiring — is already correct on day one, without the team needing to know Argo CD or Trivy exists.</p>`,
+     tags:["golden-path","templates"]},
+    {q:"How do you standardize deployments across hundreds of teams without becoming a bottleneck?",
+     a:`<p>Standardize the <em>mechanism</em>, not the <em>decision rights</em>. Reusable GitHub Actions workflows and Helm library charts mean the platform team maintains one implementation; teams consume it via a version pin (<code>@v3</code>) and can upgrade on their own schedule. Changes to the golden path are versioned and opt-in, so the platform team isn't a change-approval gate for every deploy — they own the paved road, not the traffic on it.</p>`,
+     tags:["golden-path","scale"]},
+    {q:"What happens when a team needs to deviate from the golden path?",
+     a:`<p>This is a maturity signal in interviews — the expected answer is not "we don't allow it." Golden paths should have documented escape hatches: a team can fork the template or override specific stages, but loses some of the automatic guarantees (e.g., they now own their own Trivy config). The platform should track these deviations (via the catalog/scorecards) so they're visible, not silently unmanaged.</p>`,
+     tags:["golden-path","governance"]},
+  ]
+},
+{
+  id:"ch4", vol:1, title:"Chapter 4 — GitHub Enterprise Administration",
+  intro:"Org structure, SSO/SCIM, repo strategy, and branch protection — the operational backbone questions for any GitHub-centric platform role.",
+  diagram:{cap:"GitHub Enterprise identity &amp; access model",
+    svg:`<svg viewBox="0 0 760 210" width="100%">
+      <rect x="20" y="20" width="180" height="50" rx="8" fill="none" stroke="#5da8ff"/>
+      <text x="110" y="50" fill="#5da8ff" font-size="12" text-anchor="middle">Azure AD / Okta (IdP)</text>
+      <line x1="200" y1="45" x2="270" y2="45" stroke="#7d8ba1"/>
+      <text x="235" y="38" fill="#7d8ba1" font-size="10" text-anchor="middle">SCIM</text>
+      <rect x="270" y="20" width="180" height="50" rx="8" fill="none" stroke="#39d98a"/>
+      <text x="360" y="50" fill="#39d98a" font-size="12" text-anchor="middle">GitHub Enterprise Account</text>
+      <line x1="450" y1="45" x2="520" y2="45" stroke="#7d8ba1"/>
+      <text x="485" y="38" fill="#7d8ba1" font-size="10" text-anchor="middle">SSO</text>
+      <rect x="520" y="20" width="200" height="50" rx="8" fill="none" stroke="#f0b429"/>
+      <text x="620" y="50" fill="#f0b429" font-size="12" text-anchor="middle">Org(s) → Teams → Repos</text>
+
+      <text x="110" y="100" fill="#7d8ba1" font-size="11" text-anchor="middle">Provisions users/groups</text>
+      <text x="360" y="100" fill="#7d8ba1" font-size="11" text-anchor="middle">Policies, audit log, billing</text>
+      <text x="620" y="100" fill="#7d8ba1" font-size="11" text-anchor="middle">Nested teams mirror IdP groups</text>
+
+      <rect x="200" y="130" width="360" height="60" rx="8" fill="none" stroke="#39d98a" stroke-dasharray="4"/>
+      <text x="380" y="153" fill="#39d98a" font-size="11" text-anchor="middle">Branch protection · CODEOWNERS · required checks</text>
+      <text x="380" y="172" fill="#7d8ba1" font-size="10" text-anchor="middle">enforced per-repo via rulesets, not tribal knowledge</text>
+    </svg>`},
+  qa:[
+    {q:"Difference between a GitHub App and a Personal Access Token?",
+     a:`<p>A <strong>PAT</strong> impersonates a human — it inherits that user's permissions, doesn't rotate automatically, and becomes a liability the moment that person leaves. A <strong>GitHub App</strong> is a first-class identity with its own fine-grained, repo-scoped permissions and short-lived installation tokens (~1 hour). For any automation (CI bots, platform tooling, GitOps controllers) GitHub Apps are the enterprise-correct answer; fine-grained PATs are the fallback only when an App isn't feasible.</p>`,
+     tags:["github-enterprise","auth","github-app"]},
+    {q:"How do you manage access and onboarding across 500+ repositories?",
+     a:`<p>Never grant repo-level access directly. Model permissions via <strong>nested teams</strong> that mirror the org chart / IdP groups (synced via SCIM), and grant those teams access at the <em>organization</em> or <em>repo-group</em> level. Onboarding a new engineer becomes "add to IdP group" — GitHub team membership and repo access follow automatically. For repo creation itself, gate it through a golden-template/self-service flow rather than ad-hoc "New Repository" clicks, so naming, branch protection, and CODEOWNERS are consistent from repo #1.</p>`,
+     tags:["github-enterprise","teams","scale"]},
+    {q:"Monorepo vs polyrepo — how do you decide, and what breaks at scale?",
+     a:`<p><strong>Monorepo</strong> pros: atomic cross-service changes, unified tooling/versioning, easier large-scale refactors. Cons: CI scaling (need path-filtering/Bazel-style incremental builds), tooling complexity, blast radius of a bad commit.</p>
+        <p><strong>Polyrepo</strong> pros: clear ownership boundaries, independent release cadence, smaller blast radius. Cons: dependency drift across repos, harder cross-cutting refactors, N pipelines to maintain (which is exactly what reusable workflows solve).</p>
+        <p>Answer with a decision rule: monorepo suits tightly coupled teams/services with frequent cross-cutting changes (e.g., a shared platform + its plugins); polyrepo suits independently deployable services owned by autonomous teams. Many large orgs land on a hybrid — a few strategic monorepos plus polyrepo for the long tail.</p>`,
+     tags:["github-enterprise","repo-strategy"]},
+    {q:"How do CODEOWNERS, branch protection, and required reviews work together?",
+     a:`<p>They form layered governance: a <strong>ruleset/branch protection</strong> rule requires PRs (no direct pushes to <code>main</code>) and N approving reviews plus passing status checks. <strong>CODEOWNERS</strong> determines <em>who</em> must approve — mapping paths to teams (e.g., <code>/terraform/ → @platform-team</code>) so the right domain expert reviews the right change automatically. Combined with signed commits and required linear history, this gives an auditable, tamper-evident trail of exactly who approved what before it reached production — a common SOC2/audit interview probe.</p>`,
+     tags:["github-enterprise","codeowners","governance"]},
+    {q:"How would you stop direct commits to main across an entire enterprise?",
+     a:`<p>Individual repo-level branch protection doesn't scale to 500+ repos. Use <strong>organization-level rulesets</strong> (GitHub Enterprise) applied by pattern (e.g., all repos matching <code>service-*</code>) so the policy is enforced centrally and can't be silently disabled per-repo by a repo admin. Pair with required status checks pointing at the platform's reusable CI workflow, so "protected" also means "actually tested," not just "reviewed."</p>`,
+     tags:["github-enterprise","governance","rulesets"]},
+  ]
+},
+{
+  id:"ch5", vol:1, title:"Chapter 5 — Enterprise GitHub Actions",
+  intro:"Reusable workflows, self-hosted runners, OIDC, and scaling CI/CD across hundreds of repos.",
+  diagram:{cap:"Production CI/CD pipeline via reusable workflow",
+    svg:`<svg viewBox="0 0 760 320" width="100%">
+      ${["Developer push","GitHub (PR)","Reusable Workflow","SonarQube (quality)","Trivy (image scan)","Build & Test","Docker Build","Push to Registry (OIDC)","Terraform Plan/Apply","Argo CD Sync"]
+        .map((label,i)=>`<rect x="${300}" y="${10+i*32}" width="220" height="24" rx="5" fill="none" stroke="${i%3==0?'#39d98a':i%3==1?'#f0b429':'#5da8ff'}"/>
+        <text x="410" y="${27+i*32}" fill="#c9d5e0" font-size="11" text-anchor="middle">${label}</text>
+        ${i<9?`<line x1="410" y1="${34+i*32}" x2="410" y2="${42+i*32}" stroke="#7d8ba1"/>`:''}`).join("")}
+    </svg>`},
+  qa:[
+    {q:"How do you manage CI/CD for 600 repositories without 600 duplicated pipelines?",
+     a:`<p>Centralize the logic in a small set of <strong>reusable workflows</strong> (<code>workflow_call</code>) owned by the platform team — one per language/runtime (<code>deploy-java.yml</code>, <code>deploy-node.yml</code>). Each application repo's workflow file is a thin caller:</p>
+        <pre>jobs:
+  deploy:
+    uses: org/platform-workflows/.github/workflows/deploy-java.yml@v3
+    with:
+      service-name: payments-api
+    secrets: inherit</pre>
+        <p>Updates to security scanning, build steps, or deployment logic happen in one place and roll out via version bump, not 600 individual PRs. Composite actions handle smaller reusable steps (e.g., "login to Azure") within those workflows.</p>`,
+     tags:["github-actions","reusable-workflows","scale"]},
+    {q:"How do you secure self-hosted runners running inside Kubernetes?",
+     a:`<p>Key controls interviewers look for:</p>
+        <ul>
+          <li><strong>Ephemeral runners</strong> (Actions Runner Controller / runner scale sets) — one job per pod, destroyed after, so there's no persistent compromised state.</li>
+          <li><strong>Network policy</strong> restricting egress from runner pods to only what CI needs (registry, artifact store) — prevents a compromised dependency from exfiltrating.</li>
+          <li><strong>No shared runner pools across trust boundaries</strong> — public-repo/fork PRs never run on the same runner group as internal repos (prevents PR-based secret exfiltration).</li>
+          <li><strong>OIDC instead of long-lived cloud credentials</strong> for anything the runner needs to authenticate to (AWS/Azure).</li>
+          <li>Runner Groups scoped by repo/org so a compromised low-trust repo can't reach high-trust runners.</li>
+        </ul>`,
+     tags:["github-actions","runners","kubernetes","security"]},
+    {q:"Explain GitHub OIDC and why it replaces long-lived cloud credentials.",
+     a:`<p>Instead of storing an AWS access key or Azure client secret in GitHub Secrets (long-lived, leak risk, manual rotation), the workflow requests a short-lived OIDC token from GitHub's token issuer. The cloud provider (AWS IAM / Azure AD) has a trust relationship configured to accept that token if it matches conditions — repo, branch, environment — and issues temporary credentials scoped to a role. No static secret ever exists; the token is valid for the job's duration only. This is now the default-recommended pattern for cloud auth from CI in every major cloud's docs.</p>`,
+     tags:["github-actions","oidc","security"]},
+    {q:"A GitHub Actions workflow's runtime doubles overnight — how do you investigate?",
+     a:`<div class="scenario"><div class="sh">TROUBLESHOOTING SCENARIO</div>
+        Check, in order: (1) cache hit rate — did a cache key change (lockfile hash) and force a cold dependency install; (2) runner contention — self-hosted runner pool saturated, jobs queueing rather than running; (3) matrix build changes — did someone add matrix dimensions without adjusting parallelism/concurrency limits; (4) a new required status check serializing what used to run in parallel; (5) upstream dependency (registry, base image pull) latency. Pull the workflow run's timing breakdown per step first — don't guess before you have the step-level numbers.</div>`,
+     tags:["github-actions","troubleshooting"]},
+    {q:"How do Environments and environment protection rules work in enterprise CI/CD?",
+     a:`<p>A GitHub <strong>Environment</strong> (e.g., <code>production</code>) can require manual approval from specific reviewers, wait timers, and branch restrictions before a job targeting it proceeds — and it scopes secrets so production credentials are literally unreachable from a workflow run targeting <code>staging</code>. Combined with <code>concurrency</code> groups, this also prevents two deploys to the same environment racing each other.</p>`,
+     tags:["github-actions","environments"]},
+  ]
+},
+{
+  id:"ch6", vol:1, title:"Chapter 6 — Enterprise GitOps (Argo CD)",
+  intro:"App-of-Apps, ApplicationSets, and repo structure for hundreds of applications across dev/qa/stage/prod — a near-guaranteed architecture design question at Senior/AVP level.",
+  diagram:{cap:"App-of-Apps pattern across environments",
+    svg:`<svg viewBox="0 0 760 260" width="100%">
+      <rect x="300" y="10" width="160" height="40" rx="8" fill="none" stroke="#39d98a"/>
+      <text x="380" y="35" fill="#39d98a" font-size="12" text-anchor="middle">root App-of-Apps</text>
+      <line x1="380" y1="50" x2="150" y2="90" stroke="#7d8ba1"/>
+      <line x1="380" y1="50" x2="380" y2="90" stroke="#7d8ba1"/>
+      <line x1="380" y1="50" x2="610" y2="90" stroke="#7d8ba1"/>
+      <rect x="70" y="90" width="160" height="40" rx="8" fill="none" stroke="#f0b429"/>
+      <text x="150" y="115" fill="#f0b429" font-size="11" text-anchor="middle">env: dev (ApplicationSet)</text>
+      <rect x="300" y="90" width="160" height="40" rx="8" fill="none" stroke="#f0b429"/>
+      <text x="380" y="115" fill="#f0b429" font-size="11" text-anchor="middle">env: stage (ApplicationSet)</text>
+      <rect x="530" y="90" width="160" height="40" rx="8" fill="none" stroke="#f0b429"/>
+      <text x="610" y="115" fill="#f0b429" font-size="11" text-anchor="middle">env: prod (ApplicationSet)</text>
+
+      <line x1="150" y1="130" x2="150" y2="165" stroke="#7d8ba1"/>
+      <line x1="380" y1="130" x2="380" y2="165" stroke="#7d8ba1"/>
+      <line x1="610" y1="130" x2="610" y2="165" stroke="#7d8ba1"/>
+      <rect x="60" y="165" width="180" height="55" rx="8" fill="none" stroke="#5da8ff" stroke-dasharray="3"/>
+      <text x="150" y="188" fill="#5da8ff" font-size="10" text-anchor="middle">100s of generated</text>
+      <text x="150" y="203" fill="#5da8ff" font-size="10" text-anchor="middle">Application CRs (dev)</text>
+      <rect x="290" y="165" width="180" height="55" rx="8" fill="none" stroke="#5da8ff" stroke-dasharray="3"/>
+      <text x="380" y="188" fill="#5da8ff" font-size="10" text-anchor="middle">generated Applications</text>
+      <text x="380" y="203" fill="#5da8ff" font-size="10" text-anchor="middle">(stage, sync windows)</text>
+      <rect x="520" y="165" width="180" height="55" rx="8" fill="none" stroke="#5da8ff" stroke-dasharray="3"/>
+      <text x="610" y="188" fill="#5da8ff" font-size="10" text-anchor="middle">generated Applications</text>
+      <text x="610" y="203" fill="#5da8ff" font-size="10" text-anchor="middle">(prod, manual sync + RBAC)</text>
+    </svg>`},
+  qa:[
+    {q:"Explain the App-of-Apps pattern and when to avoid it.",
+     a:`<p>App-of-Apps is a single root Argo CD <code>Application</code> whose "source" is a directory of other <code>Application</code> manifests — deploying it bootstraps the whole tree. It's excellent for bootstrapping a cluster or environment from one <code>kubectl apply</code>, and for keeping application definitions declarative and reviewable.</p>
+        <p><strong>Avoid it</strong> at very large scale (hundreds/thousands of apps) where you'd otherwise hand-maintain hundreds of static Application manifests — that's what <strong>ApplicationSets</strong> exist to generate dynamically instead. In practice: App-of-Apps for structure/bootstrapping, ApplicationSets for generation at scale. Also avoid deep nesting (apps-of-apps-of-apps) — it makes sync-wave ordering and RBAC hard to reason about.</p>`,
+     tags:["gitops","argocd","app-of-apps"]},
+    {q:"How do ApplicationSets simplify multi-cluster / multi-app deployments?",
+     a:`<p>An <code>ApplicationSet</code> uses a <strong>generator</strong> (list, cluster, git-directory, git-files, matrix, pull-request) to template out Application manifests dynamically. E.g., a <code>git generator</code> pointed at <code>apps/*/values-prod.yaml</code> automatically creates one Application per directory — add a new service directory in git, and Argo CD creates its Application with no manual YAML. A <code>cluster generator</code> does the same fan-out across every registered cluster, which is how you deploy one app definition consistently to 50 clusters.</p>`,
+     tags:["gitops","argocd","applicationsets"]},
+    {q:"How would you separate platform, application, and environment repositories?",
+     a:`<p>A common enterprise repo structure:</p>
+        <pre>platform/           # cluster bootstrap, ArgoCD itself, shared infra Helm charts
+applications/       # per-service Application/ApplicationSet manifests (source of truth for "what runs")
+environments/       # per-env values overlays (dev/qa/stage/prod) — sync waves, replica counts, resource limits
+clusters/           # cluster-specific config (ingress classes, node pools)
+shared/helm/        # library charts consumed by many services
+shared/terraform/   # reusable TF modules
+</pre>
+        <p>The separation matters for <strong>blast radius and review ownership</strong>: a change to <code>environments/prod</code> needs stricter review (CODEOWNERS + required approvers) than a values tweak in <code>dev</code>. It also lets platform-level changes (new shared chart) roll out independently of any single application's deploy cadence.</p>`,
+     tags:["gitops","repo-structure"]},
+    {q:"How do you implement progressive delivery with Argo CD?",
+     a:`<p>Argo CD itself does sync, not progressive rollout — pair it with <strong>Argo Rollouts</strong> for canary/blue-green. The Rollout CR replaces the Deployment; Argo CD syncs the Rollout manifest, and Argo Rollouts drives traffic shifting (via a service mesh or ingress controller) while watching metrics (Prometheus queries via an AnalysisTemplate) to auto-promote or auto-rollback. This is the standard answer for "how do you do canary deploys the GitOps way."</p>`,
+     tags:["gitops","argo-rollouts","progressive-delivery"]},
+    {q:"How do you prevent accidental production deployments in a GitOps model?",
+     a:`<ul>
+        <li><strong>Manual sync policy</strong> for the prod ApplicationSet/Application (not <code>automated: {}</code>) so a git merge doesn't auto-apply — a human triggers sync.</li>
+        <li><strong>Sync windows</strong> restricting when prod can sync at all (e.g., block Friday evenings).</li>
+        <li><strong>RBAC</strong> in Argo CD scoping who can sync the <code>prod</code> AppProject — separate from who can merge to the environments/prod git path.</li>
+        <li><strong>CODEOWNERS</strong> requiring platform/SRE approval on any PR touching <code>environments/prod/*</code>.</li>
+        <li><strong>Sync waves + health checks</strong> so even an approved sync halts if a dependent resource fails health checks mid-rollout.</li>
+        </ul>`,
+     tags:["gitops","argocd","governance"]},
+    {q:"Argo CD shows OutOfSync but the live Kubernetes resources look correct — what do you investigate?",
+     a:`<div class="scenario"><div class="sh">TROUBLESHOOTING SCENARIO</div>
+        This is almost always a <strong>diffing false-positive</strong>, not a real drift. Common causes: (1) a mutating admission webhook or defaulting controller adding fields Argo CD doesn't know to ignore (fix: <code>ignoreDifferences</code> in the Application spec); (2) HPA actively managing <code>replicas</code> while the manifest also sets a static value (exclude the field); (3) a Helm chart producing non-deterministic output (e.g., timestamps in annotations) on every render; (4) another controller (e.g., a service mesh sidecar injector) modifying the live object post-deploy. Diagnose with <code>argocd app diff</code> to see the exact field-level diff before assuming it's a real problem.</div>`,
+     tags:["gitops","argocd","troubleshooting"]},
+  ]
+},
+{
+  id:"ch7", vol:1, title:"Chapter 7 — Helm Enterprise",
+  intro:"Umbrella charts, values hierarchy, and Kustomize vs Helm — a recurring 'compare the tools' question.",
+  qa:[
+    {q:"Difference between Kustomize and Helm — when do you use each?",
+     a:`<p><strong>Kustomize</strong> is patch-based and templating-free: it takes plain YAML and applies overlays (strategic merge patches) per environment. No templating language, so it's easy to read and diff, but weaker for parameterization and packaging/distribution.</p>
+        <p><strong>Helm</strong> is a full templating engine plus a package manager (charts, versioning, an OCI-compatible registry, hooks, dependency management via subcharts). Better for distributing reusable, versioned packages (e.g., "the Postgres chart every team consumes") and complex conditional logic.</p>
+        <p><strong>Rule of thumb</strong> often used in interviews: Kustomize for environment-specific overlays of your own app's manifests; Helm for packaging anything meant to be reused/distributed/versioned across teams or shared publicly. Many enterprise platforms actually use both — Helm to template the base chart, Kustomize (or Helm's own <code>--post-renderer</code>) for final environment patches.</p>`,
+     tags:["helm","kustomize","comparison"]},
+    {q:"How do umbrella charts and a values hierarchy work at scale?",
+     a:`<p>An <strong>umbrella chart</strong> composes multiple subcharts (e.g., <code>api</code>, <code>worker</code>, <code>redis</code>) as dependencies in one <code>Chart.yaml</code>, letting you deploy a whole application stack as one release. Values flow top-down: a top-level <code>values.yaml</code> can override any subchart's defaults under a key matching the subchart name, e.g.:</p>
+        <pre>redis:
+  auth:
+    enabled: true
+api:
+  replicaCount: 3</pre>
+        <p>At enterprise scale, teams layer <strong>global values</strong> (shared across all subcharts — e.g., image pull secrets, environment name) with per-environment values files (<code>values-prod.yaml</code>) merged in via <code>helm upgrade -f values.yaml -f values-prod.yaml</code>, later files winning.</p>`,
+     tags:["helm","umbrella-charts"]},
+    {q:"How do you distribute and version Helm charts across an enterprise?",
+     a:`<p>Push charts as OCI artifacts to a registry your org already trusts (ACR, ECR, Artifactory, Harbor) rather than a standalone chart repo — this reuses existing auth/RBAC and vulnerability scanning. Version charts with semver, and pin consumers to explicit versions (never <code>latest</code>) so a platform-team chart bump doesn't silently change every consuming service's deployment. Chart testing (<code>helm unittest</code>, <code>ct lint</code>) in CI catches template regressions before they reach any team.</p>`,
+     tags:["helm","oci","distribution"]},
+  ]
+},
+{
+  id:"ch8", vol:1, title:"Chapter 8 — CI/CD Supply-Chain Security",
+  intro:"SBOM, signing, provenance, and the standard scanning toolchain — expect at least one question on this in any senior platform interview post-2023.",
+  diagram:{cap:"Supply-chain security controls across the pipeline",
+    svg:`<svg viewBox="0 0 760 150" width="100%">
+      ${["Code (Gitleaks)","Deps (Snyk/Dependabot)","IaC (Checkov/Terrascan)","Image (Trivy/Grype)","Build (SBOM+Cosign sign)","Deploy (provenance verify)"]
+      .map((l,i)=>`<rect x="${10+i*126}" y="30" width="112" height="50" rx="6" fill="none" stroke="${i%2==0?'#39d98a':'#f0b429'}"/>
+      <text x="${66+i*126}" y="50" fill="#c9d5e0" font-size="9.5" text-anchor="middle">${l.split(' ')[0]}</text>
+      <text x="${66+i*126}" y="66" fill="#7d8ba1" font-size="8.5" text-anchor="middle">${l.split(' ').slice(1).join(' ')}</text>
+      ${i<5?`<line x1="${122+i*126}" y1="55" x2="${136+i*126}" y2="55" stroke="#7d8ba1"/>`:''}`).join("")}
+      <text x="380" y="115" fill="#7d8ba1" font-size="11" text-anchor="middle">Left-shifted checks gate the PR; signing + provenance gate what's allowed to run in prod</text>
+    </svg>`},
+  qa:[
+    {q:"What is a software supply-chain attack, and how do SBOM / signing / provenance defend against it?",
+     a:`<p>A supply-chain attack compromises something <em>upstream</em> of your own code — a dependency, a build tool, a CI runner, a base image — so the malicious code ships inside an artifact you believe you built cleanly (e.g., SolarWinds, the <code>xz</code> backdoor, a typosquatted npm package).</p>
+        <ul>
+          <li><strong>SBOM</strong> (Software Bill of Materials) — a generated manifest of every dependency and version in an artifact, so when a new CVE drops you can grep your fleet instead of re-scanning everything.</li>
+          <li><strong>Artifact signing</strong> (Cosign/Sigstore) — cryptographically proves an image wasn't tampered with after your CI built it, and that it actually came from your pipeline.</li>
+          <li><strong>Provenance/SLSA</strong> — an attested record of exactly which source commit, builder, and steps produced the artifact, so a deploy-time policy can refuse anything without a valid provenance chain (e.g., "only images built by our GitHub Actions OIDC identity, from the main branch, may deploy to prod").</li>
+        </ul>`,
+     tags:["security","sbom","slsa","supply-chain"]},
+    {q:"How do you integrate SonarQube, Trivy, Snyk, and Checkov into one pipeline without them fighting each other?",
+     a:`<p>Assign each tool a distinct layer so they don't overlap or duplicate noise:</p>
+        <ul>
+          <li><strong>SonarQube</strong> — code quality/maintainability + SAST on your own source.</li>
+          <li><strong>Snyk / Dependabot</strong> — known-vulnerability scanning of third-party dependencies (and often license compliance).</li>
+          <li><strong>Trivy / Grype</strong> — container image scanning (OS packages + app deps baked into the image).</li>
+          <li><strong>Checkov / Terrascan</strong> — IaC misconfiguration scanning (Terraform, Kubernetes manifests) before anything is even applied.</li>
+        </ul>
+        <p>Run them as parallel jobs in the reusable workflow, each gating the PR with its own required status check, with severity thresholds tuned per tool (e.g., block on Critical/High, warn on Medium) so noise doesn't train developers to ignore red X's.</p>`,
+     tags:["security","sonarqube","trivy","snyk","checkov"]},
+    {q:"What controls satisfy enterprise audit requirements (SOC2/ISO27001) in a CI/CD pipeline?",
+     a:`<p>Auditors generally want evidence of: (1) <strong>segregation of duties</strong> — the person who wrote the code can't be the sole approver (CODEOWNERS + required reviews); (2) <strong>immutable audit trail</strong> — signed commits, protected branches, GitHub audit log retained and exported to a SIEM; (3) <strong>least-privilege access</strong> — OIDC over static creds, scoped GitHub App permissions, no standing prod credentials; (4) <strong>artifact integrity</strong> — signed images with verifiable provenance; (5) <strong>vulnerability management SLAs</strong> — documented time-to-remediate for Critical/High findings, tracked and reportable.</p>`,
+     tags:["security","audit","compliance","soc2"]},
+    {q:"Why is GitHub OIDC specifically called out as an audit-favorable control?",
+     a:`<p>Because it eliminates the biggest recurring audit finding — long-lived cloud credentials sitting in a secrets store with no automatic expiry. With OIDC, there's no standing credential to leak, rotate, or forget about; the trust relationship itself (which repo/branch/environment can assume which role) is the auditable artifact, sitting declaratively in the cloud provider's IAM config rather than in a spreadsheet of who has which key.</p>`,
+     tags:["security","oidc","audit"]},
+  ]
+},
+{
+  id:"ch9", vol:2, title:"Chapter 9 — Terraform Enterprise",
+  intro:"Remote state, locking, Sentinel/OPA policy-as-code, and Terragrunt — the operational-scale questions that separate 'I know Terraform' from 'I've run Terraform for 100 accounts.'",
+  diagram:{cap:"Terraform remote state + locking flow",
+    svg:`<svg viewBox="0 0 760 190" width="100%">
+      <rect x="20" y="20" width="160" height="46" rx="8" fill="none" stroke="#39d98a"/>
+      <text x="100" y="48" fill="#39d98a" font-size="11" text-anchor="middle">engineer A: plan/apply</text>
+      <rect x="20" y="100" width="160" height="46" rx="8" fill="none" stroke="#39d98a"/>
+      <text x="100" y="128" fill="#39d98a" font-size="11" text-anchor="middle">engineer B: plan/apply</text>
+      <line x1="180" y1="43" x2="290" y2="80" stroke="#7d8ba1"/>
+      <line x1="180" y1="123" x2="290" y2="90" stroke="#7d8ba1"/>
+      <rect x="290" y="60" width="180" height="50" rx="8" fill="none" stroke="#f0b429"/>
+      <text x="380" y="82" fill="#f0b429" font-size="11" text-anchor="middle">state lock (DynamoDB /</text>
+      <text x="380" y="98" fill="#f0b429" font-size="11" text-anchor="middle">Azure Blob lease)</text>
+      <line x1="470" y1="85" x2="560" y2="85" stroke="#7d8ba1"/>
+      <rect x="560" y="60" width="180" height="50" rx="8" fill="none" stroke="#5da8ff"/>
+      <text x="650" y="82" fill="#5da8ff" font-size="11" text-anchor="middle">remote state (S3 /</text>
+      <text x="650" y="98" fill="#5da8ff" font-size="11" text-anchor="middle">Azure Storage, encrypted)</text>
+      <text x="380" y="165" fill="#7d8ba1" font-size="10" text-anchor="middle">B's apply blocks until A's lock releases — prevents concurrent state corruption</text>
+    </svg>`},
+  qa:[
+    {q:"How do you manage Terraform state and locking safely for a large team?",
+     a:`<p>Never local state beyond a personal sandbox. Use a <strong>remote backend</strong> (S3+DynamoDB, Azure Storage with native leasing, Terraform Cloud/Enterprise) that provides both durable storage and <strong>locking</strong> — so a second <code>apply</code> targeting the same state blocks instead of racing and corrupting it. Encrypt state at rest (it contains secrets in plaintext by default) and restrict read access tightly — state is effectively a secrets store.</p>
+        <p>At scale, split state <em>per environment per component</em> (e.g., <code>network/prod</code>, <code>eks-cluster/prod</code>) rather than one monolithic state file — smaller blast radius, faster plans, parallel team workflows.</p>`,
+     tags:["terraform","state","locking"]},
+    {q:"How do you manage Terraform across 100 AWS/Azure accounts?",
+     a:`<p>The standard pattern: a thin set of <strong>reusable modules</strong> (versioned, in a private registry) implementing each capability (VPC, EKS cluster, RDS instance) once, consumed by every account's root module with account-specific variables. Use <strong>Terragrunt</strong> (or a homegrown wrapper) to DRY up backend/provider config across hundreds of root modules and to orchestrate <code>plan/apply</code> dependency ordering across them (e.g., network before compute).</p>
+        <p>Pair with a landing-zone pattern — a baseline account factory (via Control Tower/Azure Landing Zones + Terraform) so every new account starts from consistent guardrails, then teams layer workload-specific Terraform on top through the golden-path templates.</p>`,
+     tags:["terraform","scale","multi-account"]},
+    {q:"What do Sentinel and OPA add on top of plain Terraform?",
+     a:`<p>Terraform's plan/apply alone has no concept of organizational policy — it will happily provision a public S3 bucket or an oversized VM if the code says so. <strong>Sentinel</strong> (Terraform Cloud/Enterprise) and <strong>OPA/Conftest</strong> (open-source, works with any CI) evaluate the <em>plan output</em> against policy-as-code rules before apply — e.g., "no security group may allow 0.0.0.0/0 on port 22," "all S3 buckets must have encryption enabled." A failing policy blocks the apply, giving governance teeth without a human manually reviewing every plan.</p>`,
+     tags:["terraform","sentinel","opa","policy-as-code"]},
+    {q:"When would you reach for Terragrunt instead of plain Terraform?",
+     a:`<p>Terragrunt solves orchestration problems Terraform itself doesn't: keeping backend/provider blocks DRY across hundreds of root modules, generating remote state config automatically per environment, and running <code>plan/apply</code> across a dependency graph of modules in the right order (<code>run-all</code>). Teams with a handful of environments often don't need it — the complexity is only worth it once you have enough repeated root modules that copy-pasted backend blocks become a maintenance problem.</p>`,
+     tags:["terraform","terragrunt"]},
+    {q:"Terraform reports drift in production — how do you respond?",
+     a:`<div class="scenario"><div class="sh">TROUBLESHOOTING SCENARIO</div>
+        First determine <em>why</em> before running <code>apply</code> blindly: <code>terraform plan</code> shows what changed, but not who/why. Check the cloud provider's audit log (CloudTrail/Azure Activity Log) for out-of-band changes — a manual console fix during an incident, another pipeline, or a separate team's IaC touching the same resource. If it was an intentional manual hotfix, codify it into Terraform before reconciling (import the change into code, don't just overwrite it) — otherwise the next apply silently reverts a fix someone made for a reason. If it's unauthorized drift, that's a process/access-control gap to close (tighten who has console write access), not just a plan to re-apply.</div>`,
+     tags:["terraform","drift","troubleshooting"]},
+  ]
+},
+{
+  id:"ch10", vol:2, title:"Chapter 10 — Kubernetes at Enterprise Scale",
+  intro:"Multi-cluster operations, autoscaling (HPA/VPA/KEDA), policy engines, and the production troubleshooting checklist every SRE interview probes.",
+  diagram:{cap:"Pod scheduling failure — triage decision tree",
+    svg:`<svg viewBox="0 0 760 240" width="100%">
+      <rect x="300" y="10" width="160" height="40" rx="8" fill="none" stroke="#ff5d5d"/>
+      <text x="380" y="34" fill="#ff5d5d" font-size="12" text-anchor="middle">Pod stuck Pending</text>
+      <line x1="380" y1="50" x2="150" y2="85" stroke="#7d8ba1"/>
+      <line x1="380" y1="50" x2="380" y2="85" stroke="#7d8ba1"/>
+      <line x1="380" y1="50" x2="610" y2="85" stroke="#7d8ba1"/>
+      <rect x="60" y="85" width="180" height="46" rx="6" fill="none" stroke="#f0b429"/>
+      <text x="150" y="105" fill="#f0b429" font-size="10" text-anchor="middle">kubectl describe pod</text>
+      <text x="150" y="120" fill="#7d8ba1" font-size="9" text-anchor="middle">→ read Events first, always</text>
+      <rect x="290" y="85" width="180" height="46" rx="6" fill="none" stroke="#f0b429"/>
+      <text x="380" y="105" fill="#f0b429" font-size="10" text-anchor="middle">Insufficient cpu/memory?</text>
+      <text x="380" y="120" fill="#7d8ba1" font-size="9" text-anchor="middle">→ node capacity / Karpenter</text>
+      <rect x="520" y="85" width="180" height="46" rx="6" fill="none" stroke="#f0b429"/>
+      <text x="610" y="105" fill="#f0b429" font-size="10" text-anchor="middle">Taints / affinity mismatch?</text>
+      <text x="610" y="120" fill="#7d8ba1" font-size="9" text-anchor="middle">→ nodeSelector, tolerations</text>
+      <rect x="175" y="160" width="200" height="46" rx="6" fill="none" stroke="#5da8ff"/>
+      <text x="275" y="180" fill="#5da8ff" font-size="10" text-anchor="middle">PVC unbound?</text>
+      <text x="275" y="195" fill="#7d8ba1" font-size="9" text-anchor="middle">→ StorageClass / zone mismatch</text>
+      <rect x="405" y="160" width="200" height="46" rx="6" fill="none" stroke="#5da8ff"/>
+      <text x="505" y="180" fill="#5da8ff" font-size="10" text-anchor="middle">Quota / LimitRange?</text>
+      <text x="505" y="195" fill="#7d8ba1" font-size="9" text-anchor="middle">→ namespace ResourceQuota hit</text>
+    </svg>`},
+  qa:[
+    {q:"A pod is stuck Pending with nodes available — where do you begin?",
+     a:`<div class="scenario"><div class="sh">TROUBLESHOOTING SCENARIO</div>
+        Always start with <code>kubectl describe pod</code> and read the <strong>Events</strong> section — the scheduler writes the exact reason there, don't guess. Common root causes in priority order: (1) <strong>insufficient resources</strong> — requested CPU/memory exceeds what any node has free (check with <code>kubectl describe node</code> / cluster-autoscaler or Karpenter should be scaling out, if not check its logs); (2) <strong>node affinity/taints</strong> — pod's nodeSelector/affinity or a required toleration doesn't match any node; (3) <strong>PVC unbound</strong> — pod requires a volume that can't bind (StorageClass mismatch, zone mismatch between pod and PV); (4) <strong>ResourceQuota/LimitRange</strong> in the namespace blocking scheduling even though cluster-wide capacity exists.</div>`,
+     tags:["kubernetes","troubleshooting","pending-pods"]},
+    {q:"Walk through diagnosing a CrashLoopBackOff.",
+     a:`<p><code>kubectl logs &lt;pod&gt; --previous</code> first — the current container may not have logged the failure yet, but the previous (crashed) instance did. Then <code>kubectl describe pod</code> for OOMKilled/exit codes. Exit code 137 = OOMKilled (raise memory limits or fix a leak); exit code 1/other = application error (check logs for stack trace); readiness/liveness probe misconfigured too aggressively can also cause repeated restarts even when the app is healthy — check probe timing against actual startup time, and consider a <code>startupProbe</code> for slow-starting apps.</p>`,
+     tags:["kubernetes","troubleshooting","crashloopbackoff"]},
+    {q:"How do you troubleshoot intermittent DNS failures inside a cluster?",
+     a:`<div class="scenario"><div class="sh">TROUBLESHOOTING SCENARIO</div>
+        Classic culprits: (1) <strong>CoreDNS under-provisioned</strong> for query volume — check CoreDNS pod CPU throttling and consider the <code>nodelocaldns</code> cache to cut cross-node DNS hops; (2) <strong>conntrack table exhaustion</strong> on nodes causing dropped UDP DNS packets under load — a very common "intermittent" cause, check <code>nf_conntrack</code> metrics; (3) <strong>ndots:5 default</strong> causing excessive search-domain expansion for external lookups (5 lookups before the real one resolves) — tune <code>dnsConfig</code> for chatty external-DNS workloads; (4) CNI-level network policy inadvertently blocking UDP/53 to kube-dns.</div>`,
+     tags:["kubernetes","troubleshooting","dns","coredns"]},
+    {q:"When would you use KEDA instead of HPA?",
+     a:`<p>Standard HPA scales on CPU/memory (or custom metrics via the metrics API) but is fundamentally pull-based against the metrics-server. <strong>KEDA</strong> extends this to <strong>event-driven</strong> scaling — scale on queue depth (SQS, Kafka lag, RabbitMQ), and critically, <strong>scale to zero</strong> when there's no work, which plain HPA can't do (HPA's floor is 1 replica). Use KEDA for async workers/consumers where load is bursty and tied to an external event source rather than CPU; use HPA for steady request-driven services where CPU/RPS correlates with load.</p>`,
+     tags:["kubernetes","keda","hpa","autoscaling"]},
+    {q:"How do you operate Kubernetes across multiple regions/clouds without operational chaos?",
+     a:`<p>Key design decisions to name in an architecture answer: a <strong>GitOps control plane</strong> (Argo CD with cluster generators) so every cluster is defined declaratively and drift is detected centrally, not per-cluster manual ops. A <strong>cluster API/fleet management layer</strong> (Cluster API, or cloud-native equivalents) for consistent cluster provisioning. Centralized <strong>identity federation</strong> (one OIDC provider trusted by every cluster, not per-cluster local accounts). A <strong>service mesh</strong> or multi-cluster ingress if cross-cluster service calls are needed. And critically: define what's <em>global</em> (policy, RBAC baseline, observability pipeline) vs what's <em>per-cluster</em> (workload placement, region-specific config) up front, or every incident becomes a "which cluster's config is authoritative" debugging session.</p>`,
+     tags:["kubernetes","multi-cluster","architecture"]},
+    {q:"How do you safely upgrade a production cluster with zero downtime?",
+     a:`<p>Use <strong>PodDisruptionBudgets</strong> on every critical workload so node drains can't evict below a minimum available count. Upgrade node pools via <strong>surge + drain</strong> (spin up new-version nodes, cordon+drain old ones gradually) rather than in-place upgrades. Validate the control plane upgrade in a lower environment against the same API deprecations first — <code>kubectl</code> deprecation warnings and tools like <code>pluto</code>/<code>kubent</code> catch manifests using removed API versions before they break on upgrade day. Roll node pools one AZ/batch at a time, watching error budgets, with an automatic halt if SLO burn rate spikes mid-rollout.</p>`,
+     tags:["kubernetes","upgrades","pdb"]},
+    {q:"OPA Gatekeeper vs Kyverno — how do you decide?",
+     a:`<p><strong>OPA Gatekeeper</strong> uses Rego, a general-purpose policy language — powerful and expressive but a steeper learning curve, and policies are harder for non-specialists to read/write. <strong>Kyverno</strong> uses native Kubernetes YAML for policies (no new language), and additionally supports <em>mutation</em> (auto-inject defaults, e.g., always add a resource limit if missing) not just validation, which Gatekeeper doesn't do as natively. Teams optimizing for approachability and mutation-heavy use cases lean Kyverno; teams needing complex cross-resource policy logic or already invested in OPA elsewhere often stick with Gatekeeper.</p>`,
+     tags:["kubernetes","opa","kyverno","policy"]},
+  ]
+},
+{
+  id:"ch11", vol:2, title:"Chapter 11 — Observability (Prometheus, Grafana, Loki, Tempo, OTel)",
+  intro:"The full modern stack — metrics, logs, and traces — plus the single most common Prometheus/Grafana debugging question.",
+  diagram:{cap:"Unified observability stack — metrics + logs + traces",
+    svg:`<svg viewBox="0 0 760 170" width="100%">
+      <rect x="20" y="20" width="200" height="120" rx="8" fill="none" stroke="#39d98a"/>
+      <text x="120" y="45" fill="#39d98a" font-size="12" text-anchor="middle">Metrics</text>
+      <text x="120" y="65" fill="#7d8ba1" font-size="10" text-anchor="middle">Prometheus (scrape)</text>
+      <text x="120" y="82" fill="#7d8ba1" font-size="10" text-anchor="middle">Alertmanager (route/dedupe)</text>
+      <text x="120" y="99" fill="#7d8ba1" font-size="10" text-anchor="middle">Thanos/Mimir (long-term)</text>
+      <rect x="280" y="20" width="200" height="120" rx="8" fill="none" stroke="#f0b429"/>
+      <text x="380" y="45" fill="#f0b429" font-size="12" text-anchor="middle">Logs</text>
+      <text x="380" y="65" fill="#7d8ba1" font-size="10" text-anchor="middle">Promtail/Fluent Bit (ship)</text>
+      <text x="380" y="82" fill="#7d8ba1" font-size="10" text-anchor="middle">Loki (index by label, not full-text)</text>
+      <rect x="540" y="20" width="200" height="120" rx="8" fill="none" stroke="#5da8ff"/>
+      <text x="640" y="45" fill="#5da8ff" font-size="12" text-anchor="middle">Traces</text>
+      <text x="640" y="65" fill="#7d8ba1" font-size="10" text-anchor="middle">OpenTelemetry SDK/Collector</text>
+      <text x="640" y="82" fill="#7d8ba1" font-size="10" text-anchor="middle">Tempo / Jaeger (store)</text>
+      <text x="380" y="160" fill="#7d8ba1" font-size="10" text-anchor="middle">Grafana correlates all three via exemplars &amp; trace IDs in log lines</text>
+    </svg>`},
+  qa:[
+    {q:"Prometheus is scraping successfully but Grafana shows no data — what do you check?",
+     a:`<div class="scenario"><div class="sh">TROUBLESHOOTING SCENARIO</div>
+        Isolate which layer is broken, in order: (1) confirm the target is actually <code>UP</code> in Prometheus's own <code>/targets</code> page — "scraping successfully" is often assumed, not verified; (2) run the exact PromQL query directly in Prometheus's expression browser — if it returns data there but not in Grafana, it's a <strong>datasource/dashboard</strong> problem (wrong datasource selected, label mismatch from a templated variable, time range outside retention); (3) check the Grafana datasource's configured Prometheus URL and whether it points at the right Prometheus (a common issue in multi-cluster setups — dashboard hardcoded to the wrong federation target); (4) check for <strong>label cardinality drops</strong> — Prometheus silently drops series that exceed configured limits; (5) clock skew between Prometheus and Grafana host affecting the time range shown.</div>`,
+     tags:["observability","prometheus","grafana","troubleshooting"]},
+    {q:"Why does Loki index differently from Elasticsearch, and what does that mean for query design?",
+     a:`<p>Loki deliberately does <strong>not</strong> full-text-index log content the way Elasticsearch does — it indexes only labels (like Prometheus does for metrics) and stores log content compressed in chunks. This makes it dramatically cheaper to run at scale, but means a query without label selectors turns into a full log-content grep across a wide chunk range — slow. The practical implication for interviews: query design must lead with tight label selectors (<code>{namespace="payments", app="api"}</code>) and only then apply a text filter, not the other way around; label cardinality (avoid high-cardinality labels like request ID) is the main operational risk to manage.</p>`,
+     tags:["observability","loki"]},
+    {q:"How does OpenTelemetry fit alongside Prometheus and Jaeger/Tempo rather than replacing them?",
+     a:`<p>OpenTelemetry is primarily an <strong>instrumentation and collection</strong> standard (SDKs + the OTel Collector), not a storage backend. It unifies how applications emit metrics, logs, and traces so you're not maintaining separate vendor SDKs — the OTel Collector then exports to whichever backend you choose: Prometheus for metrics, Tempo/Jaeger for traces, Loki for logs. The value in an interview answer is naming this decoupling explicitly: instrumentation is standardized once, storage/backend choice stays swappable.</p>`,
+     tags:["observability","opentelemetry"]},
+    {q:"How do you correlate a slow user request across metrics, logs, and traces?",
+     a:`<p>The linking mechanism is a <strong>trace ID</strong> propagated through the request (via W3C traceparent headers, injected by OTel instrumentation). That same trace ID is attached as a structured field in every log line the request touches, and Grafana's <strong>exemplars</strong> feature links a spike in a latency metric histogram directly to the specific trace ID that caused it. So the flow in practice: see a latency spike in a Grafana panel → click the exemplar → jump to the exact trace in Tempo → pull the trace ID → filter Loki logs by that trace ID for full context. This tri-directional linking is the core value prop of the modern observability stack over siloed tools.</p>`,
+     tags:["observability","tracing","correlation"]},
+  ]
+},
+{
+  id:"ch12", vol:2, title:"Chapter 12 — Incident Management, SLI/SLO &amp; Error Budgets",
+  intro:"The behavioral/technical hybrid section — 'walk me through a production outage' is asked in nearly every senior SRE loop.",
+  qa:[
+    {q:"Walk me through how you'd handle a P1 production outage from detection to postmortem.",
+     a:`<p>Structure the answer as a timeline, naming your role explicitly at each stage:</p>
+        <ul>
+          <li><strong>Detect</strong> — alert fires off an SLO burn-rate rule (not a raw threshold), paging via Alertmanager/PagerDuty.</li>
+          <li><strong>Triage</strong> — declare the incident, open a war room, assign an Incident Commander distinct from whoever is heads-down debugging (this separation is a common interview probe — many candidates conflate the two roles).</li>
+          <li><strong>Mitigate first, root-cause later</strong> — the immediate goal is restoring service (rollback, failover, feature-flag kill switch), not finding the root cause under pressure.</li>
+          <li><strong>Communicate</strong> — status page/stakeholder updates on a fixed cadence, even when there's "no update" — silence is worse than "still investigating."</li>
+          <li><strong>Resolve</strong> — confirm SLO recovery, not just "the error stopped."</li>
+          <li><strong>Blameless postmortem</strong> — timeline, contributing factors (plural — rarely one root cause), and concrete action items with owners and dates, not "improve monitoring."</li>
+        </ul>`,
+     tags:["incident-management","behavioral"]},
+    {q:"How do SLIs, SLOs, and error budgets actually drive engineering decisions day to day?",
+     a:`<p>An <strong>SLI</strong> is the measured indicator (e.g., request success rate, p99 latency). An <strong>SLO</strong> is the target for that indicator over a window (e.g., 99.9% success over 30 days). The <strong>error budget</strong> is the inverse — 0.1% failures "allowed" in that window — and it's the mechanism that turns reliability into a resource-allocation decision rather than an abstract goal: if the budget is exhausted, the team's priority shifts from shipping new features to reliability work, by policy, not by argument. This is the concrete answer to "how do you balance velocity and reliability" — the error budget makes it a pre-agreed rule, not a case-by-case negotiation.</p>`,
+     tags:["sre","slo","error-budget"]},
+    {q:"What is multi-window, multi-burn-rate alerting, and why not just alert on the raw SLO threshold?",
+     a:`<p>Alerting directly on "success rate dropped below 99.9%" is both too slow (won't fire until you've nearly exhausted a 30-day budget) and too noisy (a brief blip triggers a page for something that won't actually threaten the SLO). Multi-burn-rate alerting instead asks "at this current error rate, how fast are we burning the budget" — a short window (5 min) catches fast, severe burns (page immediately) while a longer window (1h–6h) catches slow, sustained burns (ticket, not page) — both compared against multiple burn-rate thresholds. This is the Google SRE workbook's standard pattern and is a strong signal answer in senior interviews.</p>`,
+     tags:["sre","alerting","burn-rate"]},
+    {q:"What makes a postmortem 'blameless' in practice, not just in name?",
+     a:`<p>Blameless doesn't mean consequence-free — it means the investigation asks "what in our systems and processes allowed this to happen" instead of "who made the mistake." Concretely: write the timeline in terms of system states and decisions available at the time (not "engineer X should have known"), assume everyone acted reasonably given the information they had in the moment, and make action items about the system (add a guardrail, add a check) rather than about a person doing better next time. The tell that a postmortem isn't actually blameless is when a single individual's name appears more often than a system component's.</p>`,
+     tags:["incident-management","postmortem","culture"]},
+  ]
+},
+{
+  id:"ch13", vol:3, title:"Chapter 13 — Architecture Design Questions",
+  intro:"The whiteboard round. Each of these is a 30–45 minute open-ended design question at Senior/AVP/Architect level — structure every answer as: constraints → components → tradeoffs → failure modes.",
+  qa:[
+    {q:"Design a GitHub Enterprise strategy for 3,000 engineers.",
+     a:`<p><strong>Identity:</strong> Azure AD/Okta as source of truth, SCIM-provisioned into GitHub Enterprise, SSO enforced org-wide. <strong>Structure:</strong> a small number of orgs by business unit (not 1 per team — nested teams handle granularity), org-level rulesets for branch protection so policy isn't per-repo opt-in. <strong>Repo strategy:</strong> hybrid — a few strategic monorepos for tightly-coupled platform code, polyrepo for independently-deployable services, decided by a documented rule not ad hoc. <strong>CI/CD:</strong> a platform-owned reusable-workflow library so 3,000 engineers aren't maintaining 3,000 pipeline variants. <strong>Runners:</strong> self-hosted runner groups scoped by trust boundary (public-fork PRs never share runners with internal repos). <strong>Governance:</strong> CODEOWNERS mapped to the org chart, required signed commits for regulated repos, audit log exported to SIEM. Close by naming the failure mode: over-centralizing repo creation becomes a bottleneck — solve with self-service golden-path repo creation gated by policy, not a ticket queue.</p>`,
+     tags:["architecture","github-enterprise","design-question"]},
+    {q:"Design GitOps for 800 microservices across dev/qa/stage/production.",
+     a:`<p><strong>Repo layout:</strong> separate <code>applications/</code> (what runs, per-service Application manifests), <code>environments/</code> (per-env value overlays), <code>platform/</code> (cluster bootstrap + shared infra), <code>clusters/</code> (per-cluster specifics). <strong>Generation at scale:</strong> ApplicationSets with a git-directory generator so adding a new service directory auto-creates its Application — no one hand-writes 800 manifests. <strong>Sync policy graduated by environment:</strong> dev auto-syncs on merge; stage requires passing integration tests as a sync precondition; prod is manual-sync with RBAC restricting who can trigger it, plus sync windows blocking risky times. <strong>Blast radius control:</strong> AppProjects scoping which cluster/namespace each team's apps can target, so a bad manifest in team A's repo can't touch team B's namespace. <strong>Progressive delivery:</strong> Argo Rollouts + Prometheus AnalysisTemplates for canary promotion in stage/prod. Name the tradeoff: this much structure has real onboarding cost — justify it by the alternative (800 teams hand-rolling deploy processes) being worse.</p>`,
+     tags:["architecture","gitops","design-question"]},
+    {q:"Design a Kubernetes platform for 500 applications.",
+     a:`<p><strong>Cluster topology:</strong> decide shared multi-tenant clusters (namespace-per-team, ResourceQuotas, NetworkPolicies for isolation) vs cluster-per-team — for 500 apps, shared clusters with strong namespace isolation are usually more operable than 500 clusters, unless regulatory isolation demands otherwise. <strong>Autoscaling:</strong> Karpenter/cluster-autoscaler for node scaling, HPA for request-driven services, KEDA for event-driven workers. <strong>Policy:</strong> Kyverno/OPA Gatekeeper enforcing baseline (resource limits required, no privileged containers, approved registries only) at admission time, not as a post-hoc audit. <strong>Networking:</strong> a service mesh (Istio/Linkerd) if cross-service mTLS and fine-grained traffic policy are needed — but name the cost (added latency, operational complexity) rather than defaulting to it. <strong>Multi-tenancy guardrails:</strong> per-namespace ResourceQuotas and NetworkPolicies as the hard isolation boundary, RBAC scoped per team. Close with the platform layer: none of this should require app teams to write raw Kubernetes YAML — it's delivered via golden templates and a portal.</p>`,
+     tags:["architecture","kubernetes","design-question"]},
+    {q:"Design a multi-region deployment for high availability.",
+     a:`<p>Clarify the failure mode you're protecting against first — region outage, AZ outage, or just latency — the design differs. For true multi-region active-active: data layer is usually the hard part (choose a database with native multi-region replication, or accept eventual consistency with conflict resolution); traffic layer uses global load balancing (Route53/Azure Front Door) with health-check-based failover; stateless services deploy identically to every region via the same GitOps ApplicationSet (cluster generator) so region N+1 is a config addition, not a rebuild. Call out the tradeoff explicitly: active-active buys availability at the cost of data consistency complexity and roughly 2x infra cost — active-passive (warm standby) is often the pragmatic answer unless the SLO genuinely demands active-active.</p>`,
+     tags:["architecture","multi-region","design-question"]},
+    {q:"Design a disaster recovery strategy.",
+     a:`<p>Start by defining <strong>RTO</strong> (how long can we be down) and <strong>RPO</strong> (how much data can we lose) — these numbers, not "have backups," drive every subsequent decision, and a good interview answer asks for them rather than assuming. Then map DR tiers: backup-and-restore (cheap, RTO in hours), pilot light (minimal standby infra, RTO tens of minutes), warm standby (scaled-down live replica, RTO minutes), multi-site active-active (RTO seconds, highest cost). For IaC/GitOps shops, DR is partly free: infrastructure is already declarative, so "rebuild region" is a Terraform apply + Argo CD sync rather than manual reconstruction — the actual gap to close is usually data (backup/replication strategy) and DNS cutover automation, not compute.</p>`,
+     tags:["architecture","disaster-recovery","design-question"]},
+    {q:"Design an internal developer portal for a 2,000-engineer org.",
+     a:`<p>Core: Backstage (or build-vs-buy alternative) as the catalog + template engine, backed by a software catalog synced automatically from repo metadata (not hand-maintained). <strong>Golden-path templates</strong> for the top 5-10 service archetypes covering 80% of new services. <strong>Scorecards</strong> surfacing security/reliability posture per service so the portal doubles as a compliance dashboard, not just a directory. <strong>Self-service actions</strong> (provision a database, request a namespace) backed by Terraform/policy-as-code so "self-service" doesn't mean "ungoverned." Success metric to name: % of new services created through the portal vs outside it — that's the real adoption signal, not portal traffic.</p>`,
+     tags:["architecture","idp","design-question"]},
+    {q:"Design secure CI/CD and artifact management for a regulated enterprise.",
+     a:`<p>Chain of custody end-to-end: source (signed commits, branch protection) → build (ephemeral, OIDC to cloud, no static secrets) → scan (SAST/dependency/IaC/image scanning gating the pipeline) → sign (Cosign-signed images with SLSA provenance) → store (private OCI registry with vulnerability scanning on push) → deploy (admission controller verifies signature + provenance before allowing an image to run — Kyverno/OPA policy, not just trust). Name the audit answer explicitly: every artifact in production should be traceable back to the exact commit, builder, and approvals that produced it, with no manual step that breaks that chain.</p>`,
+     tags:["architecture","security","design-question"]},
+    {q:"Design an enterprise observability platform.",
+     a:`<p>Three pillars, one correlation layer: Prometheus/Mimir for metrics (federated or remote-write to a central long-term store), Loki for logs, Tempo/Jaeger for traces — all instrumented via OpenTelemetry so app teams integrate once. Correlate via trace ID propagation and Grafana exemplars. <strong>Multi-tenancy:</strong> separate namespaces/tenants per team in Loki/Mimir so one team's high-cardinality mistake doesn't degrade another's queries. <strong>Alerting:</strong> SLO burn-rate rules owned by each service team (self-service, not centrally authored) but routed through a central Alertmanager for on-call/escalation consistency. Name the cost control: cardinality limits and retention tiering (hot storage short-term, object storage long-term via Thanos/Mimir) are what keep this affordable at scale — an unbounded metrics platform is a guaranteed budget incident.</p>`,
+     tags:["architecture","observability","design-question"]},
+  ]
+},
+{
+  id:"ch14", vol:3, title:"Chapter 14 — Production Troubleshooting Quick-Reference",
+  intro:"A condensed, high-signal reference across the failure domains interviewers draw from — organized as symptom → likely cause → first check, the way you'd actually triage. Deep-dive scenarios for Kubernetes, GitOps, Terraform, and CI/CD already have full write-ups in Chapters 5, 6, 9, and 10 — this chapter covers the remaining common domains.",
+  qa:[
+    {q:"Helm upgrade fails partway through — how do you recover?",
+     a:`<p>Check <code>helm history &lt;release&gt;</code> first — a failed upgrade often leaves the release in <code>failed</code> or <code>pending-upgrade</code> state, which blocks further upgrades until resolved. <code>helm rollback &lt;release&gt; &lt;last-good-revision&gt;</code> is the fast recovery path. If rollback also fails, it's usually a stuck resource (a Job that can't be replaced in-place, an immutable field being changed) — check <code>kubectl describe</code> on the specific failing resource named in the Helm error before assuming the chart itself is broken.</p>`,
+     tags:["troubleshooting","helm"]},
+    {q:"A cloud provider region has a partial outage — what's your immediate response?",
+     a:`<p>Confirm via the provider's status page first (don't assume your monitoring is wrong before checking if it's provider-side). Immediate actions: fail traffic away from the affected region/AZ if multi-region/multi-AZ is in place (DNS/load-balancer health-check failover); if single-region, focus on graceful degradation (feature flags to shed non-critical load) rather than a futile fight against provider infra. Communicate status honestly to stakeholders — "provider outage, tracking their status page" is a legitimate update, not a cop-out, as long as you're also executing your own mitigation in parallel.</p>`,
+     tags:["troubleshooting","cloud-outage"]},
+    {q:"AWS IAM permissions issue blocks a deployment — how do you debug it efficiently?",
+     a:`<p>Don't guess-and-check policy JSON. Use <strong>IAM Policy Simulator</strong> or <code>aws iam simulate-principal-policy</code> to test the exact action/resource pair against the role. Check for the two most common misses: an explicit <code>Deny</code> elsewhere (SCP at the org level, permissions boundary) silently overriding an <code>Allow</code> — Deny always wins regardless of where it lives; and a resource-based policy (S3 bucket policy, KMS key policy) that also needs to grant access, since IAM alone isn't sufficient for some resource types.</p>`,
+     tags:["troubleshooting","aws","iam"]},
+    {q:"A TLS certificate expired in production — immediate fix and long-term prevention?",
+     a:`<p>Immediate: rotate the cert (cert-manager if in-cluster, or manual reissue) and verify propagation — a common miss is rotating the cert but not restarting/reloading the pods holding the old one in memory. Long-term: this should never be a manual-discovery incident — deploy a certificate-expiry monitoring check (Prometheus blackbox exporter or a dedicated cert-expiry exporter) alerting 30/14/7 days out, and move to cert-manager with automated renewal (Let's Encrypt or internal CA) so humans aren't in the renewal loop at all.</p>`,
+     tags:["troubleshooting","tls","certificates"]},
+    {q:"Prometheus memory usage keeps growing — what do you check?",
+     a:`<p>Almost always <strong>cardinality</strong> — a label with unbounded values (user ID, request ID, raw URL path instead of a templated route) creates a new time series per unique value. Check <code>prometheus_tsdb_symbol_table_size_bytes</code> and use <code>topk</code> queries against <code>count by (__name__)(</code> to find which metric has exploded. Fix at the source (remove/relabel the offending label before scrape) rather than just raising memory limits, which only delays the same failure.</p>`,
+     tags:["troubleshooting","prometheus","cardinality"]},
+    {q:"Redis latency spikes intermittently under load — where do you look?",
+     a:`<p>Check for a <strong>slow command</strong> blocking the single-threaded event loop first — <code>SLOWLOG GET</code> reveals it (a KEYS or unindexed SCAN over a large keyspace is the classic culprit). Then check for <strong>big keys</strong> (a hash/set that grew unbounded) via <code>redis-cli --bigkeys</code>. If neither, check for memory eviction thrashing (near <code>maxmemory</code>, evicting under LRU pressure) or a replication/AOF fsync stall on the primary.</p>`,
+     tags:["troubleshooting","redis"]},
+    {q:"Kafka consumer lag keeps growing — how do you triage?",
+     a:`<p>First distinguish <em>throughput</em> problem from <em>partition skew</em> problem: check lag per-partition, not just aggregate — if lag is concentrated on a few partitions, it's a hot-key/skewed-partitioning problem, not an overall capacity problem, and adding consumers won't help beyond the partition count. If lag is even across partitions, it's genuine under-provisioning — check consumer count vs partition count (can't exceed partitions), and consumer-side processing time (a slow downstream call inside the consumer loop is the most common real cause).</p>`,
+     tags:["troubleshooting","kafka"]},
+    {q:"A PVC/volume is reporting corruption — what's the safe recovery path?",
+     a:`<p>Stop the workload writing to it immediately to prevent further corruption. Check if it's a filesystem-level issue (fsck-able) vs a storage-backend issue (cloud disk degraded — check the provider's volume health). If backed by snapshots (which should be standard for any stateful workload), restore from the most recent known-good snapshot rather than attempting in-place repair on production data — the interview signal here is naming that stateful workloads need a tested restore procedure <em>before</em> the incident, not improvised during it.</p>`,
+     tags:["troubleshooting","storage","pvc"]},
+    {q:"Ingress is returning 502s intermittently — what's your checklist?",
+     a:`<p>502 means the ingress controller reached the backend but got a bad/no response — distinguish from 504 (timeout) and 503 (no healthy backend at all). Check: backend pod readiness flapping (a pod marked ready before it's actually able to serve, causing brief 502 windows during rollout — fix with a proper readinessProbe); keep-alive timeout mismatch between the ingress controller and backend (backend closes idle connections faster than the LB expects); and upstream connection pool exhaustion under load spikes.</p>`,
+     tags:["troubleshooting","ingress","networking"]},
+    {q:"A service mesh (Istio/Linkerd) sidecar is causing failures — how do you isolate it as the cause?",
+     a:`<p>Compare behavior with the sidecar temporarily excluded for one pod (via annotation) against the same request path — if the failure disappears, it's mesh-layer. Common mesh-specific causes: mTLS handshake failures from a certificate rotation mismatch between mesh control plane and a stale sidecar; sidecar startup race (app container starts serving traffic before the sidecar proxy is ready to route it — needs <code>holdApplicationUntilProxyStarts</code> or equivalent); and mesh-level retry/timeout policies fighting with the application's own retry logic, amplifying load during a partial outage instead of shedding it.</p>`,
+     tags:["troubleshooting","service-mesh","istio"]},
+    {q:"OIDC authentication is failing between GitHub Actions and a cloud provider — how do you debug it?",
+     a:`<p>The trust relationship is the usual culprit, not the token itself. Check the cloud-side trust policy's <code>sub</code> claim condition — it's commonly scoped too tightly (exact branch name, exact environment) and a workflow running from a different branch/PR context fails the condition silently, returning an access-denied that looks like a generic auth failure. Decode the actual OIDC token claims (GitHub exposes them in workflow debug logs) and compare field-by-field against what the cloud-side trust policy expects, rather than assuming the workflow config is wrong.</p>`,
+     tags:["troubleshooting","oidc","github-actions"]},
+    {q:"A self-hosted GitHub Actions runner shows offline — what's the triage order?",
+     a:`<p>Check the runner pod/VM is actually up first (not a GitHub-side reporting delay). If up, check outbound connectivity to <code>github.com</code>/<code>*.actions.githubusercontent.com</code> — runners poll outbound, so an egress network policy change is a common silent cause. Check runner registration token expiry if using ephemeral runners with a controller (ARC) — a misconfigured token refresh leaves new runner pods unable to register even though old ones keep working until they cycle out.</p>`,
+     tags:["troubleshooting","github-actions","runners"]},
+    {q:"A pod is OOMKilled repeatedly even though the app 'shouldn't' be using that much memory — how do you dig in?",
+     a:`<div class="scenario"><div class="sh">TROUBLESHOOTING SCENARIO</div>
+        Exit code 137 confirms OOMKilled — the question is whether the <em>limit</em> is wrong or the <em>app</em> is wrong. Check <code>kubectl top pod</code> history / a memory-usage panel over time: a sawtooth pattern climbing steadily to the limit before each kill points to a real leak (heap dump / pprof the app); a sudden spike correlated with a specific request type points to an inefficient code path (e.g., loading a full dataset into memory for one heavy endpoint) rather than a leak. Also check whether the <em>limit</em> itself was copy-pasted from another service's manifest without being sized for this workload — a surprisingly common root cause that has nothing to do with the application code at all. Separately confirm requests vs limits aren't set so close together that normal GC pause spikes trip the limit.</div>`,
+     tags:["troubleshooting","kubernetes","oomkilled"]},
+    {q:"A pod is stuck in ImagePullBackOff — what's the checklist?",
+     a:`<p><code>kubectl describe pod</code> Events will show the exact pull error — read it before guessing. In order of likelihood: (1) wrong image tag/typo — most common, especially after a refactor of the CI pipeline's tag-generation logic; (2) registry auth — <code>imagePullSecrets</code> missing/expired, or (for OIDC-based registry auth) the node's identity lacks pull permission; (3) private registry network path — node can't reach the registry (egress network policy, private endpoint DNS not resolving from the node); (4) rate limiting — Docker Hub's anonymous pull limits hit if the base image still points there instead of a mirrored internal registry.</p>`,
+     tags:["troubleshooting","kubernetes","imagepullbackoff"]},
+    {q:"Two pods that should be able to talk to each other can't — how do you isolate a NetworkPolicy problem?",
+     a:`<div class="scenario"><div class="sh">TROUBLESHOOTING SCENARIO</div>
+        First confirm it's actually policy and not DNS/service routing: <code>kubectl exec</code> into the source pod and try the destination by IP directly, bypassing DNS/Service — if that also fails, it's not a NetworkPolicy issue, check the CNI. If direct-IP works but Service-name doesn't, it's DNS/kube-proxy, not policy. If both fail only when NetworkPolicies are present, list every policy selecting either pod (<code>kubectl get networkpolicy -n &lt;ns&gt;</code>) — remember NetworkPolicies are additive/whitelist: if <em>any</em> policy selects the destination pod, only explicitly allowed ingress is permitted, and a missing rule (not a wrong one) is the usual cause. Check both the source pod's egress policy and the destination pod's ingress policy — a policy on either side can independently block the connection.</div>`,
+     tags:["troubleshooting","kubernetes","networkpolicy"]},
+    {q:"Cross-node pod-to-pod traffic is failing intermittently — how do you tell if it's a CNI issue?",
+     a:`<p>Compare same-node vs cross-node pod communication — if same-node works reliably but cross-node fails intermittently, suspect the CNI overlay (VXLAN/IPIP encapsulation MTU mismatch is a classic cause: packets fragment or drop silently when the overlay's effective MTU isn't accounted for on the node's physical NIC MTU). Check CNI daemon logs on both source and destination nodes for errors, and verify the CNI's own health/readiness (e.g., Calico's <code>calico-node</code> or Cilium's agent) isn't crash-looping on a specific node — a single unhealthy CNI agent on one node explains traffic that "works for most pods" but fails specifically to/from that node.</p>`,
+     tags:["troubleshooting","kubernetes","cni","networking"]},
+    {q:"The Kubernetes API server is showing high latency cluster-wide — what do you check first?",
+     a:`<div class="scenario"><div class="sh">TROUBLESHOOTING SCENARIO</div>
+        API server latency is almost always etcd latency wearing a different hat — check etcd's <code>disk_wal_fsync_duration</code> and <code>disk_backend_commit_duration</code> metrics first; etcd is extremely disk-latency-sensitive and a noisy neighbor on shared storage, or a etcd DB approaching its size quota, will manifest as API server slowness cluster-wide. Second, check for a controller or CI job doing an expensive <code>LIST</code> without pagination/label-selector across a large resource type (e.g., listing all Pods cluster-wide on every reconcile loop) — this is a very common self-inflicted cause. Third, check API server request metrics broken down by verb and resource (<code>apiserver_request_duration_seconds</code>) to see if it's isolated to one resource type/controller versus truly global.</div>`,
+     tags:["troubleshooting","kubernetes","api-server","etcd"]},
+    {q:"etcd is reporting slow requests / leader elections are flapping — what's the response?",
+     a:`<p>etcd leader election flapping under load usually means heartbeat timeouts are being missed due to disk or network latency between etcd members — check disk I/O latency on the etcd nodes first (etcd should be on the fastest available local SSD, never network-attached storage with variable latency) and network latency between etcd peers (cross-AZ etcd clusters are more failure-prone than same-AZ for this reason). Also check etcd DB size against its quota — a database approaching <code>--quota-backend-bytes</code> triggers alarms that degrade write performance; run <code>etcdctl defrag</code> during a maintenance window if fragmentation is high, but never during peak load since defrag briefly blocks the member.</p>`,
+     tags:["troubleshooting","kubernetes","etcd"]},
+    {q:"Nodes are reporting resource pressure and evicting pods — how do you triage node pressure?",
+     a:`<p><code>kubectl describe node</code> shows the specific pressure condition — <code>MemoryPressure</code>, <code>DiskPressure</code>, or <code>PIDPressure</code> — don't assume it's memory by default. For <code>DiskPressure</code>, check both the root filesystem and the container-runtime's image/overlay storage separately — image accumulation from frequent deploys without garbage collection is a common slow-burn cause. For <code>PIDPressure</code>, check for a fork-bombing container or a misbehaving process spawning children unbounded — this is invisible to CPU/memory dashboards, which is why it's a favorite "gotcha" interview scenario. In all cases, check whether Kubelet's eviction thresholds are tuned sensibly for the node's actual capacity — default thresholds on undersized nodes trigger eviction storms that look like an application problem but are a node-sizing problem.</p>`,
+     tags:["troubleshooting","kubernetes","node-pressure"]},
+    {q:"A GitHub Actions workflow is stuck 'Queued' and never starts — what do you check?",
+     a:`<p>For hosted runners: check GitHub's status page for regional queueing delays first (rule out provider-side before debugging your own config). For self-hosted runners: confirm the runner labels in the workflow's <code>runs-on</code> actually match an online, idle runner in the target runner group — a label typo or a runner group scope mismatch (workflow's repo isn't authorized for that runner group) causes an indefinite queue with no error message, which is what makes this scenario deceptively hard to debug. Also check <code>concurrency</code> group settings — a workflow can queue behind another run in the same concurrency group that's still executing, which looks identical to a runner-availability problem from the UI.</p>`,
+     tags:["troubleshooting","github-actions","runners"]},
+  ]
+},
+{
+  id:"ch15", vol:3, title:"Chapter 15 — Python &amp; Bash Automation for Platform Engineers",
+  intro:"The hands-on coding round. Interviewers care less about cleverness and more about error handling, idempotency, and not doing anything destructive without a dry-run.",
+  qa:[
+    {q:"Write Python to find and restart CrashLoopBackOff pods in a namespace.",
+     a:`<pre>from kubernetes import client, config
+
+config.load_incluster_config()  # or load_kube_config() locally
+v1 = client.CoreV1Api()
+
+def restart_crashlooping_pods(namespace, dry_run=True):
+    pods = v1.list_namespaced_pod(namespace)
+    for pod in pods.items:
+        for cs in pod.status.container_statuses or []:
+            waiting = cs.state.waiting
+            if waiting and waiting.reason == "CrashLoopBackOff":
+                print(f"[found] {pod.metadata.name} container={cs.name}")
+                if not dry_run:
+                    v1.delete_namespaced_pod(
+                        pod.metadata.name, namespace,
+                        body=client.V1DeleteOptions()
+                    )
+                    print(f"[deleted] {pod.metadata.name} (owner will recreate)")
+
+restart_crashlooping_pods("payments", dry_run=True)</pre>
+        <p>Interview-relevant details: deleting the pod (not "restarting" it directly — Kubernetes has no restart primitive) relies on the owning Deployment/ReplicaSet to recreate it; <code>dry_run</code> defaults True so nothing destructive happens by accident; this should page a human if the same pod crash-loops again immediately rather than looping forever.</p>`,
+     tags:["automation","python","kubernetes"]},
+    {q:"Write Python to rotate a secret in Azure Key Vault / AWS Secrets Manager and trigger a rolling restart.",
+     a:`<pre># AWS example
+import boto3, base64, secrets
+
+sm = boto3.client("secretsmanager")
+eks = boto3.client("eks")
+
+def rotate_secret(secret_id, k8s_namespace, deployment_name):
+    new_value = secrets.token_urlsafe(32)
+    sm.put_secret_value(SecretId=secret_id, SecretString=new_value)
+    print(f"[rotated] {secret_id}")
+    # trigger a rolling restart so pods pick up the new value
+    # (assumes External Secrets Operator syncs it into the cluster)
+    import subprocess
+    subprocess.run([
+        "kubectl", "rollout", "restart",
+        f"deployment/{deployment_name}", "-n", k8s_namespace
+    ], check=True)
+    print(f"[restarted] {deployment_name}")
+
+rotate_secret("prod/payments/db-password", "payments", "payments-api")</pre>
+        <p>The signal to hit in the answer: rotation alone doesn't help if nothing picks up the new value — either the app must re-read the secret, or a rolling restart is required, and the rotation script should own triggering that, not assume it happens.</p>`,
+     tags:["automation","python","secrets"]},
+    {q:"Write Python to check for failed deployments across a fleet of clusters and post a summary.",
+     a:`<pre>from kubernetes import client, config
+
+def check_failed_deployments(kubeconfig_contexts):
+    failures = []
+    for ctx in kubeconfig_contexts:
+        config.load_kube_config(context=ctx)
+        apps = client.AppsV1Api()
+        deployments = apps.list_deployment_for_all_namespaces()
+        for d in deployments.items:
+            desired = d.spec.replicas or 0
+            available = d.status.available_replicas or 0
+            if available < desired:
+                failures.append({
+                    "cluster": ctx, "namespace": d.metadata.namespace,
+                    "deployment": d.metadata.name,
+                    "desired": desired, "available": available
+                })
+    return failures
+
+def post_to_slack(failures, webhook_url):
+    import requests, json
+    if not failures:
+        return
+    text = "*Deployment health check failures:*\\n" + "\\n".join(
+        f"• {f['cluster']}/{f['namespace']}/{f['deployment']}: {f['available']}/{f['desired']}"
+        for f in failures
+    )
+    requests.post(webhook_url, json={"text": text})</pre>`,
+     tags:["automation","python","multi-cluster"]},
+    {q:"Write Python to create a GitHub repository from a golden template and trigger its first workflow via the API.",
+     a:`<pre>import requests
+
+GITHUB_API = "https://api.github.com"
+
+def create_repo_from_template(token, org, template_repo, new_repo_name):
+    headers = {"Authorization": f"Bearer {token}",
+               "Accept": "application/vnd.github+json"}
+    resp = requests.post(
+        f"{GITHUB_API}/repos/{org}/{template_repo}/generate",
+        headers=headers,
+        json={"owner": org, "name": new_repo_name, "private": True}
+    )
+    resp.raise_for_status()
+    print(f"[created] {org}/{new_repo_name}")
+    return resp.json()
+
+def trigger_workflow(token, org, repo, workflow_file, ref="main"):
+    headers = {"Authorization": f"Bearer {token}",
+               "Accept": "application/vnd.github+json"}
+    resp = requests.post(
+        f"{GITHUB_API}/repos/{org}/{repo}/actions/workflows/{workflow_file}/dispatches",
+        headers=headers, json={"ref": ref}
+    )
+    resp.raise_for_status()
+    print(f"[triggered] {workflow_file} on {org}/{repo}@{ref}")
+
+repo = create_repo_from_template("$TOKEN", "myorg", "golden-template-python", "new-payments-worker")
+trigger_workflow("$TOKEN", "myorg", "new-payments-worker", "deploy.yml")</pre>
+        <p>Interview note: use a GitHub App installation token here, not a personal PAT — this is exactly the automation-identity distinction covered in Chapter 4.</p>`,
+     tags:["automation","python","github-api"]},
+    {q:"Write a bash script to find pods stuck Pending or CrashLoopBackOff across a cluster.",
+     a:`<pre>#!/usr/bin/env bash
+set -euo pipefail
+
+echo "== Pending pods =="
+kubectl get pods --all-namespaces --field-selector=status.phase=Pending \\
+  -o custom-columns='NAMESPACE:.metadata.namespace,POD:.metadata.name,AGE:.metadata.creationTimestamp'
+
+echo "== CrashLoopBackOff pods =="
+kubectl get pods --all-namespaces -o json | \\
+  jq -r '.items[] | select(.status.containerStatuses[]?.state.waiting.reason=="CrashLoopBackOff") |
+  "\\(.metadata.namespace)\\t\\(.metadata.name)"'</pre>`,
+     tags:["automation","bash","kubernetes"]},
+    {q:"Write a bash script to check TLS certificate expiry across a list of domains and alert if under 14 days.",
+     a:`<pre>#!/usr/bin/env bash
+set -euo pipefail
+THRESHOLD_DAYS=14
+DOMAINS=("api.example.com" "app.example.com" "admin.example.com")
+
+for domain in "\${DOMAINS[@]}"; do
+  expiry=$(echo | openssl s_client -servername "$domain" -connect "$domain:443" 2>/dev/null \\
+    | openssl x509 -noout -enddate | cut -d= -f2)
+  expiry_epoch=$(date -d "$expiry" +%s)
+  now_epoch=$(date +%s)
+  days_left=$(( (expiry_epoch - now_epoch) / 86400 ))
+
+  if [ "$days_left" -lt "$THRESHOLD_DAYS" ]; then
+    echo "ALERT: $domain expires in $days_left days ($expiry)"
+  else
+    echo "OK: $domain expires in $days_left days"
+  fi
+done</pre>`,
+     tags:["automation","bash","tls"]},
+    {q:"Write a bash script for safe node disk cleanup that won't remove active container layers.",
+     a:`<pre>#!/usr/bin/env bash
+set -euo pipefail
+
+THRESHOLD_PCT=80
+USAGE=$(df / | awk 'NR==2 {gsub("%","",$5); print $5}')
+
+if [ "$USAGE" -lt "$THRESHOLD_PCT" ]; then
+  echo "Disk usage $USAGE% — below threshold, nothing to do"
+  exit 0
+fi
+
+echo "Disk usage $USAGE% — cleaning up"
+# only prune what's safe: dangling images, stopped containers, unused volumes
+# never prune with -a (would remove images referenced by nothing but still needed for fast rollback)
+docker system prune -f --filter "until=24h"
+crictl rmi --prune 2>/dev/null || true
+journalctl --vacuum-time=3d
+
+echo "Cleanup complete. New usage:"
+df -h /</pre>
+        <p>Interview signal: the answer explicitly avoids <code>-a</code>/aggressive pruning and time-bounds what's removed — a bad prune script that deletes an image needed for an emergency rollback is a real production incident, and interviewers listen for that caution.</p>`,
+     tags:["automation","bash","node-health"]},
+  ]
+},
+{
+  id:"ch16", vol:3, title:"Chapter 16 — Mock Interview Rounds by Seniority",
+  intro:"What each round is actually evaluating, plus sample questions and a framework for behavioral answers. For AVP-level loops, expect all six rounds across 2-3 days.",
+  qa:[
+    {q:"HR / Recruiter Screen — what is this round actually evaluating?",
+     a:`<p>Not technical depth — it's screening for <strong>compensation alignment, notice period, location/visa constraints, and basic motivation fit</strong>. The one substantive question to prepare well: "why are you leaving / why this role" — answer in terms of what you're moving <em>toward</em> (scope, technology, mission) rather than what you're escaping, even if escape is part of the truth. Have your comp expectations as a range, not a single number, and know your notice period exactly.</p>`,
+     tags:["mock-interview","hr-round"]},
+    {q:"Technical Round — what's the actual bar, and how should you structure answers?",
+     a:`<p>This round is testing <strong>depth over breadth</strong> — expect 2-3 topics gone deep rather than 10 shallow ones. Structure every answer as: definition → why it matters → a concrete example from your own experience → a tradeoff or failure mode you've personally hit. Interviewers consistently rate "I hit this exact problem at [company], here's what broke and how we fixed it" far higher than a textbook-correct but experience-free answer — have 4-5 real incidents/projects ready to map onto whatever topic comes up.</p>`,
+     tags:["mock-interview","technical-round"]},
+    {q:"Architect Round — what distinguishes a senior answer from a staff/principal answer here?",
+     a:`<p>A senior answer solves the stated problem well. A staff/principal answer <strong>questions the constraints first</strong> — asks about scale, existing systems, team maturity, and organizational constraints before designing, and explicitly names tradeoffs rather than presenting one "correct" design. When given an open-ended design question, spend the first 2-3 minutes clarifying scope out loud (this is itself part of what's being evaluated) before diagramming anything.</p>`,
+     tags:["mock-interview","architect-round"]},
+    {q:"Hiring Manager Round — what are they really assessing beyond technical skill?",
+     a:`<p><strong>Team fit and how you'll operate day-to-day</strong> — how you handle disagreement with a peer, how you prioritize under competing demands, how you communicate status on ambiguous work. Prepare a STAR-format story (Situation, Task, Action, Result) for: a conflict with a peer/manager you navigated well, a time you pushed back on a decision with data, and a project that failed and what you changed afterward. Hiring managers specifically probe for self-awareness in the "failure" story — a candidate with no real failure story, or one that blames others, is a red flag they're trained to notice.</p>`,
+     tags:["mock-interview","hiring-manager-round","behavioral"]},
+    {q:"Director/Principal Round — what's the bar for an AVP-level candidate specifically?",
+     a:`<p>This round tests <strong>organizational and strategic thinking</strong>, not hands-on execution. Expect questions like "how would you build a platform roadmap for the next 12 months" or "how do you decide what reliability work to prioritize against feature pressure from the business." The strong answer names concrete mechanisms (error budgets driving prioritization, a scorecard-based adoption metric, a documented golden-path deviation process) rather than abstract leadership platitudes — directors are listening for whether you've actually run these mechanisms, not just read about them.</p>`,
+     tags:["mock-interview","director-round"]},
+    {q:"How do you structure a strong answer to 'tell me about a time you disagreed with your manager'?",
+     a:`<p>Use STAR, but the part interviewers actually weight heavily is the <strong>resolution mechanism</strong>, not who was "right." A strong structure: (1) the situation and what you believed vs what they believed; (2) how you made your case — with data/a prototype/a small experiment, not just argument; (3) what happened — ideally you either changed their mind with evidence, or they had context you didn't and you updated instead; (4) what you'd do differently. Avoid both extremes: a story where you "won" by being right (reads as inflexible) and a story where you just complied silently (reads as lacking conviction).</p>`,
+     tags:["mock-interview","behavioral","star-method"]},
+  ]
+},
+{
+  id:"ch17", vol:4, title:"Chapter 17 — Enterprise Networking",
+  intro:"DNS, ingress, service mesh, and hybrid connectivity (VPN/peering/transit gateway) — the networking depth expected once you're operating platforms that span VPCs/VNets and on-prem.",
+  diagram:{cap:"Hybrid connectivity: VNet peering vs Transit Gateway/Virtual WAN",
+    svg:`<svg viewBox="0 0 760 200" width="100%">
+      <circle cx="140" cy="60" r="46" fill="none" stroke="#39d98a"/><text x="140" y="64" fill="#39d98a" font-size="11" text-anchor="middle">VNet A</text>
+      <circle cx="380" cy="60" r="46" fill="none" stroke="#39d98a"/><text x="380" y="64" fill="#39d98a" font-size="11" text-anchor="middle">VNet B</text>
+      <circle cx="620" cy="60" r="46" fill="none" stroke="#39d98a"/><text x="620" y="64" fill="#39d98a" font-size="11" text-anchor="middle">VNet C</text>
+      <line x1="186" y1="60" x2="334" y2="60" stroke="#7d8ba1"/>
+      <line x1="426" y1="60" x2="574" y2="60" stroke="#7d8ba1"/>
+      <line x1="186" y1="40" x2="574" y2="40" stroke="#f0b429" stroke-dasharray="3"/>
+      <text x="380" y="150" fill="#7d8ba1" font-size="10" text-anchor="middle">Direct peering (green) = full mesh grows O(n²) — fine for 3, painful for 30</text>
+      <text x="380" y="168" fill="#f0b429" font-size="10" text-anchor="middle">Transit Gateway / Virtual WAN (amber, hub) = O(n) connections, centralized routing/inspection</text>
+    </svg>`},
+  qa:[
+    {q:"VNet/VPC Peering vs Transit Gateway (or Virtual WAN) — when do you outgrow peering?",
+     a:`<p>Direct peering connects two networks point-to-point with no transitive routing (A↔B and B↔C peered does <em>not</em> let A reach C). This is fine and cheapest for a handful of networks, but connections grow O(n²) — 10 VPCs needing full connectivity means 45 peering connections to manage. A <strong>Transit Gateway</strong> (AWS) / <strong>Virtual WAN</strong> (Azure) acts as a routing hub: every VPC/VNet peers once to the hub, and the hub handles transitive routing between all of them — O(n) connections, centralized route tables, and a natural point to insert centralized firewall/inspection. The interview signal: name the switchover trigger explicitly — once you're manually reasoning about a peering mesh's route tables, or need centralized egress inspection, that's the point to migrate to a hub model, not before (it adds cost and a single logical chokepoint).</p>`,
+     tags:["networking","vpc-peering","transit-gateway"]},
+    {q:"Explain mTLS and why a service mesh implements it instead of the application.",
+     a:`<p>mTLS (mutual TLS) means both sides of a connection present and verify a certificate — not just the server (as in normal HTTPS), so a service can cryptographically verify <em>which other service</em> is calling it, not just that the transport is encrypted. Implementing this per-application means every team manages certificate issuance, rotation, and verification logic independently — inconsistent and error-prone at scale. A service mesh (Istio/Linkerd) injects a sidecar proxy that transparently handles mTLS for every connection, with a mesh-wide CA automatically issuing and rotating short-lived certs per pod identity — application code makes plain HTTP calls and gets mTLS "for free" at the network layer, with a consistent, centrally-managed trust model.</p>`,
+     tags:["networking","mtls","service-mesh"]},
+    {q:"What's the difference between a Private Endpoint and a VPN for accessing a managed service securely?",
+     a:`<p>A <strong>VPN</strong> (or ExpressRoute/Direct Connect) is a network-layer tunnel connecting two networks (on-prem to cloud, or cloud to cloud) — everything routable on one side becomes reachable from the other, subject to routing/firewall rules. A <strong>Private Endpoint</strong> (Azure) / <strong>PrivateLink</strong> (AWS) is narrower and service-specific: it places a private IP for one specific managed service (a storage account, a database) directly inside your VNet/VPC, so traffic to that service never traverses the public internet, without exposing broader network reachability. Use VPN/ExpressRoute for general network connectivity between sites; use Private Endpoints when the only need is "this VNet must reach this one PaaS resource privately" — a much smaller and more auditable blast radius.</p>`,
+     tags:["networking","private-endpoint","vpn"]},
+    {q:"How do you design DNS for a hybrid on-prem + multi-cloud environment?",
+     a:`<p>The core pattern is <strong>conditional forwarding</strong>: each environment's DNS resolver forwards queries for specific zones to the authoritative resolver for that environment rather than everything going through one global resolver. E.g., on-prem AD DNS forwards <code>*.internal.aws.company.com</code> to a Route53 Resolver endpoint; the cloud's private DNS forwards on-prem zones back through the VPN/ExpressRoute link. Centralize what you can (a single source of truth for public-facing zones) but expect conditional forwarding for private zones — trying to force one authoritative DNS server across on-prem and multiple clouds usually fights each platform's native service-discovery integration (Kubernetes DNS, cloud-native private DNS zones) rather than working with it.</p>`,
+     tags:["networking","dns","hybrid-cloud"]},
+    {q:"NGINX Ingress vs a service mesh's own ingress gateway — when do you need both?",
+     a:`<p>An NGINX (or similar) Ingress controller handles <strong>north-south</strong> traffic — external clients into the cluster — with L7 routing, TLS termination, and basic rate limiting. A service mesh's ingress gateway can do the same north-south job, but the mesh's real value is <strong>east-west</strong> traffic — service-to-service inside the cluster, where a plain Ingress controller has no role at all. Many production setups run both: NGINX (or a cloud-native ALB/Ingress) as the external entry point for simplicity and lower resource overhead, with the mesh handling internal service-to-service mTLS/observability/traffic-shaping once traffic is inside. Running the mesh's ingress gateway as the sole external entry point is also valid — the choice is about operational simplicity vs wanting one consistent traffic-management model end-to-end.</p>`,
+     tags:["networking","ingress","service-mesh"]},
+  ]
+},
+{
+  id:"ch18", vol:4, title:"Chapter 18 — Terraform Hands-On Labs",
+  intro:"Runnable, self-contained labs — the kind of practical exercise an architect-round interviewer may ask you to talk through live or actually type.",
+  qa:[
+    {q:"Lab: Build a reusable Terraform module for an S3 bucket with encryption, versioning, and a least-privilege access policy.",
+     a:`<p><strong>Objective:</strong> practice module design — inputs, sane defaults, and outputs other modules can consume.</p>
+        <pre>
+# modules/s3-secure-bucket/main.tf
+variable "bucket_name" { type = string }
+variable "enable_versioning" { type = bool, default = true }
+variable "allowed_principal_arns" { type = list(string), default = [] }
+
+resource "aws_s3_bucket" "this" {
+  bucket = var.bucket_name
+}
+
+resource "aws_s3_bucket_versioning" "this" {
+  bucket = aws_s3_bucket.this.id
+  versioning_configuration { status = var.enable_versioning ? "Enabled" : "Suspended" }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
+  bucket = aws_s3_bucket.this.id
+  rule {
+    apply_server_side_encryption_by_default { sse_algorithm = "aws:kms" }
+    bucket_key_enabled = true
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "this" {
+  bucket                  = aws_s3_bucket.this.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+data "aws_iam_policy_document" "least_privilege" {
+  statement {
+    actions   = ["s3:GetObject", "s3:PutObject"]
+    resources = ["\${aws_s3_bucket.this.arn}/*"]
+    principals {
+      type        = "AWS"
+      identifiers = var.allowed_principal_arns
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "this" {
+  bucket = aws_s3_bucket.this.id
+  policy = data.aws_iam_policy_document.least_privilege.json
+}
+
+output "bucket_arn" { value = aws_s3_bucket.this.arn }
+output "bucket_name" { value = aws_s3_bucket.this.id }</pre>
+        <p><strong>Validation:</strong> <code>terraform plan</code> should show public access blocked by default and encryption enforced even if a consumer forgets to set it — that's the point of a golden module: safe defaults with an explicit override path, not a bare resource every team configures themselves.</p>`,
+     tags:["lab","terraform","aws","modules"]},
+    {q:"Lab: Configure remote state with locking, then simulate and resolve a lock conflict.",
+     a:`<pre>
+# backend.tf
+terraform {
+  backend "s3" {
+    bucket         = "company-tfstate-prod"
+    key            = "network/prod/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-locks"
+    encrypt        = true
+  }
+}</pre>
+        <p><strong>Exercise:</strong> run <code>terraform apply</code> in one terminal and, while it's mid-apply, run <code>terraform plan</code> in a second terminal against the same state — you should see <code>Error: Error acquiring the state lock</code> with a lock ID, owner, and timestamp. <strong>Validation task:</strong> practice safely inspecting <code>terraform force-unlock &lt;LOCK_ID&gt;</code> — and explicitly discuss when it's safe to use (only when you've confirmed the original process actually died, e.g. a killed CI job) versus when it's dangerous (force-unlocking a lock held by a still-running apply corrupts state). This is a favorite interview follow-up: "when would you never use force-unlock?"</p>`,
+     tags:["lab","terraform","state","locking"]},
+    {q:"Lab: Write an OPA/Conftest policy that blocks a Terraform plan creating a public-facing security group rule.",
+     a:`<pre>
+# policy/no_public_ingress.rego
+package main
+
+deny[msg] {
+  resource := input.resource_changes[_]
+  resource.type == "aws_security_group_rule"
+  resource.change.after.type == "ingress"
+  resource.change.after.cidr_blocks[_] == "0.0.0.0/0"
+  resource.change.after.from_port == 22
+  msg := sprintf("SSH (port 22) open to 0.0.0.0/0 in %s — not allowed", [resource.address])
+}</pre>
+        <pre># run against a plan
+terraform plan -out=tfplan
+terraform show -json tfplan > plan.json
+conftest test plan.json -p policy/</pre>
+        <p><strong>Validation:</strong> apply a change that opens port 22 to <code>0.0.0.0/0</code> and confirm <code>conftest test</code> fails the CI step before <code>apply</code> ever runs. Extend as a follow-up exercise: add a rule blocking unencrypted S3 buckets, and wire both into the reusable GitHub Actions workflow from Chapter 5 as a required check.</p>`,
+     tags:["lab","terraform","opa","policy-as-code"]},
+    {q:"Lab: Use Terragrunt to DRY up backend config and deploy the same module to dev/stage/prod.",
+     a:`<pre>
+# terragrunt.hcl (root)
+remote_state {
+  backend = "s3"
+  generate = { path = "backend.tf", if_exists = "overwrite" }
+  config = {
+    bucket         = "company-tfstate-\${get_env("ENV", "dev")}"
+    key            = "\${path_relative_to_include()}/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-locks"
+  }
+}
+
+# environments/prod/network/terragrunt.hcl
+include "root" { path = find_in_parent_folders() }
+terraform { source = "../../../modules//network" }
+inputs = { environment = "prod", vpc_cidr = "10.0.0.0/16" }</pre>
+        <p><strong>Exercise:</strong> run <code>terragrunt run-all plan</code> from the <code>environments/</code> root and observe it discover and plan every environment's module without hand-writing a backend block per environment. <strong>Discussion point for the interview:</strong> explain why <code>run-all apply</code> is dangerous without <code>--terragrunt-parallelism 1</code> or explicit dependency ordering when environments depend on each other's outputs (e.g., stage depends on a shared-services VPC ID) — this is exactly the kind of operational nuance that separates "used Terragrunt" from "operated Terragrunt at scale."</p>`,
+     tags:["lab","terraform","terragrunt"]},
+  ]
+},
+{
+  id:"ch19", vol:4, title:"Chapter 19 — Kubernetes Hands-On Labs",
+  intro:"Cluster-side labs you can run against any kind or minikube cluster to build muscle memory for the scenarios in Chapter 10 and Chapter 14.",
+  qa:[
+    {q:"Lab: Reproduce and fix a Pending pod caused by resource requests exceeding node capacity.",
+     a:`<pre>
+# 1. Create a pod requesting more memory than any node has free
+kubectl run memory-hog --image=nginx --restart=Never \\
+  --requests='memory=64Gi' --limits='memory=64Gi'
+
+# 2. Confirm it's Pending and read the real reason
+kubectl describe pod memory-hog | grep -A5 Events
+# Events show: "0/3 nodes are available: 3 Insufficient memory"
+
+# 3. Fix by right-sizing the request
+kubectl delete pod memory-hog
+kubectl run memory-hog --image=nginx --restart=Never \\
+  --requests='memory=128Mi' --limits='memory=256Mi'
+
+kubectl get pod memory-hog -w</pre>
+        <p><strong>Extend it:</strong> if using Karpenter/cluster-autoscaler, repeat the first step and watch <code>kubectl get events -w</code> for a scale-up trigger instead of a permanent Pending state — this demonstrates the difference between a static cluster (Pending forever) and an elastic one (Pending resolves itself once a new node joins).</p>`,
+     tags:["lab","kubernetes","pending-pods","autoscaling"]},
+    {q:"Lab: Build a NetworkPolicy that allows only a frontend pod to reach a backend pod, and prove it with a negative test.",
+     a:`<pre>
+# deny-all baseline, then explicit allow
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: default-deny, namespace: labs }
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: allow-frontend-to-backend, namespace: labs }
+spec:
+  podSelector: { matchLabels: { app: backend } }
+  policyTypes: [Ingress]
+  ingress:
+  - from:
+    - podSelector: { matchLabels: { app: frontend } }
+    ports: [{ port: 8080, protocol: TCP }]</pre>
+        <pre># negative test — this pod is NOT labeled frontend, should be blocked
+kubectl run intruder -n labs --image=busybox --restart=Never -- sleep 3600
+kubectl exec -n labs intruder -- wget -T2 backend:8080
+# expect: timeout — proves the deny-all + selective allow actually works</pre>
+        <p><strong>Discussion point:</strong> explain why the <code>default-deny</code> policy is required first — without it, an "allow" policy is additive on top of an implicit-allow cluster, and does nothing, which is the single most common NetworkPolicy mistake candidates make live.</p>`,
+     tags:["lab","kubernetes","networkpolicy"]},
+    {q:"Lab: Set up KEDA to scale a queue consumer to zero and back based on SQS depth.",
+     a:`<pre>
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata: { name: sqs-consumer-scaler, namespace: labs }
+spec:
+  scaleTargetRef: { name: sqs-consumer }
+  minReplicaCount: 0
+  maxReplicaCount: 20
+  cooldownPeriod: 60
+  triggers:
+  - type: aws-sqs-queue
+    metadata:
+      queueURL: https://sqs.us-east-1.amazonaws.com/123456789/work-queue
+      queueLength: "5"
+      awsRegion: us-east-1
+    authenticationRef: { name: keda-aws-credentials }</pre>
+        <p><strong>Exercise:</strong> with zero messages in the queue, confirm the Deployment scales to 0 replicas after <code>cooldownPeriod</code>. Send 50 messages to the queue and watch <code>kubectl get hpa -w</code> (KEDA creates an HPA under the hood) scale up within its polling interval. <strong>Interview talking point:</strong> contrast this against plain HPA, which cannot scale below 1 replica and has no concept of an external queue metric at all — tie back directly to the Chapter 10 KEDA-vs-HPA answer.</p>`,
+     tags:["lab","kubernetes","keda","autoscaling"]},
+    {q:"Lab: Deploy Argo Rollouts and run a canary release gated on an error-rate metric.",
+     a:`<pre>
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata: { name: payments-api, namespace: labs }
+spec:
+  replicas: 5
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - pause: { duration: 60 }
+      - analysis:
+          templates: [{ templateName: error-rate-check }]
+      - setWeight: 50
+      - pause: { duration: 60 }
+      - setWeight: 100
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata: { name: error-rate-check, namespace: labs }
+spec:
+  metrics:
+  - name: error-rate
+    interval: 30s
+    successCondition: result < 0.01
+    provider:
+      prometheus:
+        address: http://prometheus.monitoring:9090
+        query: |
+          sum(rate(http_requests_total{job="payments-api",status=~"5.."}[1m]))
+          / sum(rate(http_requests_total{job="payments-api"}[1m]))</pre>
+        <p><strong>Exercise:</strong> deploy a new image version via <code>kubectl argo rollouts set image payments-api ...</code>, watch <code>kubectl argo rollouts get rollout payments-api --watch</code> step through the canary weights, then intentionally deploy a version that raises the error rate and confirm the AnalysisRun <strong>auto-aborts</strong> the rollout before it reaches 100%. This is the practical, demoable version of the "progressive delivery" answer in Chapter 6.</p>`,
+     tags:["lab","kubernetes","argo-rollouts","canary"]},
+  ]
+},
+{
+  id:"ch20", vol:5, title:"Chapter 20 — AWS/Azure Architecture &amp; FinOps",
+  intro:"Leverages certification-level Azure knowledge (AZ-104/SC-300) alongside AWS equivalents — the cloud-architecture depth that separates a platform engineer from an infrastructure operator, plus the cost-ownership conversation every AVP interview eventually reaches.",
+  diagram:{cap:"Landing zone: identity, network, and guardrails as one bootstrapped unit",
+    svg:`<svg viewBox="0 0 760 210" width="100%">
+      <rect x="20" y="20" width="220" height="60" rx="8" fill="none" stroke="#5da8ff"/>
+      <text x="130" y="45" fill="#5da8ff" font-size="12" text-anchor="middle">Identity</text>
+      <text x="130" y="63" fill="#7d8ba1" font-size="10" text-anchor="middle">Azure AD / IAM Identity Center</text>
+      <rect x="270" y="20" width="220" height="60" rx="8" fill="none" stroke="#39d98a"/>
+      <text x="380" y="45" fill="#39d98a" font-size="12" text-anchor="middle">Network</text>
+      <text x="380" y="63" fill="#7d8ba1" font-size="10" text-anchor="middle">Hub-spoke VNet/VPC + Transit GW</text>
+      <rect x="520" y="20" width="220" height="60" rx="8" fill="none" stroke="#f0b429"/>
+      <text x="630" y="45" fill="#f0b429" font-size="12" text-anchor="middle">Guardrails</text>
+      <text x="630" y="63" fill="#7d8ba1" font-size="10" text-anchor="middle">Azure Policy / SCPs, tagging enforced</text>
+      <line x1="130" y1="80" x2="130" y2="110" stroke="#7d8ba1"/>
+      <line x1="380" y1="80" x2="380" y2="110" stroke="#7d8ba1"/>
+      <line x1="630" y1="80" x2="630" y2="110" stroke="#7d8ba1"/>
+      <rect x="150" y="110" width="460" height="70" rx="8" fill="none" stroke="#ff5d5d" stroke-dasharray="4"/>
+      <text x="380" y="135" fill="#ff5d5d" font-size="12" text-anchor="middle">Account/Subscription Factory</text>
+      <text x="380" y="155" fill="#7d8ba1" font-size="10" text-anchor="middle">every new team gets identity+network+guardrails+cost tags</text>
+      <text x="380" y="170" fill="#7d8ba1" font-size="10" text-anchor="middle">pre-wired on day one — nothing bootstrapped by hand</text>
+    </svg>`},
+  qa:[
+    {q:"How do you design a VPC/VNet architecture for a multi-account/subscription enterprise?",
+     a:`<p>Start with a <strong>hub-spoke topology</strong>: a central hub VNet/VPC hosts shared services (firewall/NVA, DNS resolvers, VPN/ExpressRoute gateway) while each workload team gets its own spoke, peered to the hub (not to each other directly — that's the Chapter 17 O(n²) trap). Subnet design should separate by function and blast radius, not just size: a dedicated subnet per tier (web/app/data) with NSGs/security groups enforcing east-west restrictions between them, plus a dedicated subnet for private endpoints. <strong>Address planning matters more than it seems</strong> — reserve non-overlapping CIDR ranges per region/environment up front (e.g., <code>10.{env}.{region}.0/16</code>) because re-IPing a live VNet later to fix an overlap during a merger or multi-region expansion is genuinely painful; this is a real "what would you do differently" interview probe.</p>`,
+     tags:["aws","azure","networking","architecture"]},
+    {q:"IAM policies vs Azure RBAC vs Azure AD Conditional Access — how do these layer together?",
+     a:`<p>They answer different questions, and conflating them is a common interview stumble. <strong>IAM (AWS) / Azure RBAC</strong> answer "what can this identity <em>do</em> once authenticated" — resource-level permissions (read a bucket, restart a VM). <strong>Azure AD Conditional Access</strong> answers "<em>should this identity be allowed to authenticate at all, right now</em>" — device compliance, location, risk signals, MFA requirements — evaluated before RBAC is ever consulted. In practice they're layered: Conditional Access gates the sign-in (e.g., block access from an unmanaged device, or require MFA from outside the corporate network), and RBAC/IAM then scopes what an authenticated session can actually touch. A common enterprise pattern combining both: privileged roles (subscription Owner, IAM admin) require a Conditional Access policy forcing MFA + compliant device + PIM (Privileged Identity Management) just-in-time activation, while a read-only role has a lighter Conditional Access bar.</p>`,
+     tags:["azure","aws","iam","conditional-access"]},
+    {q:"What is the AWS Well-Architected Framework, and how do you actually apply it in a review, not just recite it?",
+     a:`<p>Five (now six, with Sustainability) pillars: Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization, Sustainability. Reciting the list isn't the interview signal — <strong>naming a tradeoff between pillars</strong> is. E.g., "we chose multi-AZ RDS for Reliability, which directly costs more under Cost Optimization — we justified it against the SLO's error budget, not just 'more reliability is always better.'" In a real review, walk a specific workload against each pillar's question set (AWS publishes these) and produce a scored gap list with owners — the deliverable is a prioritized backlog, not a checkbox exercise. Azure's equivalent is the <strong>Well-Architected Framework</strong> too (same five pillars, Microsoft's own version) — know that both exist and are near-identical in structure if you're asked to compare.</p>`,
+     tags:["aws","well-architected","architecture-review"]},
+    {q:"How do you design Azure Landing Zones for a large enterprise?",
+     a:`<p>A Landing Zone is the Azure-native version of an account factory: a pre-provisioned combination of a management group hierarchy, subscription structure, Azure Policy assignments (guardrails), networking (hub-spoke via Azure Virtual WAN or peered VNets), and identity baseline (Azure AD groups mapped to RBAC roles) — so a new subscription for a team starts compliant and connected, not as a blank canvas. Microsoft's <strong>Cloud Adoption Framework</strong> defines reference architectures (a "platform landing zone" for shared services vs "application landing zones" for workloads) — the interview-credible answer names this explicitly rather than describing a generic "we set up subscriptions" process. Enforce guardrails via Azure Policy (deny non-compliant resource creation, not just flag it after the fact) — this is the Azure equivalent of the Sentinel/OPA policy-as-code pattern from Chapter 9, applied at the platform layer instead of the Terraform-plan layer.</p>`,
+     tags:["azure","landing-zones","cloud-adoption-framework"]},
+    {q:"How do you implement FinOps practices — cost allocation, showback, and chargeback?",
+     a:`<p>FinOps starts with <strong>tagging enforcement</strong> — every resource must carry cost-center/team/environment tags, enforced at creation (Azure Policy deny rule / AWS SCP or Config rule), because retroactively tagging an untagged fleet is a multi-month cleanup project nobody wants to own. <strong>Showback</strong> means surfacing each team's actual spend to them (via cost-management dashboards scoped by tag) without billing them directly — builds cost awareness with low friction. <strong>Chargeback</strong> goes further and actually allocates the cost to the team's budget — higher accountability but higher organizational friction, and usually only introduced once showback has already built the habit of checking costs. The FinOps Foundation's <strong>Inform → Optimize → Operate</strong> cycle is the standard framing to reference: first make cost visible, then optimize (rightsizing, commitment discounts), then operationalize it as an ongoing practice with regular reviews, not a one-time cost-cutting sprint.</p>`,
+     tags:["finops","cost-management"]},
+    {q:"How do you reduce cloud costs meaningfully without hurting reliability?",
+     a:`<p>In priority order of typical impact: (1) <strong>rightsizing</strong> — most fleets run over-provisioned VMs/instances; use actual utilization data (CPU/memory over 2-4 weeks, not a point-in-time snapshot) to downsize, not guesswork; (2) <strong>commitment discounts</strong> — Reserved Instances/Savings Plans (AWS) or Reserved VM Instances (Azure) for steady-state baseline load, leaving burst capacity on-demand — commit to your floor, not your peak; (3) <strong>autoscaling floors</strong> — many teams set a static replica count "to be safe" that's really an autoscaling problem in disguise; (4) <strong>storage lifecycle policies</strong> — moving cold data to cheaper tiers automatically rather than leaving everything on premium storage indefinitely; (5) <strong>spot/preemptible instances</strong> for fault-tolerant batch/CI workloads. The reliability-safe framing to use in an interview: cost optimization should target waste (over-provisioning, forgotten resources, wrong storage tier), not margin (don't cut the redundancy that actually protects your SLO) — conflating the two is the mistake that makes cost-cutting dangerous.</p>`,
+     tags:["finops","cost-optimization"]},
+    {q:"How do you handle hybrid identity federation — Azure AD as a central IdP granting access into AWS?",
+     a:`<p>Configure Azure AD as a <strong>SAML 2.0 identity provider</strong> federated with AWS IAM Identity Center (or a direct SAML trust to individual AWS accounts for smaller setups) — users authenticate once against Azure AD (with Conditional Access enforced), and AWS trusts the resulting SAML assertion to grant a temporary role session, mapped via SAML attributes to specific IAM roles/permission sets. This eliminates AWS-native IAM users entirely for human access — no separate password, no long-lived AWS access keys for people, and Conditional Access policies (MFA, device compliance) apply uniformly whether someone's accessing Azure or AWS resources. The interview-relevant nuance: workload identity (service-to-service) should use a separate mechanism (OIDC federation, as covered in Chapter 5) — SAML federation is specifically for human sign-in, and conflating the two patterns is a common design mistake.</p>`,
+     tags:["azure","aws","identity-federation","saml"]},
+  ]
+},
+{
+  id:"ch21", vol:5, title:"Chapter 21 — Regulated-Industry Change Management &amp; Compliance",
+  intro:"The layer of process that a fast-moving startup doesn't need and a bank absolutely does — expect this explicitly in a Barclays-style interview loop, often from a Director/Compliance-adjacent interviewer rather than a purely technical one.",
+  diagram:{cap:"ITIL change types — approval path by risk, not by size",
+    svg:`<svg viewBox="0 0 760 190" width="100%">
+      <rect x="20" y="20" width="210" height="60" rx="8" fill="none" stroke="#39d98a"/>
+      <text x="125" y="45" fill="#39d98a" font-size="12" text-anchor="middle">Standard Change</text>
+      <text x="125" y="63" fill="#7d8ba1" font-size="10" text-anchor="middle">pre-approved, low-risk, repeatable</text>
+      <rect x="270" y="20" width="210" height="60" rx="8" fill="none" stroke="#f0b429"/>
+      <text x="375" y="45" fill="#f0b429" font-size="12" text-anchor="middle">Normal Change</text>
+      <text x="375" y="63" fill="#7d8ba1" font-size="10" text-anchor="middle">CAB review + scheduled approval</text>
+      <rect x="520" y="20" width="210" height="60" rx="8" fill="none" stroke="#ff5d5d"/>
+      <text x="625" y="45" fill="#ff5d5d" font-size="12" text-anchor="middle">Emergency Change</text>
+      <text x="625" y="63" fill="#7d8ba1" font-size="10" text-anchor="middle">expedited approval, retro-documented</text>
+      <text x="125" y="105" fill="#7d8ba1" font-size="10" text-anchor="middle">e.g. a config value change</text>
+      <text x="125" y="120" fill="#7d8ba1" font-size="10" text-anchor="middle">via the pre-approved pipeline</text>
+      <text x="375" y="105" fill="#7d8ba1" font-size="10" text-anchor="middle">e.g. new service launch,</text>
+      <text x="375" y="120" fill="#7d8ba1" font-size="10" text-anchor="middle">schema migration</text>
+      <text x="625" y="105" fill="#7d8ba1" font-size="10" text-anchor="middle">e.g. P1 outage hotfix,</text>
+      <text x="625" y="120" fill="#7d8ba1" font-size="10" text-anchor="middle">security patch under active exploit</text>
+      <text x="380" y="165" fill="#7d8ba1" font-size="11" text-anchor="middle">The GitOps pipeline itself, once audited, can BE the standard-change approval mechanism</text>
+    </svg>`},
+  qa:[
+    {q:"Walk through an ITIL-aligned change management process for a production deployment in a bank.",
+     a:`<p>Classify the change first — this determines the entire approval path. A <strong>standard change</strong> (pre-approved, well-understood, low-risk — e.g., a config value rollout through an already-audited CI/CD pipeline) can deploy without per-instance CAB review, because the risk assessment happened once when the pipeline itself was approved as a standard change model. A <strong>normal change</strong> (new service, schema migration, anything with unreviewed risk) goes to the Change Advisory Board with a documented risk assessment, rollback plan, and testing evidence, scheduled for an approved deployment window. An <strong>emergency change</strong> (P1 hotfix) uses an expedited approval (often a smaller emergency-CAB or a single authorized approver) but still requires retrospective documentation within a defined SLA — "we didn't have time" is never a reason to skip the audit trail entirely, only to compress the timing of when it's captured.</p>`,
+     tags:["change-management","itil","compliance"]},
+    {q:"What's the difference between standard, normal, and emergency changes — and how does approval differ?",
+     a:`<p>The distinguishing axis is <strong>risk and repeatability</strong>, not urgency or size. <strong>Standard</strong>: a pattern that's been risk-assessed once and pre-approved for repeated use (e.g., "any deploy through the golden-path pipeline with passing gates is pre-approved") — this is exactly where mature CI/CD earns its keep, turning what used to be per-deploy manual approval into a one-time process approval. <strong>Normal</strong>: novel or higher-risk changes needing individual review — the CAB evaluates blast radius, rollback plan, and testing evidence before scheduling. <strong>Emergency</strong>: change required to resolve an active incident — approval is compressed (often a single senior approver rather than a full board) specifically because incident response can't wait for a weekly CAB meeting, but it still generates the same audit artifacts after the fact. A senior candidate should name the platform-engineering payoff explicitly: investing in pipeline maturity is what lets an org move deploys from "normal" (slow) to "standard" (fast) change classification — that reclassification is a legitimate, measurable platform team outcome.</p>`,
+     tags:["change-management","itil"]},
+    {q:"How do you satisfy segregation-of-duties requirements in a GitOps/CI-CD pipeline for a regulated environment?",
+     a:`<p>The core requirement: <strong>the person who authored a change cannot be the sole approver of its deployment to production</strong>. In a GitOps pipeline this maps directly onto CODEOWNERS/required-reviewer rules (Chapter 4) — a PR to <code>environments/prod</code> requires approval from someone other than the author, enforced by branch protection, not by convention. Extend it further for regulated environments: the deployer identity (the CI/CD service account/GitHub App) should be distinct from any human's identity, so "who approved" and "what executed the deployment" are separately auditable; and break-glass emergency access (someone bypassing the pipeline entirely during an outage) should be logged, time-boxed, and automatically reviewed after the fact — not silently possible with no trace. The interview-credible detail: segregation of duties isn't about trust, it's about a control that holds even when someone made an honest mistake — the same logic behind blameless postmortems in Chapter 12.</p>`,
+     tags:["compliance","segregation-of-duties","gitops"]},
+    {q:"What is PCI-DSS and how does it concretely affect platform engineering decisions?",
+     a:`<p>PCI-DSS (Payment Card Industry Data Security Standard) governs any system that stores, processes, or transmits cardholder data — and its requirements translate directly into platform architecture decisions: <strong>network segmentation</strong> — the cardholder data environment (CDE) must be isolated from the rest of the network (a dedicated VPC/VNet with tightly controlled ingress, not just a namespace boundary); <strong>encryption</strong> — data at rest and in transit within the CDE has specific, auditable encryption requirements, not "encryption enabled somewhere"; <strong>logging</strong> — access to cardholder data systems must be logged and retained for a defined period, with logs themselves protected from tampering; <strong>access control</strong> — strict least-privilege and MFA for anyone touching the CDE. The practical platform-team implication: services touching payment data often need to live in a distinctly harder-walled part of the architecture than the rest of the platform, with its own tighter golden path — treating it identically to a normal microservice is a common and costly mistake.</p>`,
+     tags:["compliance","pci-dss","security"]},
+    {q:"How do you handle a needed production deployment during a change freeze (e.g., year-end for a bank)?",
+     a:`<p>First distinguish whether it's genuinely needed now or can wait — most freeze-period requests survive being deferred once someone asks that question directly. If it's genuinely urgent (security patch, active incident fix), it routes through the <strong>emergency change</strong> path even during a freeze — freezes typically carve out an explicit emergency exception process precisely because "absolutely nothing changes" isn't realistic for critical fixes. What doesn't get an exception: routine feature work, non-critical improvements — these queue for the freeze to lift. The organizationally mature answer names the tradeoff explicitly: freezes exist because year-end (or a similar high-stakes period) has lower tolerance for self-inflicted risk, so the bar for "this justifies bypassing the freeze" should be genuinely high, and a platform engineer pushing back on a marginal request during a freeze is doing their job, not being obstructive.</p>`,
+     tags:["change-management","change-freeze"]},
+    {q:"How do you provide audit evidence for a SOX or regulatory review of your deployment pipeline?",
+     a:`<p>The reviewer wants to see, for any given production change: who requested it, who approved it, what tests ran and passed, what actually deployed (exact commit/artifact), and when — all without relying on anyone's memory or a manually-maintained spreadsheet. A well-built GitOps/CI-CD pipeline already generates most of this as a byproduct: the PR itself is the change request, required-reviewer approval is the sign-off, CI logs are the test evidence, the signed/provenance-attested artifact (Chapter 8) is the deployed thing, and the Argo CD sync history is the deployment record. The audit-readiness signal to name explicitly: if producing this evidence requires someone to manually reconstruct a timeline from Slack messages and memory, the control isn't actually operating — it should be a query against systems of record, answerable in minutes, not a research project.</p>`,
+     tags:["compliance","sox","audit"]},
+    {q:"How do you balance CAB approval overhead with DevOps velocity in a regulated organization?",
+     a:`<p>The resolution isn't "fight the CAB" or "ignore DevOps principles" — it's investing in enough automated evidence and pipeline maturity that the <em>majority</em> of changes qualify for the standard-change (pre-approved) path, reserving CAB review for genuinely novel risk. This is a legitimate, measurable platform-engineering roadmap item: track the ratio of standard-vs-normal-classified changes over time as a maturity metric, and use it to make the business case for further pipeline investment (more automated testing, better rollback tooling) — each improvement that lets another change category graduate to "standard" measurably increases velocity without touching the compliance bar at all. This reframes "compliance slows us down" into "immature pipelines slow us down, and compliance is telling us where," which is a much stronger answer in an AVP-level interview than simply advocating for fewer controls.</p>`,
+     tags:["change-management","devops","compliance"]},
+  ]
+},
+{
+  id:"ch22", vol:5, title:"Chapter 22 — AVP-Level People Leadership",
+  intro:"The differentiator between a strong senior IC and an AVP hire — team design, hiring, budget ownership, and influence without direct authority. Expect this from a Hiring Manager or Director-round interviewer, often as a follow-up to your technical answers rather than a standalone section.",
+  qa:[
+    {q:"How would you structure and staff a platform/SRE team of 15-20 engineers?",
+     a:`<p>Use Team Topologies as the framing: split into a small number of <strong>stream-aligned pods</strong> (e.g., "Developer Experience," "Cloud Infrastructure," "Reliability/Observability") each with clear outcome ownership, rather than one undifferentiated 20-person team where priorities constantly collide. Staff each pod with a mix of seniority — one or two senior/staff engineers who own architecture decisions and mentor, mid-level engineers doing the bulk of delivery, and one or two juniors growing into the domain; an all-senior team is expensive and under-develops talent, an all-junior team lacks architectural judgment. Name the sizing rule of thumb explicitly if asked: platform teams generally aim for a support ratio (e.g., one platform engineer per N product engineers they serve) rather than sizing arbitrarily — this gives you a defensible number when justifying headcount to leadership.</p>`,
+     tags:["leadership","team-structure","team-topologies"]},
+    {q:"How do you approach hiring for a platform engineering team — what do you screen for beyond technical skill?",
+     a:`<p>Technical bar is necessary but not sufficient at this level — the differentiators to screen for explicitly: <strong>judgment under ambiguity</strong> (can they make a reasonable call with incomplete information, or do they freeze/over-engineer); <strong>communication with non-platform audiences</strong> (can they explain a technical tradeoff to a product engineer or a business stakeholder without jargon); and <strong>a bias toward paved roads over heroics</strong> (do they default to building something reusable, or do they optimize for looking good solving one team's problem in isolation). A concrete interview technique to mention: ask candidates to describe a technical decision they'd now make differently — the answer quality (specific, owns the reasoning gap, shows genuine update) is often more diagnostic than any system-design question.</p>`,
+     tags:["leadership","hiring"]},
+    {q:"How do you handle an underperforming senior engineer?",
+     a:`<p>Diagnose before acting — underperformance has different roots (skill gap, motivation/burnout, unclear expectations, a mismatch between the role and what they actually want to be doing) and each needs a different response; treating all of them as a discipline problem is a common and costly manager mistake. Start with a direct, specific conversation naming the gap in observable terms (missed deliverables, quality issues) rather than vague dissatisfaction, and co-create a concrete improvement plan with clear timelines — this is also the fair-process step that protects both the engineer and the organization if it eventually needs to escalate. Throughout, separate the person's potential from their current output — a senior engineer underperforming in one context has often over-performed in another, and naming that explicitly (rather than writing them off) is usually what actually turns the situation around when it's fixable.</p>`,
+     tags:["leadership","performance-management"]},
+    {q:"How do you own and manage a budget for infrastructure/tooling at AVP level?",
+     a:`<p>Treat the budget as a set of prioritized bets, not a fixed pool to defend. Build the request around outcomes tied to business metrics wherever possible (this reliability investment reduces incident hours by X, this tooling investment cuts onboarding time from N weeks to M) rather than pure infrastructure justification, since that's the language finance and senior leadership actually evaluate against. Track actuals against forecast monthly using the FinOps showback practice from Chapter 20 — a budget owner who can explain <em>why</em> spend moved, not just that it did, earns more latitude on future requests. And build in an explicit contingency/reserve line for incident-driven or opportunistic spend (an unplanned but justified tooling purchase after an outage) rather than treating every line item as fixed for the year — rigid budgets that can't flex to a real incident finding are a recurring source of friction at this level.</p>`,
+     tags:["leadership","budget","finops"]},
+    {q:"How do you influence engineering priorities across teams you don't directly manage?",
+     a:`<p>Authority doesn't scale past a certain point — the actual lever at AVP level is making the case so clearly and with such good evidence that adopting it is the obviously reasonable choice, not a favor to you. Concretely: lead with data the other team already cares about (their own incident history, their own on-call pain) rather than platform-team metrics they don't track; ship a working golden-path template or pilot before asking for adoption, so the ask is "try this, it already works" rather than "trust my design"; and build relationships with the other team's tech lead before you need something from them, not in the moment you do. Name the failure mode explicitly if asked: mandating adoption from a position of authority without doing this groundwork produces compliance without buy-in, which quietly erodes the moment attention moves elsewhere.</p>`,
+     tags:["leadership","influence","stakeholder-management"]},
+    {q:"How do you build a technical roadmap and get buy-in from both engineering and business stakeholders?",
+     a:`<p>Anchor the roadmap in outcomes both audiences already care about, translated into their language: to engineering, "reduce deploy lead time from days to hours"; to business, "ship features to customers faster, with fewer production incidents." Sequence the roadmap around a small number of load-bearing bets rather than a long flat backlog — a roadmap with 20 equally-weighted items signals no actual prioritization happened. Build in regular checkpoints to show incremental proof (a scorecard metric moving, an adoption number climbing) rather than asking stakeholders to trust a 12-month plan on faith — momentum and visible progress are what sustain buy-in past the initial pitch. When priorities inevitably conflict (a business ask threatens to derail a reliability investment), make the tradeoff explicit and quantified rather than silently absorbing it — "we can do both if we slip X by two weeks" is a much stronger AVP-level answer than either capitulating entirely or refusing to flex.</p>`,
+     tags:["leadership","roadmap","stakeholder-management"]},
+    {q:"How do you mentor and grow engineers into senior/staff roles?",
+     a:`<p>The concrete mechanism that actually works, beyond generic "give feedback": deliberately hand off decisions, not just tasks — have the engineer own a real architectural choice (with your safety net, but genuinely their call) rather than executing decisions you've already made, since judgment is built by making calls, not by following good ones. Pair this with regular, specific feedback tied to the competencies the next level actually requires (not just "good job") — most engineers plateau because no one has told them concretely what staff-level judgment looks like versus what they're currently demonstrating. And create visibility for their work beyond your own 1:1s — sponsoring them to present to a wider audience or lead a cross-team initiative builds the reputation that a promotion case actually needs, which mentoring in private conversations alone never produces.</p>`,
+     tags:["leadership","mentoring","career-growth"]},
+  ]
+}
+];
+
+// ===== render =====
+const chaptersEl = document.getElementById('chapters');
+const sidebarEl = document.getElementById('sidebar');
+const mastered = new Set();
+let currentVolume = "all";
+
+function qaId(chId, idx){ return chId+'-'+idx; }
+
+function render(filter=""){
+  const f = filter.trim().toLowerCase();
+  chaptersEl.innerHTML = "";
+  sidebarEl.innerHTML = "";
+  let totalShown = 0, totalMastered = 0, totalAll = 0;
+
+  const visibleChapters = DATA.filter(ch => currentVolume === "all" || String(ch.vol) === currentVolume);
+
+  visibleChapters.forEach(ch=>{
+    totalAll += ch.qa.length;
+    const matches = ch.qa.map((item,idx)=>{
+      const hay = (item.q+" "+item.a+" "+(item.tags||[]).join(" ")).toLowerCase();
+      return {item, idx, show: !f || hay.includes(f)};
+    });
+    const visibleCount = matches.filter(m=>m.show).length;
+    if(f && visibleCount===0) return;
+
+    // sidebar link
+    const chMasteredCount = ch.qa.filter((_,idx)=>mastered.has(qaId(ch.id,idx))).length;
+    const a = document.createElement('a');
+    a.href = "#"+ch.id;
+    a.innerHTML = `<span>${ch.title.replace(/^Chapter \d+ — /,'')}</span><span class="ct">${chMasteredCount}/${ch.qa.length}</span>`;
+    sidebarEl.appendChild(a);
+
+    const sec = document.createElement('section');
+    sec.className = 'chapter';
+    sec.id = ch.id;
+    sec.innerHTML = `
+      <div class="chapter-head"><span class="num">§</span><h2>${ch.title}</h2></div>
+      <div class="chapter-intro">${ch.intro}</div>
+      ${ch.diagram? `<div class="diagram-box"><div class="cap">${ch.diagram.cap}</div>${ch.diagram.svg}</div>` : ''}
+    `;
+    const qaWrap = document.createElement('div');
+    matches.forEach(({item, idx, show})=>{
+      if(!show) return;
+      totalShown++;
+      const id = qaId(ch.id, idx);
+      const isMastered = mastered.has(id);
+      if(isMastered) totalMastered++;
+      const det = document.createElement('details');
+      det.className = 'qa';
+      det.innerHTML = `
+        <summary>
+          <span class="mastered-box ${isMastered?'on':''}" data-id="${id}">${isMastered?'✓':''}</span>
+          <span class="chev">▸</span>
+          <span>${item.q}</span>
+        </summary>
+        <div class="body">
+          ${item.a}
+          <div class="tag-row">${(item.tags||[]).map(t=>`<span>#${t}</span>`).join('')}</div>
+        </div>`;
+      qaWrap.appendChild(det);
+    });
+    sec.appendChild(qaWrap);
+    chaptersEl.appendChild(sec);
+  });
+
+  document.getElementById('progressPill').textContent = `${totalMastered} / ${totalAll} mastered`;
+
+  chaptersEl.querySelectorAll('.mastered-box').forEach(box=>{
+    box.addEventListener('click', e=>{
+      e.preventDefault();
+      const id = box.dataset.id;
+      if(mastered.has(id)){ mastered.delete(id); box.classList.remove('on'); box.textContent=''; }
+      else { mastered.add(id); box.classList.add('on'); box.textContent='✓'; }
+      render(document.getElementById('search').value);
+    });
+  });
+
+  // re-highlight active sidebar link on scroll would need observer; keep simple static highlight on load
+}
+
+document.getElementById('search').addEventListener('input', e=>render(e.target.value));
+
+const volButtons = document.querySelectorAll('.volbtn');
+volButtons.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    currentVolume = btn.dataset.vol;
+    volButtons.forEach(b=>b.classList.toggle('active', b===btn));
+    render(document.getElementById('search').value);
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+volButtons[0].classList.add('active'); // "All Volumes" active by default
+
+render();
+</script>
+</body>
+</html>

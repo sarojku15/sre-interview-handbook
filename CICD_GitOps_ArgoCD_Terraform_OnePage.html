@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CI/CD with GitHub Actions, GitLab, GitOps, ArgoCD, Kubernetes & Terraform — Complete Guide in One Page</title>
+<style>
+:root{
+  --ink:#14202e; --sub:#4b5766; --line:#c9d2dc; --bg:#eef1f5;
+  --blue:#1c3f8f; --blue-soft:#e7edfb;
+  --green:#1f7a4c; --green-soft:#e6f5ec;
+  --orange:#b5540c; --orange-soft:#fdeee0;
+  --red:#a3271f; --red-soft:#fbe6e4;
+  --purple:#5b3a99; --purple-soft:#efe8fb;
+  --teal:#0f7a75; --teal-soft:#e2f5f3;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:var(--ink);}
+.page{max-width:1500px;margin:16px auto;background:#fff;padding:18px 22px 26px;border:1px solid var(--line);}
+.title{background:var(--blue);color:#fff;text-align:center;padding:14px 10px;font-size:24px;font-weight:800;letter-spacing:.4px;border-radius:4px;margin-bottom:8px}
+.subtitle{text-align:center;font-size:13px;color:var(--sub);margin-bottom:16px}
+.subtitle b.red{color:var(--red)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+.box{border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;font-size:11.3px;line-height:1.42}
+.box h3{margin:0 0 7px;font-size:12.5px;letter-spacing:.2px;padding-bottom:5px;border-bottom:2px solid currentColor}
+.c-blue{border-color:var(--blue)} .c-blue h3{color:var(--blue)}
+.c-green{border-color:var(--green)} .c-green h3{color:var(--green)}
+.c-orange{border-color:var(--orange)} .c-orange h3{color:var(--orange)}
+.c-red{border-color:var(--red)} .c-red h3{color:var(--red)}
+.c-purple{border-color:var(--purple)} .c-purple h3{color:var(--purple)}
+.c-teal{border-color:var(--teal)} .c-teal h3{color:var(--teal)}
+ul{margin:0;padding-left:15px}
+li{margin-bottom:3px}
+table{width:100%;border-collapse:collapse;font-size:10.7px}
+td,th{border:1px solid var(--line);padding:3px 5px;text-align:left;vertical-align:top}
+th{background:#f3f5f8;font-weight:700}
+code, .code{font-family:var(--mono);font-size:10.3px;background:#161b22;color:#c9d1d9;display:block;border-radius:6px;padding:8px 10px;white-space:pre-wrap;line-height:1.45}
+.inline-code{font-family:var(--mono);background:#eef1f5;padding:1px 4px;border-radius:3px;font-size:10.3px}
+.flowbox{border:1.5px solid var(--ink);border-radius:6px;padding:6px 8px;text-align:center;font-size:10.5px;font-weight:700;background:#fff}
+.arrow{display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--sub)}
+.check li{list-style:none;position:relative;padding-left:2px}
+.check li:before{content:"✓ ";color:var(--green);font-weight:800}
+.warn{color:var(--red);font-weight:700}
+.small{font-size:10px;color:var(--sub)}
+.diagramgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:center}
+.dnode{border:1.5px solid var(--blue);border-radius:6px;padding:6px 5px;text-align:center;font-size:9.6px;font-weight:700;background:var(--blue-soft);color:var(--ink)}
+.dnode.g{border-color:var(--green);background:var(--green-soft)}
+.dnode.o{border-color:var(--orange);background:var(--orange-soft)}
+.dnode.p{border-color:var(--purple);background:var(--purple-soft)}
+.dnode.t{border-color:var(--teal);background:var(--teal-soft)}
+.darr{text-align:center;font-size:14px;color:var(--sub)}
+.footer-flow{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;align-items:center;margin-top:4px}
+.footer-note{font-size:9.5px;color:var(--sub);text-align:center;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="title">CI/CD WITH GITHUB ACTIONS, GITLAB CI, GITOPS, ARGOCD, KUBERNETES &amp; TERRAFORM — COMPLETE GUIDE IN ONE PAGE</div>
+<div class="subtitle">CI (GitHub Actions / GitLab CI) builds &amp; pushes images. GitOps (ArgoCD) pulls &amp; deploys from Git. <b class="red">Terraform provisions the infrastructure everything else runs on.</b></div>
+
+<div class="grid">
+
+  <!-- 1 -->
+  <div class="box c-blue" style="grid-column:span 3">
+    <h3>1. WHAT IS CI/CD + GITOPS?</h3>
+    <ul>
+      <li><b>CI</b> — build, test, containerize on every push (GitHub Actions / GitLab CI).</li>
+      <li><b>CD (GitOps)</b> — a controller (ArgoCD) inside the cluster pulls desired state from Git and reconciles it.</li>
+      <li>Git is the single source of truth for what's running in prod.</li>
+    </ul>
+  </div>
+
+  <!-- 2 -->
+  <div class="box c-blue" style="grid-column:span 3">
+    <h3>2. WHY GITOPS (PUSH CI / PULL CD)?</h3>
+    <ul>
+      <li>No external system holds cluster credentials — ArgoCD's in-cluster identity does the applying.</li>
+      <li>Full audit trail: every prod change is a Git commit.</li>
+      <li>Rollback = git revert, not a manual kubectl fix under pressure.</li>
+      <li>Self-heal: manual drift gets reverted back to Git automatically.</li>
+    </ul>
+  </div>
+
+  <!-- 3 -->
+  <div class="box c-blue" style="grid-column:span 6">
+    <h3>3. CI vs CD (GITOPS) vs TERRAFORM — WHO DOES WHAT</h3>
+    <table>
+      <tr><th></th><th>CI (Actions/GitLab)</th><th>CD (ArgoCD)</th><th>Terraform</th></tr>
+      <tr><td><b>Triggers on</b></td><td>git push to app repo</td><td>change detected in GitOps repo</td><td>manual/CI-triggered plan+apply on infra repo</td></tr>
+      <tr><td><b>Manages</b></td><td>build, test, image, tag bump</td><td>app manifests → live cluster state</td><td>cluster itself, node pools, IAM, ECR, VPC, ArgoCD install</td></tr>
+      <tr><td><b>Touches K8s API?</b></td><td>No — never has cluster creds</td><td>Yes — via in-cluster service account</td><td>Sometimes, only to bootstrap (e.g. install ArgoCD via Helm provider)</td></tr>
+      <tr><td><b>Change frequency</b></td><td>Every commit</td><td>Every app deploy</td><td>Rare — infra changes slowly</td></tr>
+    </table>
+  </div>
+
+  <!-- 5 architecture -->
+  <div class="box c-green" style="grid-column:span 12">
+    <h3>5. FULL ARCHITECTURE — REAL PRODUCTION SCENARIO (CI phase → CD phase, Terraform underneath both)</h3>
+    <div class="diagramgrid">
+      <div class="dnode">Developer<br/>git push</div>
+      <div class="darr">→</div>
+      <div class="dnode">Repo A<br/>(App Code)</div>
+      <div class="darr">→</div>
+      <div class="dnode o">GitHub Actions /<br/>GitLab CI</div>
+      <div class="darr">→</div>
+      <div class="dnode g">Container Registry<br/>(ECR) sha-a1b2c3</div>
+
+      <div></div><div></div><div></div><div></div>
+      <div class="darr" style="grid-column:6">↓</div>
+      <div></div><div></div>
+
+      <div></div><div></div><div></div><div></div>
+      <div class="dnode g" style="grid-column:6">Repo B<br/>GitOps Infra Repo<br/>(values-prod.yaml)</div>
+      <div></div><div></div>
+
+      <div></div><div></div><div></div><div></div>
+      <div class="darr" style="grid-column:6">↓ webhook/poll</div>
+      <div></div><div></div>
+
+      <div class="dnode p">Terraform<br/>(provisions cluster,<br/>IAM, node pools, VPC)</div>
+      <div class="darr">→</div>
+      <div class="dnode">EKS/AKS/GKE<br/>Cluster (exists)</div>
+      <div class="darr">↔</div>
+      <div class="dnode p" style="grid-column:6">ArgoCD Controller<br/>(compares live vs Git)</div>
+      <div class="darr">→</div>
+      <div class="dnode">K8s API Server</div>
+    </div>
+    <div class="diagramgrid" style="margin-top:6px">
+      <div></div><div></div><div></div><div></div>
+      <div class="darr" style="grid-column:6">↓ rolling update</div>
+      <div></div><div></div>
+      <div></div><div></div><div></div><div></div>
+      <div class="dnode t" style="grid-column:6">Worker Node Fleet — pods running sha-a1b2c3, zero-downtime</div>
+      <div></div><div></div>
+    </div>
+    <div class="small" style="margin-top:6px">Terraform provisions and owns the cluster, IAM/OIDC roles, ECR repo, VPC/networking, and typically bootstraps ArgoCD itself (Helm release). Once the cluster and ArgoCD exist, Terraform steps back — app-level changes flow through CI → GitOps repo → ArgoCD, never back through Terraform.</div>
+  </div>
+
+  <!-- 6 -->
+  <div class="box c-orange" style="grid-column:span 4">
+    <h3>6. CI PIPELINE STAGES</h3>
+    <table>
+      <tr><th>Stage</th><th>Purpose</th></tr>
+      <tr><td>Checkout</td><td>Pull source at triggering commit</td></tr>
+      <tr><td>Lint / Unit Test</td><td>Fail fast, before build</td></tr>
+      <tr><td>Security/Dep Scan</td><td>Block known CVEs pre-build</td></tr>
+      <tr><td>Build Image</td><td>Docker build, tag = git SHA</td></tr>
+      <tr><td>Push to Registry</td><td>ECR/GHCR, immutable tag</td></tr>
+      <tr><td>Update GitOps Repo</td><td>Bump image.tag in values-prod.yaml</td></tr>
+    </table>
+  </div>
+
+  <!-- 7 terraform role -->
+  <div class="box c-purple" style="grid-column:span 8">
+    <h3>7. TERRAFORM'S ROLE IN THIS SCENARIO</h3>
+    <table>
+      <tr><th>Layer</th><th>Terraform manages</th><th>NOT Terraform (ArgoCD/K8s instead)</th></tr>
+      <tr><td>Cluster</td><td>EKS/AKS/GKE creation, version, node pools/ASGs</td><td>Pod scheduling, Deployments, HPA</td></tr>
+      <tr><td>Identity</td><td>IAM roles, OIDC provider for GitHub Actions + IRSA for pods</td><td>App-level RBAC/roles inside cluster (often Helm/Kustomize-managed)</td></tr>
+      <tr><td>Registry/Networking</td><td>ECR repo, VPC, subnets, security groups, Load Balancer</td><td>Ingress rules, Services (app-level, GitOps-managed)</td></tr>
+      <tr><td>ArgoCD itself</td><td>Installs ArgoCD (Helm provider) once, manages upgrades</td><td>ArgoCD Applications (those live in the GitOps repo, not Terraform)</td></tr>
+      <tr><td>State</td><td>Remote state (S3+DynamoDB lock / Azure Storage+lease)</td><td>ArgoCD's "state" is just the live cluster vs Git diff</td></tr>
+    </table>
+    <div class="small">Rule of thumb: if it's "does this resource exist," it's Terraform. If it's "what version of the app is running," it's GitOps/ArgoCD. Mixing the two (e.g. Terraform managing Deployments) causes constant drift fights with ArgoCD.</div>
+  </div>
+
+  <!-- 8 error codes -->
+  <div class="box c-red" style="grid-column:span 6">
+    <h3>8. CI/CD ERROR CODES &amp; STATUSES</h3>
+    <table>
+      <tr><th>Layer</th><th>Code / Status</th><th>Meaning</th></tr>
+      <tr><td rowspan="2">GitHub Actions</td><td>Exit 1 (generic)</td><td>Step failed — check step logs</td></tr>
+      <tr><td>Exit 128</td><td>Git command failed (auth/branch protection)</td></tr>
+      <tr><td>Docker</td><td>denied: requested access to resource is denied</td><td>Registry auth/IAM role missing push permission</td></tr>
+      <tr><td rowspan="4">Kubernetes Pod</td><td>ImagePullBackOff / ErrImagePull</td><td>Tag doesn't exist, or node lacks pull permission</td></tr>
+      <tr><td>CrashLoopBackOff</td><td>Container starts then exits repeatedly — app error, bad config, failing startup probe</td></tr>
+      <tr><td>OOMKilled</td><td>Container exceeded memory limit</td></tr>
+      <tr><td>Pending</td><td>Can't schedule — insufficient node capacity / resource requests too high</td></tr>
+      <tr><td rowspan="2">ArgoCD</td><td>OutOfSync</td><td>Git and live cluster differ</td></tr>
+      <tr><td>Degraded / Progressing</td><td>Synced but resource not yet healthy (rollout stuck)</td></tr>
+      <tr><td>Terraform</td><td>Error acquiring the state lock</td><td>Another apply is running, or a lock wasn't released — check DynamoDB lock table</td></tr>
+    </table>
+  </div>
+
+  <!-- 9 rollback strategies -->
+  <div class="box c-red" style="grid-column:span 6">
+    <h3>9. ROLLBACK STRATEGY BY LAYER</h3>
+    <table>
+      <tr><th>Problem is in...</th><th>How to revert</th></tr>
+      <tr><td>App code (bug in commit)</td><td>git revert on Repo A → CI rebuilds a new safe image → new tag flows through pipeline normally (never re-deploy an old broken tag by editing it)</td></tr>
+      <tr><td>GitOps repo (bad tag/config bump)</td><td>git revert the offending commit on Repo B → ArgoCD auto-detects and re-syncs to the prior good state</td></tr>
+      <tr><td>Need it instantly, can't wait for Git</td><td><span class="inline-code">argocd app rollback &lt;app&gt; &lt;prior-revision-id&gt;</span> — reverts live state immediately; follow up with the matching Git revert so Git and cluster don't drift apart</td></tr>
+      <tr><td>Emergency, ArgoCD itself unavailable</td><td><span class="inline-code">kubectl rollout undo deployment/&lt;name&gt;</span> — last resort; ArgoCD will show OutOfSync afterward until Repo B is also fixed</td></tr>
+      <tr><td>Infra-level (bad Terraform apply)</td><td>terraform plan against previous known-good tfvars/state, review, then apply — never hand-edit state; use <span class="inline-code">terraform state</span> commands carefully if state itself is inconsistent</td></tr>
+    </table>
+  </div>
+
+  <!-- 10 sample commands -->
+  <div class="box c-teal" style="grid-column:span 6">
+    <h3>10. SAMPLE ROLLBACK &amp; DIAGNOSTIC COMMANDS</h3>
+    <div class="code">$ argocd app history checkout-service
+$ argocd app rollback checkout-service &lt;REVISION_ID&gt;
+
+$ kubectl rollout history deployment/checkout-service
+$ kubectl rollout undo deployment/checkout-service
+$ kubectl rollout undo deployment/checkout-service --to-revision=3
+
+$ kubectl describe pod &lt;pod&gt; -n checkout-prod
+$ kubectl logs &lt;pod&gt; --previous -n checkout-prod
+
+$ terraform plan -var-file=prod.tfvars
+$ terraform apply -var-file=prod.tfvars
+$ terraform state list
+$ terraform force-unlock &lt;LOCK_ID&gt;   # only if lock is confirmed stale</div>
+  </div>
+
+  <!-- 12 sync/health -->
+  <div class="box c-teal" style="grid-column:span 6">
+    <h3>12. ARGOCD SYNC &amp; HEALTH STATUS</h3>
+    <table>
+      <tr><th>Status</th><th>Meaning</th></tr>
+      <tr><td>Synced</td><td>Live cluster == Git desired state</td></tr>
+      <tr><td>OutOfSync</td><td>Diff detected — waiting for sync (manual) or about to auto-sync</td></tr>
+      <tr><td>Healthy</td><td>Resource is actually working (replicas ready)</td></tr>
+      <tr><td>Progressing</td><td>Rollout in progress, not yet confirmed healthy</td></tr>
+      <tr><td>Degraded</td><td>Synced but failing to become healthy — investigate pods</td></tr>
+      <tr><td>Manual sync policy</td><td>Human/pipeline must trigger sync — common gate for prod</td></tr>
+      <tr><td>Automated + selfHeal</td><td>Auto-applies Git changes AND reverts manual cluster drift</td></tr>
+    </table>
+  </div>
+
+  <!-- 11 production issue scenarios -->
+  <div class="box c-orange" style="grid-column:span 12">
+    <h3>11. DIFFERENT PRODUCTION ISSUE SCENARIOS — CAUSE &amp; RESPONSE</h3>
+    <table>
+      <tr><th>Scenario</th><th>Likely cause</th><th>Immediate response</th></tr>
+      <tr><td><b>New deploy causes 5xx spike</b></td><td>Bug in new code, or missing config/secret for new feature</td><td>Check deploy-time correlation on dashboard → git revert Repo B (fastest, safest) → confirm ArgoCD re-syncs → root-cause the code separately</td></tr>
+      <tr><td><b>DB migration incompatible with old pods</b></td><td>Schema change deployed before/without expand-contract pattern; old and new pod versions running simultaneously during rollout both hit the DB</td><td>Roll back the app deploy immediately (migrations should be backward-compatible/additive); never roll back the DB migration under live traffic without a plan</td></tr>
+      <tr><td><b>Secret/config missing after deploy</b></td><td>New service/env var added to app code but corresponding secret/ConfigMap not added to Repo B</td><td>CrashLoopBackOff or app errors → check <span class="inline-code">kubectl describe pod</span> events → add missing secret/config to Repo B, commit, let ArgoCD re-sync</td></tr>
+      <tr><td><b>Node capacity exhausted mid-rollout</b></td><td>New pods stuck Pending — Cluster Autoscaler lagging behind HPA during a spike</td><td>Manually scale node pool/ASG immediately (Terraform var bump + apply, or console for speed) while autoscaler catches up; add pre-scaling for known events afterward</td></tr>
+      <tr><td><b>ArgoCD stuck OutOfSync, won't auto-heal</b></td><td>Automated sync disabled (intentional prod gate), or a sync is blocked by a resource with a manual finalizer/hook</td><td>Check sync policy first — may be working as designed; if truly stuck, manually trigger sync and check ArgoCD app events for the specific blocking resource</td></tr>
+      <tr><td><b>Terraform apply fails mid-run in prod infra change</b></td><td>Partial apply — some resources created, then an error (e.g. AWS quota limit, a dependency conflict)</td><td>Do NOT re-run blindly — <span class="inline-code">terraform plan</span> first to see the actual remaining delta against real state, fix the root cause (quota/conflict), then re-apply</td></tr>
+    </table>
+  </div>
+
+  <!-- 13 gh vs gl -->
+  <div class="box c-blue" style="grid-column:span 6">
+    <h3>13. GITHUB ACTIONS vs GITLAB CI (in this pipeline)</h3>
+    <table>
+      <tr><th></th><th>GitHub Actions</th><th>GitLab CI</th></tr>
+      <tr><td>Config</td><td>.github/workflows/*.yml</td><td>.gitlab-ci.yml</td></tr>
+      <tr><td>Unit</td><td>jobs → steps (marketplace Actions)</td><td>stages → jobs (shell/image based)</td></tr>
+      <tr><td>Runners</td><td>GitHub-hosted or self-hosted</td><td>GitLab SaaS or self-hosted Runner</td></tr>
+      <tr><td>OIDC to AWS</td><td>id-token: write + configure-aws-credentials</td><td>id_tokens block, native to GitLab 15.7+</td></tr>
+      <tr><td>Registry</td><td>Explicit ECR login step</td><td>Built-in registry, or explicit ECR login</td></tr>
+    </table>
+  </div>
+
+  <!-- 14 troubleshooting grid -->
+  <div class="box c-red" style="grid-column:span 6">
+    <h3>14. TROUBLESHOOTING QUICK-REFERENCE</h3>
+    <table>
+      <tr><th>Symptom</th><th>Check first</th></tr>
+      <tr><td>Pipeline fails at push step</td><td>OIDC role trust policy / ECR repo permissions</td></tr>
+      <tr><td>ArgoCD not detecting change</td><td>Webhook delivery in Repo B settings; targetRevision branch match</td></tr>
+      <tr><td>Sync succeeds, app unhealthy</td><td>kubectl describe pod / events; readiness probe config</td></tr>
+      <tr><td>Manual kubectl edit "reverts itself"</td><td>selfHeal is working as designed — fix via Git, not kubectl</td></tr>
+      <tr><td>Terraform plan shows unexpected diff</td><td>Manual console change outside Terraform — drift, not a bug</td></tr>
+    </table>
+  </div>
+
+  <!-- 15 best practices -->
+  <div class="box c-green" style="grid-column:span 12">
+    <h3>15. BEST PRACTICES</h3>
+    <ul class="check" style="columns:3;column-gap:24px">
+      <li>Tag images with immutable git SHA, never "latest," in the GitOps repo.</li>
+      <li>Require PR review on the GitOps repo (Repo B) — CODEOWNERS for prod paths.</li>
+      <li>Manual ArgoCD sync gate for prod; automated+selfHeal fine for dev/staging.</li>
+      <li>OIDC federation for CI → cloud auth; no long-lived static credentials anywhere.</li>
+      <li>Readiness probes that check real dependency health, not just "process alive."</li>
+      <li>Database migrations always backward-compatible (expand/contract), never a breaking change tied 1:1 to a deploy.</li>
+      <li>Terraform remote state with locking (S3+DynamoDB / Azure equivalent) — never local state for shared infra.</li>
+      <li>terraform plan reviewed in CI/PR before any apply touches prod infra.</li>
+      <li>Rollback path tested before you need it — know the exact commands under pressure.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- 16 full flow -->
+<div class="box c-purple" style="margin-top:10px">
+  <h3>16. COMPLETE END-TO-END FLOW — HAPPY PATH AND ROLLBACK PATH</h3>
+  <div class="footer-flow">
+    <div class="flowbox">Terraform<br/>provisions cluster+infra</div>
+    <div class="darr">→</div>
+    <div class="flowbox">Dev git push<br/>(Repo A)</div>
+    <div class="darr">→</div>
+    <div class="flowbox">CI builds, tests,<br/>pushes image</div>
+    <div class="darr">→</div>
+    <div class="flowbox">CI bumps tag<br/>in Repo B</div>
+    <div class="darr">→</div>
+    <div class="flowbox">ArgoCD detects<br/>&amp; syncs</div>
+  </div>
+  <div class="footer-flow" style="margin-top:8px">
+    <div class="flowbox">K8s rolling update<br/>(zero-downtime)</div>
+    <div class="darr">→</div>
+    <div class="flowbox">Monitor golden<br/>signals</div>
+    <div class="darr">→</div>
+    <div class="flowbox" style="border-color:var(--green);color:var(--green)">All healthy?<br/>Done ✓</div>
+    <div class="darr warn">✗ issue →</div>
+    <div class="flowbox" style="border-color:var(--red);color:var(--red)">git revert Repo B</div>
+    <div class="darr">→</div>
+    <div class="flowbox" style="border-color:var(--red);color:var(--red)">ArgoCD auto re-syncs<br/>to last good state</div>
+  </div>
+  <div class="footer-note">Same loop applies at infra level: Terraform changes go through plan → review → apply, with the same "revert via Git + re-apply" recovery path if a change causes problems.</div>
+</div>
+
+</div>
+</body>
+</html>

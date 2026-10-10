@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubernetes Troubleshooting — Complete Field Guide</title>
+<style>
+:root{
+  --bg:#0a0d12;
+  --bg-elev:#0f141b;
+  --surface:#141a22;
+  --surface-2:#182029;
+  --border:#232c37;
+  --border-2:#2e3947;
+  --text:#e7edf4;
+  --text-dim:#93a1b0;
+  --text-faint:#5c6a79;
+  --accent:#39d98a;
+  --accent-dim:#279962;
+  --amber:#f0b429;
+  --red:#f0656a;
+  --blue:#5aa8f0;
+  --purple:#b088f0;
+  --mono:ui-monospace,SFMono-Regular,'Cascadia Code',Consolas,'Liberation Mono',monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;font-size:15.5px;}
+.hidden{display:none !important;}
+a{color:inherit;}
+
+.sticky-wrap{position:sticky;top:0;z-index:50;background:rgba(10,13,18,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+header{padding:14px 24px 10px;}
+.header-inner{max-width:1000px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;}
+.title-block h1{font-size:17px;margin:0 0 3px;font-weight:650;letter-spacing:.2px;font-family:var(--sans);}
+.title-block .subtitle{font-size:12.5px;color:var(--text-dim);margin:0;font-family:var(--mono);}
+.controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+#search{background:var(--surface);border:1px solid var(--border-2);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13.5px;width:250px;font-family:var(--sans);}
+#search:focus{outline:none;border-color:var(--accent-dim);box-shadow:0 0 0 3px rgba(57,217,138,.15);}
+.progress-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);font-family:var(--mono);}
+.progress-bar{width:100px;height:6px;background:var(--surface-2);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent-dim),var(--accent));transition:width .3s;}
+.reset-btn{background:none;border:1px solid var(--border-2);color:var(--text-faint);font-size:11px;padding:5px 9px;border-radius:6px;cursor:pointer;font-family:var(--mono);}
+.reset-btn:hover{color:var(--text-dim);border-color:var(--border-2);}
+.reset-btn:focus-visible{outline:2px solid var(--accent-dim);outline-offset:2px;}
+
+nav.toc{max-width:1000px;margin:0 auto;padding:10px 24px 12px;display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--border-2) transparent;}
+nav.toc::-webkit-scrollbar{height:4px;}
+nav.toc::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px;}
+.toc-chip{flex-shrink:0;font-size:12.5px;font-family:var(--mono);color:var(--text-dim);border:1px solid var(--border);padding:6px 11px;border-radius:20px;text-decoration:none;transition:.15s;white-space:nowrap;}
+.toc-chip:hover{border-color:var(--accent-dim);color:var(--accent);}
+.toc-chip:focus-visible{outline:2px solid var(--accent-dim);outline-offset:2px;}
+.toc-chip.eks{border-color:rgba(240,180,41,.4);color:var(--amber);}
+.toc-chip.aks{border-color:rgba(90,168,240,.4);color:var(--blue);}
+.toc-chip.onprem{border-color:rgba(176,136,240,.4);color:var(--purple);}
+.toc-chip.alert{border-color:rgba(240,101,106,.4);color:var(--red);}
+.toc-chip.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600;}
+.toc-chip.active:hover{color:var(--bg);}
+
+main{max-width:1000px;margin:0 auto;padding:30px 24px 100px;}
+
+.no-results{display:none;text-align:center;color:var(--text-faint);padding:50px 0;font-family:var(--mono);font-size:13px;}
+.no-results.show{display:block;}
+
+.intro-note{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent-dim);border-radius:8px;padding:16px 18px;margin-bottom:34px;font-size:13.8px;color:var(--text-dim);}
+.intro-note strong{color:var(--text);}
+
+.chapter{margin-bottom:52px;scroll-margin-top:150px;}
+.chapter-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:14px;}
+.chapter-head h2{font-size:18px;margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-weight:600;letter-spacing:.2px;}
+.chapter-num{color:var(--text-faint);font-size:14px;}
+.chapter-progress{font-family:var(--mono);font-size:12px;color:var(--text-faint);white-space:nowrap;}
+.badge{font-size:10.5px;font-family:var(--mono);padding:3px 8px;border-radius:5px;letter-spacing:.4px;font-weight:600;}
+.badge-core{background:rgba(57,217,138,.13);color:var(--accent);border:1px solid rgba(57,217,138,.35);}
+.badge-eks{background:rgba(240,180,41,.13);color:var(--amber);border:1px solid rgba(240,180,41,.35);}
+.badge-aks{background:rgba(90,168,240,.13);color:var(--blue);border:1px solid rgba(90,168,240,.35);}
+.badge-onprem{background:rgba(176,136,240,.13);color:var(--purple);border:1px solid rgba(176,136,240,.35);}
+.badge-ref{background:rgba(147,161,176,.13);color:var(--text-dim);border:1px solid rgba(147,161,176,.35);}
+.chapter-intro{color:var(--text-dim);font-size:14px;margin-bottom:20px;font-family:var(--sans);}
+.subhead{margin:30px 0 12px;font-size:12.5px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.6px;text-transform:uppercase;}
+
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px 20px;margin-bottom:14px;}
+.qa-head{display:flex;align-items:flex-start;gap:11px;margin-bottom:10px;}
+.mastery-check{margin-top:4px;width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+.mastery-check:focus-visible{outline:2px solid var(--accent-dim);outline-offset:2px;}
+.qa-q{font-weight:600;font-size:14.5px;color:var(--text);cursor:pointer;font-family:var(--sans);}
+.qa-a{margin-left:27px;color:var(--text-dim);font-size:14px;font-family:var(--sans);}
+.qa-a p{margin:0 0 10px;}
+.qa-a ul{margin:6px 0 12px;padding-left:20px;}
+.qa-a li{margin-bottom:4px;}
+.qa-a strong{color:var(--text);}
+
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:12px 0;}
+.flow-step{background:var(--bg-elev);border:1px solid var(--border-2);color:var(--accent);font-family:var(--mono);font-size:12.5px;padding:5px 10px;border-radius:6px;}
+.flow-arrow{color:var(--text-faint);font-size:13px;}
+
+pre{background:var(--bg-elev);border:1px solid var(--border-2);border-radius:8px;padding:12px 14px;overflow-x:auto;margin:10px 0 14px;}
+code{font-family:var(--mono);font-size:12.8px;color:#a8e6c1;}
+.qa-a code:not(pre code){background:var(--bg-elev);padding:1px 5px;border-radius:4px;color:var(--accent);}
+
+table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:13px;}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);}
+th{color:var(--text-faint);font-family:var(--mono);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;}
+td{color:var(--text-dim);}
+td strong{color:var(--text);}
+
+.followup{margin-top:12px;padding:11px 14px;background:rgba(240,180,41,.06);border-left:3px solid var(--amber);border-radius:6px;font-size:13.3px;}
+.followup strong{color:var(--amber);}
+.gotcha{margin-top:12px;padding:11px 14px;background:rgba(240,101,106,.06);border-left:3px solid var(--red);border-radius:6px;font-size:13.3px;}
+.gotcha strong{color:var(--red);}
+
+footer{max-width:1000px;margin:0 auto;padding:0 24px 60px;color:var(--text-faint);font-size:12.5px;font-family:var(--mono);border-top:1px solid var(--border);padding-top:20px;}
+footer a{color:var(--text-dim);}
+
+@media(max-width:640px){
+  .header-inner{flex-direction:column;align-items:flex-start;}
+  #search{width:100%;}
+  .qa-a{margin-left:0;margin-top:8px;}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *{transition:none !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="sticky-wrap">
+<header>
+  <div class="header-inner">
+    <div class="title-block">
+      <h1>Kubernetes Troubleshooting — Complete Field Guide</h1>
+      <p class="subtitle">Universal diagnostics · EKS · AKS · On-Prem — symptom → cause → fix</p>
+    </div>
+    <div class="controls">
+      <input id="search" type="text" placeholder="Search a symptom, error, or command…" oninput="filterCards(this.value)">
+      <div class="progress-wrap">
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+        <span id="progress-text">0 / 0 mastered</span>
+        <button class="reset-btn" onclick="resetProgress()" type="button">reset</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" id="toc">
+  <a href="#ch-tool" class="toc-chip">01 · Toolkit</a>
+  <a href="#ch-pod" class="toc-chip">02 · Pods</a>
+  <a href="#ch-node" class="toc-chip">03 · Nodes</a>
+  <a href="#ch-net" class="toc-chip">04 · Networking &amp; DNS</a>
+  <a href="#ch-stor" class="toc-chip">05 · Storage</a>
+  <a href="#ch-sched" class="toc-chip">06 · Scheduling</a>
+  <a href="#ch-cp" class="toc-chip">07 · Control Plane</a>
+  <a href="#ch-roll" class="toc-chip">08 · Rollouts</a>
+  <a href="#ch-eks" class="toc-chip eks">09 · EKS</a>
+  <a href="#ch-aks" class="toc-chip aks">10 · AKS</a>
+  <a href="#ch-onprem" class="toc-chip onprem">11 · On-Prem</a>
+  <a href="#ch-xplat" class="toc-chip">12 · Cross-Platform</a>
+  <a href="#ch-isq" class="toc-chip alert">13 · Interview Scenarios</a>
+</nav>
+</div>
+
+<main>
+<div class="no-results" id="no-results">No matches — try a different term, like "CrashLoopBackOff", "etcd", "IRSA", or "AGIC".</div>
+
+<div class="intro-note">
+  <strong>How to use this:</strong> Chapters 1–8 are platform-agnostic — they apply whether the cluster is EKS, AKS, or bare metal. Chapters 9–11 cover what's genuinely different on each managed/self-managed platform. Chapter 12 is a quick-reference table for the handful of symptoms that look identical everywhere but have a completely different root cause depending on where the cluster runs. Every card follows the same shape: what you'd see, how you'd confirm it, and the fix.
+</div>
+
+<section class="chapter" id="ch-tool">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">01</span> Troubleshooting Toolkit &amp; Methodology <span class="badge badge-ref">start here</span></h2>
+    <span class="chapter-progress">0/4</span>
+  </div>
+  <p class="chapter-intro">The habit that matters more than any single command: work outward in layers, and always look at Events before logs.</p>
+
+  <div class="qa-card" data-search="general troubleshooting methodology layers where do i start diagnostic flow">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tool-1" data-qid="tool-1" onchange="toggleMastery('tool-1', this.checked)">
+      <label for="cb-tool-1" class="qa-q">The universal starting sequence — where do you actually begin?</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">Cluster healthy?</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Nodes healthy?</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Pod status</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Events</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Logs</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Exec/network test</span>
+      </div>
+      <pre><code>kubectl get componentstatuses 2>/dev/null; kubectl get --raw='/healthz'   # control plane alive?
+kubectl get nodes -o wide                                                  # nodes Ready?
+kubectl get pods -A -o wide | grep -v Running                              # what's actually broken?
+kubectl describe pod &lt;pod&gt; -n &lt;ns&gt;                                        # Events section — read this BEFORE logs
+kubectl logs &lt;pod&gt; -n &lt;ns&gt; --previous                                     # then logs, including the crash before this one</code></pre>
+      <p>The single most common mistake under interview pressure (and in real incidents) is jumping straight to <code>kubectl logs</code>. <strong>Events</strong> from <code>describe</code> almost always tell you the category of problem — scheduling, image pull, probe failure, volume — before you've read a single log line. Narrate it in that order out loud; it's also just the fastest path to the actual fix.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="essential kubectl commands reference cheat sheet debugging">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tool-2" data-qid="tool-2" onchange="toggleMastery('tool-2', this.checked)">
+      <label for="cb-tool-2" class="qa-q">The commands that answer 90% of "what's wrong" questions.</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl get events -A --sort-by='.lastTimestamp' | tail -30    # cluster-wide recent events, newest last
+kubectl top pod -A --sort-by=cpu                                # who's actually using resources right now
+kubectl top node                                                 # node-level pressure
+kubectl get pods -A -o wide --field-selector=status.phase!=Running
+kubectl describe node &lt;node&gt; | grep -A5 Conditions               # node health at a glance
+kubectl get pods -n &lt;ns&gt; -o jsonpath='{.items[*].status.containerStatuses[*].restartCount}'
+kubectl rollout status deployment/&lt;name&gt; -n &lt;ns&gt;
+kubectl get endpoints &lt;svc&gt; -n &lt;ns&gt;                              # is the Service actually backed by anything?</code></pre>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="debug pods ephemeral containers netshoot busybox kubectl debug troubleshooting tools">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tool-3" data-qid="tool-3" onchange="toggleMastery('tool-3', this.checked)">
+      <label for="cb-tool-3" class="qa-q">How do you debug a running pod without shelling into it directly, or when it has no shell at all?</label>
+    </div>
+    <div class="qa-a">
+      <pre><code># Ephemeral debug container attached to an existing pod (K8s 1.23+, no restart needed)
+kubectl debug -it &lt;pod&gt; -n &lt;ns&gt; --image=nicolaka/netshoot --target=&lt;container&gt;
+
+# Debug a node itself (spawns a privileged pod with the node's filesystem mounted at /host)
+kubectl debug node/&lt;node&gt; -it --image=busybox
+
+# Standalone throwaway debug pod for network/DNS testing
+kubectl run debug --image=nicolaka/netshoot --rm -it -- bash</code></pre>
+      <p><strong>netshoot</strong> is the one worth having memorized — it bundles dig, curl, tcpdump, nslookup, mtr, and iproute2 in one image, which covers almost every network/DNS troubleshooting need without hunting for the right tool mid-incident. <code>kubectl debug</code> with <code>--target</code> is the modern answer to "the container has no shell, distroless image" — it attaches a sidecar sharing the same process namespace instead of needing to exec into the broken container itself.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="log aggregation strategy centralized logging loki elk when kubectl logs is not enough">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-tool-4" data-qid="tool-4" onchange="toggleMastery('tool-4', this.checked)">
+      <label for="cb-tool-4" class="qa-q">When does `kubectl logs` stop being enough, and what replaces it?</label>
+    </div>
+    <div class="qa-a">
+      <p><code>kubectl logs</code> only works while the pod (or its immediately-previous instance) still exists — once a pod is deleted or a node is gone, those logs are gone with it, and it doesn't correlate across multiple pods/replicas at all. Centralized logging (Loki, ELK/OpenSearch, CloudWatch Logs, Azure Monitor Logs) via a node-level agent (Fluent Bit/Fluentd/Promtail as a DaemonSet) solves both: logs survive pod deletion, and you can query across every replica of a service at once by label, which is usually the actual question during an incident ("show me every 500 across all 12 replicas in the last 10 minutes") rather than one pod's logs at a time.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-pod">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">02</span> Pod &amp; Container Issues <span class="badge badge-core">universal</span></h2>
+    <span class="chapter-progress">0/8</span>
+  </div>
+  <p class="chapter-intro">The highest-frequency category in real incidents and in interviews. Same platform-agnostic root causes whether the node is an EC2 instance, an Azure VM, or a rack in a data center.</p>
+
+  <div class="qa-card" data-search="crashloopbackoff pod restart loop diagnosis oomkilled liveness probe previous logs">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-pod-1" data-qid="pod-1" onchange="toggleMastery('pod-1', this.checked)">
+      <label for="cb-pod-1" class="qa-q">CrashLoopBackOff</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl get pod &lt;pod&gt; -n &lt;ns&gt;                  # RESTARTS count, growing?
+kubectl describe pod &lt;pod&gt; -n &lt;ns&gt;             # Events: OOMKilled? probe failure? image error?
+kubectl logs &lt;pod&gt; -n &lt;ns&gt; --previous           # the crash BEFORE this restart — the real clue</code></pre>
+      <p><strong>Root causes, most to least common:</strong> missing/wrong config or env var causing immediate exit; an overly aggressive <code>livenessProbe</code> killing a slow-starting app before it's ready; <strong>OOMKilled</strong> — confirm via <code>Last State: Terminated, Reason: OOMKilled</code> in describe, then compare memory <code>limits</code> to actual usage; a downstream dependency (DB, API) unreachable at startup causing the app to fail its own startup checks and exit.</p>
+      <div class="gotcha"><strong>Trap:</strong> a fresh restart may show empty current logs — always check <code>--previous</code> before concluding "no logs, no clue."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="imagepullbackoff errimagepull wrong tag private registry auth expired token">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-pod-2" data-qid="pod-2" onchange="toggleMastery('pod-2', this.checked)">
+      <label for="cb-pod-2" class="qa-q">ImagePullBackOff / ErrImagePull</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li>Wrong tag or typo — the most common cause by far; <code>kubectl describe pod</code> Events show the exact image string being pulled.</li>
+        <li>Private registry with no <code>imagePullSecret</code> attached to the pod/ServiceAccount, or an expired one — registry tokens (ECR tokens especially) expire and need refreshing if not handled by an IRSA-integrated credential helper.</li>
+        <li>Network path issue reaching the registry — from a private subnet/air-gapped node, missing NAT/VPC endpoint/proxy config.</li>
+        <li>Rate limiting from the upstream registry (Docker Hub's anonymous pull limits are a classic surprise cause in busy clusters).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="pod stuck pending scheduling failure insufficient resources unbound pvc taints affinity">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-pod-3" data-qid="pod-3" onchange="toggleMastery('pod-3', this.checked)">
+      <label for="cb-pod-3" class="qa-q">Pod stuck Pending</label>
+    </div>
+    <div class="qa-a">
+      <p><code>kubectl describe pod</code> Events state the scheduler's exact reason:</p>
+      <ul>
+        <li><strong>"Insufficient cpu/memory"</strong> — no node has room; needs autoscaling to add capacity, or the request is oversized for the fleet.</li>
+        <li><strong>Unbound PVC</strong> — see Chapter 5 for the full storage diagnostic path.</li>
+        <li><strong>Taints without a matching toleration</strong>, or <strong>nodeSelector/affinity</strong> matching no node's labels.</li>
+        <li><strong>Too many pods per node</strong> — hit the node's pod-count ceiling (this is IP-address-driven on EKS with the VPC CNI — see Chapter 9).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="oomkilled out of memory pod killed limit exceeded memory leak">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-pod-4" data-qid="pod-4" onchange="toggleMastery('pod-4', this.checked)">
+      <label for="cb-pod-4" class="qa-q">OOMKilled (deep dive)</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl describe pod &lt;pod&gt; -n &lt;ns&gt; | grep -A3 "Last State"
+kubectl top pod &lt;pod&gt; -n &lt;ns&gt; --containers</code></pre>
+      <p>The kernel's OOM killer fires when the container exceeds its memory <code>limit</code> — this is a hard cgroup boundary, not a soft warning. Two distinct scenarios: <strong>(1)</strong> the limit is genuinely too low for legitimate usage — check actual usage trend via Prometheus/<code>kubectl top</code> over time and raise the limit or fix the memory leak; <strong>(2)</strong> a real leak — usage climbs steadily over hours/days rather than settling at a plateau, which points at application code, not sizing. Compare <code>requests</code> vs <code>limits</code> vs actual usage as three separate numbers — conflating them is the most common analysis mistake here.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="init container failing stuck podinitializing">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-pod-5" data-qid="pod-5" onchange="toggleMastery('pod-5', this.checked)">
+      <label for="cb-pod-5" class="qa-q">Pod stuck in "Init:CrashLoopBackOff" or "PodInitializing"</label>
+    </div>
+    <div class="qa-a">
+      <p>Init containers run sequentially, to completion, before any app container starts — if one fails or hangs, the whole pod never progresses past it, and the app container's logs won't even exist yet.</p>
+      <pre><code>kubectl logs &lt;pod&gt; -n &lt;ns&gt; -c &lt;init-container-name&gt;      # -c is required, default logs won't show init containers
+kubectl describe pod &lt;pod&gt; -n &lt;ns&gt;                          # which init container, and why</code></pre>
+      <p>Common causes: an init container waiting on a dependency (DB migration, config fetch) that never becomes available; a permissions/mount issue specific to the init step; or the init container's own image pull failing silently while the pod just sits in <code>PodInitializing</code>.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="containercreating stuck pending long time volume mount cni sandbox">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-pod-6" data-qid="pod-6" onchange="toggleMastery('pod-6', this.checked)">
+      <label for="cb-pod-6" class="qa-q">Pod stuck in "ContainerCreating" for a long time</label>
+    </div>
+    <div class="qa-a">
+      <p>The pod's been scheduled (unlike Pending) but something in the sandbox setup is stalling: a volume that won't mount (check the Events for mount timeout errors — usually a storage/CSI issue, Chapter 5), a CNI plugin failing to assign a pod IP (check the node's CNI/kubelet logs — <code>journalctl -u kubelet</code>), or a slow/stuck image pull that hasn't yet flipped to an explicit ImagePullBackOff state. <code>kubectl describe pod</code> Events almost always name which of the three it is.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="pod stuck terminating won't delete finalizers force delete">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-pod-7" data-qid="pod-7" onchange="toggleMastery('pod-7', this.checked)">
+      <label for="cb-pod-7" class="qa-q">Pod stuck in "Terminating" and won't go away</label>
+    </div>
+    <div class="qa-a">
+      <p>Almost always one of: a <strong>finalizer</strong> that never completes (something is supposed to clean up external state — a cloud LB, a volume detach — before the pod is allowed to fully delete, and that cleanup is stuck or the controller that should remove the finalizer is down), or the node itself is unreachable so the kubelet can never confirm the container actually stopped.</p>
+      <pre><code>kubectl get pod &lt;pod&gt; -n &lt;ns&gt; -o jsonpath='{.metadata.finalizers}'
+kubectl delete pod &lt;pod&gt; -n &lt;ns&gt; --grace-period=0 --force   # last resort, not a real fix</code></pre>
+      <div class="gotcha"><strong>Trap:</strong> <code>--force</code> only removes the API object — it does not guarantee the container process on the node actually stopped. Understand and fix why the finalizer/node is stuck rather than reaching for force-delete as step one; it can leave orphaned resources (volumes, LB target registrations) behind.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="evicted pod node pressure disk memory eviction manager">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-pod-8" data-qid="pod-8" onchange="toggleMastery('pod-8', this.checked)">
+      <label for="cb-pod-8" class="qa-q">Pod shows status "Evicted"</label>
+    </div>
+    <div class="qa-a">
+      <p>The kubelet's eviction manager removed the pod because the <em>node</em> was under resource pressure (disk, memory, or PID) — this is different from OOMKilled, which is the container hitting its own limit. <code>kubectl describe pod</code> shows the eviction reason directly (e.g. "The node was low on resource: ephemeral-storage").</p>
+      <p>Common on-prem/self-managed cause: logs or temp files filling a node's local disk with no rotation policy — the kubelet starts evicting pods well before the disk is literally full, based on configurable eviction thresholds. Fix at the node level (log rotation, ephemeral-storage limits on pods) rather than just deleting the evicted pod, or it recurs.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-node">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">03</span> Node Issues <span class="badge badge-core">universal</span></h2>
+    <span class="chapter-progress">0/5</span>
+  </div>
+  <p class="chapter-intro">Node-level problems cascade — one bad node can look like ten different pod problems until you check the node itself.</p>
+
+  <div class="qa-card" data-search="node not ready diagnostic kubelet journalctl describe node conditions">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-node-1" data-qid="node-1" onchange="toggleMastery('node-1', this.checked)">
+      <label for="cb-node-1" class="qa-q">Node shows NotReady</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl get nodes                     # confirm NotReady + how long
+kubectl describe node &lt;node&gt;          # Conditions: MemoryPressure / DiskPressure / PIDPressure / NetworkUnavailable
+# on the node itself (SSH / SSM / on-prem console):
+systemctl status kubelet
+journalctl -u kubelet -f
+systemctl status containerd           # or crio / docker
+df -h                                  # disk pressure?
+ip addr; ping &lt;control-plane-endpoint&gt; # node-to-control-plane connectivity</code></pre>
+      <p>The control plane marks a node NotReady after missing heartbeats for <code>node-monitor-grace-period</code> (default 40s), then starts evicting its pods after <code>pod-eviction-timeout</code> (default 5 min) if it stays unreachable — worth naming explicitly, since it's exactly why "one node down" doesn't mean instant pod loss on a healthy cluster.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="memory pressure disk pressure pid pressure node condition eviction threshold">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-node-2" data-qid="node-2" onchange="toggleMastery('node-2', this.checked)">
+      <label for="cb-node-2" class="qa-q">Node reports MemoryPressure / DiskPressure / PIDPressure</label>
+    </div>
+    <div class="qa-a">
+      <p>These are kubelet-reported conditions, distinct from a pod hitting its own limit — the <em>node</em> as a whole is running low on a resource, and the kubelet starts proactively evicting lower-priority pods to relieve it before things get worse. <code>DiskPressure</code> is the most common in practice, usually from unrotated container logs, orphaned image layers, or a filled ephemeral-storage volume. <code>docker/crictl system df</code> or <code>du -sh /var/lib/containerd/*</code> on the node quickly narrows down what's actually consuming the disk.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="kubelet down not starting crash container runtime socket error">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-node-3" data-qid="node-3" onchange="toggleMastery('node-3', this.checked)">
+      <label for="cb-node-3" class="qa-q">kubelet won't start, or keeps crashing</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>journalctl -u kubelet --no-pager | tail -50
+cat /var/lib/kubelet/config.yaml           # config errors are a common cause
+crictl info                                 # can kubelet even reach the container runtime socket?</code></pre>
+      <p>Frequent causes: a bad <code>kubelet.conf</code>/config.yaml edit, a mismatched or expired client certificate for talking to the API server (very common on-prem after cert rotation is missed — Chapter 11), or the container runtime socket (containerd/CRI-O) being unreachable — kubelet depends entirely on that runtime being healthy first.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="node stuck notready after reboot restart cordon drain sequence">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-node-4" data-qid="node-4" onchange="toggleMastery('node-4', this.checked)">
+      <label for="cb-node-4" class="qa-q">Node came back after a reboot but stays NotReady</label>
+    </div>
+    <div class="qa-a">
+      <p>Check, in order: is the container runtime actually running post-boot (<code>systemctl status containerd</code>, often not enabled on boot after a manual install); did the node's IP change (common on DHCP-configured on-prem nodes) causing a mismatch with what the control plane has cached; are the kubelet's client certificates still valid; and — for EKS/AKS managed node groups specifically — did the node's IAM role/managed identity attach correctly on boot. A node stuck NotReady post-reboot is disproportionately likely to be a bootstrap-ordering problem (something starting before its dependency is ready) rather than anything wrong with the workloads.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="safely drain node maintenance cordon poddisruptionbudget">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-node-5" data-qid="node-5" onchange="toggleMastery('node-5', this.checked)">
+      <label for="cb-node-5" class="qa-q">How do you safely take a node out for maintenance?</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl cordon &lt;node&gt;
+kubectl drain &lt;node&gt; --ignore-daemonsets --delete-emptydir-data
+# ... perform maintenance ...
+kubectl uncordon &lt;node&gt;</code></pre>
+      <p><code>--ignore-daemonsets</code> is mandatory or drain hangs indefinitely — DaemonSet pods aren't meant to be evicted this way. If drain still hangs, it's almost always a PodDisruptionBudget whose <code>minAvailable</code> can't be satisfied while removing pods from this node, or a bare pod with no owning controller, which drain refuses to touch without an explicit <code>--force</code>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-net">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">04</span> Networking &amp; DNS Issues <span class="badge badge-core">universal</span></h2>
+    <span class="chapter-progress">0/7</span>
+  </div>
+  <p class="chapter-intro">Networking failures are rarely where the symptom appears — a "database timeout" is very often a DNS or NetworkPolicy problem wearing a different costume.</p>
+
+  <div class="qa-card" data-search="service not routing traffic endpoints empty selector mismatch labels targetport">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-1" data-qid="net-1" onchange="toggleMastery('net-1', this.checked)">
+      <label for="cb-net-1" class="qa-q">Pods are healthy, the Service exists, but no traffic reaches them</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl get endpoints &lt;service&gt; -n &lt;ns&gt;      # empty? → selector problem, most common cause
+kubectl get pods --show-labels -n &lt;ns&gt;        # compare labels against the Service's selector exactly
+kubectl describe svc &lt;service&gt; -n &lt;ns&gt;        # confirm targetPort matches the container's actual listening port</code></pre>
+      <p>The number-one cause is a label mismatch — the Service selector doesn't match the pod's labels (often introduced by a template change), leaving Endpoints silently empty. Second most common: <code>targetPort</code> pointing at the wrong container port, or the app listening on a different interface (<code>127.0.0.1</code> instead of <code>0.0.0.0</code>) than the pod IP the Service actually forwards to.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="dns resolution failing coredns nslookup service name not resolving inside pod">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-2" data-qid="net-2" onchange="toggleMastery('net-2', this.checked)">
+      <label for="cb-net-2" class="qa-q">A pod can't resolve a Service name</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl run debug --image=busybox:1.36 --rm -it -- sh
+# inside: nslookup my-service.my-namespace.svc.cluster.local
+
+kubectl get pods -n kube-system -l k8s-app=kube-dns    # CoreDNS pods Running?
+kubectl logs -n kube-system -l k8s-app=kube-dns         # errors, SERVFAIL, throttling?
+kubectl get svc -n my-namespace my-service               # does the Service exist / right name/namespace?
+cat /etc/resolv.conf                                       # inside the pod — nameserver pointing at kube-dns ClusterIP?</code></pre>
+      <p>Common root causes, roughly by frequency: wrong namespace in the query (forgetting the FQDN across namespaces), CoreDNS under resource pressure or CrashLooping, a NetworkPolicy silently blocking egress to port 53, or (self-managed clusters specifically) CoreDNS's upstream resolver misconfigured for external DNS lookups.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="coredns crashloop plugin failure loop detected forwarding upstream">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-3" data-qid="net-3" onchange="toggleMastery('net-3', this.checked)">
+      <label for="cb-net-3" class="qa-q">CoreDNS pods themselves are CrashLooping</label>
+    </div>
+    <div class="qa-a">
+      <p><code>kubectl logs -n kube-system -l k8s-app=kube-dns</code> — the most common cause is a <strong>DNS forwarding loop</strong>: CoreDNS's Corefile forwards to the node's <code>/etc/resolv.conf</code>, and if that node resolver points back at CoreDNS itself (common misconfiguration on self-managed nodes, or after a systemd-resolved change), CoreDNS detects the loop and refuses to start, logging exactly that. Fix by correcting the Corefile's <code>forward</code> target to a real upstream resolver rather than the node's own stub resolver. Second cause: OOMKilled from an undersized memory limit under high query volume — CoreDNS should scale with cluster size, not stay pinned at default replica count forever.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="network policy no effect not blocking not enforced default deny">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-4" data-qid="net-4" onchange="toggleMastery('net-4', this.checked)">
+      <label for="cb-net-4" class="qa-q">A NetworkPolicy exists but seems to have no effect</label>
+    </div>
+    <div class="qa-a">
+      <p>NetworkPolicy is only as real as the CNI enforcing it — the object can be perfectly correct and still do nothing if the CNI doesn't implement policy enforcement at all (this is genuinely platform-dependent; see Chapter 12 for the exact breakdown across EKS/AKS/on-prem). Confirm the policy engine's own pods are actually running (<code>kubectl get pods -n kube-system</code> for Calico/Azure NPM/Cilium) before assuming the policy YAML itself is wrong. Second cause: selector scope — a policy only starts enforcing deny-by-default for pods it actually selects; a pod not matched by any policy remains fully open regardless of other policies existing in the namespace.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="ingress 502 503 504 bad gateway backend unhealthy misconfigured">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-5" data-qid="net-5" onchange="toggleMastery('net-5', this.checked)">
+      <label for="cb-net-5" class="qa-q">Ingress returns 502/503/504</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>502 Bad Gateway:</strong> the backend closed the connection or returned something the proxy couldn't parse — check the backend pod's own logs, not just the ingress controller's.</li>
+        <li><strong>503 Service Unavailable:</strong> the ingress controller has no healthy backend to route to at all — check <code>kubectl get endpoints</code> for that Service (empty again points back to Chapter 4, Q1).</li>
+        <li><strong>504 Gateway Timeout:</strong> the backend is reachable but too slow to respond within the proxy's timeout — an application performance problem, not a routing problem; check readiness probe timing and backend latency, not the ingress config.</li>
+      </ul>
+      <p>Always check the ingress controller's own logs (nginx-ingress-controller pod, or the ALB/AGIC's target group/backend health in the cloud console) alongside the app's — the error surfaces at the ingress layer but the cause is usually one layer behind it.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="cross namespace connectivity blocked cannot reach another namespace">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-6" data-qid="net-6" onchange="toggleMastery('net-6', this.checked)">
+      <label for="cb-net-6" class="qa-q">A pod in namespace A can't reach a Service in namespace B</label>
+    </div>
+    <div class="qa-a">
+      <p>First confirm it's actually a policy problem and not a naming one — cross-namespace calls need the fully-qualified DNS name (<code>svc.namespace.svc.cluster.local</code>), not the short form. If FQDN also fails, check for a default-deny NetworkPolicy in namespace B that only allows ingress from pods with specific namespace labels — a very common "secure by default" setup that quietly blocks legitimate cross-namespace traffic until an explicit allow rule references the calling namespace's label.</p>
+      <pre><code>kubectl get pods -n B --show-labels
+kubectl get networkpolicy -n B -o yaml   # look for namespaceSelector rules that exclude namespace A</code></pre>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="egress external connectivity outbound internet access blocked pod cannot reach internet">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-net-7" data-qid="net-7" onchange="toggleMastery('net-7', this.checked)">
+      <label for="cb-net-7" class="qa-q">Pods can't reach the internet / an external API</label>
+    </div>
+    <div class="qa-a">
+      <p>Layered check, cloud-agnostic order: <strong>(1)</strong> egress NetworkPolicy blocking outbound traffic by default; <strong>(2)</strong> node-level egress path — on EKS/AKS this means NAT Gateway/NAT rules on private subnets (Chapter 9/10), on-prem this means the node's own default route and any perimeter firewall; <strong>(3)</strong> DNS resolution for the external hostname specifically (internal DNS may work fine while external forwarding is broken — see Q3); <strong>(4)</strong> proxy requirements — some locked-down environments require an explicit HTTP(S) proxy env var in the pod spec for any external call.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-stor">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">05</span> Storage Issues <span class="badge badge-core">universal</span></h2>
+    <span class="chapter-progress">0/5</span>
+  </div>
+  <p class="chapter-intro">Storage failures are where "universal" starts to bend — the concepts (PVC, PV, StorageClass) are identical everywhere, but the provisioner underneath is completely platform-specific.</p>
+
+  <div class="qa-card" data-search="pvc pending stuck no storage class provisioner not running">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-stor-1" data-qid="stor-1" onchange="toggleMastery('stor-1', this.checked)">
+      <label for="cb-stor-1" class="qa-q">PVC stuck Pending</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl describe pvc &lt;name&gt; -n &lt;ns&gt;             # Events give the exact reason
+kubectl get storageclass                          # does the referenced class actually exist?
+kubectl get pods -n kube-system | grep csi         # is the CSI provisioner running at all?</code></pre>
+      <ul>
+        <li><strong>No StorageClass exists / wrong name referenced</strong> — trivially checked, surprisingly common typo source.</li>
+        <li><strong>No dynamic provisioner running</strong> — the CSI driver pods themselves are down or never installed. This is the single most common on-prem gotcha: unlike EKS/AKS, a bare cluster has <em>no default StorageClass at all</em> until you install one (Rook-Ceph, Longhorn, NFS provisioner) — a PVC just sits Pending forever with no error beyond "no persistent volumes available."</li>
+        <li><strong>AZ/zone mismatch</strong> — the provisioner created a volume in a zone with no schedulable node for the pod (very common with topology-aware provisioning across all three platforms).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="volume mount failure permission denied fsgroup mount timeout">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-stor-2" data-qid="stor-2" onchange="toggleMastery('stor-2', this.checked)">
+      <label for="cb-stor-2" class="qa-q">Volume mounts but the app gets "Permission denied"</label>
+    </div>
+    <div class="qa-a">
+      <p>Almost always an ownership/UID mismatch between the container's running user and the volume's filesystem ownership. Fix with <code>securityContext.fsGroup</code> on the pod spec, which tells the kubelet to <code>chown</code> the volume to that group on mount (works for most CSI drivers, though behavior and speed vary — very large volumes can make this recursive chown noticeably slow on first mount).</p>
+      <pre><code>securityContext:
+  fsGroup: 2000
+  runAsUser: 1000</code></pre>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="volume already attached multi-attach error node different az">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-stor-3" data-qid="stor-3" onchange="toggleMastery('stor-3', this.checked)">
+      <label for="cb-stor-3" class="qa-q">"Multi-Attach error" — volume already attached to another node</label>
+    </div>
+    <div class="qa-a">
+      <p>Block storage (EBS, Azure Disk, most on-prem block volumes) is typically <code>ReadWriteOnce</code> — attachable to exactly one node at a time. This fires most often when a pod is rescheduled to a different node (a deploy, a node drain, a crash) before the old node has finished detaching the volume — the new pod tries to attach while the old attachment hasn't cleared yet. Usually self-resolves within a minute or two once the CSI driver completes the detach; if it hangs longer, check the CSI controller pod's logs for a stuck detach operation, and confirm the old pod is actually fully terminated, not stuck (Chapter 2, Q7).</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="csi driver crash pod stuck no volume plugin matched">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-stor-4" data-qid="stor-4" onchange="toggleMastery('stor-4', this.checked)">
+      <label for="cb-stor-4" class="qa-q">CSI driver pods CrashLooping, or "no volume plugin matched"</label>
+    </div>
+    <div class="qa-a">
+      <p>CSI drivers run as a DaemonSet (node plugin) plus a controller Deployment — check both separately, since they fail differently. Node-plugin crashes are usually a permissions issue talking to the underlying storage API (IAM/Managed Identity/on-prem storage credentials); controller crashes usually mean it can't reach the cloud API or on-prem storage backend at all. "No volume plugin matched" typically means the driver was never installed/registered, or the StorageClass references a <code>provisioner</code> string that doesn't match any installed CSI driver's name exactly.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="pv stuck terminating released reclaim policy">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-stor-5" data-qid="stor-5" onchange="toggleMastery('stor-5', this.checked)">
+      <label for="cb-stor-5" class="qa-q">PV stuck in "Terminating" or "Released" and won't clean up</label>
+    </div>
+    <div class="qa-a">
+      <p>A PV with <code>persistentVolumeReclaimPolicy: Retain</code> deliberately survives its PVC's deletion — that's not a bug, it's the policy protecting data from accidental loss, and it needs manual cleanup (or manual rebinding to a new PVC) once you've confirmed the data isn't needed. If it's set to <code>Delete</code> and still stuck, the underlying CSI delete-volume call is failing — check the CSI controller logs; a stale reference to already-deleted cloud storage is a common cause after manual out-of-band cleanup on the cloud side.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-sched">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">06</span> Scheduling Issues <span class="badge badge-core">universal</span></h2>
+    <span class="chapter-progress">0/5</span>
+  </div>
+  <p class="chapter-intro">The scheduler is honest about why it won't place a pod — the Events almost always say exactly what's wrong, if you read them before guessing.</p>
+
+  <div class="qa-card" data-search="taint toleration mismatch pod not scheduling on dedicated nodes">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sched-1" data-qid="sched-1" onchange="toggleMastery('sched-1', this.checked)">
+      <label for="cb-sched-1" class="qa-q">Pod won't schedule onto a specific (tainted) node pool</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl describe node &lt;node&gt; | grep Taints
+kubectl get pod &lt;pod&gt; -o jsonpath='{.spec.tolerations}'</code></pre>
+      <p>A taint on a node repels pods unless they carry a matching toleration — commonly used to dedicate nodes (GPU pools, high-memory pools) to specific workloads. If the pod isn't landing there, the toleration is missing, or its <code>effect</code> (<code>NoSchedule</code>/<code>PreferNoSchedule</code>/<code>NoExecute</code>) doesn't match the taint's effect exactly — these are matched precisely, not loosely.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="affinity anti-affinity pod not spreading across nodes zones">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sched-2" data-qid="sched-2" onchange="toggleMastery('sched-2', this.checked)">
+      <label for="cb-sched-2" class="qa-q">Pods aren't spreading across nodes/zones the way you expected</label>
+    </div>
+    <div class="qa-a">
+      <p>Check whether <code>podAntiAffinity</code> is set to <code>requiredDuringScheduling</code> (hard constraint — pods will stay Pending rather than co-locate) versus <code>preferredDuringScheduling</code> (soft — the scheduler will co-locate them anyway if it has to). A common real incident: switching from <code>preferred</code> to <code>required</code> without enough nodes/zones to satisfy it, which silently turns "nice to have spread" into "half my replicas are stuck Pending." <code>topologySpreadConstraints</code> is generally the more modern, more precise tool for even distribution across zones than anti-affinity rules.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="insufficient resources cannot schedule requests too high cluster autoscaler not adding nodes">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sched-3" data-qid="sched-3" onchange="toggleMastery('sched-3', this.checked)">
+      <label for="cb-sched-3" class="qa-q">"Insufficient cpu/memory" and autoscaling isn't kicking in</label>
+    </div>
+    <div class="qa-a">
+      <p>Confirm the autoscaler (Cluster Autoscaler/Karpenter on EKS, the AKS autoscaler, or whatever's configured on-prem — often nothing, since bare metal has no elastic capacity to add at all) is actually running and not maxed at its own <code>max</code> node-count ceiling. A frequent false alarm: the pending pod's resource <em>request</em> is larger than any available instance type in the autoscaler's configured node pools — no amount of scaling adds a node that big, and the pod will stay Pending forever until the request is reduced or a larger instance type is added to the pool.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="poddisruptionbudget blocking eviction drain stuck cannot evict">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sched-4" data-qid="sched-4" onchange="toggleMastery('sched-4', this.checked)">
+      <label for="cb-sched-4" class="qa-q">A drain or rolling upgrade is stuck — PodDisruptionBudget is blocking eviction</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl get pdb -n &lt;ns&gt;
+kubectl describe pdb &lt;name&gt; -n &lt;ns&gt;   # ALLOWED DISRUPTIONS column — 0 means fully blocked right now</code></pre>
+      <p>Usually one of: the PDB's <code>minAvailable</code> is set at (or above) the current replica count, so <em>any</em> voluntary disruption is mathematically impossible to satisfy; or replicas are already degraded for an unrelated reason (a few already CrashLooping) so the PDB is correctly refusing to remove any more and drop below its floor. Fix the underlying pod health first — don't just loosen or delete the PDB to force it through, that defeats the exact protection it exists for.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="priority preemption pod evicted by higher priority pod">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-sched-5" data-qid="sched-5" onchange="toggleMastery('sched-5', this.checked)">
+      <label for="cb-sched-5" class="qa-q">A lower-priority pod keeps getting preempted/evicted</label>
+    </div>
+    <div class="qa-a">
+      <p><code>PriorityClass</code> lets higher-priority pending pods preempt (evict) lower-priority running pods to make room, when the cluster is otherwise full. Check <code>kubectl get priorityclass</code> and each pod's assigned class — this is by design once configured, but a very common surprise when a new high-priority workload is introduced onto a cluster that's already near capacity, and existing "normal" workloads start getting bumped without an obvious deploy or config change on their own side to explain it.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-cp">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">07</span> Control Plane &amp; Cluster-Wide Issues <span class="badge badge-core">universal</span></h2>
+    <span class="chapter-progress">0/6</span>
+  </div>
+  <p class="chapter-intro">Managed platforms (EKS/AKS) hide most of this from you — until something slips through. On-prem, this entire chapter is squarely your responsibility.</p>
+
+  <div class="qa-card" data-search="api server unreachable kubectl connection refused timeout">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-cp-1" data-qid="cp-1" onchange="toggleMastery('cp-1', this.checked)">
+      <label for="cb-cp-1" class="qa-q">`kubectl` can't reach the API server at all</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl cluster-info
+curl -k https://&lt;api-server-endpoint&gt;:6443/healthz
+kubectl config view --minify   # confirm you're pointed at the right context/cluster at all</code></pre>
+      <p>Split the diagnosis by layer: is this a <strong>local</strong> problem (wrong kubeconfig context, expired client cert/token, VPN not connected for a private cluster) or a <strong>cluster</strong> problem (API server actually down)? Ninety percent of "the cluster is down" reports from a laptop are actually the first kind — check <code>kubectl config current-context</code> before assuming the worst.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="etcd unhealthy quorum loss disk latency backup restore">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-cp-2" data-qid="cp-2" onchange="toggleMastery('cp-2', this.checked)">
+      <label for="cb-cp-2" class="qa-q">etcd issues (self-managed control plane)</label>
+    </div>
+    <div class="qa-a">
+      <p>On EKS/AKS this chapter effectively doesn't exist — etcd is fully managed and invisible. On self-managed/on-prem clusters it's the single most critical, least forgiving component (full detail in Chapter 11) — the short version: etcd needs a majority of members alive to keep serving writes (<code>(n/2)+1</code>, so a 3-node cluster tolerates exactly 1 failure), and it's extremely sensitive to disk write latency, not just capacity — slow disks cause leader elections and API timeouts long before anything looks "full."</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="certificate expired api server unreachable tls handshake error x509">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-cp-3" data-qid="cp-3" onchange="toggleMastery('cp-3', this.checked)">
+      <label for="cb-cp-3" class="qa-q">TLS/certificate errors talking to the cluster</label>
+    </div>
+    <div class="qa-a">
+      <p><code>x509: certificate has expired or is not yet valid</code> is the exact error text to recognize immediately. On managed platforms this is essentially never the control plane's own cert (AWS/Azure handle that) — it's almost always a stale local kubeconfig token/cert on your machine. On self-managed/kubeadm clusters, this is a very real and very common incident: control plane certs expire after 1 year by default and don't auto-renew (Chapter 11 has the exact recovery commands) — treat this as a scheduled maintenance item, not something to discover during an outage.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="rbac forbidden error permission denied user cannot get resource">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-cp-4" data-qid="cp-4" onchange="toggleMastery('cp-4', this.checked)">
+      <label for="cb-cp-4" class="qa-q">"Forbidden" — RBAC permission errors</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl auth can-i get pods -n &lt;ns&gt; --as=&lt;user-or-sa&gt;
+kubectl get rolebinding,clusterrolebinding -A -o wide | grep &lt;user-or-sa&gt;</code></pre>
+      <p><code>kubectl auth can-i --as</code> is the fast path — it tells you definitively whether the permission exists before you go hunting through Role/RoleBinding YAML by hand. Common causes: the binding references the wrong namespace (a RoleBinding in namespace A doesn't grant anything in namespace B, even referencing the same ClusterRole), a typo in the subject name, or the ServiceAccount the pod actually runs as isn't the one that was granted access (defaulting to the namespace's <code>default</code> SA instead of the intended one).</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="admission webhook blocking deployment mutatingwebhook validatingwebhook timeout">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-cp-5" data-qid="cp-5" onchange="toggleMastery('cp-5', this.checked)">
+      <label for="cb-cp-5" class="qa-q">Every deployment suddenly fails admission — "context deadline exceeded" or similar</label>
+    </div>
+    <div class="qa-a">
+      <p>A Mutating or ValidatingWebhookConfiguration (OPA Gatekeeper, Kyverno, a custom webhook, cert-manager's own injector) is unreachable or timing out, and — depending on its <code>failurePolicy</code> — is blocking every single API write cluster-wide, not just the one that seemingly triggered it. This is a genuinely scary cluster-wide symptom with a narrow cause: check <code>kubectl get validatingwebhookconfigurations,mutatingwebhookconfigurations</code> and confirm the webhook's backing pod/Service is actually healthy. A webhook with <code>failurePolicy: Fail</code> that goes down can take the whole cluster's write path down with it — <code>failurePolicy: Ignore</code> on non-critical policy webhooks is a deliberate, common mitigation for exactly this blast radius.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="cluster upgrade broke something deprecated api removed workload failing after upgrade">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-cp-6" data-qid="cp-6" onchange="toggleMastery('cp-6', this.checked)">
+      <label for="cb-cp-6" class="qa-q">Something broke right after a cluster version upgrade</label>
+    </div>
+    <div class="qa-a">
+      <p>First suspect: a removed/deprecated API version that a manifest, Helm chart, or third-party controller still uses — this is by far the most common post-upgrade break, and it's exactly why checking the K8s deprecation guide and running a scanner (Pluto/kube-no-trouble) <em>before</em> upgrading is standard practice, not optional. Second suspect: a version-pinned add-on (CNI, CSI driver, ingress controller) that's incompatible with the new control-plane version and needs its own coordinated bump.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-roll">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">08</span> Deployment &amp; Rollout Issues <span class="badge badge-core">universal</span></h2>
+    <span class="chapter-progress">0/4</span>
+  </div>
+  <p class="chapter-intro">A stuck rollout is a scheduling problem, a probe problem, or a PDB problem wearing a deployment-shaped costume — the fix usually lives in an earlier chapter.</p>
+
+  <div class="qa-card" data-search="rollout stuck deployment not progressing new pods not coming up">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-roll-1" data-qid="roll-1" onchange="toggleMastery('roll-1', this.checked)">
+      <label for="cb-roll-1" class="qa-q">A rollout is stuck — new pods aren't coming up</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl rollout status deployment/&lt;name&gt; -n &lt;ns&gt;
+kubectl get rs -n &lt;ns&gt; -l app=&lt;name&gt;              # which ReplicaSet is trying to scale up, and to what
+kubectl describe pod &lt;new-pod&gt; -n &lt;ns&gt;             # apply Chapter 2's pod diagnostic flow here</code></pre>
+      <p>A "stuck rollout" is rarely its own root cause — it's almost always one of Chapter 2's pod problems (image pull, scheduling, crash loop) blocking the <em>new</em> ReplicaSet from ever reaching Ready, combined with <code>maxUnavailable</code>/<code>maxSurge</code> settings that won't let old pods scale down until new ones are healthy. Diagnose the new pod directly rather than staring at the Deployment object.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="rollback deployment previous version undo revision history">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-roll-2" data-qid="roll-2" onchange="toggleMastery('roll-2', this.checked)">
+      <label for="cb-roll-2" class="qa-q">You need to roll back immediately</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl rollout history deployment/&lt;name&gt; -n &lt;ns&gt;
+kubectl rollout undo deployment/&lt;name&gt; -n &lt;ns&gt;                    # back one revision
+kubectl rollout undo deployment/&lt;name&gt; -n &lt;ns&gt; --to-revision=4     # back to a specific one</code></pre>
+      <p>If the deployment is GitOps-managed (ArgoCD/Flux), a raw <code>kubectl rollout undo</code> works as an immediate mitigation but will be silently reverted on the next sync — always follow up with a <code>git revert</code> in the source repo, or the fix disappears the moment reconciliation runs again.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="readiness gate blocking rollout pod ready but not receiving traffic load balancer">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-roll-3" data-qid="roll-3" onchange="toggleMastery('roll-3', this.checked)">
+      <label for="cb-roll-3" class="qa-q">Pods show Ready but a rollout still isn't progressing</label>
+    </div>
+    <div class="qa-a">
+      <p>Check for a <strong>readiness gate</strong> — an extra condition beyond the standard readiness probe that must also become true before the pod counts as fully Ready for rollout purposes. This is exactly how the AWS Load Balancer Controller confirms a pod is actually registered and healthy in the target group (not just passing its own liveness/readiness probe) before letting the rollout proceed to the next pod — a very common EKS-specific stuck-rollout cause that looks identical to a normal probe issue until you check <code>kubectl get pod -o yaml</code> for the <code>readinessGates</code> and <code>conditions</code> sections specifically.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="hpa not scaling horizontal pod autoscaler stuck unknown metrics">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-roll-4" data-qid="roll-4" onchange="toggleMastery('roll-4', this.checked)">
+      <label for="cb-roll-4" class="qa-q">HPA isn't scaling — or shows "unknown" for current metrics</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl describe hpa &lt;name&gt; -n &lt;ns&gt;   # Events + current/target metrics
+kubectl top pod -n &lt;ns&gt;                # is metrics-server even reporting numbers?</code></pre>
+      <p>"Unknown" current-value metrics almost always means <strong>metrics-server</strong> isn't installed, isn't healthy, or the pods being measured don't have resource <code>requests</code> set — HPA's percentage-based CPU target is calculated against the request, so a pod with no CPU request has nothing to calculate a percentage of. Confirm <code>kubectl top pod</code> returns real numbers before debugging the HPA object itself.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-eks">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">09</span> EKS-Specific Troubleshooting <span class="badge badge-eks">AWS</span></h2>
+    <span class="chapter-progress">0/7</span>
+  </div>
+  <p class="chapter-intro">Everything here is a layer on top of Chapters 1–8, not a replacement for them — an EKS problem is a Kubernetes problem plus one extra AWS-shaped thing to check.</p>
+
+  <div class="qa-card" data-search="irsa access denied iam role service account not working oidc trust policy">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-1" data-qid="eks-1" onchange="toggleMastery('eks-1', this.checked)">
+      <label for="cb-eks-1" class="qa-q">IRSA — pod gets AccessDenied despite the IAM role looking correct</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl get sa &lt;name&gt; -n &lt;ns&gt; -o yaml | grep role-arn        # annotation present and correct?
+kubectl describe pod &lt;pod&gt; -n &lt;ns&gt; | grep AWS_                # AWS_ROLE_ARN / AWS_WEB_IDENTITY_TOKEN_FILE injected?
+aws sts get-caller-identity                                     # run FROM inside the pod — who does AWS actually think this is?</code></pre>
+      <ul>
+        <li>The pod isn't actually using the annotated ServiceAccount (defaulted to <code>default</code> instead of the intended one) — the single most common cause.</li>
+        <li>The IAM role's trust policy condition doesn't exactly match the SA's namespace/name (the <code>sub</code> claim is namespace- and name-specific, not just cluster-wide).</li>
+        <li>The OIDC provider isn't associated with the cluster at all, or its thumbprint is stale after a cluster recreation.</li>
+        <li>The pod identity webhook itself isn't running — check <code>kubectl get pods -n kube-system | grep pod-identity-webhook</code>; if it's down, no pod gets the env vars/token volume injected regardless of how correct everything else is.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="vpc cni ip exhaustion insufficient ip addresses pending pods eni prefix delegation aws-node">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-2" data-qid="eks-2" onchange="toggleMastery('eks-2', this.checked)">
+      <label for="cb-eks-2" class="qa-q">Pods stuck Pending — "Insufficient IP addresses" (VPC CNI)</label>
+    </div>
+    <div class="qa-a">
+      <p>The node has run out of ENI-attached secondary IPs to hand out to pods — a hard ceiling driven by instance type (each EC2 type supports a fixed max ENIs × IPs per ENI), not by CPU/memory capacity, which is why this can happen on a node with plenty of spare compute. Fix: enable <strong>prefix delegation</strong> (<code>ENABLE_PREFIX_DELEGATION=true</code> on the VPC CNI) to allocate /28 IP prefixes instead of individual IPs, dramatically raising pod density per node — or move to larger instance types, or size subnets with real headroom from the start.</p>
+      <pre><code>kubectl describe node &lt;node&gt; | grep -A5 Allocatable
+aws ec2 describe-network-interfaces --filters Name=attachment.instance-id,Values=&lt;id&gt;</code></pre>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="aws-node crashloop vpc cni daemonset failing">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-3" data-qid="eks-3" onchange="toggleMastery('eks-3', this.checked)">
+      <label for="cb-eks-3" class="qa-q">The `aws-node` DaemonSet is CrashLooping</label>
+    </div>
+    <div class="qa-a">
+      <p><code>aws-node</code> is the VPC CNI's own pod — when it's unhealthy, new pods on that node can't get IPs at all (pods stuck in ContainerCreating, Chapter 2 Q6). Check its logs directly: usually an IAM permissions gap on the node role (missing <code>AmazonEKS_CNI_Policy</code>, or the CNI policy was moved to IRSA on the aws-node SA and that's misconfigured), or an add-on version incompatible with the current cluster's Kubernetes version after an upgrade.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="node not joining cluster aws-auth configmap missing mapping security group">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-4" data-qid="eks-4" onchange="toggleMastery('eks-4', this.checked)">
+      <label for="cb-eks-4" class="qa-q">A node launches in EC2 but never joins the cluster</label>
+    </div>
+    <div class="qa-a">
+      <p>The classic EKS gotcha: the node's IAM role isn't mapped in the <code>aws-auth</code> ConfigMap (or the newer <code>EKS access entries</code>), so it can boot, run kubelet, and still never be allowed to register with the API server. Second cause: security group rules blocking node-to-control-plane traffic on the required ports (443 and the kubelet ports). Newer clusters using EKS access entries instead of aws-auth remove this specific trap, but plenty of clusters still run the ConfigMap-based approach.</p>
+      <pre><code>kubectl get configmap aws-auth -n kube-system -o yaml
+aws eks list-access-entries --cluster-name &lt;cluster&gt;   # if using the newer access-entry model</code></pre>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="alb ingress controller not creating load balancer subnet tags iam permissions">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-5" data-qid="eks-5" onchange="toggleMastery('eks-5', this.checked)">
+      <label for="cb-eks-5" class="qa-q">AWS Load Balancer Controller isn't creating an ALB for an Ingress</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li>Subnets missing the required tags (<code>kubernetes.io/role/elb=1</code> public, <code>kubernetes.io/role/internal-elb=1</code> private, plus <code>kubernetes.io/cluster/&lt;name&gt;=shared</code>) — the controller can't auto-discover subnets to place the ALB in without these.</li>
+        <li>The controller's own IRSA role missing a required IAM permission — check its pod logs for the exact denied action, they're usually explicit.</li>
+        <li>Missing or wrong <code>ingressClassName</code>/annotation, so the controller never picks up the Ingress object as one it should manage.</li>
+      </ul>
+      <pre><code>kubectl logs -n kube-system deployment/aws-load-balancer-controller</code></pre>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="ebs csi driver volume stuck attaching pod different az irsa">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-6" data-qid="eks-6" onchange="toggleMastery('eks-6', this.checked)">
+      <label for="cb-eks-6" class="qa-q">EBS volume stuck "attaching," pod won't start</label>
+    </div>
+    <div class="qa-a">
+      <p>EBS volumes are zonal — if the pod got rescheduled to a node in a different AZ than the volume actually lives in, it will never attach, full stop, no amount of waiting fixes it. Confirm with <code>aws ec2 describe-volumes</code> against the node's AZ. This is exactly what topology-aware provisioning (<code>volumeBindingMode: WaitForFirstConsumer</code> on the StorageClass) is meant to prevent by delaying volume creation until a node is actually chosen — if it's still happening, check that setting is actually in place on the StorageClass being used.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="fargate pod stuck pending no matching profile logging setup">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-eks-7" data-qid="eks-7" onchange="toggleMastery('eks-7', this.checked)">
+      <label for="cb-eks-7" class="qa-q">A pod meant for Fargate is stuck Pending</label>
+    </div>
+    <div class="qa-a">
+      <p>No Fargate profile matches the pod's namespace/labels — Fargate scheduling is entirely profile-driven; without a matching profile, the pod just sits Pending with no node to land on at all (there's no fallback to EC2 nodes automatically). Also worth knowing for interview purposes: Fargate has no DaemonSet support, so any cluster-wide agent pattern (log shippers, node-level monitoring) needs a different approach — typically sidecar containers per-pod instead of a node-level DaemonSet, since there's no persistent node to run one on.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-aks">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">10</span> AKS-Specific Troubleshooting <span class="badge badge-aks">Azure</span></h2>
+    <span class="chapter-progress">0/7</span>
+  </div>
+  <p class="chapter-intro">Same principle as EKS — Chapters 1–8 first, then check what's Azure-shaped on top.</p>
+
+  <div class="qa-card" data-search="aad managed identity workload identity federation auth failure token not injected">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-1" data-qid="aks-1" onchange="toggleMastery('aks-1', this.checked)">
+      <label for="cb-aks-1" class="qa-q">Workload Identity / Managed Identity auth failing from a pod</label>
+    </div>
+    <div class="qa-a">
+      <p>The Azure equivalent of IRSA — and it fails for almost identical reasons: the pod's ServiceAccount isn't labeled/annotated for workload identity, the federated credential on the Managed Identity doesn't exactly match the SA's namespace/name/issuer, or the workload identity webhook itself isn't running so the token volume never gets projected into the pod. Check <code>kubectl describe pod</code> for the projected service account token volume, and confirm the federated credential's subject claim matches <code>system:serviceaccount:&lt;namespace&gt;:&lt;sa-name&gt;</code> exactly.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="kubenet vs azure cni ip exhaustion subnet sizing choice locked">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-2" data-qid="aks-2" onchange="toggleMastery('aks-2', this.checked)">
+      <label for="cb-aks-2" class="qa-q">Pods can't be scheduled — subnet is out of IP addresses</label>
+    </div>
+    <div class="qa-a">
+      <p>Under (full) Azure CNI, every pod consumes a real IP from the VNet subnet — an under-sized subnet planned for node count alone, without accounting for pod density, runs out fast as the cluster scales. Azure CNI Overlay (or Kubenet) avoids this by keeping pods on a separate private CIDR, decoupled from the VNet subnet size — but remember from the earlier prep round: <strong>this choice is locked in at cluster creation</strong> and can't be changed after the fact, so a subnet-exhaustion problem on full Azure CNI generally can't be fixed by reconfiguring the existing cluster — it means planning a new node pool or cluster with more headroom.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="agic application gateway ingress controller not working permissions backend health probe">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-3" data-qid="aks-3" onchange="toggleMastery('aks-3', this.checked)">
+      <label for="cb-aks-3" class="qa-q">AGIC isn't provisioning rules on the Application Gateway</label>
+    </div>
+    <div class="qa-a">
+      <p>AGIC needs its own identity with specific RBAC roles on both the Application Gateway resource and the subnet it lives in — a permissions gap there means the Ingress objects exist in Kubernetes but nothing ever appears on the Gateway side. Check the AGIC pod's own logs first (<code>kubectl logs -n kube-system -l app=ingress-appgw</code>); it's generally explicit about permission errors. Separately, if rules exist but return errors, check the Application Gateway's backend health probe status directly in the Azure portal — a probe path/port mismatch there looks identical to an AGIC misconfiguration from the Kubernetes side.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="azure disk csi zone mismatch attach timeout azure file permission">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-4" data-qid="aks-4" onchange="toggleMastery('aks-4', this.checked)">
+      <label for="cb-aks-4" class="qa-q">Azure Disk won't attach, or attaches very slowly</label>
+    </div>
+    <div class="qa-a">
+      <p>Same zonal constraint as EKS/EBS (Chapter 9, Q6) — Azure Disk is zone-bound, and a pod scheduled outside the disk's zone will never attach. Confirm <code>volumeBindingMode: WaitForFirstConsumer</code> is set on the StorageClass so provisioning waits for scheduling instead of racing it. Azure Files (rather than Azure Disk) is the better default choice specifically when <code>ReadWriteMany</code> is actually needed — Disk fundamentally can't do multi-node read-write, and reaching for it there is a design mistake, not a bug to troubleshoot.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="node pool upgrade stuck surge settings quota poddisruptionbudget">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-5" data-qid="aks-5" onchange="toggleMastery('aks-5', this.checked)">
+      <label for="cb-aks-5" class="qa-q">Node pool upgrade is stuck or very slow</label>
+    </div>
+    <div class="qa-a">
+      <p>Check the node pool's <strong>max surge</strong> setting first — a low surge value means very few nodes upgrade in parallel, which is slow by design for safety, not actually stuck. If it's genuinely stuck rather than slow: a PodDisruptionBudget blocking eviction from the node being replaced (Chapter 6, Q4), or a subscription-level vCPU quota limit preventing the surge node from provisioning at all — the latter fails silently from Kubernetes' point of view and only shows up as an Azure-side quota error in the node pool's operation history.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="private cluster connectivity vpn expressroute jumpbox dns resolution fqdn">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-6" data-qid="aks-6" onchange="toggleMastery('aks-6', this.checked)">
+      <label for="cb-aks-6" class="qa-q">Can't reach a private AKS cluster's API server at all</label>
+    </div>
+    <div class="qa-a">
+      <p>A private cluster has no public API server endpoint by design — access requires being on the VNet (via VPN/ExpressRoute) or through a jumpbox inside it; this is expected behavior, not a fault. If you <em>are</em> connected and it still fails, check private DNS zone resolution for the cluster's private FQDN specifically — a private-endpoint DNS record that isn't correctly linked to the VNet is a very common setup gap, and it presents as a generic connection timeout that looks identical to a plain network problem.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="kubelogin aad authentication kubectl exec plugin not found">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-aks-7" data-qid="aks-7" onchange="toggleMastery('aks-7', this.checked)">
+      <label for="cb-aks-7" class="qa-q">`kubectl` fails with an auth/exec-plugin error against an AAD-integrated cluster</label>
+    </div>
+    <div class="qa-a">
+      <p>AAD-integrated (non-admin) AKS clusters require the <strong>kubelogin</strong> plugin to handle the AAD device-code/interactive auth flow — a kubeconfig generated without it, or run on a machine that doesn't have the binary installed, fails with an exec-plugin-not-found style error rather than a normal auth error. This is a very common day-one confusion point distinct from any real cluster health problem: <code>az aks get-credentials</code> followed by confirming <code>kubelogin</code> is on the <code>PATH</code> resolves it in the overwhelming majority of cases.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-onprem">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">11</span> On-Premise / Self-Managed Cluster Troubleshooting <span class="badge badge-onprem">bare metal / kubeadm</span></h2>
+    <span class="chapter-progress">0/8</span>
+  </div>
+  <p class="chapter-intro">Nothing here is managed for you — every problem EKS/AKS hides is now squarely your responsibility. This is also the chapter that most reliably separates "used a managed cluster" from "actually run Kubernetes."</p>
+
+  <div class="qa-card" data-search="etcd quorum loss majority members disk latency fsync">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-onprem-1" data-qid="onprem-1" onchange="toggleMastery('onprem-1', this.checked)">
+      <label for="cb-onprem-1" class="qa-q">etcd cluster loses quorum</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>ETCDCTL_API=3 etcdctl endpoint health --cluster \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key
+ETCDCTL_API=3 etcdctl endpoint status --cluster -w table</code></pre>
+      <p>etcd needs a strict majority of members alive to keep accepting writes — <code>(n/2)+1</code>. A 3-member cluster tolerates exactly one failure; a 5-member cluster tolerates two. Lose quorum and the entire API server goes read-only-at-best, effectively down for any change. Recovery is either bringing enough members back online, or — worst case — restoring from a snapshot backup onto a fresh single-member cluster and re-adding members from there. This is precisely why etcd backups (<code>etcdctl snapshot save</code>) on a schedule are not optional for a self-managed control plane.</p>
+      <div class="gotcha"><strong>The detail most people miss:</strong> etcd is extremely sensitive to disk <em>write latency</em>, not capacity — a disk with high fsync latency causes leader elections and API timeouts under load long before you'd see any "disk full" symptom. Slow storage under etcd looks like a flaky cluster, not a storage problem, until you specifically check etcd's own latency metrics.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="kubeadm join failure token expired discovery hash certificate">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-onprem-2" data-qid="onprem-2" onchange="toggleMastery('onprem-2', this.checked)">
+      <label for="cb-onprem-2" class="qa-q">`kubeadm join` fails</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>Token expired</strong> — join tokens default to a 24-hour TTL; generate a fresh one with <code>kubeadm token create --print-join-command</code> rather than reusing an old one from documentation/scripts.</li>
+        <li><strong>discovery-token-ca-cert-hash mismatch</strong> — usually a stale hash copy-pasted from an old join command after the cluster's CA changed.</li>
+        <li><strong>Control-plane join specifically</strong> also needs a <code>--certificate-key</code>, which has its own much shorter default TTL (2 hours) — re-upload with <code>kubeadm init phase upload-certs --upload-certs</code> if it's expired.</li>
+        <li><strong>Connectivity</strong> — port 6443 (API server) and 10250 (kubelet) blocked by a firewall between the new node and the control plane is a very common last-mile cause after everything else checks out.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="kubeadm certificate expiration renew certs check-expiration one year">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-onprem-3" data-qid="onprem-3" onchange="toggleMastery('onprem-3', this.checked)">
+      <label for="cb-onprem-3" class="qa-q">Control plane certificates expired — API server unreachable cluster-wide</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubeadm certs check-expiration     # run this proactively, on a schedule — don't wait for the outage
+kubeadm certs renew all
+systemctl restart kubelet          # on each control-plane node, after renewal</code></pre>
+      <p><strong>This is the single most well-known on-prem "silent time bomb":</strong> kubeadm-generated control plane certificates expire 1 year after cluster creation (or after the last renewal) by default, and there's no automatic rotation out of the box. A cluster that's been stable and untouched for a year can go down all at once, cluster-wide, with no warning beyond what a proactive <code>check-expiration</code> cron job would have caught. Naming this specific gotcha unprompted is one of the strongest signals of genuine on-prem experience versus managed-platform-only experience — it simply doesn't exist as a concern on EKS/AKS.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="control plane high availability haproxy keepalived vip failover load balancer">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-onprem-4" data-qid="onprem-4" onchange="toggleMastery('onprem-4', this.checked)">
+      <label for="cb-onprem-4" class="qa-q">Control-plane HA setup (HAProxy + keepalived) — VIP isn't failing over</label>
+    </div>
+    <div class="qa-a">
+      <p>On-prem HA for multiple API servers typically means HAProxy load-balancing across control-plane nodes, fronted by a floating virtual IP managed via keepalived (VRRP) — there's no cloud load balancer to do this automatically. If the VIP doesn't move to a healthy node when one fails: check keepalived's own logs for VRRP election issues (often a network config problem — multicast/broadcast blocked between nodes, or a priority misconfiguration), and separately confirm HAProxy's backend health checks are actually correctly detecting the failed API server (a health check hitting the wrong port/path will keep routing to a dead backend indefinitely).</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="calico flannel cni bgp peering vxlan mtu mismatch packet loss">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-onprem-5" data-qid="onprem-5" onchange="toggleMastery('onprem-5', this.checked)">
+      <label for="cb-onprem-5" class="qa-q">Pod networking is broken or intermittently dropping packets (Calico/Flannel)</label>
+    </div>
+    <div class="qa-a">
+      <p><strong>Calico (BGP-based):</strong> <code>calicoctl node status</code> shows BGP peering state directly — a peer stuck "down" or "start" means routes aren't being exchanged between those nodes, and pods on them can't reach each other. Check the underlying network allows BGP (TCP 179) between nodes.</p>
+      <p><strong>Flannel (VXLAN overlay):</strong> the classic on-prem gotcha is an <strong>MTU mismatch</strong> — VXLAN encapsulation adds overhead (typically 50 bytes), so if the physical network's MTU isn't accounted for, large packets get silently dropped rather than cleanly failing. This shows up as maddening <em>intermittent</em> connectivity — small requests work fine, larger payloads mysteriously hang or time out — which makes it one of the more painful on-prem networking issues to pin down without knowing to check MTU specifically as a first-class suspect.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="metallb loadbalancer service pending on premise layer2 bgp arp ip pool">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-onprem-6" data-qid="onprem-6" onchange="toggleMastery('onprem-6', this.checked)">
+      <label for="cb-onprem-6" class="qa-q">`type: LoadBalancer` Service stuck in `&lt;pending&gt;` forever</label>
+    </div>
+    <div class="qa-a">
+      <p>There's no cloud controller manager on-prem to satisfy a LoadBalancer-type Service by default — without <strong>MetalLB</strong> (or an equivalent) installed, the external IP simply never gets assigned, indefinitely, with no error. Once MetalLB is installed: in <strong>Layer2 mode</strong>, check that its speaker pods are running and that the requested IP pool isn't already exhausted or conflicting with another device on the network (ARP conflicts are a real, painful failure mode here); in <strong>BGP mode</strong>, check peering status the same way as Calico BGP above — a route not being advertised looks identical to "nothing happened."</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="rook ceph longhorn nfs on prem storage osd down mon quorum replica">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-onprem-7" data-qid="onprem-7" onchange="toggleMastery('onprem-7', this.checked)">
+      <label for="cb-onprem-7" class="qa-q">On-prem storage backend (Rook-Ceph / Longhorn) reporting degraded</label>
+    </div>
+    <div class="qa-a">
+      <p><strong>Rook-Ceph:</strong> <code>ceph status</code> (via the toolbox pod) is the starting point — an OSD down usually means a disk failure or a node outage; a MON quorum loss is the etcd-equivalent problem for Ceph's own metadata layer and just as serious. <strong>Longhorn:</strong> check replica health in its UI/CRDs directly — a volume with all replicas on nodes currently under DiskPressure (Chapter 3, Q2) will degrade even though nothing about Longhorn itself is misconfigured; the root cause is one layer down at the node level.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="air gapped cluster private registry image pull mirror harbor nexus">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-onprem-8" data-qid="onprem-8" onchange="toggleMastery('onprem-8', this.checked)">
+      <label for="cb-onprem-8" class="qa-q">Image pulls failing in an air-gapped environment</label>
+    </div>
+    <div class="qa-a">
+      <p>No path to the public internet means every image — including base images referenced deep inside third-party Helm charts — has to be mirrored into an internal registry (Harbor/Nexus/JFrog) in advance, and every manifest has to actually reference that internal registry rather than the public one. The most common failure mode isn't the registry itself being broken — it's an overlooked image reference (an init container, a sidecar injected by a mutating webhook, an operator's own controller image) that nobody remembered to mirror, which surfaces as a completely ordinary-looking ImagePullBackOff (Chapter 2, Q2) that's easy to misdiagnose as a typo instead of a missing mirror entry.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-xplat">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">12</span> Cross-Platform Quick Reference <span class="badge badge-ref">same symptom, different cause</span></h2>
+    <span class="chapter-progress">0/5</span>
+  </div>
+  <p class="chapter-intro">The strongest way to demonstrate real multi-platform depth in an interview: the same five symptoms below, and why the actual root cause is completely different depending on where the cluster runs.</p>
+
+  <div class="qa-card" data-search="loadbalancer service pending comparison eks aks on prem cloud controller manager">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-xplat-1" data-qid="xplat-1" onchange="toggleMastery('xplat-1', this.checked)">
+      <label for="cb-xplat-1" class="qa-q">"type: LoadBalancer stuck pending" — same symptom, three different causes</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Platform</th><th>Likely cause</th></tr></thead>
+        <tbody>
+          <tr><td><strong>EKS</strong></td><td>AWS Load Balancer Controller/cloud-controller-manager misconfigured, or subnet tags missing (Ch. 9, Q5)</td></tr>
+          <tr><td><strong>AKS</strong></td><td>Usually automatic via the built-in Azure cloud provider — if pending, check subscription quota or NSG/subnet delegation issues</td></tr>
+          <tr><td><strong>On-prem</strong></td><td>No cloud controller manager exists at all — stays pending forever unless MetalLB (or equivalent) is installed (Ch. 11, Q6)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="network policy no effect comparison eks aks on prem cni enforcement">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-xplat-2" data-qid="xplat-2" onchange="toggleMastery('xplat-2', this.checked)">
+      <label for="cb-xplat-2" class="qa-q">"NetworkPolicy has no effect" — three different causes</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Platform</th><th>Likely cause</th></tr></thead>
+        <tbody>
+          <tr><td><strong>EKS</strong></td><td>Plain VPC CNI historically doesn't enforce it — needs Calico or the VPC CNI's native policy mode enabled</td></tr>
+          <tr><td><strong>AKS</strong></td><td>Kubenet doesn't support it at all; needs Azure CNI + Azure NPM or Calico, chosen at cluster creation (Ch. 10, Q2)</td></tr>
+          <tr><td><strong>On-prem</strong></td><td>Entirely dependent on which CNI was installed — Flannel doesn't enforce policy at all; Calico/Cilium do</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="node not joining comparison eks aks on prem cause">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-xplat-3" data-qid="xplat-3" onchange="toggleMastery('xplat-3', this.checked)">
+      <label for="cb-xplat-3" class="qa-q">"Node won't join the cluster" — three different causes</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Platform</th><th>Likely cause</th></tr></thead>
+        <tbody>
+          <tr><td><strong>EKS</strong></td><td>aws-auth ConfigMap / access entries missing the node role mapping (Ch. 9, Q4)</td></tr>
+          <tr><td><strong>AKS</strong></td><td>Usually automatic through the managed node pool — custom VNET/NSG rules are the main way this breaks</td></tr>
+          <tr><td><strong>On-prem</strong></td><td>kubeadm join token/cert expired, or firewall blocking ports 6443/10250 (Ch. 11, Q2)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="persistent storage not provisioning comparison eks aks on prem default storage class">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-xplat-4" data-qid="xplat-4" onchange="toggleMastery('xplat-4', this.checked)">
+      <label for="cb-xplat-4" class="qa-q">"PVC stuck Pending, nothing provisions" — three different causes</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Platform</th><th>Likely cause</th></tr></thead>
+        <tbody>
+          <tr><td><strong>EKS</strong></td><td>EBS CSI driver's IRSA permissions wrong, or zone mismatch with the scheduled pod (Ch. 9, Q6)</td></tr>
+          <tr><td><strong>AKS</strong></td><td>Default StorageClasses exist out of the box — Pending usually means a zone mismatch or a custom class typo</td></tr>
+          <tr><td><strong>On-prem</strong></td><td><strong>No default StorageClass exists at all</strong> until you install one — the most common on-prem trap of all (Ch. 5, Q1)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="certificate expiration api server unreachable comparison eks aks on prem responsibility">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-xplat-5" data-qid="xplat-5" onchange="toggleMastery('xplat-5', this.checked)">
+      <label for="cb-xplat-5" class="qa-q">"Cluster suddenly unreachable, certificate expired" — three different causes</label>
+    </div>
+    <div class="qa-a">
+      <table>
+        <thead><tr><th>Platform</th><th>Likely cause</th></tr></thead>
+        <tbody>
+          <tr><td><strong>EKS</strong></td><td>Essentially never the control plane — almost always a stale local kubeconfig/token on your own machine</td></tr>
+          <tr><td><strong>AKS</strong></td><td>Same as EKS — control-plane certs are Azure's responsibility, not yours</td></tr>
+          <tr><td><strong>On-prem</strong></td><td><strong>Entirely your responsibility</strong> — kubeadm certs expire after 1 year with no auto-rotation; this is a real, well-documented outage class (Ch. 11, Q3)</td></tr>
+        </tbody>
+      </table>
+      <div class="followup"><strong>The interview-ready one-liner:</strong> "Managed platforms make the control plane someone else's problem — on-prem, the control plane <em>is</em> the job." That's the entire chapter in one sentence, and it's the framing an architect-level interviewer is listening for.</div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-isq">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">13</span> Interview Scenario Questions — Exact Phrasing <span class="badge badge-ref">how they'll actually ask it</span></h2>
+    <span class="chapter-progress">0/23</span>
+  </div>
+  <p class="chapter-intro">Chapters 1–12 are organized like a reference — by symptom or error message. This chapter is organized the way an interviewer actually talks: as a scenario, in one or two sentences, waiting to see your diagnostic order. Every answer here leans on the deeper detail already in earlier chapters rather than repeating it — cross-references point back to the exact card if you want the full depth on any one step.</p>
+
+  <h3 class="subhead">Deployment &amp; Rollout Scenarios</h3>
+
+  <div class="qa-card" data-search="after deployment suddenly all pods crashing what should i check today interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-1" data-qid="isq-1" onchange="toggleMastery('isq-1', this.checked)">
+      <label for="cb-isq-1" class="qa-q">"After a deployment, suddenly all pods are crashing — what should you check?"</label>
+    </div>
+    <div class="qa-a">
+      <p>First question back to yourself, out loud if it helps frame the answer: <strong>all pods of this one app, or all pods cluster-wide?</strong> That single distinction sends the investigation in completely different directions, and stating it up front is itself a good signal to the interviewer.</p>
+      <div class="flow">
+        <span class="flow-step">Scope: one app or cluster-wide?</span><span class="flow-arrow">→</span>
+        <span class="flow-step">describe pod → Events</span><span class="flow-arrow">→</span>
+        <span class="flow-step">logs --previous</span><span class="flow-arrow">→</span>
+        <span class="flow-step">What changed in the deploy?</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Rollback if correlated</span>
+      </div>
+      <p><strong>If it's scoped to the one app that was just deployed</strong> (the far more common version of this question), <code>kubectl describe pod</code> on a crashing replica almost always names the category immediately — then match it to what actually changed in this deploy:</p>
+      <ul>
+        <li><strong>Bad image</strong> — broken build, wrong tag, a missing binary/dependency baked into the new image.</li>
+        <li><strong>Bad config/env var</strong> — a required setting missing or wrong, very often because a ConfigMap/Secret wasn't updated in lockstep with app code that now expects a new key.</li>
+        <li><strong>Probe misconfiguration</strong> — the app's health-check path or port changed in this release but the <code>livenessProbe</code>/<code>readinessProbe</code> config wasn't updated to match, so a perfectly healthy new pod fails its probe and gets killed immediately (Chapter 2, Q1) — this one especially is very easy to mistake for "the code is broken" when it's actually just a probe pointing at the wrong place.</li>
+        <li><strong>Undersized resources for the new version</strong> — a heavier startup routine in the new release now exceeds the existing memory limit → OOMKilled (Chapter 2, Q4).</li>
+        <li><strong>A missing migration</strong> — new code expects a DB schema change that hasn't actually been applied yet, so every replica crashes on its first query.</li>
+      </ul>
+      <p><strong>If it's genuinely cluster-wide</strong> (unrelated apps crashing too, not just the one just deployed), this stops being a "deployment" question and becomes Chapter 7 territory — an admission webhook blocking cluster-wide (Ch. 7, Q5), a DNS/CoreDNS outage taking down anything with a startup dependency lookup, or an expired credential (IRSA/Managed Identity/Vault token) that many pods share and all lose at once.</p>
+      <p><strong>Either way, say this part explicitly:</strong> mitigate first, root-cause in parallel — <code>kubectl rollout undo</code> (or a GitOps revert) to restore service, while continuing to dig into the actual cause. Restoring availability always outranks fully understanding it in the moment.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="rollout halfway some pods old some new inconsistent behavior interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-2" data-qid="isq-2" onchange="toggleMastery('isq-2', this.checked)">
+      <label for="cb-isq-2" class="qa-q">"A rollout is stuck halfway — some pods are old, some are new, and behavior looks inconsistent. What's happening?"</label>
+    </div>
+    <div class="qa-a">
+      <p>This is a stuck rollout, and the inconsistent behavior is simply both versions genuinely serving traffic at once — that part is expected during any rolling update, not itself the bug. The actual question is why it's <em>stuck</em> rather than completing: apply the Chapter 8, Q1 flow directly — <code>kubectl rollout status</code>, then <code>kubectl describe pod</code> on one of the new pods specifically. It's almost always one of Chapter 2's pod problems (image pull, crash loop, failing readiness) preventing the new ReplicaSet from ever reaching enough Ready replicas to let the old ones scale down.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="scaled up deployment new replicas never ready interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-3" data-qid="isq-3" onchange="toggleMastery('isq-3', this.checked)">
+      <label for="cb-isq-3" class="qa-q">"You scaled up a Deployment and the new replicas never become Ready. What do you check?"</label>
+    </div>
+    <div class="qa-a">
+      <p>Same diagnostic entry point as any pod problem — <code>kubectl describe pod</code> on one of the new replicas — but two causes are specifically common with a fresh scale-up rather than a normal deploy: <strong>insufficient cluster capacity</strong> for the extra replicas (Chapter 3, Q3/Chapter 6, Q3 — the new pods are actually stuck Pending, not failing readiness at all, and it's worth confirming which one it is before assuming a readiness problem), and <strong>a shared dependency hitting its own limit</strong> under the new load — a database connection pool sized for the old replica count, now exhausted by the extra connections, causing the new pods to fail their own readiness checks against that dependency.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="rolled back deployment bug still happening why interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-4" data-qid="isq-4" onchange="toggleMastery('isq-4', this.checked)">
+      <label for="cb-isq-4" class="qa-q">"You rolled back to a previous version, but the same bug is still happening. Why might that be?"</label>
+    </div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>It was never actually an app-code problem</strong> — a bad ConfigMap/Secret, a downstream dependency outage, or a data issue (a bad row, a corrupted cache entry) persists across a code rollback because rolling back the Deployment doesn't touch any of those.</li>
+        <li><strong>GitOps reverted it right back</strong> — if the environment is ArgoCD/Flux-managed, a manual <code>kubectl rollout undo</code> is only temporary; the next reconciliation re-applies whatever Git still says, silently undoing your fix within minutes (Chapter 8, Q2). Always pair a manual rollback with an actual Git revert in GitOps-managed environments.</li>
+        <li><strong>Client-side or CDN caching</strong> serving the old (broken) response regardless of what the backend now returns — worth explicitly ruling out before concluding the rollback itself failed.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="deploy succeeded no errors nothing changed running pods interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-5" data-qid="isq-5" onchange="toggleMastery('isq-5', this.checked)">
+      <label for="cb-isq-5" class="qa-q">"The deploy reported success with no errors, but nothing actually changed in the running pods. What do you check?"</label>
+    </div>
+    <div class="qa-a">
+      <p>Almost always one of: the image tag didn't actually change (a mutable tag like <code>:latest</code> reused, or a CI step that built successfully but pushed the old tag by mistake) so Kubernetes correctly sees no diff and does nothing — <code>kubectl get pod -o jsonpath='{.spec.containers[0].image}'</code> confirms exactly what's actually running versus what you think you deployed. Second cause: the manifest change applied to the wrong namespace/cluster context entirely — a very easy mistake with multiple environments and worth ruling out with <code>kubectl config current-context</code> before assuming anything about the app itself.</p>
+    </div>
+  </div>
+
+  <h3 class="subhead">Cluster-Wide &amp; Node Scenarios</h3>
+
+  <div class="qa-card" data-search="multiple nodes notready same time where do you start interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-6" data-qid="isq-6" onchange="toggleMastery('isq-6', this.checked)">
+      <label for="cb-isq-6" class="qa-q">"Multiple nodes go NotReady around the same time. Where do you start?"</label>
+    </div>
+    <div class="qa-a">
+      <p>Multiple nodes failing <em>together</em> is a strong signal to stop thinking "node problem" and start thinking "shared dependency problem" — the individual node checks from Chapter 3 still apply, but the more efficient starting point is whatever those nodes have in common: the same AZ/rack (an infra-provider outage or a physical network segment down), the same underlying host if they're VMs sharing a hypervisor, or a control-plane-side issue (an overloaded API server failing health checks cluster-wide, more a Chapter 7 problem than a node problem at all). Check one node's kubelet logs, but check the cloud provider's status page and the control plane's own health in parallel rather than sequentially — on a multi-node failure, serial single-node debugging wastes time you don't have.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="entire cluster slow unresponsive triage order interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-7" data-qid="isq-7" onchange="toggleMastery('isq-7', this.checked)">
+      <label for="cb-isq-7" class="qa-q">"The entire cluster feels slow or unresponsive. What's your triage order?"</label>
+    </div>
+    <div class="qa-a">
+      <div class="flow">
+        <span class="flow-step">API server latency</span><span class="flow-arrow">→</span>
+        <span class="flow-step">etcd health</span><span class="flow-arrow">→</span>
+        <span class="flow-step">Node resource pressure</span><span class="flow-arrow">→</span>
+        <span class="flow-step">DNS/CoreDNS latency</span><span class="flow-arrow">→</span>
+        <span class="flow-step">One noisy workload?</span>
+      </div>
+      <p>"Slow cluster" almost always traces to one of a small number of shared choke points, checked roughly in this order: API server response latency itself (<code>kubectl get --raw='/healthz'</code> timing, or just noticing every <code>kubectl</code> command feels sluggish); etcd health if self-managed (Chapter 11, Q1 — etcd latency degrades the entire control plane, not just one API); widespread node resource pressure rather than one bad node; CoreDNS under load, since DNS latency quietly compounds into every service call that depends on it; and finally, one specific noisy-neighbor workload starving shared node resources for everything else on that node. Start at the control plane and work outward to individual workloads, not the other way around — starting with individual pods on a cluster-wide slowness report usually wastes the most time.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="paged cluster wide high cpu spike first thing check interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-8" data-qid="isq-8" onchange="toggleMastery('isq-8', this.checked)">
+      <label for="cb-isq-8" class="qa-q">"You're paged for cluster-wide high CPU. What's the very first thing you check?"</label>
+    </div>
+    <div class="qa-a">
+      <pre><code>kubectl top nodes --sort-by=cpu
+kubectl top pods -A --sort-by=cpu | head -15</code></pre>
+      <p>Immediately establish whether this is <strong>legitimate traffic growth</strong> (check request-rate dashboards alongside CPU — if both climbed together, this is a scaling conversation, not an incident) or <strong>one runaway workload</strong> dragging the average up (the sorted <code>top pods</code> output usually makes an outlier obvious at a glance). Those two are entirely different responses — traffic growth needs HPA/Cluster Autoscaler tuning, a runaway pod needs profiling and a scale-out mitigation — and conflating them wastes the first, most valuable minutes of the page.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="node randomly reboots workloads disrupted mid day interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-9" data-qid="isq-9" onchange="toggleMastery('isq-9', this.checked)">
+      <label for="cb-isq-9" class="qa-q">"A node randomly reboots mid-day and workloads get disrupted. How do you investigate?"</label>
+    </div>
+    <div class="qa-a">
+      <p><code>journalctl -b -1</code> (logs from the previous boot, i.e. right up to the moment it went down) is the single most useful command here — check the very last entries before the gap for an OOM-killer log line from the kernel itself (the node's own memory exhausted, distinct from a single pod's OOMKill), a hardware/kernel panic message, or — on cloud platforms — a Spot/Preemptible reclaim notice (this is expected, not a fault, if the node pool intentionally uses Spot capacity). On-prem specifically, also check for a hardware watchdog reset or a scheduled patching job that wasn't communicated. A well-designed workload (multiple replicas, PodDisruptionBudgets, anti-affinity) survives this kind of event without an actual outage — which is often the more important half of the answer than the root cause of the reboot itself.</p>
+    </div>
+  </div>
+
+  <h3 class="subhead">Networking &amp; Connectivity Scenarios</h3>
+
+  <div class="qa-card" data-search="users report intermittent 502 website where do you look order interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-10" data-qid="isq-10" onchange="toggleMastery('isq-10', this.checked)">
+      <label for="cb-isq-10" class="qa-q">"Users report intermittent 502s on the website. Where do you look, in what order?"</label>
+    </div>
+    <div class="qa-a">
+      <p>"Intermittent" is the key word — it points at a subset of backends being unhealthy rather than the whole service being down, so go straight to backend health rather than the ingress config itself (Chapter 4, Q5 has the full 502/503/504 breakdown). Check the ingress controller's/ALB's target group health for individual unhealthy targets among an otherwise-healthy pool; if only some replicas are bad, check whether they correlate with a specific node (node-level issue) or came up around the same time (a bad subset from a rolling deploy that hasn't fully finished, Scenario isq-2 above). Genuinely random-looking intermittency across all replicas more often points at a shared downstream dependency (DB, cache) occasionally timing out under load, propagating up as an occasional 502 rather than a clean, consistent failure.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="service reachable yesterday unreachable today no deploy in between what changed interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-11" data-qid="isq-11" onchange="toggleMastery('isq-11', this.checked)">
+      <label for="cb-isq-11" class="qa-q">"A service was reachable yesterday, unreachable today, and nobody deployed anything. What changed?"</label>
+    </div>
+    <div class="qa-a">
+      <p>"Nobody deployed anything" doesn't mean nothing changed — widen the search past application deploys specifically: a <strong>certificate expired</strong> overnight (Chapter 7, Q3 — especially worth checking first on self-managed clusters, and also for any TLS cert on an Ingress/service mesh with a short rotation window); a <strong>credential/token expired</strong> (an IAM role's temporary credentials, a database password rotated by policy); a <strong>scheduled/automated change</strong> that isn't a "deploy" in the usual sense — a cluster autoscaler scale-down over a quiet night removing a node a pod depended on, a scheduled cron job that mutated shared config, or a cloud-provider-side change (a security group edited by someone else, a DNS record TTL expiring and re-resolving somewhere new). <code>kubectl get events -A --sort-by='.lastTimestamp'</code> and the cloud provider's own audit log (CloudTrail/Azure Activity Log) both cover far more "what changed" ground than checking recent app deploys alone.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="new network policy one app unrelated service breaks how do you debug interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-12" data-qid="isq-12" onchange="toggleMastery('isq-12', this.checked)">
+      <label for="cb-isq-12" class="qa-q">"You add a NetworkPolicy for one app, and a completely unrelated service breaks. How do you debug that?"</label>
+    </div>
+    <div class="qa-a">
+      <p>This is the classic NetworkPolicy footgun, and it's worth naming the mechanism directly: a NetworkPolicy's <code>podSelector</code> can be broader than intended — a label meant to scope the policy to "just this app" can accidentally also match pods belonging to something else entirely, pulling them into a deny-by-default posture they were never meant to be in. Confirm with <code>kubectl get networkpolicy -o yaml</code> and cross-check the selector against <em>every</em> pod's labels cluster-wide, not just the intended target — <code>kubectl get pods -A --show-labels | grep &lt;the-label-you-used&gt;</code> is the fast way to see everything actually caught by it. This is also the strongest practical argument for narrow, explicit label schemes (e.g. <code>app.kubernetes.io/name: exact-app-name</code>) over broad, reused labels like a generic <code>tier: backend</code> that many unrelated services might share.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="microservice reach database staging not production checklist interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-13" data-qid="isq-13" onchange="toggleMastery('isq-13', this.checked)">
+      <label for="cb-isq-13" class="qa-q">"A microservice can reach the database from staging, but not from production. What's your comparison checklist?"</label>
+    </div>
+    <div class="qa-a">
+      <p>Rather than debugging production in isolation, diff the two environments directly — that's usually faster than fresh root-causing:</p>
+      <ul>
+        <li><strong>NetworkPolicy</strong> — does production have a stricter default-deny policy staging doesn't (very common — staging is often deliberately looser)?</li>
+        <li><strong>Security Groups/NSGs/firewall rules</strong> — production DB tiers are frequently locked down harder than staging's.</li>
+        <li><strong>DNS</strong> — is the app resolving the correct production endpoint at all, or accidentally still pointed at a staging-style hostname via a copy-pasted config?</li>
+        <li><strong>Credentials/IAM</strong> — does the production ServiceAccount/IRSA role actually have the grant that staging's has, or was it never mirrored over?</li>
+        <li><strong>Same subnet/AZ reachability</strong> — production infra is more likely to be split across multiple AZs/subnets with tighter routing than a simpler staging setup.</li>
+      </ul>
+      <p>A debug pod (Chapter 1, Q3) run in production, attempting the exact same connection the app makes, isolates whether it's a networking/policy problem or an application-config problem in under a minute.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="external partners cannot reach api internal health checks fine interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-14" data-qid="isq-14" onchange="toggleMastery('isq-14', this.checked)">
+      <label for="cb-isq-14" class="qa-q">"External partners report they can't reach your API, but internal health checks look completely fine. What do you check?"</label>
+    </div>
+    <div class="qa-a">
+      <p>"Internal looks fine" is the tell — the problem lives specifically on the external path, which internal health checks never traverse: DNS resolution of the public hostname from outside your network (it can resolve fine internally via a different, internal-only record); a WAF rule or IP allowlist that changed and is now blocking legitimate partner traffic; a TLS certificate valid for the wrong hostname, or expired specifically on the public-facing listener while an internal one uses a different cert; or the external load balancer/ALB itself being misconfigured while internal ClusterIP traffic bypasses it entirely and looks completely healthy. Test from genuinely outside the network (not a debug pod inside the cluster) to actually reproduce what partners are seeing.</p>
+    </div>
+  </div>
+
+  <h3 class="subhead">Config, Secrets &amp; Access Scenarios</h3>
+
+  <div class="qa-card" data-search="updated configmap application still using old values why interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-15" data-qid="isq-15" onchange="toggleMastery('isq-15', this.checked)">
+      <label for="cb-isq-15" class="qa-q">"You updated a ConfigMap, but the application is still behaving like it's using the old values. Why?"</label>
+    </div>
+    <div class="qa-a">
+      <p>A ConfigMap update alone doesn't restart anything — if the app reads the value only at startup (an env var sourced from the ConfigMap, most common pattern), the running pods simply never re-read it; they need a rollout restart (<code>kubectl rollout restart deployment/&lt;name&gt;</code>) to actually pick up the change. The exception: a ConfigMap <em>mounted as a volume</em> does get live-updated on disk inside the pod (with a short kubelet sync delay, typically under a minute) — but the app still has to actually watch the file and reload it; most applications don't do this by default, so even a volume-mounted ConfigMap often still needs an explicit reload mechanism or a restart to take effect in practice.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="secret rotated pods fail authenticate what do you check interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-16" data-qid="isq-16" onchange="toggleMastery('isq-16', this.checked)">
+      <label for="cb-isq-16" class="qa-q">"A Secret gets rotated, and now several pods fail to authenticate. What's your process?"</label>
+    </div>
+    <div class="qa-a">
+      <p>Same root cause as the ConfigMap scenario above — env-var-sourced Secrets need a restart to pick up a rotation, so "rotated the Secret" and "pods are actually using the new value" are two different events unless something explicitly bridges them. For real production rotation, that bridge is normally either an automated rollout restart triggered as part of the rotation pipeline, or (the more robust answer, worth naming) an External Secrets Operator / Vault Agent sidecar pattern that actively re-injects and can trigger a reload without a full manual restart. If pods restarted and are <em>still</em> failing post-rotation, check for a propagation lag on the secret-store side itself (the new value hasn't actually finished replicating in Vault/Secrets Manager yet) before assuming the pod-side plumbing is broken.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="developer cannot deploy anymore nothing changed their end what do you check interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-17" data-qid="isq-17" onchange="toggleMastery('isq-17', this.checked)">
+      <label for="cb-isq-17" class="qa-q">"A developer says their deploys are suddenly failing, and they haven't changed anything on their end. What do you check?"</label>
+    </div>
+    <div class="qa-a">
+      <p>"Nothing changed on their end" points the search at everything <em>around</em> them instead: an RBAC change (Chapter 7, Q4 — <code>kubectl auth can-i --as</code> confirms in seconds whether a permission was quietly revoked or a role binding changed), an admission policy update (Chapter 3's OPA/Kyverno content — a new cluster-wide policy can start rejecting previously-valid manifests with no code change involved at all), a CI/CD platform-side credential expiring (a service account token, a registry push credential), or — worth checking early since it's fast to rule out — whether this is actually affecting everyone or just this one developer, which immediately separates "something changed platform-wide" from "something specific to their access."</p>
+    </div>
+  </div>
+
+  <h3 class="subhead">Resource &amp; Capacity Scenarios</h3>
+
+  <div class="qa-card" data-search="new pods wont schedule spare capacity dashboard shows what going on interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-18" data-qid="isq-18" onchange="toggleMastery('isq-18', this.checked)">
+      <label for="cb-isq-18" class="qa-q">"New pods won't schedule even though the cluster dashboard shows spare capacity. What's actually going on?"</label>
+    </div>
+    <div class="qa-a">
+      <p>"Spare capacity" on a dashboard is usually a raw CPU/memory number — it doesn't account for several other real scheduling constraints that a pod can be blocked by even with plenty of headroom: <strong>taints without a matching toleration</strong> (Chapter 6, Q1), <strong>pod affinity/anti-affinity rules</strong> that are technically satisfiable but not on the specific nodes that have the spare capacity (Chapter 6, Q2), <strong>the max-pods-per-node ceiling</strong> being hit on otherwise-idle nodes (very much an EKS VPC-CNI IP-exhaustion pattern, Chapter 9 Q2 — a node can show 10% CPU used and still be completely full from a pod-count/IP perspective), or a <strong>PriorityClass</strong> situation where the pending pod's priority isn't high enough to preempt anything and the "spare" capacity is actually already reserved by pods with pending resource claims. <code>kubectl describe pod</code> Events name the specific one directly — always the fastest path here rather than guessing from the dashboard number alone.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="application fine for months suddenly oomkilled what changed how find out interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-19" data-qid="isq-19" onchange="toggleMastery('isq-19', this.checked)">
+      <label for="cb-isq-19" class="qa-q">"An application ran fine for months and suddenly starts getting OOMKilled. What changed, and how do you find out?"</label>
+    </div>
+    <div class="qa-a">
+      <p>Three realistic explanations, and the investigation differs for each: <strong>(1) traffic/data volume genuinely grew</strong> — check request-rate and payload-size trends over the same window; this is a capacity conversation, the fix is raising the limit or scaling out, not a bug. <strong>(2) a real memory leak</strong> — check the memory usage trend specifically: a leak shows steady, continuous growth within each pod's own lifetime that resets only on restart, versus usage that plateaus normally; Prometheus's per-pod memory graph over several days makes this visually obvious. <strong>(3) an unrelated recent deploy changed behavior</strong> even without deliberately touching memory settings — a new dependency version, a changed caching strategy, a new code path that holds more in memory than before. Correlate the exact timestamp OOMKills started against both deploy history and any traffic-pattern change before concluding which of the three it is — treating a genuine leak as a capacity problem (just raising the limit) delays the pod's inevitable crash rather than fixing anything.</p>
+    </div>
+  </div>
+
+  <h3 class="subhead">Storage Scenarios</h3>
+
+  <div class="qa-card" data-search="stateful application wont come back up after node failure what check interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-20" data-qid="isq-20" onchange="toggleMastery('isq-20', this.checked)">
+      <label for="cb-isq-20" class="qa-q">"A stateful application won't come back up after a node failure. What do you check?"</label>
+    </div>
+    <div class="qa-a">
+      <p>StatefulSets tie a pod identity to a specific PVC, and block storage is typically zone-bound — if the failed node's replacement (or the rescheduled pod) lands in a different AZ/zone than the existing volume, it can never attach, and the pod hangs indefinitely rather than failing loudly (Chapter 9 Q6 / Chapter 10 Q4 have the exact EKS/AKS versions of this). Confirm with <code>kubectl describe pod</code> for a stuck-attaching event, and check the volume's actual zone against the node it's now trying to schedule onto. Second cause specific to StatefulSets: ordered rolling recovery — a StatefulSet won't bring pod N+1 back until pod N is healthy again, so what looks like "the whole thing is stuck" can actually be one specific ordinal blocking everything behind it in the sequence.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="migrated storage class database pods keep restarting approach interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-21" data-qid="isq-21" onchange="toggleMastery('isq-21', this.checked)">
+      <label for="cb-isq-21" class="qa-q">"After migrating to a new StorageClass, database pods keep restarting. What's your approach?"</label>
+    </div>
+    <div class="qa-a">
+      <p>Check I/O performance characteristics first, not just "does it mount" — a StorageClass migration (e.g. moving to a cheaper/slower tier) can silently degrade IOPS/latency enough that the database's own health checks or startup timeouts start failing under real load, even though the volume mounts and looks completely fine at rest. Compare the new class's guaranteed IOPS/throughput against the old one directly rather than assuming "storage" as a category is interchangeable. Second common cause specific to a class migration: a permissions/fsGroup mismatch on the new provisioner (Chapter 5, Q2) that the old one handled differently, causing the DB process to fail on file access rather than on mount itself.</p>
+    </div>
+  </div>
+
+  <h3 class="subhead">GitOps &amp; CI/CD Scenarios</h3>
+
+  <div class="qa-card" data-search="argocd synced healthy wrong version actually running how possible interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-22" data-qid="isq-22" onchange="toggleMastery('isq-22', this.checked)">
+      <label for="cb-isq-22" class="qa-q">"ArgoCD shows the app as Synced and Healthy, but the version actually running in the cluster is wrong. How is that even possible?"</label>
+    </div>
+    <div class="qa-a">
+      <p>"Synced" only means the live state matches whatever the manifest in Git currently says — it says nothing about whether that manifest itself points at the version you intended. The most common cause: the GitOps repo's image tag was never actually bumped by CI in the first place (a broken or skipped step in the tag-update automation), so ArgoCD is correctly, faithfully synced to a manifest that was simply never updated — this isn't an ArgoCD problem at all, it's upstream of it. Second cause: someone (or an automated process) committed directly to the GitOps repo bypassing the intended CI pipeline, and Auto Sync/Self Heal faithfully applied that unintended change. Always check the actual Git commit history of the manifest file itself, not just ArgoCD's UI, before assuming the deployment tooling is at fault.</p>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="ci cd pipeline successful deploy kubectl shows nothing changed interview question">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-isq-23" data-qid="isq-23" onchange="toggleMastery('isq-23', this.checked)">
+      <label for="cb-isq-23" class="qa-q">"The CI/CD pipeline reports a successful deploy, but `kubectl` shows nothing actually changed. What do you check?"</label>
+    </div>
+    <div class="qa-a">
+      <p>A "successful" pipeline run just means every stage exited 0 — it doesn't guarantee the apply step targeted the right place. Check, in order: did the apply step actually run against the intended cluster/namespace/context (a misconfigured kubeconfig or context in the pipeline is a very common silent-no-op cause); did the manifest genuinely change at all, or did the pipeline rebuild and "redeploy" an identical spec that Kubernetes correctly recognized needed no changes (Scenario isq-5 above, same underlying pattern); and — for GitOps setups specifically — did CI only update the app repo without the separate step that pushes the new tag into the GitOps repo ArgoCD actually watches, meaning the "deploy" never reached the thing that would have applied it at all.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  A dedicated troubleshooting reference — 94 questions across 13 chapters (8 platform-agnostic, 3 platform-specific, 1 cross-platform comparison, 1 interview-scenario chapter). Progress saves automatically in this file — use the search box to jump straight to any error message, command, or scenario.
+</footer>
+
+<script>
+let masteryState = {};
+const STORAGE_KEY = 'k8s-troubleshooting-mastery';
+const hasStorage = typeof window.storage !== 'undefined';
+
+async function loadProgress(){
+  if(hasStorage){
+    try{
+      const result = await window.storage.get(STORAGE_KEY);
+      if(result && result.value) masteryState = JSON.parse(result.value);
+    }catch(e){ /* nothing saved yet on first run */ }
+  }
+  applyProgressToCheckboxes();
+  updateProgressBar();
+}
+
+async function toggleMastery(id, checked){
+  if(checked) masteryState[id] = true; else delete masteryState[id];
+  updateProgressBar();
+  if(!hasStorage) return;
+  try{ await window.storage.set(STORAGE_KEY, JSON.stringify(masteryState)); }
+  catch(e){ console.error('save failed', e); }
+}
+
+function applyProgressToCheckboxes(){
+  document.querySelectorAll('.mastery-check').forEach(cb=>{
+    if(masteryState[cb.dataset.qid]) cb.checked = true;
+  });
+}
+
+function updateProgressBar(){
+  const all = document.querySelectorAll('.mastery-check');
+  const total = all.length;
+  const done = Object.keys(masteryState).length;
+  const textEl = document.getElementById('progress-text');
+  const fillEl = document.getElementById('progress-fill');
+  if(textEl) textEl.textContent = done + ' / ' + total + ' mastered';
+  if(fillEl) fillEl.style.width = (total ? (done/total*100) : 0) + '%';
+  document.querySelectorAll('.chapter').forEach(ch=>{
+    const boxes = ch.querySelectorAll('.mastery-check');
+    let d = 0;
+    boxes.forEach(b=>{ if(masteryState[b.dataset.qid]) d++; });
+    const label = ch.querySelector('.chapter-progress');
+    if(label) label.textContent = d + '/' + boxes.length;
+  });
+}
+
+function filterCards(term){
+  term = term.trim().toLowerCase();
+  let anyVisible = false;
+  document.querySelectorAll('.chapter').forEach(ch=>{
+    let chVisible = false;
+    ch.querySelectorAll('.qa-card').forEach(card=>{
+      const match = !term || (card.dataset.search || '').includes(term);
+      card.classList.toggle('hidden', !match);
+      if(match) chVisible = true;
+    });
+    ch.classList.toggle('hidden', !chVisible);
+    if(chVisible) anyVisible = true;
+  });
+  const noRes = document.getElementById('no-results');
+  if(noRes) noRes.classList.toggle('show', !anyVisible);
+}
+
+async function resetProgress(){
+  if(!confirm('Clear all mastery checkmarks?')) return;
+  masteryState = {};
+  document.querySelectorAll('.mastery-check').forEach(cb=> cb.checked = false);
+  updateProgressBar();
+  if(hasStorage){
+    try{ await window.storage.set(STORAGE_KEY, JSON.stringify({})); }catch(e){}
+  }
+}
+
+function setupActiveTocTracking(){
+  const chips = Array.from(document.querySelectorAll('.toc-chip'));
+  const chipByHref = {};
+  chips.forEach(c => { chipByHref[c.getAttribute('href')] = c; });
+  if(!('IntersectionObserver' in window)) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const chip = chipByHref['#' + entry.target.id];
+      if(!chip) return;
+      if(entry.isIntersecting){
+        chips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        chip.scrollIntoView({block:'nearest', inline:'nearest', behavior:'smooth'});
+      }
+    });
+  }, { rootMargin: '-140px 0px -70% 0px', threshold: 0 });
+  document.querySelectorAll('.chapter').forEach(ch => observer.observe(ch));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadProgress();
+  setupActiveTocTracking();
+});
+</script>
+</body>
+</html>

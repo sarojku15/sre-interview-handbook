@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataArt — AI Production Support Engineer — Interview Handbook</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#121826; --panel-2:#161e2e; --border:#1f2937;
+    --text:#e8ecf1; --muted:#7d8aa0; --muted-2:#c7cedb;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --c-support:#FBBF24; --c-aws:#FF9900; --c-mlops:#34D399; --c-containers:#3B82F6;
+    --c-observability:#A78BFA; --c-cicd:#2DD4BF; --c-data:#F472B6; --c-security:#F87171;
+    --c-resilience:#22D3EE; --c-compliance:#C4B5FD; --c-automation:#FB923C;
+    --c-scenario:#94A3B8; --c-behavioral:#FDE68A;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased;}
+  ::selection{background:#34D39944; color:#fff;}
+  a{color:inherit;}
+
+  .term-window{border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:22px auto 0; max-width:1120px; box-shadow:0 20px 60px -20px rgba(0,0,0,.6);}
+  .term-titlebar{background:var(--panel-2); padding:10px 16px; display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; color:var(--muted); border-bottom:1px solid var(--border);}
+  .dot{width:11px; height:11px; border-radius:50%; display:inline-block;}
+  .dot.red{background:#ff5f56;} .dot.yellow{background:#ffbd2e;} .dot.green{background:#27c93f;}
+  .term-body{background:radial-gradient(1200px 400px at 15% -10%, #14203a55, transparent), var(--panel); padding:30px 32px 26px;}
+  .eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:#5ee6c4; text-transform:uppercase;}
+  .term-body h1{margin:.25em 0 .1em; font-size:2.1rem; letter-spacing:-.01em;}
+  .term-body .subtitle{color:var(--muted-2); font-size:1rem;}
+  .status-strip{font-family:var(--mono); font-size:12.5px; background:#0d1220; border-top:1px solid var(--border); padding:12px 16px; display:flex; flex-wrap:wrap; gap:20px; color:var(--muted); align-items:center;}
+  .status-dot{width:8px; height:8px; border-radius:50%; background:#34D399; display:inline-block; margin-right:7px; box-shadow:0 0 8px #34D399;}
+  .status-strip b{color:var(--text);}
+  #resetBtn{cursor:pointer; text-decoration:underline; text-decoration-style:dotted; margin-left:auto;}
+  #resetBtn:hover{color:#F87171;}
+
+  .toolbar{position:sticky; top:0; z-index:20; background:rgba(10,14,20,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); padding:12px 16px;}
+  .toolbar-inner{max-width:1120px; margin:0 auto; display:flex; flex-wrap:wrap; gap:10px; align-items:center;}
+  .search-input{flex:1 1 240px; background:var(--panel); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:14px; padding:9px 14px; border-radius:8px; outline:none;}
+  .search-input:focus{border-color:#34D399;}
+  .pills{display:flex; flex-wrap:wrap; gap:6px; align-items:center; width:100%; margin-top:10px;}
+  .pill{font-family:var(--mono); font-size:11.5px; padding:6px 11px; border-radius:999px; border:1px solid var(--border); color:var(--muted); cursor:pointer; white-space:nowrap; background:transparent; transition:.15s;}
+  .pill:hover{border-color:var(--muted-2); color:var(--text);}
+  .pill.active{background:var(--text); color:#0a0e14; border-color:var(--text); font-weight:600;}
+  .toggle-wrap{margin-left:auto; display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11.5px; color:var(--muted);}
+
+  main{max-width:1120px; margin:0 auto; padding:0 16px 60px;}
+  .intro-panel{background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:22px 24px; margin:26px 0 8px;}
+  .intro-panel h3{margin-top:0; font-size:1rem; color:#5ee6c4; font-family:var(--mono); text-transform:uppercase; letter-spacing:.08em; font-size:12px;}
+  .intro-panel p{color:var(--muted-2); font-size:.94rem; margin:10px 0;}
+  .intro-panel .callout{border-left:3px solid var(--c-behavioral); padding:4px 0 4px 14px; margin:14px 0; color:var(--text); font-size:.93rem;}
+
+  .section{padding:38px 0 6px;}
+  .section-head{border-left:4px solid var(--accent, #34D399); padding-left:16px; margin-bottom:18px;}
+  .section-eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent, #34D399);}
+  .section h2{margin:.15em 0 8px; font-size:1.5rem; letter-spacing:-.01em;}
+  .section-intro{color:var(--muted); font-size:.94rem; max-width:76ch; margin:0;}
+
+  .qa-card{background:var(--panel); border:1px solid var(--border); border-left:4px solid var(--accent, #34D399); border-radius:9px; padding:17px 20px; margin-bottom:13px;}
+  .qa-head{display:flex; justify-content:space-between; gap:14px; align-items:flex-start;}
+  .qa-q{font-weight:650; font-size:1.01rem; color:var(--text);}
+  .qa-num{font-family:var(--mono); color:var(--accent,#34D399); margin-right:9px; font-size:.85em;}
+  .mastery-label{display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10.5px; color:var(--muted); white-space:nowrap; cursor:pointer; user-select:none; flex-shrink:0; padding-top:2px;}
+  .mastery-label input{width:15px; height:15px; cursor:pointer;}
+  .qa-a{color:var(--muted-2); margin-top:10px; font-size:.94rem;}
+  .qa-a p{margin:.5em 0;}
+  .qa-a ul{margin:.4em 0; padding-left:1.3em;}
+  .qa-a li{margin:.25em 0;}
+  .qa-a code{font-family:var(--mono); background:#0d1220; border:1px solid var(--border); border-radius:4px; padding:1px 6px; font-size:.85em; color:#9fe6c9;}
+  .qa-a pre{font-family:var(--mono); background:#0d1220; border:1px solid var(--border); border-radius:7px; padding:12px 14px; overflow-x:auto; font-size:.82rem; line-height:1.55; color:#c9d4e3;}
+  .qa-tip{margin-top:11px; padding:10px 13px; border-radius:7px; background:#A78BFA14; border:1px solid #A78BFA3d; font-size:.85rem; color:#d7d2f5;}
+  .qa-tip strong{color:#c9beff;}
+  .qa-trap{margin-top:11px; padding:10px 13px; border-radius:7px; background:#F8717114; border:1px solid #F871713d; font-size:.85rem; color:#f5d2d2;}
+  .qa-trap strong{color:#ffb3b3;}
+
+  .scn-card{background:var(--panel); border:1px solid var(--border); border-left:4px solid var(--c-scenario); border-radius:9px; padding:18px 20px; margin-bottom:14px;}
+  .scn-situation{font-family:var(--mono); font-size:11px; color:var(--c-scenario); text-transform:uppercase; letter-spacing:.06em;}
+  .scn-title{font-weight:650; margin:5px 0 10px; font-size:1.02rem;}
+  .scn-a{color:var(--muted-2); font-size:.94rem;}
+  .scn-a strong{color:var(--text);}
+
+  .beh-card{background:var(--panel); border:1px solid var(--border); border-left:4px solid var(--c-behavioral); border-radius:9px; padding:18px 20px; margin-bottom:14px;}
+  .beh-q{font-weight:650; font-size:1.02rem; margin-bottom:8px;}
+  .beh-a{color:var(--muted-2); font-size:.94rem;}
+  .star{display:inline-block; font-family:var(--mono); font-size:10.5px; color:#0a0e14; background:var(--c-behavioral); border-radius:4px; padding:1px 6px; margin-right:6px; font-weight:700;}
+
+  .hidden{display:none !important;}
+  footer{max-width:1120px; margin:20px auto 60px; padding:0 16px; color:var(--muted); font-family:var(--mono); font-size:12px; text-align:center;}
+
+  @media(max-width:640px){
+    .term-body{padding:22px 18px 20px;} .term-body h1{font-size:1.55rem;}
+    .qa-head{flex-direction:column;} .mastery-label{align-self:flex-end;}
+  }
+</style>
+</head>
+<body>
+
+<div class="term-window">
+  <div class="term-titlebar"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+    <span>saroj@prep:~$ cat dataart-ai-production-support-handbook.md</span>
+  </div>
+  <div class="term-body">
+    <div class="eyebrow">Interview Handbook</div>
+    <h1>AI Production Support Engineer</h1>
+    <div class="subtitle">DataArt · Regulated Banking Environment · AWS-heavy AI/ML Operations</div>
+  </div>
+  <div class="status-strip">
+    <span><span class="status-dot"></span>STATUS: <b>OPERATIONAL</b></span>
+    <span>QUESTIONS: <b id="statTotal">0</b></span>
+    <span>MASTERED: <b id="statMastered">0</b> (<b id="statPct">0%</b>)</span>
+    <span>LAST_DEPLOY: <b>2026‑08‑17</b></span>
+    <span id="resetBtn">reset progress</span>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <input id="searchInput" class="search-input" placeholder="Search questions &amp; answers…" />
+    <div class="pills" id="pillRow">
+      <span class="pill active" data-target="all">All</span>
+      <span class="pill" data-target="sec-support">01 Prod Support/ITIL</span>
+      <span class="pill" data-target="sec-aws">02 AWS &amp; AI Platforms</span>
+      <span class="pill" data-target="sec-mlops">03 MLOps</span>
+      <span class="pill" data-target="sec-containers">04 Containers</span>
+      <span class="pill" data-target="sec-observability">05 Observability</span>
+      <span class="pill" data-target="sec-cicd">06 CI/CD</span>
+      <span class="pill" data-target="sec-data">07 Data/Integration</span>
+      <span class="pill" data-target="sec-security">08 Security</span>
+      <span class="pill" data-target="sec-resilience">09 Resilience/DR</span>
+      <span class="pill" data-target="sec-compliance">10 Model Risk/Reg</span>
+      <span class="pill" data-target="sec-automation">11 Automation/Cost</span>
+      <span class="pill" data-target="sec-scenario">12 Scenarios</span>
+      <span class="pill" data-target="sec-behavioral">13 Behavioral</span>
+      <label class="toggle-wrap"><input type="checkbox" id="unreviewedToggle"/> unreviewed only</label>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+
+<div class="intro-panel">
+  <h3>How to use this</h3>
+  <p>Search or click a pill to jump/filter. Tick <b>Mastered</b> on any card — progress saves automatically and survives closing this file. "Unreviewed only" hides what you've already ticked so late-stage review stays fast.</p>
+  <h3 style="margin-top:18px;">DataArt, briefly</h3>
+  <p>DataArt is a 6,000+ person global IT consultancy (est. 1997, NYC HQ) with a genuinely deep financial-services practice — banks, capital markets, payment providers, fraud-detection systems — and an AWS Consulting Partner designation. Their public positioning leans hard on "regulated, AI-enabled, and governed by design," and they talk about an internal AI delivery model ("Artisyn") that embeds governance and human oversight into AI-assisted delivery specifically for regulated clients. Translation: expect them to actually care about the governance/audit/compliance side of this JD, not just treat it as boilerplate.</p>
+  <h3 style="margin-top:18px;">Pattern-match worth knowing</h3>
+  <p class="callout">Your Aug 5 interview for an almost identically-shaped JD (AI/ML Production Support/SRE, banking, MLOps + model monitoring + ITIL + regulatory) turned out in practice to be a general AWS/cloud-architecture and production-support conversation more than an ML-specific one — and the recurring probe was "did <em>you</em> design this, or did the platform team." Don't under-prepare the AWS/K8s/CI-CD/DR sections below thinking the "AI" framing means it'll stay ML-flavored throughout. Have your <b>operator-vs-architect</b> reframe ready (see §13) regardless of how the conversation opens.</p>
+  <h3 style="margin-top:18px;">How the answers are calibrated</h3>
+  <p>This is a <em>production support</em> role, not a data-science role — the JD itself is written that way (monitoring, incident management, secure deployment, DR, audit logging). Every answer below leans on the "I keep AI systems healthy, observable, and compliant" framing rather than "I build models," which matches both the JD's own emphasis and your real strength profile.</p>
+</div>
+
+<section class="section" id="sec-support" style="--accent:var(--c-support)">
+  <div class="section-head">
+    <div class="section-eyebrow">01 · Foundations</div>
+    <h2>Production Support &amp; ITIL</h2>
+    <p class="section-intro">L2/L3 support, incident/problem/change management, RCA — the operating discipline the whole JD sits on top of.</p>
+  </div>
+
+  <div class="qa-card" data-id="ps1">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">01</span>How does L2/L3 support differ for AI/ML services versus a typical web application?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>L2 handles known-error triage against runbooks — endpoint health, restart a stuck deployment, re-run a failed pipeline step, escalate on a defined threshold (e.g., latency &gt; SLA for 5 min, drift score over threshold). L3 owns anything needing platform or model-context depth: diagnosing <em>why</em> a model's predictions degraded (data issue vs. code issue vs. genuine concept drift), tuning autoscaling/resource allocation for a model-serving fleet, or working with Data Science on whether a rollback or a hot-fix retrain is the right call. The extra wrinkle versus a normal app: an ML service can be "up" (200 OK, low latency) while silently wrong — L3 for AI systems has to reason about correctness, not just availability.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ps2">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">02</span>Walk through the incident management lifecycle you'd apply to an AI service outage.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>Detect</b> (alert fires — CloudWatch alarm, drift monitor, synthetic canary) → <b>Log &amp; classify</b> (severity, affected model/endpoint, blast radius — one consumer or bank-wide) → <b>Triage/mitigate</b> (stabilize first: fail over, roll back, scale up — restore service before root-causing) → <b>Resolve</b> (confirm SLIs back in range) → <b>RCA</b> (5 Whys / timeline reconstruction) → <b>Problem record</b> (so recurrence is tracked and preventive work gets prioritized) → <b>Post-incident review</b> (blameless, action items with owners). In a bank this all needs to land in ServiceNow (or equivalent) with timestamps that satisfy audit — the ticket trail <em>is</em> evidence during a regulatory review.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ps3">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">03</span>A fraud-detection model's precision drops sharply overnight. Walk me through your RCA.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>5 Whys, applied concretely: <b>Why did precision drop?</b> → false-positive rate spiked. <b>Why?</b> → check whether the input distribution shifted (data drift via PSI/KS test on recent features) before assuming the model regressed. <b>Why did the distribution shift?</b> → trace upstream — a new transaction channel launched, a currency field started arriving in a new format, an upstream ETL (Glue) job changed a join. <b>Why wasn't that caught pre-deployment?</b> → gap in schema/contract validation between upstream and the feature pipeline. <b>Why didn't the drift monitor fire earlier?</b> → threshold too loose, or monitor only running on a stale batch cadence. Each "why" should be evidence-backed (a metric, a log line, a diff) — not guessed — and the fishbone view (data / model / infra / process / people) is useful when the failure isn't a single clean chain.</p></div>
+    <div class="qa-tip"><strong>Interview tip:</strong> naming PSI/KS as your first move (data first, model second) signals you know the most common cause of "model got worse" is upstream data, not the model itself — that's a senior-level instinct interviewers listen for.</div>
+  </div>
+
+  <div class="qa-card" data-id="ps4">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">04</span>Distinguish incident management from problem management in ITIL terms.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Incident management is about restoring service fast — the goal is "stop the bleeding," even with a workaround that doesn't fix the underlying cause. Problem management is about eliminating the underlying cause so the incident class stops recurring — it can run over days or weeks, produces a <em>known error record</em>, and often results in a change request. In practice: three incidents in a month for the same SageMaker endpoint hitting a memory limit under load is three incident tickets but should trigger <em>one</em> problem ticket that ends in a permanent fix (bigger instance type, request batching change, or a code fix) rather than three separate one-off restarts.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ps5">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">05</span>How would change management/CAB work for deploying a new model version in a bank?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Standard changes (pre-approved, low-risk, repeatable — e.g., a config-only endpoint scaling change) can go through a lightweight/automated path. A new model version going to production is almost always a <b>normal change</b>: a change record with risk assessment, rollback plan, validation evidence (model evaluation metrics vs. the champion, bias/fairness checks if applicable), and — depending on materiality — sign-off from Model Risk/Compliance in addition to the CAB. Segregation of duties matters here: the engineer who builds the deployment pipeline shouldn't be the same person who approves the change into production. Emergency changes (hot-fix rollback of a broken model) follow an expedited path but still get retroactive review.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ps6">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">06</span>How would you structure on-call and escalation for AI production support?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Tiered: Sev-based paging (Sev1/2 pages immediately, Sev3/4 goes to a queue), a primary + secondary on-call rotation to avoid single points of failure, and a documented escalation path that names <em>who</em> to pull in beyond infra — Data Science for model-quality questions, Risk/Compliance for anything customer-impacting on a regulated decision (credit, fraud), and a platform/cloud team if the root cause looks infra-wide rather than service-specific. Runbooks should tell the on-call engineer exactly when to stop self-triaging and escalate — e.g., "if drift score exceeds X and precision drops below Y for a live fraud model, page Data Science within 15 minutes regardless of time of day."</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ps7">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">07</span>What SLAs/SLOs would you set for an ML inference API supporting a customer-facing banking workflow?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Typical shape: <b>availability</b> (99.9%+ depending on criticality), <b>p99 latency</b> tight enough not to be the bottleneck in the caller's own SLA (often sub-200ms for a synchronous fraud check inline in a payment flow), <b>error rate</b> (5xx/timeouts under a threshold), plus ML-specific SLOs that a typical web SLO set misses: <b>data freshness</b> (features no older than X minutes), <b>drift/quality SLO</b> (e.g., prediction distribution stays within N standard deviations of baseline), and <b>time-to-detect</b> for quality degradation, not just downtime. The error budget conversation with the business has to include what happens when the model is technically "up" but its predictions are untrustworthy — that's a different failure mode than a normal service SLO covers.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ps8">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">08</span>What belongs in a good runbook for an AI production service, and what doesn't?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Belongs: the alert that triggers it, exact diagnostic commands/dashboard links, decision tree ("if X, do Y; if that doesn't resolve it in N minutes, escalate to Z"), rollback steps with exact commands, and known false-positive patterns (so on-call doesn't chase ghosts). Doesn't belong: vague prose ("investigate the issue"), anything that assumes tribal knowledge not written down elsewhere, or steps that go stale quickly (hardcoded instance IDs, specific model version numbers) — those should be looked up live, not baked into the doc. A runbook that can't be followed correctly by someone paged at 3 AM who's never touched this specific service isn't done yet.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ps9">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">09</span>How would you classify severity for "the fraud-detection model just started auto-approving everything"?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Sev1, immediately — this is a financial and regulatory exposure, not just a technical outage: fraud loss accrues in real time and every approved transaction during the window is a potential audit finding. The right first move isn't diagnosis, it's containment: fail over to the champion/previous model version or a safe-default rule set (even a conservative "flag for manual review" fallback), <em>then</em> RCA in parallel. Communication matters as much as the technical fix here — Risk/Compliance and the business need to know the exposure window (start time, end time, approximate transaction count/value affected) as part of the incident record, not as an afterthought.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sec-aws" style="--accent:var(--c-aws)">
+  <div class="section-head">
+    <div class="section-eyebrow">02 · Cloud &amp; AI Platforms</div>
+    <h2>AWS Cloud &amp; AI Platforms</h2>
+    <p class="section-intro">SageMaker, EC2, EKS, Lambda, S3, CloudWatch — the JD's primary skill line and the heaviest-weighted section here.</p>
+  </div>
+
+  <div class="qa-card" data-id="aws1">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">01</span>Give me the shape of SageMaker as a platform — what are its major pieces?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>Studio</b> — the IDE/notebook environment for data scientists. <b>Training jobs</b> — managed, ephemeral compute for model training, spun up and torn down per job. <b>Pipelines</b> — orchestrated, versioned workflows chaining preprocessing → training → evaluation → registration. <b>Model Registry</b> — versioned models with approval status. <b>Inference</b> — four hosting patterns: real-time endpoints (always-on, low-latency), serverless endpoints (scale-to-zero, spiky traffic), asynchronous endpoints (large payloads, minutes-long inference queued), and batch transform (offline scoring of a full dataset). As production support, you live mostly in training-job failures, endpoint health, and pipeline failures — not model-building itself.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="aws2">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">02</span>When would you choose each SageMaker inference option for a banking workload?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><ul>
+      <li><b>Real-time endpoint</b> — inline fraud scoring during a payment, sub-second SLA, steady traffic. Costs run 24/7.</li>
+      <li><b>Serverless endpoint</b> — internal tools, spiky/intermittent traffic (e.g., an analyst querying a credit model a few times an hour) — accept cold-start latency to avoid paying for idle capacity.</li>
+      <li><b>Async endpoint</b> — large documents (e.g., scoring a loan application packet with attachments), inference takes seconds-to-minutes, caller doesn't need a synchronous response.</li>
+      <li><b>Batch transform</b> — nightly re-scoring of a whole customer portfolio for risk reporting; no live endpoint needed at all.</li>
+    </ul></div>
+  </div>
+
+  <div class="qa-card" data-id="aws3">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">03</span>Where does plain EC2 still show up in an ML production stack that's mostly SageMaker/EKS?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Custom model-serving stacks that don't fit SageMaker's container contract, GPU workloads needing very specific driver/CUDA versions the managed service doesn't expose, bastion/jump hosts for locked-down VPC access, and self-managed components some teams still run outside Kubernetes (a legacy feature-engineering box, a licensing-constrained tool). Production support angle: right-sizing instance families (GPU vs. CPU-optimized), Spot for interruptible training/batch work, On-Demand or Reserved/Savings Plans for anything that must stay up, and patching/AMI lifecycle discipline since these aren't as auto-managed as a SageMaker endpoint.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="aws4">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">04</span>Why would a team run model inference on EKS instead of just using SageMaker endpoints?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Control and portability: custom networking/sidecar requirements (mTLS, a specific service mesh), fine-grained autoscaling on custom metrics (queue depth, GPU utilization) that's easier to wire up with HPA than SageMaker's native scaling, multi-cloud or hybrid-cloud strategy where the bank doesn't want to be fully locked to one vendor's inference layer, or simply that the platform team already standardized deployment tooling (Helm/ArgoCD) on EKS for everything and wants ML services to follow the same operational pattern as every other microservice rather than living as a special case. Trade-off: you take on more of the plumbing (autoscaling, health checks, canary logic) yourself instead of getting it managed.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="aws5">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">05</span>What's Lambda's role around an ML pipeline, and what are its real limits?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Glue code, not the model itself: pre/post-processing a request before it hits a SageMaker endpoint, orchestration triggers (S3 object-created event → kick off a retraining Step Functions workflow), lightweight feature transforms, or fronting an endpoint behind API Gateway for auth/throttling. Limits that matter operationally: 15-minute max execution, up to 10GB memory, cold starts (mitigated with provisioned concurrency for latency-sensitive paths), and it's a poor fit for actually hosting a large model — that's what SageMaker/EKS are for. Watch concurrency limits too — a burst of traffic can hit account-level concurrent-execution caps and start throttling.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="aws6">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">06</span>How would you structure S3 for an ML platform, and what production-support concerns come with it?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Typical layering: raw/landing zone → curated/feature zone → model-artifacts bucket → inference-logs bucket, each with its own lifecycle and access policy rather than one flat bucket. Concerns you actually own: <b>versioning</b> on model-artifact and training-data buckets (so a bad training run or a corrupted upload is recoverable), <b>lifecycle policies</b> (move old model versions to Glacier rather than let costs creep), <b>encryption</b> (SSE-KMS with customer-managed keys, not just SSE-S3, for anything touching customer data — a bank's compliance team will ask specifically), and <b>bucket policies/VPC endpoints</b> so training jobs and endpoints never traverse the public internet to reach S3.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="aws7">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">07</span>What would you actually watch in CloudWatch for a SageMaker endpoint, day to day?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Built-in endpoint metrics: <code>ModelLatency</code>, <code>OverheadLatency</code>, <code>Invocations</code>, <code>Invocation4XXErrors</code>/<code>5XXErrors</code>, and instance-level <code>CPUUtilization</code>/<code>MemoryUtilization</code>/<code>GPUUtilization</code>/<code>DiskUtilization</code>. Beyond the defaults, you'd typically push custom metrics from the inference container — prediction-score distribution, feature-null-rate, business-relevant proxies like "fraction flagged as fraud this hour" so a sudden spike or flatline is visible before Data Science's drift job even runs. Alarms should be layered: a fast-firing latency/error alarm for immediate paging, and a slower-trending alarm (e.g., 6-hour rolling average shift) for quality-adjacent signals that shouldn't page at 3 AM on a single blip.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="aws8">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">08</span>How does SageMaker endpoint auto-scaling work, and what's a common misconfiguration?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>It's Application Auto Scaling on top of the endpoint's production variant — target-tracking on a metric like <code>SageMakerVariantInvocationsPerInstance</code>, with min/max instance counts and cooldown periods. Common misconfiguration: setting the target too tight (scales constantly, thrashes, and each scale-out has cold-start latency for a freshly-loaded model, especially a large one) or leaving min-capacity at a level that can't absorb a traffic burst before scaling catches up — for a latency-sensitive fraud check, under-provisioned min-capacity plus slow scale-out is exactly how you get an SLA breach during a legitimate traffic spike (e.g., a sale event driving payment volume). Serverless endpoints sidestep this at the cost of cold-start latency on every scale-from-zero.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="aws9">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">09</span>How do you roll out a new model version on a SageMaker endpoint without a big-bang cutover?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>SageMaker supports multiple <b>production variants</b> behind one endpoint with weighted traffic splitting — deploy the new model as a second variant at 5–10% traffic, watch latency/error/quality metrics against the incumbent, and shift weight up gradually. For deployment-level safety rather than manual weight-shifting, <b>SageMaker's built-in deployment guardrails</b> (canary or linear traffic shifting with CloudWatch-alarm-based auto-rollback) do this automatically — you define the alarm, the rollout pauses or reverts if it fires. Either way the rollback path has to be as tested as the rollout path — "can we revert in under 5 minutes" is usually the actual question a compliance reviewer asks.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="aws10">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">10</span>Is "SageMaker Studio" still the right term to use? What's Unified Studio?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Worth knowing AWS has been consolidating: <b>Amazon SageMaker Unified Studio</b> is AWS's newer single workspace that brings SageMaker (ML/AI), EMR/Glue (data processing), Redshift/Athena (analytics), and Bedrock (generative AI) under one UI, part of positioning "SageMaker" as the umbrella brand for the whole data+AI platform rather than just the ML-specific tool. Classic SageMaker Studio still exists and most day-to-day production-support terminology (endpoints, training jobs, Pipelines, Model Registry) hasn't changed underneath. Fine to use "SageMaker Studio" in conversation — if the interviewer mentions Unified Studio, you'll know it's the platform consolidation, not a different product replacing what you know.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="aws11">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">11</span>Multi-model endpoint vs. multi-container endpoint — what's the difference and when does each matter operationally?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>Multi-model endpoint (MME)</b>: many models of the <em>same framework/container</em> sharing one fleet of instances, loaded/unloaded from S3 on demand — great for something like "one fraud model per merchant category" where you'd otherwise need dozens of always-on endpoints. Operationally you watch model cache hit rate and per-model load latency on first invocation. <b>Multi-container endpoint</b>: several <em>different</em> containers (maybe different frameworks entirely, or a pre/post-processing container chained with the model container) invoked as a pipeline behind one endpoint. Production-support-wise, MME is mostly a cost/density story; multi-container is more of an architecture/dependency story — a failure in one container in the chain has to be diagnosable independently.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="aws12">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">12</span>Where's the cost actually going on a SageMaker-heavy ML platform, and what would you optimize first?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Usually: over-provisioned always-on real-time endpoints for workloads that are actually spiky (candidate for serverless or scheduled scale-down), oversized instance types chosen "to be safe" rather than right-sized from actual utilization data, GPU instances left running for training experimentation instead of using Spot with checkpointing, and forgotten old endpoints/model versions nobody decommissioned. First move as production support: pull CloudWatch utilization data per endpoint, flag anything under ~20-30% sustained utilization as a right-sizing candidate, and put a lifecycle policy on model artifacts so S3 storage costs don't quietly grow forever.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sec-mlops" style="--accent:var(--c-mlops)">
+  <div class="section-head">
+    <div class="section-eyebrow">03 · MLOps &amp; Model Management</div>
+    <h2>MLOps &amp; Model Management</h2>
+    <p class="section-intro">SageMaker Pipelines, MLflow, Model Registry, drift/data-quality monitoring — the section that actually makes this an "AI" role rather than generic SRE.</p>
+  </div>
+
+  <div class="qa-card" data-id="mlops1">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">01</span>How is MLOps actually different from the DevOps you already know?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Same core discipline — automation, CI/CD, monitoring, IaC — applied to an artifact that degrades silently. A code deploy either works or throws an error; a model deploy can pass every health check and still be quietly wrong because the world it's scoring changed. So MLOps adds three things DevOps doesn't need: <b>data versioning</b> alongside code and artifact versioning, <b>continuous evaluation</b> of output quality (not just uptime), and a <b>retraining loop</b> as a first-class pipeline, not a one-off event. Everything you already know about pipelines, rollback, and observability still applies — you're extending it to cover data and model quality as additional first-class signals.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mlops2">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">02</span>What does a SageMaker Pipeline actually look like, and what do you own as production support?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>A DAG of steps — typically <code>ProcessingStep</code> (feature engineering/validation) → <code>TrainingStep</code> → <code>EvaluationStep</code> (compute metrics, often gated with a <code>ConditionStep</code>) → <code>RegisterModelStep</code> (push to Model Registry, usually landing in "Pending Manual Approval") → optionally a <code>TransformStep</code>/deploy step. As production support you're rarely touching the DAG definition itself — you own: pipeline execution failures (a step OOM'd, an upstream data path didn't exist, a container image failed to pull), execution history/audit trail (who ran what, when, with which inputs — this is exactly what a bank's model-risk audit will ask for), and making sure failed executions alert rather than fail silently.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mlops3">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">03</span>Where does MLflow fit if the platform is mostly SageMaker — are they competing or complementary?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Usually complementary in practice. MLflow Tracking is often used as the framework-agnostic experiment log (params, metrics, artifacts) because data scientists like its lighter-weight UI and it isn't tied to one cloud, while SageMaker handles the managed compute and production hosting. MLflow's Model Registry and SageMaker's Model Registry do overlap in purpose (versioning, stage transitions, approval), so a shop that has both usually treats <em>one</em> as the system of record and the other as a mirror/reference — worth clarifying in an interview which one is authoritative here, since supporting a two-registry setup without a clear source of truth is its own operational headache (you don't want a model marked "Production" in one and "Staging" in the other).</p></div>
+    <div class="qa-tip"><strong>Interview tip:</strong> asking "which registry is the system of record here?" is a good clarifying question that shows you've thought about the failure mode of having two.</div>
+  </div>
+
+  <div class="qa-card" data-id="mlops4">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">04</span>Why does a Model Registry matter so much in a regulated environment specifically?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>It's the auditable spine of the whole model lifecycle: every version tied to the exact training job, dataset snapshot, hyperparameters, and evaluation metrics that produced it; explicit approval status (Pending/Approved/Rejected) with who approved and when; and a clean answer to "what's running in production right now, and can we prove it's the version that passed validation." Without it, "which model is live" becomes tribal knowledge, and a regulator asking "show me the approval trail for the model that made this credit decision on March 3rd" turns into an incident of its own. Production support's job is making sure what's <em>actually deployed</em> always matches what the registry says is Approved/Production — drift between the two is a finding waiting to happen.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mlops5">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">05</span>Compare SageMaker-native deployment, KServe/Seldon on EKS, and a custom FastAPI container.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><ul>
+      <li><b>SageMaker-native</b> — least ops overhead, built-in autoscaling/monitoring/deployment guardrails, but you're inside SageMaker's container/runtime contract.</li>
+      <li><b>KServe/Seldon on EKS</b> — Kubernetes-native model serving with CRDs for canary/A-B/explainability out of the box, fits a shop that's standardized on K8s for everything and wants ML services operated identically to other microservices; more plumbing to own (the operator itself, autoscaling config, ingress).</li>
+      <li><b>Custom FastAPI/Flask container</b> — maximum control, used when the model needs bespoke pre/post-processing or a framework SageMaker's built-in containers don't support well — but you own health checks, graceful shutdown, concurrency handling, and autoscaling logic entirely yourself.</li>
+    </ul><p>Given this JD lists both SageMaker <em>and</em> EKS as required, the real environment is likely a mix — some models on managed endpoints, others on EKS for the reasons in Q04 above.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mlops6">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">06</span>Explain data drift vs. concept drift, and how you'd actually detect each.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>Data drift</b>: the input distribution changes but the true relationship between features and outcome hasn't — e.g., transaction amounts trend higher post-inflation. Detected by comparing recent feature distributions against a training-time baseline: <b>PSI</b> (Population Stability Index — rule of thumb, &gt;0.2 is a meaningful shift) or a <b>KS test</b> per feature. <b>Concept drift</b>: the relationship itself changes — the same feature values now mean something different (a new fraud pattern the model was never trained on). Harder to detect directly since it needs ground-truth labels, which often lag (you don't know a transaction was fraud until a chargeback lands weeks later) — so proxy signals (rising override/appeal rate, rising manual-review escalation) often catch it before the labeled metric does. <b>SageMaker Model Monitor</b> automates the data-drift side against a captured baseline on a schedule.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mlops7">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">07</span>What does data-quality monitoring actually check, beyond drift?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Schema conformance (expected columns present, correct types), completeness (null/missing-value rate within bounds), range/bounds checks (an age field showing 200, a transaction amount showing negative where it shouldn't), and cardinality checks on categoricals (a new, unseen category value showing up). <b>SageMaker Model Monitor's</b> data-quality monitor type covers this against a baseline statistics/constraints file; <b>Deequ</b> (built on Spark) is the common choice when the check needs to run inside a Glue/EMR ETL job rather than at the endpoint. The production-support job is making sure these checks run on a cadence that catches a bad upstream deploy <em>before</em> it's silently degraded a day's worth of predictions, not after.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mlops8">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">08</span>Explain champion/challenger and shadow deployment — how are they different, and when would you use each?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>Shadow deployment</b>: the new model receives a copy of live traffic and scores it, but its output is logged/compared only — never returned to the caller or acted on. Zero customer risk; used to validate a new model's real-world behavior before it can affect anything. <b>Champion/challenger</b>: the challenger's predictions are actually served to a (usually small) slice of real traffic and its outcomes matter — closer to a live A/B test. In a bank, shadow mode is almost always the required first step for anything touching credit or fraud decisions — you want weeks of "would this model have done anything differently, and was it better" evidence before a challenger ever gets to influence a real decision.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mlops9">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">09</span>A newly deployed model version is behaving badly. What's your rollback approach?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Shift traffic weight back to the previous production variant immediately (this should be a single command/pipeline stage, not a manual redeploy from scratch — if it isn't, that's a gap to flag before it's ever needed live). Confirm via metrics that the rollback actually restored expected behavior, not just that traffic moved. Then: mark the bad version "Rejected" in the registry with the reason, open a problem record, and — this is the part regulated environments care about specifically — document the exposure window and what was affected, since "how long was the bad model live and what decisions did it make" is exactly what an incident report needs to answer for Risk/Compliance.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mlops10">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">10</span>How would you A/B test two model versions in production without confounding the result?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Consistent hashing on a stable key (customer ID, not request ID) so the same entity always lands in the same arm — otherwise a customer flip-flopping between model versions across requests corrupts both the experience and the analysis. Hold the split stable long enough to reach statistical power on the metric that actually matters (fraud caught, false-positive rate) rather than a proxy. Watch for seasonality/time confounds (don't compare a weekday cohort to a weekend cohort). And in banking specifically, get sign-off on the split logic itself before launch — "which customers are being scored by an unapproved challenger model" is a question compliance will ask, and "random 10%" needs to be defensible, not just convenient.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mlops11">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">11</span>What problem does a feature store (e.g., SageMaker Feature Store) actually solve?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Training/serving skew — the classic MLOps failure where a feature is computed one way in an offline training pipeline (batch, Python/Spark) and slightly differently in the online serving path (real-time, different code, different data source), so the model sees subtly different inputs live than it did in training. A feature store gives one definition, computed once, with an <b>offline store</b> (for training, historical/point-in-time correct) and an <b>online store</b> (low-latency lookup at inference time) backed by the same source of truth. Operationally you're watching feature freshness (is the online store lagging the source data) and consistency between the two stores — a stale online store is a data-quality incident even if nothing "broke" in the traditional sense.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mlops12">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">12</span>Scheduled retraining vs. drift-triggered retraining — trade-offs?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>Scheduled</b> (weekly/monthly): predictable cost and validation workload, easy to plan CAB/approval around, but can retrain on a fine model (wasted compute) or miss a fast-moving drift event between scheduled runs. <b>Drift-triggered</b>: reacts faster to real degradation, but needs a trustworthy trigger — a noisy drift signal causing frequent unplanned retrains creates its own operational and governance burden (every retrain in a bank likely needs the same evaluation-gate/approval flow as a scheduled one, so "cheap to trigger" isn't the same as "cheap to ship"). Most mature setups do both: a scheduled baseline cadence plus an alert that fast-tracks an out-of-cycle retrain review when drift crosses a hard threshold, rather than fully automating retrain→deploy with no human gate.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mlops13">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">13</span>Where does explainability (SageMaker Clarify / SHAP) intersect with your role as production support?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>You're not building the explanations, but you own that they <em>exist and are reproducible on demand</em>: SageMaker Clarify jobs (bias metrics pre- and post-training, SHAP-based feature attribution) run as part of the pipeline and their output is stored alongside the model version in the registry, not generated ad hoc when someone asks. When a customer disputes a declined loan and compliance needs "why did the model decide this," production support's job is making sure that explanation can actually be regenerated for that specific model version and that specific input — which means monitoring that the Clarify step in the pipeline isn't silently failing or being skipped.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mlops14">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">14</span>What's the "three-way versioning problem" in MLOps, and how do you handle it operationally?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>A model's behavior is fully determined by three things that can each change independently: <b>code</b> (training/inference logic), <b>data</b> (the training dataset snapshot), and the resulting <b>model artifact</b>. Version only the code (standard git) and you can still not reproduce a model, because the data changed underneath it. The fix is treating all three as linked, immutable references: data snapshots get their own identifier (S3 versioning + a manifest, or a dedicated tool), the training job records the exact data version and code commit it used, and the registered model entry stores both. Production support's stake in this: when RCA-ing a bad model, "what exact data and code produced this" needs to be a lookup, not an investigation.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sec-containers" style="--accent:var(--c-containers)">
+  <div class="section-head">
+    <div class="section-eyebrow">04 · Containerization &amp; Orchestration</div>
+    <h2>Docker &amp; Kubernetes (EKS)</h2>
+    <p class="section-intro">Kept concise here on purpose — this is your strongest area already; the ML-specific wrinkles are what's worth drilling.</p>
+  </div>
+
+  <div class="qa-card" data-id="ctr1">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">01</span>What's different about a good Docker image for a model-serving container versus a typical microservice?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Size and layering matter more: ML base images (CUDA, framework runtimes) are already large, so a multi-stage build that keeps the runtime layer lean and excludes training-only dependencies (no need for a training framework's full toolchain inside the inference image) meaningfully affects pull time and cold-start/scale-out speed. Pin exact framework versions — a silent minor-version bump in an inference library can change numerical output slightly, which is a correctness issue for a model in a way it usually isn't for typical app code. And bake in a lightweight health-check endpoint that actually exercises the loaded model (a fast dummy inference), not just "process is running."</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ctr2">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">02</span>Sketch the core Kubernetes objects you'd use to serve a model on EKS.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><code>Deployment</code> for the serving pods with resource requests/limits sized for the model's real memory footprint, a <code>Service</code> (ClusterIP internally, fronted by an ALB via Ingress for external/internal-only exposure), <code>ConfigMap</code> for non-secret config (model version pointer, batch size), <code>Secret</code> for anything sensitive (pulled from Secrets Manager via the CSI driver rather than committed to a manifest), an <code>HPA</code> tied to a meaningful scaling signal, and readiness/liveness probes tuned to the model's actual load time. For anything canary/traffic-split, you're usually layering a service mesh or an Ingress controller with weighted routing on top rather than relying on raw Kubernetes primitives alone.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ctr3">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">03</span>What EKS-specific setup does GPU-backed model serving need?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>A separate GPU-backed node group (e.g., <code>g5</code>/<code>p-family</code> instances) with the NVIDIA device plugin DaemonSet installed so Kubernetes can schedule against <code>nvidia.com/gpu</code> as a resource, taints/tolerations so only GPU-requiring pods land there (you don't want a random CPU workload occupying an expensive GPU node), and cluster-autoscaler or Karpenter configured to actually scale that node group — GPU nodes are slow to provision, so under-provisioning min-capacity here is a worse latency hit than on CPU nodes. For AWS access from the pod (pulling a model from S3, writing inference logs), <b>IRSA</b> (IAM Roles for Service Accounts) scopes permissions per-pod rather than giving the whole node an over-broad instance profile.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ctr4">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">04</span>Plain CPU-based HPA is scaling your inference pods too late. What would you change?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>CPU is often a lagging indicator for inference workloads — by the time CPU crosses the threshold, the request queue has already backed up and latency has already spiked. Better signals: request queue depth, in-flight-request count, or p95 latency itself as a custom metric via the Prometheus Adapter or KEDA, so scaling reacts to the thing you actually care about. Also worth pairing with a lower <code>--horizontal-pod-autoscaler-sync-period</code> and less conservative scale-up stabilization window (the default scale-up behavior is intentionally cautious) if the workload is genuinely bursty, while keeping scale-<em>down</em> conservative so you're not flapping.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ctr5">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">05</span>Why do readiness/liveness probes matter more for a large-model-serving pod than a typical service?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>A large model can take tens of seconds to minutes to load into memory on pod start. A naive liveness probe with a short initial delay will kill the pod for "failing" before the model has even finished loading — creating a crash loop that has nothing to do with an actual problem. Fix: a proper <code>startupProbe</code> with generous <code>failureThreshold</code>/<code>periodSeconds</code> to cover worst-case load time, a readiness probe that only returns healthy once the model is genuinely loaded and warmed (not just "server process started"), and a liveness probe that only kicks in after startup succeeds. Getting this wrong is one of the most common "why do my pods keep restarting" tickets on ML services specifically.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ctr6">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">06</span>A model-serving pod is CrashLoopBackOff right after a new model version deploy. Triage?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><code>kubectl describe pod</code> for the exit code/reason first — <code>OOMKilled</code> is the most common culprit when a new model version is simply bigger than the last one and the container's memory limit wasn't bumped to match. <code>kubectl logs --previous</code> to see the crash output from before the restart. Check whether the new model artifact actually finished downloading/mounting (a truncated or still-uploading S3 object will crash the load step). If none of that shows it, check for a dependency mismatch — a new model version trained with a newer framework version than what's pinned in the serving image will fail to deserialize. Resource-limit and image-version mismatches between what CI/CD built and what's actually referenced in the manifest account for most of these in practice.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="ctr7">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">07</span>How does GPU scheduling actually work in Kubernetes, and what goes wrong operationally?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>The NVIDIA device plugin advertises GPUs as an extended resource (<code>nvidia.com/gpu</code>); pods request whole GPUs in their resource spec (fractional/shared GPU needs a more specialized setup like MPS or time-slicing, since vanilla K8s scheduling is whole-unit). What goes wrong in practice: a pod stuck <code>Pending</code> because no node in the GPU node group has capacity and Karpenter/cluster-autoscaler is slow to add one; a "GPU not found" error inside the container because the device plugin DaemonSet isn't running on that node yet; or silent under-utilization because nothing's actually watching per-pod GPU utilization (CloudWatch/DCGM exporter into Prometheus) so an oversized allocation goes unnoticed for months.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sec-observability" style="--accent:var(--c-observability)">
+  <div class="section-head">
+    <div class="section-eyebrow">05 · Monitoring &amp; Observability</div>
+    <h2>Monitoring &amp; Observability</h2>
+    <p class="section-intro">CloudWatch, CloudTrail, Prometheus, Grafana, OpenTelemetry, Splunk — and the ML-specific signals none of these give you for free.</p>
+  </div>
+
+  <div class="qa-card" data-id="obs1">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">01</span>Apply "the three pillars" (metrics/logs/traces) to an ML inference service specifically.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>Metrics</b>: latency/error/throughput as usual, plus model-specific ones — prediction-score distribution, drift score, feature-null rate. <b>Logs</b>: structured, and critically for a bank, they need to capture <em>what input produced what output at what model version</em> — that's the raw material for both debugging and audit reconstruction, not just error logs. <b>Traces</b>: a request's path through pre-processing → feature lookup → model invocation → post-processing, so when latency spikes you know whether it's the feature store, the model itself, or a downstream call, rather than treating "inference" as one opaque span. A fourth pillar worth naming for ML specifically: <b>evaluation/quality signal</b> — accuracy-proxy metrics over time, which has no clean equivalent in a normal app.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="obs2">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">02</span>What custom CloudWatch metrics would you push from an inference container that aren't there by default?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Prediction-score distribution (mean/p50/p99 of the model's output score, so a flatline or sudden shift is visible), per-class prediction rate for a classifier (e.g., "% flagged as fraud this hour" — a business-meaningful proxy that's often the fastest way to notice something's wrong), feature-null/missing rate at inference time, and model-load/warm-up time on scale-out events. Push these via the embedded metric format or the CloudWatch SDK from inside the serving code, with dimensions for model version and endpoint variant, so you can compare champion vs. challenger on the same dashboard rather than needing separate ones.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="obs3">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">03</span>Why does CloudTrail matter specifically for an AI platform in banking, beyond general AWS hygiene?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>It's the immutable record of <em>who did what to the ML platform, and when</em> — who approved a model in the registry, who changed an endpoint's production variant weights, who modified an IAM policy that touches training data. For a model-risk audit, "prove this specific person approved this specific model version on this date, and no one changed the endpoint config outside the approved pipeline afterward" is a CloudTrail query, not a guess. Production-support responsibility: make sure CloudTrail is enabled account-wide (not just default-region), logs ship to a centralized, access-controlled bucket with integrity validation, and retention meets the bank's regulatory retention requirement (often years, not the default 90 days in CloudWatch Logs).</p></div>
+  </div>
+
+  <div class="qa-card" data-id="obs4">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">04</span>What would you scrape with Prometheus for an EKS-hosted model service, and give me a PromQL example.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Standard container/pod metrics via kube-state-metrics and node-exporter, application-level metrics exposed by the serving code itself (request latency histogram, in-flight requests, prediction counters) via a <code>/metrics</code> endpoint, and — if on GPU — DCGM exporter for GPU utilization/memory. A p99 latency query over 5-minute windows:</p>
+      <pre>histogram_quantile(0.99,
+  sum(rate(inference_request_duration_seconds_bucket[5m])) by (le, model_version)
+)</pre>
+      <p>Grouping by <code>model_version</code> lets one Grafana panel show champion vs. challenger latency side by side during a canary rollout, which is usually more useful than a single aggregate number.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="obs5">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">05</span>How would you instrument a Python inference service with OpenTelemetry?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Auto-instrument the web framework (FastAPI/Flask) for inbound request spans via <code>opentelemetry-instrumentation-fastapi</code>, then wrap the actual model-invocation step as its own child span so it's separately visible from request parsing/serialization overhead — that split is what tells you whether a latency regression is "the model got slower" or "something around it did." Propagate trace context through any downstream calls (feature store lookup, a chained multi-container pipeline) so the whole request is one connected trace rather than disjoint fragments. Export via OTLP to whatever collector the platform standardized on (often feeding both a Prometheus-compatible backend for metrics and Grafana Tempo/X-Ray for traces).</p></div>
+  </div>
+
+  <div class="qa-card" data-id="obs6">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">06</span>If Prometheus/CloudWatch already cover metrics, what's Splunk actually for here?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Log aggregation and search across the whole estate — including non-AWS-native and legacy systems a bank inevitably still has — plus the compliance-search use case CloudWatch Logs Insights is weaker at: an auditor or investigator asking "show me every prediction this model made for customer X in Q2" or "search all inference logs for a specific transaction ID across every service" is exactly Splunk's job. In practice metrics platforms (Prometheus/CloudWatch) answer "is it broken and how broken," while Splunk answers "show me the specific evidence" — production support usually ends up querying both during a real incident, not choosing one.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="obs7">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">07</span>How do you design alerting for an ML service without drowning on-call in noise?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Separate fast operational alerts (latency/error-rate/availability — page immediately, short evaluation window) from slow quality alerts (drift score, prediction-distribution shift — these should use a longer rolling window and a trend check, not a single-sample threshold, because model-quality signals are naturally noisier than infra metrics and a one-off blip shouldn't wake anyone at 3 AM). Route them differently too: quality alerts often go to a shared channel Data Science watches during business hours rather than paging on-call SRE, unless they cross a severity threshold that implies real customer/regulatory impact. And alert on symptoms the business cares about (SLA breach, fraud-rate anomaly) rather than every underlying cause independently, or you get five alerts for one incident.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="obs8">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">08</span>What SLIs matter for an ML service that a standard web-service SLI set doesn't capture?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>Data freshness</b> — how stale can the features feeding a prediction be before it's untrustworthy. <b>Prediction-quality/drift SLI</b> — some bounded measure of how far current predictions have drifted from the validated baseline. <b>Time-to-detect quality degradation</b> — not just "is it down" but "how fast would we notice if it got quietly wrong." <b>Explainability availability</b> — can an explanation be generated on demand for a given prediction, which for a credit/lending model is close to a hard requirement, not a nice-to-have. None of these show up in a standard four-golden-signals dashboard, and that's exactly the gap this JD is hiring for.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="obs9">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">09</span>Would you build one dashboard for this service, or several?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Several, by audience — a single dashboard trying to serve everyone usually serves no one well. An <b>ops/on-call view</b>: latency, errors, saturation, alarm status — built for "is something broken right now." A <b>model-quality view</b> for Data Science: drift trends, prediction-distribution shifts, evaluation metrics over time. A <b>risk/compliance view</b>: approval status of what's live, exposure/audit-relevant counts, DR/backup posture — built for "can we prove this is under control," not for troubleshooting. Building all three off the same underlying metrics store keeps them consistent without forcing one UI to do three jobs.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="obs10">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">10</span>What's the value of synthetic/canary requests against a model endpoint, on top of real-traffic monitoring?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Real-traffic metrics only tell you something's wrong once real customers are already affected, and during genuinely low-traffic windows (overnight, weekends) a degraded endpoint can go unnoticed simply for lack of volume to trigger a threshold. A scheduled synthetic request with a known input and a known expected output range — run every few minutes regardless of real traffic — catches both availability issues and a specific class of silent failure: the endpoint answers, but with a value clearly outside the expected range for that fixed input, which is a strong early signal of a broken deploy or a corrupted model artifact before any real customer traffic reveals it.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sec-cicd" style="--accent:var(--c-cicd)">
+  <div class="section-head">
+    <div class="section-eyebrow">06 · CI/CD &amp; DevOps</div>
+    <h2>CI/CD &amp; DevOps for ML</h2>
+    <p class="section-intro">CodePipeline/CodeBuild/CodeDeploy, Jenkins, GitHub Actions — and the approval-gate discipline that makes ML CI/CD different in a bank.</p>
+  </div>
+
+  <div class="qa-card" data-id="cicd1">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">01</span>What does a model's CI/CD pipeline have that a typical application pipeline doesn't?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>A data-validation stage before training even starts (fail fast if the input data doesn't match expected schema/quality), a model-evaluation gate after training that compares the candidate against the current champion on held-out data and blocks promotion if it doesn't clear a defined bar, and — in a regulated shop — a human-approval gate that a normal app deploy usually doesn't need at all. The build/test/deploy mechanics (CodeBuild running tests, CodeDeploy/CodePipeline orchestrating stages) are the same tooling you already know; what's new is what runs <em>inside</em> those stages.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="cicd2">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">02</span>Sketch how CodePipeline/CodeBuild/CodeDeploy would chain together for a SageMaker model release.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>CodePipeline</b> as the orchestrator, source-triggered from the repo (or from a SageMaker Pipeline execution completing / a new registry entry landing). <b>CodeBuild</b> stage runs unit tests on the inference code, builds/pushes the serving container to ECR, and can kick off or validate a SageMaker Pipeline execution. A manual-approval action sits between "model registered" and "deploy to production" for anything requiring sign-off. <b>CodeDeploy</b> (or a CodeBuild step calling the SageMaker API directly) handles the actual endpoint update — ideally using SageMaker's built-in canary/linear deployment guardrails with a CloudWatch-alarm rollback trigger rather than a flat cutover.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="cicd3">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">03</span>Jenkins and GitHub Actions are both listed — why would a bank run both, and where does each tend to show up?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Jenkins is very often the incumbent in a bank — self-hosted, sits inside the existing network perimeter, integrated with legacy on-prem systems and years of accumulated pipeline logic nobody wants to migrate overnight. GitHub Actions tends to show up on newer, cloud-native workstreams — exactly the kind of greenfield-ish AI/ML platform work this JD describes — where OIDC federation to AWS (no long-lived credentials in CI) is easy to set up and the team doesn't want to inherit Jenkins' operational overhead (patching, plugin management, agent fleet). Realistic expectation for this role: legacy pipelines stay on Jenkins, the newer AI platform tooling is more likely GitHub Actions, and you support both.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="cicd4">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">04</span>The JD says "support secure deployment, release, and rollback of AI/ML models." Make that concrete.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><ul>
+      <li><b>Secure deployment</b> — pipeline runs under a scoped IAM role (not a human's broad credentials), secrets pulled at runtime from Secrets Manager, container images scanned before deploy, deploy action logged to CloudTrail.</li>
+      <li><b>Release</b> — traffic-shifted rollout (canary/linear) with automated CloudWatch-alarm rollback, not a flat cutover; release gated on the model's registry approval status, not just "pipeline succeeded."</li>
+      <li><b>Rollback</b> — a tested, single-command path back to the last known-good production variant, with the rollback itself logged and traceable to the incident/change record that triggered it.</li>
+    </ul></div>
+  </div>
+
+  <div class="qa-card" data-id="cicd5">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">05</span>How do approval gates and segregation of duties actually get enforced in the pipeline, not just on paper?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Technically, not just procedurally: a CodePipeline manual-approval action (or a GitHub Actions <code>environment</code> with required reviewers) that mechanically blocks the pipeline until a named approver — who isn't the committer/deployer — clicks approve, with that action logged with identity and timestamp. Branch protection requiring a second reviewer before merge to the branch that triggers production deploys. IAM structured so the identity/role that <em>can</em> push code isn't the same identity/role that <em>can</em> approve a production promotion. "We have a CAB process" is a much weaker answer in an audit than "the pipeline physically cannot proceed without a second, differently-privileged identity's sign-off."</p></div>
+  </div>
+
+  <div class="qa-card" data-id="cicd6">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">06</span>How would GitOps (ArgoCD) apply to model-serving manifests on EKS?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Same pattern as any GitOps workload: a Helm chart or Kustomize overlay for the model-serving Deployment/Service/HPA lives in a Git repo, parameterized by model version/image tag; CI updates that repo (bumping the tag) once a model passes its evaluation gate and is registry-approved; ArgoCD detects the diff and syncs the cluster to match. The advantage for a regulated environment specifically: the Git history <em>is</em> the audit trail of exactly which model version was live in the cluster at any point in time, and ArgoCD's drift detection catches anyone who manually <code>kubectl edit</code>'d something out-of-band — which itself is a control worth mentioning to a compliance-minded interviewer.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="cicd7">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">07</span>How should secrets be handled through this pipeline — what's the wrong way you'd flag in a review?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Wrong: secrets hardcoded in pipeline YAML, baked into a container image layer, or stored as plain CI/CD platform "environment variables" without encryption/access scoping. Right: pulled at runtime from Secrets Manager (or Parameter Store for non-sensitive config) using the pipeline's scoped IAM role, with rotation enabled so a leaked credential has a short shelf life, and access to read a given secret restricted to the specific roles that need it — a training-job role shouldn't be able to read a production database credential it has no reason to touch. GitHub Actions OIDC federation to AWS removes the need for long-lived AWS access keys in CI entirely, which is worth naming as the modern baseline.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="cicd8">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">08</span>Canary vs. blue-green for a model release — which fits better here and why?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>Blue-green</b> gives an instant, clean cutover and instant rollback (flip the router back), but you either serve 100% old or 100% new traffic — no gradual signal-gathering, which is risky for a model where "is this actually good" needs real-traffic evidence, not just a passed test suite. <b>Canary</b> (progressively shifting weight — SageMaker's built-in deployment guardrails or a service-mesh weighted route on EKS) lets you catch a quality regression on 5-10% of traffic before it's fully live, which matters more for models than for typical code because a model can pass every automated test and still behave badly on real-world data distribution. For anything touching a regulated decision, canary with an automated metric-based rollback trigger is the safer default.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="cicd9">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">09</span>How do you keep artifact/model versioning consistent as a release moves through the pipeline?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Immutable tags at every stage, never <code>latest</code>: the model artifact gets a version tied to its training-job ID, the serving container image is tagged with a content hash or build ID (not a mutable branch tag), and the Model Registry entry references both explicitly. The deployed manifest (whether a SageMaker endpoint config or a K8s Deployment) should record exactly which registry version and which image tag it's running, so "what's live right now" is always a direct lookup rather requiring cross-referencing multiple systems and hoping they agree.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sec-data" style="--accent:var(--c-data)">
+  <div class="section-head">
+    <div class="section-eyebrow">07 · Data &amp; Integration</div>
+    <h2>Data &amp; Integration</h2>
+    <p class="section-intro">Glue, Kinesis, Kafka, EventBridge, REST APIs, RDS/DynamoDB/Aurora — the plumbing feeding features in and predictions out.</p>
+  </div>
+
+  <div class="qa-card" data-id="data1">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">01</span>Where does AWS Glue sit in an ML pipeline, concretely?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>The ETL layer that turns raw source data (transaction logs, customer records) into the curated feature tables a SageMaker Processing/Training step consumes — Glue jobs (Spark under the hood) doing joins, aggregations, and the schema/quality validation checks from the MLOps section. The <b>Glue Data Catalog</b> is the metadata layer everything else points at — Athena queries, SageMaker Processing jobs reading from S3 via a catalog table, and it's also where a data-lineage story starts (which table fed which pipeline). Production-support angle: Glue job failures (schema mismatch, a source partition that didn't land on time) are usually the actual root cause behind "the model's inputs look wrong," not the model itself.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="data2">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">02</span>Kinesis vs. Kafka (MSK) — when would a bank use each for feeding an ML pipeline?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>Kinesis Data Streams</b> — fully managed, less operational overhead, integrates natively with Lambda/Firehose/other AWS services, a good fit when the team wants to stay AWS-native and doesn't need Kafka's broader ecosystem. <b>Kafka (via MSK)</b> — chosen when the bank already has Kafka elsewhere (very common — core banking/payments event backbones are frequently Kafka already), needs its richer ecosystem (Kafka Streams, Connect, cross-team topic sharing at a scale Kinesis shard limits make awkward), or needs multi-consumer-group fan-out patterns. Given this JD's own note explicitly adds Kafka alongside Kinesis, the real environment likely already has Kafka as the event backbone and Kinesis/EventBridge fill AWS-native gaps around it — worth asking directly in the interview which is the system of record.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="data3">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">03</span>Give a concrete EventBridge use case in this kind of platform.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Event-driven orchestration glue rather than high-throughput streaming: an S3 <code>PutObject</code> event on the training-data bucket triggering an EventBridge rule that kicks off a SageMaker Pipeline execution; a SageMaker Model Registry state-change event (model approved) triggering a downstream Step Functions workflow that starts the deployment pipeline; or a scheduled rule (EventBridge Scheduler) firing a nightly batch-scoring job. It's the "when X happens, start Y" layer connecting otherwise-decoupled AWS services without needing a poller or a cron job babysitting things.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="data4">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">04</span>What matters when designing (or reviewing) a REST API contract for model inference?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Explicit <b>versioning</b> in the path or header (<code>/v2/score</code>) so a model-version change doesn't silently break a caller expecting the old response shape. <b>Idempotency</b> for anything that might be retried (a payment-adjacent caller retrying on timeout shouldn't cause a double-scored/double-charged side effect) via an idempotency key. Clear, typed error responses distinguishing "your input was invalid" (4xx) from "we failed to score this" (5xx) so callers can build correct retry logic. And returning enough metadata in the response — model version, a request/trace ID — that a downstream issue can be traced back to exactly which model made which decision, which is both an operational and an audit need.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="data5">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">05</span>How does the data/integration layer differ between batch and real-time inference?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>Batch</b>: Glue/EMR reads a full dataset from S3, SageMaker batch transform scores it, results land back in S3 or a warehouse — throughput-optimized, latency doesn't matter, failure recovery is "re-run the job." <b>Real-time</b>: the feature pipeline has to serve fresh values in milliseconds (online feature store, or a low-latency cache in front of a database), the request path is synchronous and every hop's latency compounds into the SLA, and failure handling needs to be graceful in-request (a timeout on a feature lookup needs a defined fallback, not just an error bubbling up to the caller). Production support tends to live mostly in the real-time path's failure modes, since batch failures are usually just "job failed, re-run" with much more forgiving time pressure.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="data6">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">06</span>RDS, DynamoDB, or Aurora — how would you choose for ML-adjacent metadata storage?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>DynamoDB</b> — online feature-store-style lookups needing single-digit-millisecond latency at high request volume, simple key-value/document access patterns (a customer ID → current feature vector). <b>RDS/Aurora (relational)</b> — anything needing complex joins/transactions/referential integrity: model metadata, approval-workflow state, prediction-audit logs that need to be queried relationally ("show me all predictions where confidence &lt; 0.6 for model version X"). <b>Aurora specifically over vanilla RDS</b> when the workload needs Aurora's higher throughput/read-replica scaling and its cleaner story for cross-region DR — see next question.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="data7">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">07</span>The JD's closing note specifically calls out AuroraDB rather than generic RDS — why would a bank prefer it?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Aurora's storage layer is decoupled from compute and replicated across 3 AZs automatically (6 copies of data), giving faster failover (typically under 30 seconds) than a standard Multi-AZ RDS instance's replica promotion. <b>Aurora Global Database</b> gives sub-second cross-region replication with a documented, testable RTO/RPO story — directly relevant to the DR section of this JD. Up to 15 read replicas (vs. 5 for standard RDS engines) supports read-heavy audit/reporting queries without touching the primary. For a bank's model-metadata/prediction-audit store, that combination — fast failover, provable cross-region DR, read scaling for compliance reporting — is usually the actual justification, not just "it's AWS's preferred flavor."</p></div>
+  </div>
+
+  <div class="qa-card" data-id="data8">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">08</span>How would you design a feature pipeline that needs both streaming and batch sources?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>This is the classic "Lambda architecture"-flavored problem in a feature-engineering context: a streaming path (Kafka/Kinesis → a stream processor or Lambda) computes fast-moving features (last-5-minutes transaction velocity) and writes to the online feature store for low-latency serving, while a batch path (Glue, scheduled) computes slower-changing aggregates (30-day average spend) and backfills both online and offline stores. The operational risk to watch: the two paths computing the "same" feature slightly differently (different windowing logic, different null-handling) — which is exactly the training/serving skew problem a feature store exists to prevent, so both paths should share one feature-definition source rather than being independently implemented.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="data9">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">09</span>Walk through an API Gateway → Lambda → SageMaker endpoint request path, and where it can fail.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>API Gateway handles auth (IAM/Cognito/API key), throttling, and request validation; Lambda does pre-processing (feature assembly, input transformation) and calls <code>InvokeEndpoint</code> against SageMaker; the response is post-processed and returned. Failure points worth knowing cold: API Gateway's own default throttle limits (a traffic spike can get throttled before it even reaches Lambda), Lambda's 15-minute timeout and cold-start latency compounding with SageMaker's own inference latency, and IAM — the Lambda execution role needs explicit <code>sagemaker:InvokeEndpoint</code> permission scoped to that specific endpoint, which is a very common "works in dev, 403s in prod" gap when a new endpoint is added but the role's resource ARN wasn't updated.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="data10">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">10</span>What does "data lineage" mean in practice, and how would you implement it here?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Being able to answer, for any prediction, the full chain: which source system the input data came from, which Glue job/transformation touched it, which feature-store version served it, which model version scored it, and who approved that model — end to end, not just "the model version." Implementation is mostly disciplined tagging and metadata, not one magic tool: Glue Data Catalog table lineage, consistent run/version IDs threaded through every pipeline stage (the training job records its input data version; the registry entry records the training job ID; the inference log records the model version), and structured logs that make the chain queryable rather than requiring someone to manually reconstruct it during an audit.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sec-security" style="--accent:var(--c-security)">
+  <div class="section-head">
+    <div class="section-eyebrow">08 · Security &amp; Identity</div>
+    <h2>Security &amp; Identity</h2>
+    <p class="section-intro">IAM, KMS, Secrets Manager, VPC security — non-negotiable depth for a regulated banking environment.</p>
+  </div>
+
+  <div class="qa-card" data-id="sec1">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">01</span>What does least-privilege IAM actually look like for an ML platform's various roles?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Separate, narrowly-scoped roles per function rather than one broad "SageMaker admin" role everyone shares: a <b>training-job execution role</b> that can read specific training-data S3 prefixes and write to a specific artifacts prefix, nothing else; a <b>pipeline-orchestration role</b> that can start executions but not modify IAM itself; an <b>endpoint-invocation role</b> for calling services scoped to <code>sagemaker:InvokeEndpoint</code> on named endpoint ARNs only, not <code>*</code>. Cross-account access (common when the AI platform account is separate from the core-banking account) should go through assumed roles with explicit trust policies, not shared long-lived keys. Periodic access review — actually pruning unused permissions, not just granting and forgetting — is the part that tends to slip without an owner.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="sec2">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">02</span>Where does KMS show up across the ML pipeline, and why does "customer-managed key" matter to a bank?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Encrypting training data and model artifacts at rest in S3, EBS volumes attached to training instances, and SageMaker endpoint storage — all should specify a KMS key rather than relying on defaults. <b>Customer-managed keys (CMKs)</b> over AWS-managed keys matter because the bank controls the key policy directly (exactly which roles can use it), gets a full CloudTrail audit trail of every encrypt/decrypt use of that specific key, and can enforce key rotation and revocation on their own schedule — an AWS-managed key gives none of that granular control, which is usually a hard compliance requirement rather than a nice-to-have in banking. Also worth knowing: KMS key policies are a common source of "access denied" tickets when a new role needs to use an existing CMK and its key policy wasn't updated to grant it.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="sec3">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">03</span>What's the discipline around Secrets Manager you'd expect to enforce as production support?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Automatic rotation enabled wherever the target supports it (RDS/Aurora credentials rotate natively with a Lambda rotation function), secrets read at runtime via the SDK/IRSA rather than injected as plaintext environment variables baked into a container image, and resource-based policies scoping which specific roles can read which specific secret. Operationally, rotation failures are a real class of incident worth knowing — if the rotation Lambda fails silently, the secret can end up in an inconsistent state where the old credential still works but the new one hasn't propagated everywhere, so monitoring the rotation function itself (not just assuming "rotation enabled" means "rotation working") is part of the job.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="sec4">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">04</span>How would you run SageMaker training/inference inside a VPC with no internet access?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Launch training jobs and endpoints with <b>VPC config</b> specifying private subnets and security groups, and enable SageMaker's <b>network isolation</b> flag so the container literally cannot make outbound network calls at all (not even to other AWS services) unless explicitly routed. Since there's no NAT/internet route, every AWS service the job needs — S3, ECR (to pull the container image), CloudWatch Logs — needs a <b>VPC endpoint</b> (interface or gateway endpoint) in that VPC, or the job fails to even start. This is one of the most common "why won't my training job start" tickets in a locked-down banking VPC — usually a missing VPC endpoint for ECR or S3, not a code problem.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="sec5">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">05</span>What's SageMaker's network isolation flag actually protecting against?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Data exfiltration and untrusted-code risk from training jobs specifically — a training job runs arbitrary code (whatever the data scientist's container does), and without isolation that code could in principle make an outbound call to anywhere. With network isolation enabled, the container can't reach the internet or even other AWS services except through the VPC endpoints you've explicitly provisioned, so even a compromised or malicious dependency in the training code has nowhere to send data. It's a meaningful defense-in-depth control specifically because training jobs are less scrutinized line-by-line than production inference code usually is.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="sec6">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">06</span>How would you expose an inference API to internal bank systems only — never the public internet?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>A <b>private API Gateway</b> (accessible only via VPC endpoint, not a public URL) or an internal-facing ALB in front of the EKS/SageMaker service, both living in private subnets with security groups restricting inbound to only the specific consumer CIDR ranges/security groups that legitimately need access. No public DNS record, no internet gateway route for that subnet. For cross-VPC or cross-account internal consumers, PrivateLink is the standard pattern rather than VPC peering with broad routes — narrower blast radius if a consuming account is ever compromised, since PrivateLink only exposes the specific endpoint service, not the whole VPC's network.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="sec7">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">07</span>IRSA vs. EC2 instance profiles for granting AWS access — why does the distinction matter on EKS?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>An instance profile grants permissions at the <em>node</em> level — every pod scheduled on that node inherits the same AWS permissions, which is a broad blast radius on a shared cluster (a compromised or misconfigured pod for one team could reach another team's S3 data). <b>IRSA</b> (IAM Roles for Service Accounts) scopes permissions per-<em>pod</em> via a Kubernetes service account annotated with a role ARN and an OIDC trust relationship — so the model-serving pod gets exactly the S3/KMS/SageMaker permissions it needs and nothing the node itself, or other pods on it, can also use. For a multi-tenant EKS cluster running several banking workloads, IRSA (or the newer EKS Pod Identity) is close to a hard requirement, not a best-practice nicety.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="sec8">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">08</span>Trace encryption end-to-end across the ML pipeline — where's it at rest, and where's it in transit?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>At rest</b>: raw/curated data and model artifacts in S3 (KMS/SSE-KMS), EBS volumes on training instances, database storage for feature/metadata stores (Aurora/DynamoDB encryption at rest), and CloudWatch/Splunk log storage. <b>In transit</b>: TLS between every hop — client to API Gateway, API Gateway to Lambda/backend, Lambda to SageMaker endpoint (SageMaker enforces TLS on the invoke API), inter-pod traffic on EKS if the compliance bar requires mTLS via a service mesh (common for a bank), and replication traffic for cross-region DR. The audit-friendly answer isn't just "we use TLS/KMS" — it's being able to point to where each hop is enforced and prove nothing falls back to plaintext under any failure mode.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sec-resilience" style="--accent:var(--c-resilience)">
+  <div class="section-head">
+    <div class="section-eyebrow">09 · Resilience, Backup &amp; DR/BCP</div>
+    <h2>Resilience, Backup &amp; DR/BCP</h2>
+    <p class="section-intro">AWS Backup, Cross-Region Replication, Multi-AZ/Multi-Region — proving the AI platform survives a bad day, not just a bad request.</p>
+  </div>
+
+  <div class="qa-card" data-id="dr1">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">01</span>Does an AI inference service really need multi-region, or does Multi-AZ cover it?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Depends on the service's criticality tier, and it's worth pushing back on "just go multi-region" as a default. <b>Multi-AZ</b> covers the vast majority of real failure scenarios (an AZ going down, a single data-center issue) with much lower cost and complexity, and is usually sufficient for internal or non-customer-critical models. <b>Multi-region</b> is justified when the service is genuinely critical-path for a regulated customer-facing flow (a fraud check blocking every card transaction) where a full AWS region outage — rare, but it happens — cannot mean the bank stops processing payments. The honest answer in an interview: name the tiering criteria, don't just default to "multi-region everything," since over-engineering DR is also a cost/complexity finding a good architect gets pushed on.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="dr2">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">02</span>What would you actually put under AWS Backup for an ML platform?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Model artifacts and training-data snapshots in S3 (via S3 backup support), Aurora/RDS databases holding model metadata and prediction-audit logs, EBS volumes for anything stateful outside managed services, and — often overlooked — the <em>pipeline definitions themselves</em> (SageMaker Pipeline configs, Model Registry contents) since losing the ability to reconstruct "what pipeline produced this model" is as bad as losing the model artifact for audit purposes. Backup plans should be tagged/scoped by resource so retention matches the regulatory requirement for that data class rather than one blanket policy for everything.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="dr3">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">03</span>Set up Cross-Region Replication for the model-artifacts S3 bucket — what do you need to get right?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Versioning must be enabled on both source and destination buckets (CRR requires it), an IAM role scoped specifically for the replication action, and — for a bank — replicating the KMS-encrypted objects correctly means either using the same CMK with a cross-region key policy or (more commonly) a separate CMK in the destination region with replication configured to re-encrypt under it. Easy to miss: CRR is not retroactive by default — existing objects at the time you enable it don't automatically replicate unless you run S3 Batch Replication for the backlog. And replication doesn't happen instantly — factor actual replication lag into your RPO calculation rather than assuming it's zero.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="dr4">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">04</span>How would you set RTO/RPO for a fraud-detection model service, and who decides the number?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>The business/risk side sets the target based on financial and regulatory exposure, not engineering — your job is telling them what's achievable at what cost, then building to the agreed number. For a live fraud check inline in payment processing, a realistic ask is often RTO in minutes (a hard outage stopping fraud screening might force the bank to either halt transactions or fail open to a conservative rule-based fallback — both have real cost) and RPO near-zero for the model/config state (you can't lose track of which model version was authoritative) while accepting some feature-freshness RPO is naturally non-zero given streaming lag. The number isn't just picked — it should be validated by an actual DR test, not assumed from the architecture diagram.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="dr5">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">05</span>Structure a DR runbook for this AI service.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Trigger criteria (what confirms this is a real DR event, not a transient blip — avoids a costly false-alarm failover), the failover sequence itself (promote the standby Aurora Global Database region, redirect Route53 — usually a failover routing policy with health checks rather than a manual DNS change, repoint the SageMaker endpoint traffic or spin up the standby-region endpoint from the replicated model artifact), validation steps to confirm the failover actually works end-to-end (not just "DNS changed" but "a real inference request in the new region returns a correct result"), and a documented failback procedure once the primary region recovers — failback is often the step teams forget to rehearse and get wrong under pressure.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="dr6">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">06</span>What would a DR game day for an AI workload specifically test, beyond a typical app failover drill?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Everything a normal failover drill tests (routing, database promotion, RTO measured against target) plus AI-specific checks: does the standby region actually have the <em>correct, currently-approved</em> model version loaded (not a stale replica), does the drift/monitoring pipeline come back up in the failover region or does it silently stop watching, and — for a bank — does the audit-logging path (CloudTrail, prediction logs) keep recording correctly through the failover so there's no gap in the compliance record during the exact window regulators would most want visibility into. A DR drill that restores service but loses monitoring coverage during the transition has "fixed" the wrong problem.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="dr7">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">07</span>Your SageMaker endpoint's region is having a genuine AWS outage. Walk me through your response.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Confirm it's actually an AWS-side regional issue (AWS Service Health Dashboard / Personal Health Dashboard) rather than something in your own control plane — misdiagnosing this wastes the most valuable early minutes. If multi-region DR is provisioned for this service, execute the documented failover runbook rather than improvising. If it isn't (a lower-tier service that was accepted as Multi-AZ-only), the honest move is invoking the pre-agreed degraded-mode fallback — often a conservative rule-based decision path rather than "wait it out" — because in banking, "the model is unavailable" quietly becoming "we skip fraud screening until AWS recovers" is not a decision an SRE should make unilaterally in the moment; it needs a pre-approved fallback plan, made calmly, not invented live.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="dr8">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">08</span>How often should backup/restore actually be tested, and what evidence does a regulator want to see?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>A backup nobody has restored from is a hope, not a control — cadence depends on the bank's own policy but quarterly restore tests for critical systems is a common baseline, with a full DR failover drill at least annually. What a regulator wants isn't "we have backups enabled" — it's a dated test record: what was restored, how long it took against the stated RTO, whether the restored data was verified correct, and who signed off. Production support's job is making sure that evidence trail exists automatically (test run logged, results captured) rather than needing to be manually reconstructed the week before an audit.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sec-compliance" style="--accent:var(--c-compliance)">
+  <div class="section-head">
+    <div class="section-eyebrow">10 · Model Risk &amp; Regulatory Compliance</div>
+    <h2>Model Risk Management &amp; Regulatory Compliance</h2>
+    <p class="section-intro">GDPR and "model risk frameworks" as the JD names them — plus the India-specific RBI framework, since DataArt's financial-services clients span exactly this territory.</p>
+  </div>
+
+  <div class="qa-card" data-id="mrm1">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">01</span>What is Model Risk Management, and what's the "three lines of defense" model?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>MRM is the discipline of identifying, measuring, and controlling the risk that a model is wrong, misused, or poorly understood — with real financial and regulatory consequences when it fails. <b>SR 11-7</b> (US Federal Reserve/OCC guidance, 2011) is the widely-cited reference framework globally, even outside the US, because it's the most mature articulation of the idea: independent model validation separate from the team that built the model, ongoing performance monitoring, and clear documentation. <b>Three lines of defense</b>: 1st line = the team building/operating the model (that's you); 2nd line = independent risk/model-validation function that challenges and approves; 3rd line = internal audit checking that the first two lines are actually doing their job. Production support sits squarely in the 1st line — you're not the approver, you're the one whose operational evidence the 2nd and 3rd lines rely on.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mrm2">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">02</span>What does GDPR actually require of an ML system in banking, operationally?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p><b>Right to explanation</b> for automated decisions with legal/significant effect (a declined loan) — ties directly to the explainability tooling in §3. <b>Data minimization</b> — only the features genuinely necessary for the decision, not "collect everything, might be useful someday," which affects what a feature pipeline is even allowed to ingest. <b>Right to erasure</b> creates a genuinely hard operational problem for ML specifically: deleting a customer's data from a source database is straightforward, but if that data was already used to <em>train</em> a model, the model itself has "learned" from it — full compliance can require retraining without that data, which production support needs a real process for, not just deleting a database row and calling it done.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mrm3">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">03</span>What's the RBI's FREE-AI framework, and why would it matter for a role like this?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>The Reserve Bank of India released FREE-AI (Framework for Responsible and Ethical Enablement of AI) on August 13, 2025, from a committee chaired by Prof. Pushpak Bhattacharyya (IIT Bombay) — seven guiding principles ("sutras"), six strategic pillars, and 26 actionable recommendations covering governance, consumer protection, infrastructure, and assurance for AI use in India's banks/NBFCs/fintechs. Practically relevant here: it pushes for institutional AI governance committees, board-approved AI policies, and baseline gap assessments against the framework — exactly the kind of "governance embedded by design" positioning DataArt's own marketing leans on. Worth knowing even if this specific role serves a non-Indian client, since it signals the direction global banking AI regulation is heading and DataArt likely has India-based clients directly subject to it.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mrm4">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">04</span>Is GDPR even the relevant law, given you're based in India?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>GDPR applies if the client's customers are in the EU — plausible for a DataArt banking client, but not guaranteed. India's own <b>Digital Personal Data Protection Act, 2023 (DPDPA)</b> is the more directly relevant law for an India-processed workload and shares GDPR's spirit (consent, purpose limitation, data-principal rights) without being identical in mechanics. The safe, accurate answer in an interview: name both, and note the actual applicable regime depends on whose customer data is being processed and where — which is exactly the kind of question worth asking the interviewer directly if the JD doesn't specify a client, rather than assuming.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mrm5">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">05</span>What does audit logging need to capture so a regulator can reconstruct "why did the model decide this"?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>For a specific prediction: the exact input features (or a reference to their exact values at that point in time), the model version and its registry approval record, the raw output/score and the resulting decision, a timestamp, and — for anything with an explainability requirement — enough to regenerate the SHAP/Clarify explanation for that specific input against that specific model version. For the platform itself: who deployed what, when, with what approval trail (CloudTrail), and whether the endpoint that served this prediction matched what the registry said was "Production" at that moment. The test to hold every logging decision to: could you answer "why did the model decide this, and was the right process followed" a year later, from logs alone, with no one who remembers the incident still on the team.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mrm6">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">06</span>What's a "model card" or validation report, and whose job is it to keep current?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>A model card is a structured document per model version: intended use and known limitations, training data description, evaluation metrics (including fairness/bias metrics across relevant subgroups), and approval status. Data Science usually authors the content, but production support has real skin in the game: making sure the model card that's referenced actually matches what's deployed (a stale model card describing a model version that's no longer live is a finding), and that the validation report's stated operational assumptions (expected traffic pattern, expected input distribution) are things you're actually monitoring for violation — a model validated assuming stable daily volume that then sees 10x traffic on a sale event is operating outside its validated envelope, and someone needs to know that's happening.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mrm7">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">07</span>Beyond the SHAP/Clarify mechanics, why do regulators specifically care about explainability for credit/fraud models?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>"Adverse action" reasoning — in many jurisdictions, a customer who's declined credit or flagged for fraud has a right to a meaningful reason, not "the algorithm said no." A black-box model that can't produce a defensible, specific explanation for an individual decision creates real legal exposure, independent of how accurate it is in aggregate. It's also a fairness/discrimination control: without per-decision explainability, it's much harder to detect that a model has learned a proxy for a protected characteristic it was never explicitly given. As production support, your stake is operational: the explanation-generation path (whatever produces that per-decision reasoning) needs the same uptime/monitoring discipline as the model itself — a "the model is up but explanations are broken" state is still a compliance incident.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mrm8">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">08</span>Compliance hands you an audit request: "prove no restricted data was used to train this production model." What do you actually do?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Pull the exact training-job record from the Model Registry for that model version — it should point to an exact, versioned dataset snapshot (this is the three-way-versioning discipline from §3 paying off). Cross-reference that dataset's schema/lineage in the Glue Data Catalog against the list of restricted fields Compliance is asking about — confirming the field either was never in the source table, or was explicitly excluded in the feature-engineering step, with the Glue job logic as evidence. If the lineage trail can't answer this cleanly and quickly, that itself is the finding worth raising proactively — "we can't currently prove this in under an hour" is a gap to fix before an actual regulator asks, not just for this one audit request.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="mrm9">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">09</span>Where exactly does an "AI Production Support Engineer" sit in the three-lines-of-defense model, and why does that matter for how you answer interview questions?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Squarely 1st line — you operate the control, you don't independently validate it. That's actually a useful frame to state explicitly in the interview: it means your job isn't deciding whether a model is fair or accurate enough (that's Data Science + 2nd-line Model Validation), it's making sure whatever the 2nd line approved is what's actually running, that deviations are caught fast, and that the evidence trail the 2nd and 3rd lines need is always available and trustworthy. Framing your own answers this way — "I make sure the approved thing is the running thing, and I can prove it" — reads as someone who understands governance structure, not just tooling.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sec-automation" style="--accent:var(--c-automation)">
+  <div class="section-head">
+    <div class="section-eyebrow">11 · Automation, Cost &amp; Nice-to-Haves</div>
+    <h2>Automation, Cost Optimization &amp; Nice-to-Haves</h2>
+    <p class="section-intro">Where you'd actually spend effort improving the platform, not just keeping it running.</p>
+  </div>
+
+  <div class="qa-card" data-id="auto1">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">01</span>Where would you look first for automation opportunities on a platform like this?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Anywhere a human is currently the trigger for something a metric could trigger instead, with a human still in the approval loop where governance requires it: auto-rollback on a canary deployment when a CloudWatch alarm fires (rather than someone watching a dashboard and manually reverting), a fast-tracked out-of-cycle retrain review triggered by a drift-threshold breach rather than waiting for someone to notice, and self-healing runbook automation for known-safe remediations (a stuck endpoint update that always resolves with a specific restart sequence shouldn't need a human to type the same commands every time). The line to hold: automate detection and remediation-of-known-issues aggressively; keep a human gate on anything that changes what model is authoritative in production, since that's a governance decision, not just an operational one.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="auto2">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">02</span>What does DevSecOps look like applied specifically to an ML pipeline, versus a normal app pipeline?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Everything you already do for a normal pipeline — container image scanning (Trivy/ECR scanning) before deploy, dependency/SAST scanning on the codebase, secrets scanning on commits — plus ML-specific additions: scanning the training-data source for the restricted-field problem from §10 <em>before</em> training even runs (cheaper to catch there than after a model's already trained on it), and treating the model artifact itself as a supply-chain object worth integrity-checking (a hash mismatch on a model artifact between what the registry says and what's actually loaded is a security-relevant event, not just an operational one — it could mean tampering, not just a bad deploy).</p></div>
+  </div>
+
+  <div class="qa-card" data-id="auto3">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">03</span>What's operationally different about supporting a fraud-detection or credit-risk model versus a generic ML service?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Stakes and speed both go up. Latency SLAs are tighter because these models usually sit inline in a real-time transaction path, not behind it. Severity classification skews higher by default — a bug that would be Sev3 on an internal recommendation model is plausibly Sev1 here because it directly touches money movement or a regulated decision. Regulatory scrutiny is heavier and more specific (fair-lending laws for credit, AML/sanctions obligations for fraud) so the explainability/audit requirements from §10 aren't optional extras, they're core to the service being allowed to run at all. And false positives have a real customer-trust cost (legitimate transactions blocked) that has to be watched as carefully as false negatives (fraud getting through) — it's a two-sided metric, not just "catch more fraud."</p></div>
+  </div>
+
+  <div class="qa-card" data-id="auto4">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">04</span>Do AWS/MLOps certifications actually matter for this role, and how would you talk about yours honestly?</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>They signal structured knowledge, not hands-on depth by themselves — most interviewers know this, and overselling a cert as equivalent to production experience tends to backfire under follow-up questions. Your honest framing: AZ-104 (Azure administration) and especially SC-300/SC-100 (identity and security architecture) map directly onto this JD's IAM/KMS/Secrets Manager/VPC-security section even though they're Azure-branded — identity governance, least-privilege design, and security architecture thinking transfer across clouds far more than service-specific syntax does. Pair that with your self-assessed 6+ years hands-on AWS — the certs demonstrate you formalize what you already do, not that you're starting from a textbook.</p></div>
+  </div>
+
+  <div class="qa-card" data-id="auto5">
+    <div class="qa-head"><div class="qa-q"><span class="qa-num">05</span>Give a quick, honest answer on your familiarity with "AI governance frameworks and explainability tools" as a nice-to-have.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="qa-a"><p>Frame it as operational familiarity rather than deep hands-on tooling expertise, and be specific about what that means: you understand what SageMaker Clarify and SHAP-based explainability are for and why regulators require them (covered in depth in §3 and §10), you understand the governance-frameworks landscape (SR 11-7, GDPR, RBI FREE-AI) well enough to know what evidence a production system needs to generate, and you're comfortable being the operational owner making sure those tools run reliably and their outputs are trustworthy — without claiming to be the one designing the fairness metrics or governance policy itself. That's an accurate, defensible answer that matches what the JD is actually asking for from this specific role.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sec-scenario" style="--accent:var(--c-scenario)">
+  <div class="section-head">
+    <div class="section-eyebrow">12 · Scenario Bank</div>
+    <h2>Production Troubleshooting Scenarios</h2>
+    <p class="section-intro">These usually come as "walk me through what you'd do" — lead with containment, then diagnosis, then prevention. Structure matters as much as the technical answer.</p>
+  </div>
+
+  <div class="scn-card" data-id="scn1">
+    <div class="qa-head"><div><span class="scn-situation">Scenario</span><div class="scn-title">You're paged at 2 AM: p99 latency on the fraud-scoring endpoint has tripled.</div></div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="scn-a"><p><strong>First:</strong> check whether it's a traffic-volume story (legitimate spike the autoscaler hasn't caught up to yet) versus a genuine degradation — CloudWatch invocation count alongside latency tells you which. <strong>Contain:</strong> if it's autoscaling lag, manually bump instance count/min-capacity rather than waiting for the scaling policy to catch up. If it's not traffic-driven, check for a resource-exhaustion signal (memory/CPU near limit — possibly a memory leak from a recent deploy) and consider a fast rollback to the previous known-good variant while you investigate rather than debugging live on a degraded production path. <strong>Then diagnose</strong> with traces to find which hop (feature lookup vs. model inference itself) actually regressed. <strong>Escalate</strong> only if it's still unresolved past your runbook's defined threshold — don't sit on it solo past that point.</p></div>
+  </div>
+
+  <div class="scn-card" data-id="scn2">
+    <div class="qa-head"><div><span class="scn-situation">Scenario</span><div class="scn-title">Your drift monitor fires: model accuracy proxy dropped 15% in the last 6 hours.</div></div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="scn-a"><p><strong>Don't roll back reflexively</strong> — first determine whether this is data drift (upstream distribution shift) or a genuine model/infra problem. Pull PSI/KS-test results on recent feature distributions against baseline. Check whether a known event correlates (a new product launch, an upstream schema change, a batch job that ran with bad data). If the drift is real and upstream, the fix is a data-pipeline fix, not a model rollback — rolling back the model wouldn't even help if the input data itself is the problem. If you can't find an upstream cause and the model's own behavior on stable inputs has changed, that's when rollback-while-investigating is the right containment move. <strong>Loop in Data Science</strong> either way — this is a joint call, not a unilateral SRE decision, especially for anything touching a regulated outcome.</p></div>
+  </div>
+
+  <div class="scn-card" data-id="scn3">
+    <div class="qa-head"><div><span class="scn-situation">Scenario</span><div class="scn-title">A canary deployment is clearly degrading key metrics, but the automated rollback didn't trigger.</div></div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="scn-a"><p><strong>Immediately</strong> — manually shift traffic weight back to the previous variant; don't wait to understand why automation failed while customers are on the bad path. <strong>Then</strong> figure out why the alarm-based rollback didn't fire: most commonly, the CloudWatch alarm's evaluation window/threshold was tuned too loosely for how the metric actually degraded (a real quality drop that doesn't cross a raw error-rate threshold, for instance), or the deployment guardrail wasn't actually wired to the alarm you thought it was. <strong>Follow-up</strong> that matters as much as the fix: this is a gap in your safety net that needs a problem record — if it failed silently once, it'll fail silently again on the next deploy unless the alarm/threshold gets fixed and, ideally, tested against a deliberately-bad synthetic deploy before you trust it again.</p></div>
+  </div>
+
+  <div class="scn-card" data-id="scn4">
+    <div class="qa-head"><div><span class="scn-situation">Scenario</span><div class="scn-title">A SageMaker endpoint update has been stuck in "Updating" for 40 minutes.</div></div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="scn-a"><p>Check the endpoint's event history/CloudWatch Logs for the update operation — common causes: the new container failed its internal health check on the new instances (so SageMaker won't cut over and is stuck waiting), a capacity issue in the target instance type/AZ, or an IAM permission gap the execution role hit only on this specific update. The endpoint should still be serving traffic on the <em>old</em> variant during this — confirm that's actually true (check live invocation success rate) so you know whether this is "annoying but traffic is fine" or "traffic is degraded too." If it's genuinely stuck past a reasonable window, cancel the update rather than let it hang indefinitely, fix the underlying cause (usually the new container's health check or a resource limit), and redeploy.</p></div>
+  </div>
+
+  <div class="scn-card" data-id="scn5">
+    <div class="qa-head"><div><span class="scn-situation">Scenario</span><div class="scn-title">Predictions look consistently off, and you trace it to a Glue ETL job that's been silently failing for two days.</div></div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="scn-a"><p>This is a monitoring gap as much as a pipeline failure — a job silently failing for two days means nothing was watching job success/failure status with alerting attached, which is the first thing to fix regardless of this specific incident. Immediate containment: identify exactly which feature(s) went stale and for how long, and whether predictions served during that window should be flagged/re-evaluated (this becomes an incident-scope question for Risk/Compliance if any of those predictions affected a customer decision). Fix the job, backfill the missed data if the source still has it, and verify the feature store actually reflects fresh data before declaring resolved. <strong>Prevention:</strong> a CloudWatch alarm/EventBridge rule on Glue job failure status, not reliance on someone noticing.</p></div>
+  </div>
+
+  <div class="scn-card" data-id="scn6">
+    <div class="qa-head"><div><span class="scn-situation">Scenario</span><div class="scn-title">SageMaker Model Monitor flags a data-quality violation. Real issue, or false positive?</div></div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="scn-a"><p>Pull the actual constraint violation report — Model Monitor tells you exactly which feature and which check (a null-rate threshold, a type mismatch, a range violation) triggered it, so start there rather than guessing. Cross-check against anything that changed recently: an upstream schema change, a new data source, or a genuinely unusual-but-valid event (a holiday causing an unusual transaction pattern that's real, not broken). If it's a genuine data problem, treat it like the Glue-failure scenario above. If it's a legitimate distribution shift the baseline constraints file hasn't been updated to reflect, the fix is updating the baseline — but that update itself should go through review, since loosening a data-quality check is exactly the kind of change that needs a second set of eyes in a regulated environment, not a quiet one-line config edit.</p></div>
+  </div>
+
+  <div class="scn-card" data-id="scn7">
+    <div class="qa-head"><div><span class="scn-situation">Scenario</span><div class="scn-title">The fraud model starts blocking a disproportionate number of legitimate transactions — false-positive spike.</div></div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="scn-a"><p>This one has a customer-trust dimension a normal latency incident doesn't, so speed of communication matters alongside speed of fix. Confirm the spike is real (not a reporting/dashboard artifact) and quantify it — how many customers, how much value, over what window; the business will ask this within minutes. Check whether it correlates with a recent deploy (rollback is the fast lever if so) or an upstream data issue (as in scn2/scn5). If it's a genuine model behavior issue with no fast root cause, the containment decision is a business one, not purely technical: is the false-positive rate bad enough to justify falling back to a more conservative/manual-review-heavy mode while you investigate, accepting some fraud may slip through temporarily. That trade-off decision should follow a pre-agreed escalation path, not be made solo.</p></div>
+  </div>
+
+  <div class="scn-card" data-id="scn8">
+    <div class="qa-head"><div><span class="scn-situation">Scenario</span><div class="scn-title">A DR failover drill reveals your actual RPO is worse than what's documented.</div></div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="scn-a"><p>Treat the drill as having done its job — this is exactly why you test instead of trusting the architecture diagram. Quantify the actual gap (measured replication lag vs. documented RPO) and find the specific cause: a replication process that's slower than assumed, a component that wasn't actually included in the replication scope, or a documented RPO that was never validated in the first place and was simply optimistic. Report it honestly rather than quietly patching the number in the DR doc to match reality — a corrected RPO with a remediation plan and timeline is a much better audit finding than a stale document that turns out to be wrong during an actual disaster. Then fix the underlying gap and re-test before calling it closed.</p></div>
+  </div>
+
+  <div class="scn-card" data-id="scn9">
+    <div class="qa-head"><div><span class="scn-situation">Scenario</span><div class="scn-title">You discover a model version reached production without going through the approval gate.</div></div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="scn-a"><p>Treat it as a compliance incident, not just a process hiccup — report it up immediately rather than quietly fixing it and moving on, because in a regulated environment an unapproved model having served live decisions is exactly the kind of thing that needs to be in the incident record even if the model itself turned out to be fine. Determine the exposure window and what decisions it made. Find the control gap that let it happen — a pipeline misconfiguration that skipped the gate, a manual deploy that bypassed CI/CD entirely, or a gate that exists on paper but isn't actually technically enforced (see §6's segregation-of-duties question). Fix the control, not just this one instance, and make sure the fix is verified to actually block the same bypass next time.</p></div>
+  </div>
+
+  <div class="scn-card" data-id="scn10">
+    <div class="qa-head"><div><span class="scn-situation">Scenario</span><div class="scn-title">Overnight cost alert: a SageMaker endpoint's spend tripled with no obvious traffic change.</div></div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="scn-a"><p>Check instance count first — a stuck or misfiring autoscaling policy scaling out and never back down is the most common cause, sometimes triggered by a noisy scaling metric rather than real load. Check whether a deploy changed the instance type to something larger without an accompanying reason. Rule out a duplicate/orphaned endpoint left running from a test or a previous deployment that never got cleaned up — easy to miss and a surprisingly common source of "mystery" cost. Once identified, fix the immediate cost bleed, then look at whether better scaling-policy tuning or a scheduled scale-down for predictable low-traffic windows would prevent a repeat, rather than treating this as a one-off.</p></div>
+  </div>
+</section>
+
+<section class="section" id="sec-behavioral" style="--accent:var(--c-behavioral)">
+  <div class="section-head">
+    <div class="section-eyebrow">13 · Behavioral, Positioning &amp; Closing</div>
+    <h2>Behavioral, Positioning &amp; Closing Questions</h2>
+    <p class="section-intro">Frameworks to fill in with your own real examples — not scripted stories. The two positioning items (§2–3) are the ones most worth rehearsing word-for-word, since they're the exact gaps a sharp interviewer will probe.</p>
+  </div>
+
+  <div class="beh-card" data-id="beh1">
+    <div class="qa-head"><div class="beh-q"><span class="star">FRAME</span>"Walk me through your experience with AI/ML production support."</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="beh-a"><p>Three moves, in order: <b>(1) Ground in what's real</b> — 14+ years in SRE/DevOps, deep in incident management, Kubernetes, CI/CD, and AWS operations, including regulated-banking environments (Barclays, Russell Investments) where compliance and change control weren't optional. <b>(2) Name the transfer explicitly</b> — production support for an ML system is the same discipline (observability, incident response, safe deployment, DR) applied to a system with an extra failure mode: it can be "up" and still wrong. That's a mindset shift you understand, not a skill you're missing. <b>(3) Be precise about what's genuinely new</b> — the ML-specific tooling (SageMaker Pipelines, drift monitoring, Model Registry workflows) is where you're actively building depth, and say specifically how (this handbook, hands-on exploration, whatever's true for you) rather than leaving it vague. Precision about the boundary between "solid" and "growing" reads as more senior than claiming uniform expertise.</p></div>
+  </div>
+
+  <div class="beh-card" data-id="beh2">
+    <div class="qa-head"><div class="beh-q"><span class="star">FRAME</span>"Did you design this, or did the platform team?"</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="beh-a"><p>This exact question pattern showed up repeatedly in your Aug 5 AI/ML-in-banking interview — across Terraform architecture, IAM, networking, and security — and "the platform team handled that" alone reads as weaker than it should. The tested reframe: <b>"the platform/architecture team owned the design decisions; my role was operating, troubleshooting, and evolving what they built"</b> — then immediately follow with a specific example of something you <em>did</em> change or improve within that system, even a modest one. This is honest (you're not claiming design authorship you don't have) while showing you weren't passive inside the system either. Have this phrasing ready before the interview starts, not improvised in the moment when the question catches you off guard.</p></div>
+  </div>
+
+  <div class="beh-card" data-id="beh3">
+    <div class="qa-head"><div class="beh-q"><span class="star">FRAME</span>"Your certifications are Azure — this role is heavily AWS. Walk me through that."</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="beh-a"><p>Don't get defensive or over-apologize — state it plainly and pivot to substance fast: <em>"My certifications happen to be Azure — AZ-104, SC-300, SC-100 — but my hands-on production experience is AWS-heavy, about six years across EC2, EKS, Lambda, and S3 in the environments I've supported. The identity and security-architecture thinking behind SC-300/SC-100 — least-privilege design, governance, security-by-design — is exactly the same thinking IAM/KMS/Secrets Manager work needs on AWS; the concepts transfer, only the console and CLI syntax differ, and that's a fast switch for someone who's been hands-on across both."</em> Said once, confidently, this closes the question — over-explaining it signals more insecurity about the gap than the gap itself would.</p></div>
+  </div>
+
+  <div class="beh-card" data-id="beh4">
+    <div class="qa-head"><div class="beh-q"><span class="star">STAR</span>"Tell me about a production incident you managed end-to-end."</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="beh-a"><p>Pick your strongest <em>real</em> incident and structure it tightly: <b>Situation</b> — what broke, what was the blast radius, how did you find out. <b>Task</b> — what was actually your responsibility in the response (be honest if you were part of a team, not the sole responder). <b>Action</b> — the concrete sequence: contain first, then diagnose, then fix, then RCA — naming specific tools/commands you actually used. <b>Result</b> — quantified if you genuinely have the numbers (downtime avoided, MTTR, recurrence prevented), qualified honestly if you don't ("this hasn't recurred since" is fine without a fabricated percentage). Close with the process change that came out of it — interviewers weight "did this change how the team operates" as much as the fix itself. Use a real one; a vague or invented incident falls apart fast under natural follow-up questions like "what did the dashboard actually show you."</p></div>
+  </div>
+
+  <div class="beh-card" data-id="beh5">
+    <div class="qa-head"><div class="beh-q"><span class="star">FRAME</span>"How do you balance regulatory/compliance requirements against operational speed?"</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="beh-a"><p>Resist the framing that these are opposites you trade off case-by-case — the stronger answer is that good automation makes them the same thing. A pipeline with a technically-enforced approval gate is both faster (no manual chasing-down-a-signature delay) and more compliant (unbypassable, logged) than a slow manual process that's also weakly enforced. Where a genuine trade-off exists — an emergency rollback that needs to happen faster than the normal change process allows — the right answer is a pre-agreed emergency-change path with retroactive review, not "I'd skip the process this once" and not "I'd always wait for full sign-off even during an active incident." Naming that pre-agreed middle path is what signals real experience with regulated environments.</p></div>
+  </div>
+
+  <div class="beh-card" data-id="beh6">
+    <div class="qa-head"><div class="beh-q"><span class="star">FRAME</span>"Explain a model drift alert to a non-technical risk/compliance stakeholder."</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="beh-a"><p>Skip PSI/KS-test vocabulary entirely and lead with business impact: <em>"The pattern of transactions the model is seeing today looks meaningfully different from what it was trained on — which means its decisions are less reliable than usual until we confirm what changed. We caught this automatically before it caused a real problem, we're treating it as [routine monitoring / an active investigation], and here's what happens next and by when."</em> The stakeholder doesn't need the statistical test; they need to know whether this is a "watching it" situation or a "stop and look" situation, what the exposure is, and when they'll hear back. Translating technical certainty into business-risk language, clearly and without jargon, is itself the skill being tested in this question.</p></div>
+  </div>
+
+  <div class="beh-card" data-id="beh7">
+    <div class="qa-head"><div class="beh-q"><span class="star">FRAME</span>"Why DataArt?"</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="beh-a"><p>Something genuine to point to rather than generic flattery: DataArt has a real, decades-deep financial-services practice (banks, capital markets, payment providers, fraud-detection systems) and is positioned as an AWS Consulting Partner specifically for that sector — which matches this JD's stack directly. Their public positioning around "Artisyn," their AI-delivery model, explicitly talks about embedding governance and human oversight into AI work for regulated clients rather than treating compliance as an afterthought — that's a good hook if you genuinely care about the governance side of this role (which, given the JD, you should be prepared to say you do). Keep it short and specific rather than reciting the company's own marketing back at them wholesale.</p></div>
+  </div>
+
+  <div class="beh-card" data-id="beh8">
+    <div class="qa-head"><div class="beh-q"><span class="star">CLOSER</span>Good questions to ask the interviewer.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="beh-a"><ul>
+      <li>"Is the ML-serving stack split between SageMaker endpoints and EKS today, or moving toward one over the other?" — shows you understood the JD's dual emphasis and care about the real architecture, not just the buzzword list.</li>
+      <li>"Which registry — SageMaker's or MLflow's — is the actual system of record here?" — a genuinely useful operational question (see §3) that also signals depth.</li>
+      <li>"Which banking client(s) or business line does this role primarily support, and what's already in production versus greenfield?" — helps you calibrate whether you'd be maintaining or building.</li>
+      <li>"What does on-call actually look like for this team — rotation size, page volume, typical severity mix?" — a fair, practical question that also signals you're evaluating fit, not just trying to get an offer.</li>
+      <li>"How does DataArt's Artisyn governance model show up day-to-day for someone in this seat?" — ties directly to their own stated positioning; shows you did real homework.</li>
+    </ul></div>
+  </div>
+
+  <div class="beh-card" data-id="beh9">
+    <div class="qa-head"><div class="beh-q"><span class="star">CLOSER</span>Closing framing for the whole interview.</div>
+      <label class="mastery-label"><input type="checkbox" class="mastery-check">mastered</label></div>
+    <div class="beh-a"><p>This JD is, underneath the "AI" framing, squarely your archetype — production support/SRE discipline applied to a new class of system, in a domain (banking, regulated, AWS-heavy) where your real background (Barclays, Russell Investments, 14+ years, AWS 6+ years) is directly on point. The honest gaps are narrow and nameable: hands-on depth with the specific ML-tooling layer (SageMaker Pipelines/MLflow mechanics) and the Azure-certs-vs-AWS-role optics — both covered above, both closable in a single confident sentence each rather than something to over-explain. Go in leading with strength, name the gaps once and move on, and don't let the "AI" in the title talk you into underselling fifteen years of exactly the operational judgment this role is actually testing for.</p></div>
+  </div>
+</section>
+
+</main>
+
+<footer>Built for Saroj Kumar Nayak · progress saved automatically to this handbook · search or filter above to focus your session</footer>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'dataart-prodsupport-progress';
+  let mastery = {};
+  const cardsList = () => Array.from(document.querySelectorAll('.qa-card, .scn-card, .beh-card'));
+
+  async function loadProgress(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY, false);
+      if(res && res.value) mastery = JSON.parse(res.value);
+    }catch(e){ mastery = {}; }
+    applyMastery();
+    updateStats();
+  }
+  function applyMastery(){
+    cardsList().forEach(c=>{
+      const id = c.dataset.id; if(!id) return;
+      const cb = c.querySelector('.mastery-check');
+      if(cb) cb.checked = !!mastery[id];
+    });
+  }
+  async function saveProgress(){
+    try{ await window.storage.set(STORAGE_KEY, JSON.stringify(mastery), false); }catch(e){}
+  }
+  function updateStats(){
+    const all = cardsList();
+    const total = all.length;
+    const masteredCount = all.filter(c=>mastery[c.dataset.id]).length;
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statMastered').textContent = masteredCount;
+    document.getElementById('statPct').textContent = total? Math.round(masteredCount/total*100)+'%' : '0%';
+  }
+  function buildSearchIndex(){
+    cardsList().forEach(c=>{ c.dataset.search = c.textContent.toLowerCase(); });
+  }
+
+  let currentSection = 'all';
+  document.addEventListener('click', e=>{
+    const pill = e.target.closest('.pill');
+    if(pill){
+      document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+      pill.classList.add('active');
+      currentSection = pill.dataset.target;
+      if(currentSection !== 'all'){
+        const el = document.getElementById(currentSection);
+        if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+      applyFilters();
+    }
+    if(e.target.id === 'resetBtn'){
+      if(confirm('Clear all mastery progress for this handbook?')){
+        mastery = {}; applyMastery(); saveProgress(); updateStats(); applyFilters();
+      }
+    }
+  });
+
+  document.addEventListener('change', e=>{
+    if(e.target.classList.contains('mastery-check')){
+      const card = e.target.closest('.qa-card, .scn-card, .beh-card');
+      mastery[card.dataset.id] = e.target.checked;
+      saveProgress(); updateStats();
+      if(document.getElementById('unreviewedToggle').checked) applyFilters();
+    }
+    if(e.target.id === 'unreviewedToggle') applyFilters();
+  });
+
+  document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+  function applyFilters(){
+    const term = document.getElementById('searchInput').value.trim().toLowerCase();
+    const unreviewedOnly = document.getElementById('unreviewedToggle').checked;
+    document.querySelectorAll('section.section').forEach(sec=>{
+      let anyVisible = false;
+      const inSectionFilter = (currentSection === 'all' || currentSection === sec.id);
+      sec.querySelectorAll('.qa-card, .scn-card, .beh-card').forEach(card=>{
+        const text = card.dataset.search || '';
+        const matchesSearch = !term || text.includes(term);
+        const matchesMastery = !unreviewedOnly || !mastery[card.dataset.id];
+        const show = inSectionFilter && matchesSearch && matchesMastery;
+        card.classList.toggle('hidden', !show);
+        if(show) anyVisible = true;
+      });
+      sec.classList.toggle('hidden', !(anyVisible || (inSectionFilter && !term && sec.querySelectorAll('.qa-card,.scn-card,.beh-card').length===0)));
+      if(!inSectionFilter) sec.classList.toggle('hidden', true);
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', ()=>{
+    buildSearchIndex();
+    loadProgress();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interview Answer Bank — Memorize & Recite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0d12; --panel:#10151c; --panel-2:#141b24;
+    --border:#1f2937; --border-soft:rgba(255,255,255,.07);
+    --text:#e6edf3; --text-dim:#8b98a5; --text-faint:#4d5661;
+    --cyan:#4fd1e5; --violet:#a78bfa; --blue:#58a6ff; --amber:#d29922; --green:#3fb950; --rose:#f778ba; --orange:#f0883e; --teal:#2dd4bf; --gray:#8b98a5;
+    --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased;
+    background-image:linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:28px 28px;}
+  :focus-visible{outline:2px solid var(--cyan); outline-offset:2px; border-radius:3px}
+  .wrap{max-width:760px; margin:0 auto; padding:0 16px 64px}
+
+  header{padding:26px 0 18px}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.08em; color:var(--text-faint); text-transform:uppercase; margin-bottom:12px}
+  h1{font-size:clamp(21px,6vw,28px); line-height:1.2; margin:0 0 12px; font-weight:800; letter-spacing:-.01em}
+  .meta-row{display:flex; flex-wrap:wrap; gap:8px 16px; font-family:var(--mono); font-size:12.5px; color:var(--text-dim); margin-bottom:20px}
+  .meta-row b{color:var(--text)}
+  .progress-wrap{margin-bottom:20px}
+  .progress-label{display:flex; justify-content:space-between; font-family:var(--mono); font-size:11.5px; color:var(--text-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:.06em}
+  #progressLabel{color:var(--cyan)}
+  .progress-track{height:6px; background:var(--panel-2); border-radius:4px; overflow:hidden; border:1px solid var(--border-soft)}
+  .progress-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--cyan),var(--green)); border-radius:4px; transition:width .35s ease}
+
+  .note{background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--amber); border-radius:8px; padding:14px 16px; font-size:14px; color:var(--text-dim); margin-bottom:26px}
+  .note b{color:var(--amber); font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; display:block; margin-bottom:6px}
+  .note strong{color:var(--text)}
+
+  .jd-heading{font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint); margin:0 0 10px}
+  .jd-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:26px}
+  @media(min-width:600px){.jd-grid{grid-template-columns:repeat(4,1fr)}}
+  .jd-tile{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:9px 10px; cursor:pointer; text-align:left; font-family:var(--sans); transition:border-color .15s, background .15s}
+  .jd-tile:hover{background:var(--panel-2); border-color:#2d3948}
+  .jd-tile-top{display:flex; align-items:center; gap:5px; margin-bottom:3px}
+  .jd-dot{width:6px; height:6px; border-radius:50%; background:var(--text-faint); flex-shrink:0}
+  .jd-dot.partial{background:var(--amber)}
+  .jd-dot.done{background:var(--green)}
+  .jd-label{font-size:11.5px; font-weight:600; color:var(--text); line-height:1.25}
+  .jd-count{font-size:10px; color:var(--text-faint); font-family:var(--mono); margin-top:3px}
+
+  .controls{position:sticky; top:0; z-index:20; background:rgba(10,13,18,.92); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding:12px 0; border-bottom:1px solid var(--border); margin-bottom:24px}
+  .search-row{display:flex; gap:8px; margin-bottom:10px}
+  #searchInput{flex:1; background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-family:var(--sans); font-size:14px}
+  #searchInput::placeholder{color:var(--text-faint)}
+  #expandBtn{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text-dim); font-family:var(--mono); font-size:11.5px; cursor:pointer; white-space:nowrap}
+  #expandBtn:hover{color:var(--text); border-color:#2d3948}
+  .pills{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none}
+  .pills::-webkit-scrollbar{display:none}
+  .pill{flex-shrink:0; background:transparent; border:1px solid var(--border); color:var(--text-dim); font-family:var(--mono); font-size:11.5px; padding:6px 12px; border-radius:20px; cursor:pointer; white-space:nowrap; transition:all .15s}
+  .pill.active{background:var(--cyan); border-color:var(--cyan); color:#04222a; font-weight:600}
+  .pill:hover:not(.active){border-color:#2d3948; color:var(--text)}
+
+  .section{margin-bottom:32px}
+  .section.section-empty{display:none}
+  .section-head{display:flex; align-items:baseline; gap:10px; margin-bottom:12px; padding-bottom:9px; border-bottom:1px solid var(--border)}
+  .section-eyebrow{font-family:var(--mono); font-size:11px; color:var(--sec-accent); letter-spacing:.08em}
+  .section-title{font-size:16px; font-weight:700; margin:0}
+  .section-count{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--text-faint)}
+  .sec-intro{--sec-accent:var(--gray)}
+  .sec-sql{--sec-accent:var(--cyan)}
+  .sec-prom{--sec-accent:var(--violet)}
+  .sec-k8s{--sec-accent:var(--blue)}
+  .sec-mon{--sec-accent:var(--amber)}
+  .sec-linux{--sec-accent:var(--green)}
+  .sec-micro{--sec-accent:var(--rose)}
+  .sec-cicd{--sec-accent:var(--orange)}
+  .sec-itsm{--sec-accent:var(--teal)}
+
+  .qa-card{background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--sec-accent); border-radius:8px; margin-bottom:7px; overflow:hidden}
+  .qa-head{width:100%; display:flex; align-items:center; gap:10px; background:none; border:0; padding:12px 13px; text-align:left; cursor:pointer; color:var(--text); font-family:var(--sans)}
+  .qa-head:hover{background:var(--panel-2)}
+  .qa-num{font-family:var(--mono); font-size:10.5px; color:var(--sec-accent); flex-shrink:0; width:18px}
+  .qa-q{flex:1; font-size:14px; font-weight:600; line-height:1.35}
+  .qa-chev{font-size:15px; color:var(--text-faint); transition:transform .2s; flex-shrink:0}
+  .qa-card.open .qa-chev{transform:rotate(90deg); color:var(--sec-accent)}
+  .qa-body{max-height:0; overflow:hidden; transition:max-height .25s ease}
+  .qa-card.open .qa-body{max-height:300px}
+  .qa-body-inner{padding:0 13px 14px 41px; display:flex; align-items:flex-start; gap:10px}
+  .qa-answer{font-size:13.5px; color:var(--text-dim); margin:0; flex:1}
+  .qa-mark{display:flex; align-items:center; flex-shrink:0; margin-top:1px}
+  .qa-mark input{accent-color:var(--green); width:15px; height:15px; cursor:pointer}
+  code{background:rgba(79,209,229,.1); color:var(--cyan); padding:1px 6px; border-radius:4px; font-family:var(--mono); font-size:.9em}
+  strong{color:var(--text); font-weight:600}
+
+  #noResults{display:none; text-align:center; padding:40px 20px; color:var(--text-faint); font-family:var(--mono); font-size:13px}
+  footer{text-align:center; color:var(--text-faint); font-family:var(--mono); font-size:11px; margin-top:40px; padding-top:20px; border-top:1px solid var(--border-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Full transcript + gap areas · condensed for recall</div>
+    <h1>Interview Answer Bank</h1>
+    <div class="meta-row">
+      <span>🎯 <b>60 questions</b></span>
+      <span>9 sections</span>
+      <span>2–3 lines each</span>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Memorized</span><span id="progressLabel">0 / 60</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="note">
+      <b>How to actually use this</b>
+      These are compressed to the core idea, not a script — <strong>memorize the shape of each answer, then say it in your own words</strong>. A natural 20-second answer beats a recited paragraph every time. Leave cards collapsed and try to recall the answer before you tap to check yourself — that's the part that actually sticks.
+    </div>
+
+    <div class="jd-heading">Question bank — tap to jump</div>
+    <div class="jd-grid" id="jdGrid"></div>
+  </header>
+
+  <div class="controls">
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="Search questions & answers…">
+      <button id="expandBtn" onclick="toggleExpandAll()">Expand all</button>
+    </div>
+    <div class="pills" id="pillsRow"></div>
+  </div>
+
+  <div id="sections"></div>
+  <div id="noResults">No matches. Try clearing the search.</div>
+
+  <footer>Every question from the transcript, condensed to recite — good luck</footer>
+</div>
+
+<script>
+const DATA = [
+  {id:"in1",section:"intro",q:"Tell me about yourself.",
+   a:"Years of experience → current focus → one quantified highlight → why this role. E.g. '14+ years in SRE/DevOps, currently focused on production support — cut alert noise ~40%, built CI/CD from scratch — looking for a role owning incident response end-to-end.' Keep it under 90 seconds."},
+
+  {id:"sq1",section:"sql",q:"A report that ran in 10 seconds now takes 5 minutes.",
+   a:"Check what changed first — row count growth, then <code>EXPLAIN ANALYZE</code> vs the expected plan. Seq Scan where an index is expected + stale <code>last_analyze</code> is the classic pairing. Fix: <code>ANALYZE</code>/<code>VACUUM ANALYZE</code>, not a rewrite."},
+  {id:"sq2",section:"sql",q:"Users report duplicate records after multiple transactions.",
+   a:"It's a concurrency bug, not performance — a check-then-insert race under READ COMMITTED, or a client retry with no idempotency key. Fix: unique constraint + upsert at the DB level, never an app-only check."},
+  {id:"sq3",section:"sql",q:"A query is consuming 90% of database CPU.",
+   a:"<code>pg_stat_activity</code>/<code>pg_stat_statements</code> to identify it, <code>EXPLAIN ANALYZE</code> to classify: seq scan, sort spilling from low <code>work_mem</code>, or a weak index. <code>pg_terminate_backend</code> buys time; the index/rewrite is the real fix."},
+  {id:"sq4",section:"sql",q:"Frequent deadlocks during peak hours.",
+   a:"Pull the deadlock graph — Postgres logs both queries involved. Root cause is almost always inconsistent lock order across code paths touching the same tables. Fix: one consistent lock order everywhere, not just retries."},
+  {id:"sq5",section:"sql",q:"Blocking vs deadlock — what's the difference?",
+   a:"Blocking = one transaction waiting on a lock, normal, resolves itself. Deadlock = a cycle of transactions waiting on each other — never resolves alone, so the DB kills a victim to break it."},
+  {id:"sq6",section:"sql",q:"How do you read an execution plan?",
+   a:"Read bottom-up. Seq Scan = no index used, fine small / bad large. Index Only Scan = fastest. Nested Loop fine at small scale, Hash/Merge Join at bigger scale. Estimated vs actual rows gap = stale stats."},
+  {id:"sq7",section:"sql",q:"How do you think about indexing strategy?",
+   a:"B-tree covers equality/range; composite indexes only help if the query matches the <strong>leftmost columns</strong>. Covering index → Index Only Scan. Every index costs writes + disk — check for unused ones."},
+
+  {id:"pr1",section:"prom",q:"Describe Prometheus architecture — why pull-based?",
+   a:"Scrapes <code>/metrics</code> on exporters/apps, stores in a local TSDB, PromQL queries, alerting rules fire to Alertmanager. Pull means Prometheus itself knows a target's down the instant a scrape fails."},
+  {id:"pr2",section:"prom",q:"How do you run Prometheus highly available at scale?",
+   a:"HA pair (two instances, same targets, Alertmanager dedupes) solves availability. Federation gives a limited rollup. The real answer is remote write to Thanos/Mimir — sidecar ships blocks to object storage, Query fans out, Compactor downsamples."},
+  {id:"pr3",section:"prom",q:"How does Alertmanager prevent alert fatigue?",
+   a:"Four mechanisms: <strong>grouping</strong> (batch related alerts), <strong>routing</strong> (by label), <strong>inhibition</strong> (suppress downstream when a parent fires), <strong>silences</strong> (mute during maintenance). Add a dead-man's-switch alert too."},
+  {id:"pr4",section:"prom",q:"Recording rules vs alerting rules?",
+   a:"Recording rules precompute an expensive query into a stored series for fast, consistent dashboards. Alerting rules evaluate an expression and fire once true for the <code>for:</code> duration — that's your flap-suppressor."},
+  {id:"pr5",section:"prom",q:"rate() vs irate(), and key PromQL to know?",
+   a:"<code>rate()</code> averages over the range, smooth, use for alerts. <code>irate()</code> uses the last two points, spiky, use for dashboards. <code>histogram_quantile()</code> for p95/p99 — watch the tail, not the average."},
+  {id:"pr6",section:"prom",q:"Prometheus memory keeps growing — why?",
+   a:"Almost always <strong>cardinality</strong> — a label with unbounded values exploding the number of series. Confirm with a topk-by-metric-name query, fix with <code>metric_relabel_configs</code> to drop the label."},
+  {id:"pr7",section:"prom",q:"A Pod keeps restarting — how does Prometheus help?",
+   a:"Shows the pattern first — CPU/memory before each restart, restart-count trending, whether OOM correlates with a memory ceiling. Prometheus tells you <em>what and when</em>; <code>kubectl describe</code>/<code>logs</code> tell you <em>why</em>."},
+
+  {id:"k1",section:"k8s",q:"How do Kubernetes Services actually route traffic?",
+   a:"ClusterIP = stable internal IP via kube-proxy. NodePort/LoadBalancer stack on top. Headless skips the VIP for direct pod DNS (StatefulSets). Empty Endpoints = selector typo or failed readiness — the real debug pivot."},
+  {id:"k2",section:"k8s",q:"Ingress vs a service mesh?",
+   a:"Ingress = north-south, external traffic in, routing/TLS. Mesh = east-west, service-to-service mTLS/retries/circuit-breaking. Mesh adds real operational cost — say that tradeoff, don't just list features."},
+  {id:"k3",section:"k8s",q:"DNS is broken for one namespace only.",
+   a:"Debug pod first to confirm scope. Most likely: a new NetworkPolicy blocking egress to CoreDNS on port 53. Then check CoreDNS pods/ConfigMap and namespace quotas."},
+  {id:"k4",section:"k8s",q:"What does NetworkPolicy do by default?",
+   a:"With zero policies, K8s networking is <strong>fully open</strong> — any pod reaches any pod. A policy is default-deny only for the pods it selects and the direction it covers. Forgetting egress (or ingress) is the classic bug."},
+  {id:"k5",section:"k8s",q:"Service A can't reach Service B.",
+   a:"Fixed order: Endpoints (empty = selector/readiness) → DNS resolves? → connection succeeds? → NetworkPolicy → asymmetric mesh sidecar injection → only then the app."},
+  {id:"k6",section:"k8s",q:"A Pod keeps restarting every few minutes.",
+   a:"<code>kubectl describe pod</code> for the exit code and Events; <code>kubectl logs --previous</code> for what the crashed instance logged. Exit 137 = OOMKilled. Otherwise check an overly aggressive liveness probe."},
+  {id:"k7",section:"k8s",q:"App is unavailable right after a deployment.",
+   a:"<code>kubectl rollout status</code> and <code>get pods</code> — are new pods even Ready? Check <code>describe pod</code> Events for a failing readiness probe or CrashLoopBackOff, and diff the new config/image against last known-good."},
+  {id:"k8",section:"k8s",q:"One node becomes unavailable — how does K8s respond?",
+   a:"Marked NotReady after missed heartbeats (~40s default), pods evicted after ~5 min if still unreachable — that delay is why one node down isn't instant pod loss. A ReplicaSet reschedules them elsewhere if capacity exists."},
+  {id:"k9",section:"k8s",q:"A Deployment rollout is stuck midway.",
+   a:"<code>kubectl rollout status</code> shows where; <code>describe deployment</code>/<code>describe pod</code> on the new ReplicaSet's pods usually shows why — failing probe, image pull error, or no resources. <code>rollout undo</code> is the immediate mitigation."},
+
+  {id:"m1",section:"mon",q:"Metrics vs logs vs traces — Prometheus/Grafana/Loki roles?",
+   a:"Metrics = is it healthy now (Prometheus stores them). Logs = what exactly happened (Loki stores them, labels only). Traces = where's the latency. <strong>Grafana stores nothing</strong> — it visualizes all three."},
+  {id:"m2",section:"mon",q:"Grafana dashboard shows 'No Data' on every panel.",
+   a:"Check the data source connection first — everything dying at once is a data-source problem, not a query problem. Then check the time range wasn't left too narrow post-migration. Panel queries last."},
+  {id:"m3",section:"mon",q:"CPU crosses 95% but no alert fires.",
+   a:"Walk the pipeline backwards: rule exists and evaluates true? Cleared the <code>for:</code> duration? Reached Alertmanager? Route labels actually match? Check the notification channel last."},
+  {id:"m4",section:"mon",q:"Grafana dashboard takes over a minute to load.",
+   a:"Usually an expensive, un-aggregated query over raw high-cardinality data across a long range. Fix with a recording rule to precompute it, or shrink the default time range/step."},
+  {id:"m5",section:"mon",q:"A new Kubernetes cluster is added — integrate it into Grafana?",
+   a:"Deploy exporters (node_exporter, kube-state-metrics) on it, federate or remote_write into the existing central store, then add a cluster template variable to existing dashboards instead of cloning new ones."},
+  {id:"m6",section:"mon",q:"Grafana server itself becomes unavailable in business hours.",
+   a:"Dashboards down ≠ monitoring down — Prometheus/Alertmanager still evaluate and page independently. Check Grafana's own logs/resources, restart if stuck, and have a CLI fallback (<code>promtool query</code>) for the outage window."},
+  {id:"m7",section:"mon",q:"Production logs stop appearing after a server restart.",
+   a:"Check the forwarder/agent actually restarted and reconnected. Confirm the monitored file path or app still exists post-restart, and check for a stale PID/lock file blocking startup."},
+  {id:"m8",section:"mon",q:"Splunk dashboards take several minutes to load.",
+   a:"Usually a raw, expensive search over too wide a range. Convert it to a scheduled, pre-computed summary/accelerated data model instead of running the live search on every load."},
+  {id:"m9",section:"mon",q:"Millions of logs generated in one hour.",
+   a:"First confirm it's real traffic, not a logging bug — a retry loop or debug-level logging left on in prod. Filter/sample genuinely low-value volume, and check ingest/licensing limits aren't about to throttle."},
+  {id:"m10",section:"mon",q:"Alert after 5 failed logins within 2 minutes.",
+   a:"A scheduled SPL search: count failed-login events in a 2-minute window, threshold ≥5, trigger via a webhook/email/SOAR playbook — auto-block the IP if it routes through SOAR."},
+
+  {id:"lx1",section:"linux",q:"Production Linux server suddenly becomes slow.",
+   a:"Name the <strong>USE method</strong> (Utilization/Saturation/Errors). Fast triage: <code>uptime → top → vmstat 1 → free -m → iostat -x 1 → ss -s → dmesg</code>. Then correlate against a recent deploy."},
+  {id:"lx2",section:"linux",q:"Load average 8, CPU 30%, on a 4-core box.",
+   a:"Load counts runnable AND uninterruptible-sleep (disk-blocked) processes. High load + low CPU = I/O bound almost every time. Confirm with <code>vmstat</code>'s b/wa columns and <code>iostat</code>'s await/%util."},
+  {id:"lx3",section:"linux",q:"Root filesystem hits 100%.",
+   a:"<code>df -h</code> then <code>du -h --max-depth=1 | sort -rh</code> to find the big directory, usually <code>/var/log</code>. <code>journalctl --vacuum-size</code> if it's the journal. Also check <code>df -i</code> for inode exhaustion."},
+  {id:"lx4",section:"linux",q:"A service is down right after a reboot.",
+   a:"<code>systemctl status</code>, then <code>is-enabled</code> — 'never enabled' is a real common answer. <code>journalctl -u -b</code> scopes to this boot only. Often a dependency wasn't up yet — check ordering directives."},
+  {id:"lx5",section:"linux",q:"Server reports Out Of Memory.",
+   a:"<code>dmesg</code>/<code>journalctl -k</code> shows exactly what the OOM killer killed and why. In K8s, the real fix is proper memory requests/limits managing pressure proactively, not per-process tuning."},
+  {id:"lx6",section:"linux",q:"Quick tool reference — when do you reach for each?",
+   a:"<code>vmstat</code>/<code>iostat</code> = live snapshots. <code>sar</code> = the same, historical. <code>journalctl</code> for service logs. <code>lsof</code> for open files/'device busy'. <code>ss -tulnp</code> for listening ports. <code>strace</code> for what a hung process is stuck on."},
+
+  {id:"ms1",section:"micro",q:"How does service discovery work in K8s?",
+   a:"DNS-based and free: every Service gets a stable DNS name, CoreDNS resolves it, Endpoints tracks Ready pods. No separate registry (Consul/Eureka) needed inside the cluster."},
+  {id:"ms2",section:"micro",q:"A downstream is slow, cascading failures back — circuit breaker?",
+   a:"Fail fast after N consecutive errors instead of queueing behind a known-bad dependency. In Istio: <code>outlierDetection</code> ejects bad hosts, <code>connectionPool</code> caps pending requests. Always pair with an app-level fallback."},
+  {id:"ms3",section:"micro",q:"What's the danger in adding retries?",
+   a:"Unbounded retries cause a retry storm that makes the outage worse. Fix: backoff + jitter, a retry budget, and only retry <strong>idempotent</strong> calls — retrying a non-idempotent POST is how you get duplicate records."},
+  {id:"ms4",section:"micro",q:"How does distributed tracing find latency?",
+   a:"One trace follows a request across every service as nested spans. Find the slow trace, find the longest span, that's your culprit. Needs trace-context propagation on every hop or it fragments."},
+  {id:"ms5",section:"micro",q:"Service mesh — value and cost?",
+   a:"Adds automatic mTLS, fine-grained traffic control, per-service telemetry, no app code changes. Real cost: another hop, another upgrade surface, another debug layer — adopt when service count makes it unmanageable manually, not by default."},
+  {id:"ms6",section:"micro",q:"One microservice goes down, multiple apps fail.",
+   a:"Missing circuit breaker/timeout — a hard dependency with no fallback turned one failure into a cascade. Immediate: isolate/restart it. Structural fix: circuit breakers + timeouts on every synchronous call."},
+  {id:"ms7",section:"micro",q:"Multiple microservices show high response time at once.",
+   a:"Look for a <strong>shared</strong> dependency first, a common DB, cache, or downstream API, rather than treating each as independent. Tracing across two or three affected services quickly confirms the shared slow call."},
+
+  {id:"cd1",section:"cicd",q:"Blue-green vs canary?",
+   a:"Blue-green: full new version alongside old, instant cutover/rollback, ~2x capacity. Canary: small % of real traffic, metrics-gated auto promote/abort, the stronger default for risk. Either way, pair with fast tested rollback."},
+  {id:"cd2",section:"cicd",q:"Jenkins pipeline: 10 min normally, suddenly 40.",
+   a:"Check the stage timing breakdown for which specific stage grew. Usual causes: cache invalidated, agent resource-starved, or a slow external dependency. A Monday-only pattern = scheduling contention."},
+  {id:"cd3",section:"cicd",q:"How do you actually speed up a slow pipeline?",
+   a:"Cache dependencies and Docker layers (stable-to-volatile ordering), parallelize independent stages, build only what changed, and 'build once, promote everywhere' instead of rebuilding per environment."},
+  {id:"cd4",section:"cicd",q:"Fastest rollback path after a bad release?",
+   a:"Revert running state first, understand later — <code>argocd app rollback</code> or redeploy the previous SHA-tagged image, seconds, no pipeline re-run. <code>git revert</code> on source is the correct follow-up, not the fast path."},
+  {id:"cd5",section:"cicd",q:"How would you add automated deployment gates?",
+   a:"Gate each promotion step on a real metrics query against baseline, not a timer — Argo Rollouts + an AnalysisTemplate hitting Prometheus. Add an error-budget gate too: block ships when budget's already low."},
+  {id:"cd6",section:"cicd",q:"Deployment passes tests but fails in production.",
+   a:"Classic 'works in staging' gap — check config/secrets differences, data volume, a prod-only downstream dependency, or feature flag state. Compare env vars and versions before assuming it's a code bug."},
+  {id:"cd7",section:"cicd",q:"Deployment succeeds but the app is unhealthy.",
+   a:"The pipeline only checked the deploy step completed, not that the app is actually serving correctly, name that gap. Fix: a post-deploy smoke test and health-check gate before the pipeline is 'green.'"},
+
+  {id:"it1",section:"itsm",q:"Multiple customers report the same issue — manage it in ServiceNow?",
+   a:"Link the duplicate incidents to one parent/major incident instead of working them separately. Communicate through the parent record, close children pointing to its resolution."},
+  {id:"it2",section:"itsm",q:"Critical deployment during business hours — what process?",
+   a:"Goes through Change Management as a normal (CAB) or emergency change depending on urgency, risk/impact/rollback documented before approval. Deploy canary/blue-green so business-hours risk stays contained."},
+  {id:"it3",section:"itsm",q:"Developers forget to update Jira tickets.",
+   a:"Automate it rather than rely on discipline — smart commits or a CI step auto-transitions the linked ticket on merge/deploy. Manual ticket hygiene doesn't survive incident pressure."},
+  {id:"it4",section:"itsm",q:"Org wants automated recovery for production issues.",
+   a:"Start with the AIOps closed loop: collect → correlate → detect → diagnose → auto-heal. Automate known, low-risk, high-frequency fixes first — restart a crashed pod, clear a full disk. Human approval for anything with real blast radius."},
+  {id:"it5",section:"itsm",q:"Multiple monitoring tools alert on the same incident.",
+   a:"An alert-correlation gap, not four separate problems. Route through one aggregation layer (Alertmanager or an AIOps correlation engine) that groups by shared service/host/time window into a single page."},
+  {id:"it6",section:"itsm",q:"An incident takes hours to find root cause.",
+   a:"Almost always a correlation gap, not a missing dashboard — link metrics, logs, and traces by a shared trace/request ID so you pivot from 'error rate spiked' straight to the failing trace, instead of cross-referencing three tools by hand."}
+];
+
+const SECTIONS = [
+  {key:"intro", label:"Intro", eyebrow:"§0"},
+  {key:"sql", label:"SQL", eyebrow:"§1"},
+  {key:"prom", label:"Prometheus", eyebrow:"§2"},
+  {key:"k8s", label:"Kubernetes", eyebrow:"§3"},
+  {key:"mon", label:"Grafana / Splunk", eyebrow:"§4"},
+  {key:"linux", label:"Linux", eyebrow:"§5"},
+  {key:"micro", label:"Microservices", eyebrow:"§6"},
+  {key:"cicd", label:"CI/CD", eyebrow:"§7"},
+  {key:"itsm", label:"ServiceNow / AIOps", eyebrow:"§8"}
+];
+
+let reviewed = new Set();
+let state = {q:"", section:"all"};
+
+function escapeAttr(s){return s.replace(/"/g,"&quot;")}
+
+function renderPills(){
+  const row = document.getElementById("pillsRow");
+  let html = '<button class="pill active" data-sec="all" onclick="setSection(\'all\')">All</button>';
+  SECTIONS.forEach(s=>{
+    html += '<button class="pill" data-sec="'+s.key+'" onclick="setSection(\''+s.key+'\')">'+s.label+'</button>';
+  });
+  row.innerHTML = html;
+}
+
+function renderJDGrid(){
+  const grid = document.getElementById("jdGrid");
+  grid.innerHTML = SECTIONS.map(s=>{
+    return '<button class="jd-tile" onclick="setSection(\''+s.key+'\'); document.getElementById(\'sec-'+s.key+'\').scrollIntoView({behavior:\'smooth\'})">'
+      +'<div class="jd-tile-top"><span class="jd-dot" id="dot-'+s.key+'"></span><span class="jd-label">'+s.label+'</span></div>'
+      +'<div class="jd-count" id="count-'+s.key+'">0/0</div>'
+      +'</button>';
+  }).join("");
+}
+
+function renderSections(){
+  const container = document.getElementById("sections");
+  let html = "";
+  SECTIONS.forEach(sec=>{
+    const items = DATA.filter(d=>d.section===sec.key);
+    html += '<div class="section sec-'+sec.key+'" id="sec-'+sec.key+'">';
+    html += '<div class="section-head"><span class="section-eyebrow">'+sec.eyebrow+'</span><h2 class="section-title">'+sec.label+'</h2><span class="section-count">'+items.length+'</span></div>';
+    items.forEach((item,idx)=>{
+      const searchBlob = (item.q+" "+item.a).toLowerCase().replace(/"/g,"'");
+      html += '<div class="qa-card" id="card-'+item.id+'" data-section="'+item.section+'" data-search="'+escapeAttr(searchBlob)+'">';
+      html += '<button class="qa-head" onclick="toggleCard(\''+item.id+'\')">';
+      html += '<span class="qa-num">'+String(idx+1).padStart(2,"0")+'</span>';
+      html += '<span class="qa-q">'+item.q+'</span>';
+      html += '<span class="qa-chev">›</span>';
+      html += '</button>';
+      html += '<div class="qa-body"><div class="qa-body-inner">';
+      html += '<p class="qa-answer">'+item.a+'</p>';
+      html += '<label class="qa-mark"><input type="checkbox" onchange="toggleReviewed(\''+item.id+'\', this.checked)"></label>';
+      html += '</div></div></div>';
+    });
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function toggleCard(id){
+  document.getElementById("card-"+id).classList.toggle("open");
+}
+
+function toggleExpandAll(){
+  const btn = document.getElementById("expandBtn");
+  const shouldOpen = btn.textContent.indexOf("Expand") === 0;
+  document.querySelectorAll(".qa-card").forEach(c=>c.classList.toggle("open", shouldOpen));
+  btn.textContent = shouldOpen ? "Collapse all" : "Expand all";
+}
+
+function toggleReviewed(id, checked){
+  if(checked){reviewed.add(id)}else{reviewed.delete(id)}
+  updateProgress();
+}
+
+function updateProgress(){
+  const total = DATA.length;
+  const done = reviewed.size;
+  document.getElementById("progressFill").style.width = (done/total*100)+"%";
+  document.getElementById("progressLabel").textContent = done+" / "+total;
+
+  SECTIONS.forEach(s=>{
+    const items = DATA.filter(d=>d.section===s.key);
+    const doneCount = items.filter(d=>reviewed.has(d.id)).length;
+    const dot = document.getElementById("dot-"+s.key);
+    dot.classList.remove("partial","done");
+    if(doneCount===items.length && items.length>0){dot.classList.add("done")}
+    else if(doneCount>0){dot.classList.add("partial")}
+    document.getElementById("count-"+s.key).textContent = doneCount+"/"+items.length;
+  });
+}
+
+function setSection(key){
+  state.section = key;
+  document.querySelectorAll(".pill").forEach(p=>p.classList.toggle("active", p.dataset.sec===key));
+  applyFilters();
+}
+
+function applyFilters(){
+  let anyVisible = false;
+  SECTIONS.forEach(sec=>{
+    let sectionHasVisible = false;
+    document.querySelectorAll('.qa-card[data-section="'+sec.key+'"]').forEach(card=>{
+      const secOk = state.section==="all" || card.dataset.section===state.section;
+      const qOk = !state.q || card.dataset.search.indexOf(state.q)!==-1;
+      const visible = secOk && qOk;
+      card.style.display = visible ? "" : "none";
+      if(visible){sectionHasVisible = true; anyVisible = true}
+    });
+    document.getElementById("sec-"+sec.key).classList.toggle("section-empty", !sectionHasVisible);
+  });
+  document.getElementById("noResults").style.display = anyVisible ? "none" : "block";
+}
+
+document.getElementById("searchInput").addEventListener("input", function(e){
+  state.q = e.target.value.toLowerCase();
+  applyFilters();
+});
+
+renderPills();
+renderJDGrid();
+renderSections();
+updateProgress();
+</script>
+</body>
+</html>

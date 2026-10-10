@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPMG SRE Interview Prep (via Prism HRC)</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --panel-hover: #1c232d;
+    --border: #2a323c;
+    --text: #e6edf3;
+    --text-dim: #9aa7b3;
+    --accent: #3fb950;
+    --accent-dim: #2ea043;
+    --accent-soft: rgba(63,185,80,0.12);
+    --danger: #f85149;
+    --code-bg: #0a0e14;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+  }
+  #sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  #sidebar h1 {
+    font-size: 14px;
+    padding: 0 16px 12px 16px;
+    margin: 0 0 8px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--accent);
+    line-height: 1.4;
+  }
+  #sidebar .subtitle {
+    display:block;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: normal;
+    margin-top: 4px;
+  }
+  .tab-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    padding: 9px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+  .tab-btn:hover { background: var(--panel-hover); color: var(--text); }
+  .tab-btn.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-left: 3px solid var(--accent);
+    font-weight: 600;
+  }
+  .tab-count {
+    float: right;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--bg);
+    padding: 1px 6px;
+    border-radius: 10px;
+  }
+  #main {
+    flex: 1;
+    padding: 20px 28px 60px 28px;
+    max-width: 980px;
+  }
+  #controls {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding: 10px 0 14px 0;
+    z-index: 15;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+  #controls-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  #search {
+    flex: 1;
+    min-width: 200px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  #search:focus { outline: none; border-color: var(--accent); }
+  button.ctrl {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  button.ctrl:hover { border-color: var(--accent); color: var(--accent); }
+  #pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .pill {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 5px 12px;
+    border-radius: 14px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .pill.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: var(--accent-dim);
+  }
+  #statbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  #progress-track {
+    flex: 1;
+    height: 6px;
+    background: var(--panel);
+    border-radius: 3px;
+    margin: 0 12px;
+    overflow: hidden;
+  }
+  #progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.2s;
+  }
+  h2.tab-title {
+    font-size: 20px;
+    margin: 4px 0 18px 0;
+    color: var(--text);
+  }
+  h3.group-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    border-left: 3px solid var(--accent);
+    padding-left: 10px;
+    margin: 26px 0 12px 0;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .card-q {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 13px 14px;
+    cursor: pointer;
+  }
+  .card-q:hover { background: var(--panel-hover); }
+  .card-q input[type=checkbox] {
+    margin-top: 3px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .card-q .qtext {
+    flex: 1;
+    font-size: 14.5px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .card.mastered .qtext { color: var(--text-dim); text-decoration: line-through; }
+  .caret { color: var(--text-dim); flex-shrink: 0; transition: transform 0.15s; margin-top: 2px; }
+  .card.open .caret { transform: rotate(90deg); }
+  .card-a {
+    display: none;
+    padding: 0 14px 16px 40px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+  }
+  .card.open .card-a { display: block; padding-top: 12px; }
+  .card-a code {
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 13px;
+    color: var(--accent);
+  }
+  .hidden { display: none !important; }
+  mark { background: var(--accent); color: #000; border-radius: 2px; padding: 0 1px; }
+  #empty-msg { color: var(--text-dim); padding: 30px 0; text-align: center; display: none; }
+  @media (max-width: 860px) {
+    body { flex-direction: column; }
+    #sidebar { position: static; width: 100%; height: auto; }
+    #main { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <h1>KPMG — SRE / Platform<span class="subtitle">via Prism HRC · Round 2 (Virtual)</span></h1>
+  <div id="tab-list"></div>
+</div>
+
+<div id="main">
+  <div id="controls">
+    <div id="controls-row">
+      <input id="search" type="text" placeholder="Search all questions and answers...">
+      <button class="ctrl" id="expand-all-btn">Expand All</button>
+      <button class="ctrl" id="reset-btn">Reset Progress</button>
+    </div>
+    <div id="pills"></div>
+    <div id="statbar">
+      <span id="stat-label">0 / 0 mastered</span>
+      <div id="progress-track"><div id="progress-fill"></div></div>
+      <span id="stat-pct">0%</span>
+    </div>
+  </div>
+
+  <h2 class="tab-title" id="tab-title"></h2>
+  <div id="list"></div>
+  <div id="empty-msg">No questions match your search/filter.</div>
+</div>
+
+<script>
+const TABS = [{"id": "positioning", "label": "Role & Positioning", "groups": [{"name": "KPMG / Prism HRC Context", "items": [{"q": "Walk me through your background.", "a": "14+ years in SRE/DevOps/Platform Engineering across banking and enterprise environments \u2014 Barclays, Flyingedge Solutions/Russell Investments, Terawe Technologies (Microsoft/Azure Synapse), Unique Vacations/Sandals International, RSAB IT, and Orange Business Services. Core strength is operating and evolving large-scale, sophisticated systems: AWS (6+ yrs), Kubernetes (6+ yrs), Terraform (3-6 yrs), plus Azure depth (AZ-104, SC-300, SC-100) that most AWS-only SREs don't have. Anchor with one real number, e.g. a ~35% MTTD reduction from an observability overhaul at Terawe, or a ~60% reduction in manual deployment effort from an automation initiative \u2014 then say you're targeting senior/AVP-level Platform Engineering and SRE roles where that breadth compounds."}, {"q": "What do you know about KPMG and this role?", "a": "KPMG is one of the Big Four global professional-services firms \u2014 audit, tax, and advisory \u2014 with a large internal technology and consulting arm that builds and runs platforms for both internal use and client engagements. An SRE/Platform role here likely means supporting internal enterprise platforms and/or client-facing delivery infrastructure with strict reliability, security, and audit expectations (consistent with a Big Four's compliance posture). Frame your consulting-adjacent Barclays/Russell Investments experience as directly relevant \u2014 you already know how to operate reliably inside a regulated, audited environment."}, {"q": "This role is payrolled via Prism HRC rather than KPMG directly \u2014 are you comfortable with that arrangement?", "a": "Bring your own: state your comfort level plainly (most contractors are fine with a staffing/payroll vendor as long as the day-to-day work, reporting line, and project are genuinely with the client). It's reasonable to ask Prism HRC or the KPMG hiring manager to clarify contract duration, extension/conversion-to-FTE possibility, and who owns performance reviews \u2014 asking this shows diligence, not hesitation."}, {"q": "You have 14+ years; the JD asks for 10+. How do you frame the extra experience without sounding overqualified?", "a": "Position it as depth and range rather than just tenure: dual-cloud (AWS+Azure), full lifecycle from build to steady-state operations, and exposure to regulated/banking environments the JD doesn't explicitly ask for but almost certainly values given KPMG's client base. Tie it to what you want next \u2014 broader platform ownership and mentoring scope \u2014 rather than implying the role itself is too small."}, {"q": "Why are you looking to move right now?", "a": "Bring your own \u2014 keep it forward-looking (seeking broader platform-ownership scope, dual-cloud environments, or a step toward AVP/Architect-level responsibility) rather than negative about a current/previous employer."}, {"q": "This is a second, virtual round with a final F2F round still to come \u2014 what do you think this round is testing for?", "a": "Likely deeper technical validation of what a resume/first-round screen already flagged (Terraform, K8s, AWS depth, Linux troubleshooting, SLO literacy) plus a check on communication clarity and team fit, since the JD explicitly calls out interpersonal skills and English proficiency. Treat this round as: prove the depth is real, and prove you can explain it clearly to a mixed technical/non-technical panel."}, {"q": "Where do you see yourself in your SRE/Platform Engineering career path?", "a": "Bring your own \u2014 but the natural framing given your background is: senior IC or AVP/Architect-track Platform Engineer, owning reliability and platform standards across multiple teams rather than a single service, with growing mentorship responsibility."}, {"q": "The JD frames this broadly as 'software, platform, or site reliability engineering' \u2014 how do you read that?", "a": "It signals the hiring team cares about the underlying skill set (building and operating scalable, reliable systems) more than a rigid title. Software engineers who build resilient services, platform engineers who build the internal tooling other teams run on, and SREs who apply engineering discipline to operations are treated as overlapping candidate pools for this seat \u2014 so you should speak to all three angles: you write/automate, you've built platform tooling, and you own reliability outcomes."}]}]}, {"id": "programming", "label": "Programming (Go/Python/Java/Ruby/Perl)", "groups": [{"name": "Language Fit & Fundamentals", "items": [{"q": "Which of Go, Python, Java, Ruby, or Perl are you strongest in, and why does that matter for this role?", "a": "Lead with Python (and Bash) as your primary automation/scripting language \u2014 it's the most common SRE glue language for AWS APIs (boto3), infra automation, and log/metric processing. If Java or another comes up from your Terawe/Barclays work, mention it as secondary. The point for the interviewer isn't which language \u2014 it's that you can read, write, and safely modify production automation code, which you can back with real examples (deployment automation, alert tooling)."}, {"q": "The team may use Go primarily \u2014 how would you approach ramping up if you don't have deep Go experience?", "a": "Be honest rather than overclaiming: strong general programming fundamentals (typing, concurrency concepts, error handling) transfer, and Go's simplicity (no classes, explicit error returns, single binary output) makes it fast to become productive-enough for SRE tooling within weeks. Mention you'd start by reading and modifying existing Go tools/exporters before writing net-new services, which is the realistic on-ramp for most SREs picking up Go."}, {"q": "Describe a real automation script or tool you've built and the impact it had.", "a": "Bring your own, anchored to a verified result \u2014 e.g. an automation initiative that cut manual deployment effort by roughly 60%, or tooling that contributed to a ~40% reduction in alert noise. Structure it as: manual/painful process \u2192 what you automated and how (language, trigger, safeguards) \u2192 measured outcome."}, {"q": "What's the difference between a one-off script and production-grade automation?", "a": "Production-grade automation has: idempotency (safe to re-run), explicit error handling and logging, no hardcoded secrets/credentials, a dry-run or plan mode where possible, tests (even basic ones), and a rollback path. A one-off script usually skips all of that because it's meant to run once, by you, and be thrown away."}, {"q": "How do you handle secrets inside automation scripts?", "a": "Never hardcode or commit secrets. Pull from a secrets manager (AWS Secrets Manager/Parameter Store, HashiCorp Vault, Azure Key Vault) or environment injection at runtime via the CI/CD system's own secret store, with least-privilege IAM scoping the script's own credentials to only what it needs."}, {"q": "What does idempotency mean in automation, and why does it matter operationally?", "a": "An idempotent operation produces the same end state no matter how many times it's run \u2014 critical because retries after partial failures, timeouts, or re-triggered pipelines are routine in production. A non-idempotent deploy script that re-runs after a timeout can double-create resources or corrupt state; an idempotent one just confirms the desired state and exits cleanly."}, {"q": "Sketch how you'd write a Python script using boto3 to find and remediate unhealthy EC2 instances behind a load balancer.", "a": "At a high level: use boto3's elbv2 client to list target health, filter for unhealthy targets, cross-reference with the ec2 client to check instance status checks, log findings, and either reboot/replace via an Auto Scaling Group action (preferred over a direct terminate, so the ASG handles safe replacement) \u2014 wrapped in a dry-run flag and Slack/SNS notification so it's observable, not a silent auto-fix."}, {"q": "How do you approach code review for infrastructure/automation code specifically?", "a": "Beyond normal readability, check for: blast radius (what happens if this runs against prod by mistake), idempotency, credential handling, and whether it has a rollback or dry-run path. For Terraform/IaC changes specifically, always review the plan output, not just the diff."}, {"q": "How do you test infrastructure automation before it touches production?", "a": "Layered: unit tests for pure logic, a dry-run/plan mode against a real environment, then a staging/non-prod apply with the same pipeline path production will use, before promoting the exact same artifact to prod \u2014 never re-writing the change by hand for each environment."}, {"q": "Give an example of a bug in an automation script that could have caused an outage, and how you'd guard against that class of bug in review.", "a": "Bring your own if you have a real one \u2014 otherwise speak generally: e.g. a script that assumed a single result from an API call and broke (or acted on the wrong resource) when the account had multiple matches. Guard with explicit assertions on expected result count, and fail loudly rather than silently proceeding on unexpected input."}]}]}, {"id": "iac", "label": "Infrastructure as Code (Terraform)", "groups": [{"name": "Core Concepts & Gotchas", "items": [{"q": "What is Infrastructure as Code and why does it matter for reliability specifically?", "a": "IaC means infrastructure is defined in versioned, reviewable code rather than made through manual console changes. For reliability it matters because it makes environments reproducible (disaster recovery becomes 'run the code' rather than 'remember what we clicked'), changes are peer-reviewed before they hit production, and drift between environments becomes detectable rather than a mystery during an incident."}, {"q": "What is Terraform state, and why do remote backend + state locking matter?", "a": "State is Terraform's record of what it believes exists and how config maps to real resource IDs. A remote backend (e.g. S3 + DynamoDB, or Terraform Cloud) makes state shared and durable instead of a single laptop's local file; state locking prevents two people or two CI runs from applying concurrently and corrupting state or double-creating resources."}, {"q": "Why is for_each generally preferred over count for managing multiple similar resources?", "a": "count indexes resources by position (0,1,2...), so removing or reordering an item in the middle shifts every subsequent index \u2014 Terraform then wants to destroy and recreate resources that didn't actually change. for_each keys resources by a stable value (like a map key or set member), so removing one item only affects that one resource."}, {"q": "If you mark a variable sensitive = true in Terraform, is the value actually protected?", "a": "Not fully \u2014 sensitive = true hides the value from CLI output/plan display, but it is still stored in plaintext in the state file by default. True protection requires state encryption (e.g. an encrypted S3 backend) and/or keeping the actual secret out of Terraform entirely (reference a secrets manager ARN instead of the raw value). Newer Terraform versions (1.10/1.11) introduced ephemeral and write-only attributes specifically to avoid persisting sensitive values to state at all."}, {"q": "How do you detect and handle configuration drift?", "a": "terraform plan against the current state will show drift as a diff even without code changes, since it refreshes against real infrastructure. Handle it by either updating code to match an intentional manual change (then re-applying) or reverting the manual change to match code \u2014 but the real fix is process: restrict console/CLI write access so drift becomes rare, not something you're constantly reconciling."}, {"q": "How do you design reusable Terraform modules across multiple environments?", "a": "Keep modules environment-agnostic \u2014 parameterize via variables (instance size, count, tags) rather than hardcoding environment specifics, and keep environment-specific values in separate .tfvars files or a thin per-environment root module that calls the shared module. Avoid embedding conditionals for 'if prod do X' inside the module itself; that logic belongs at the calling layer."}, {"q": "Why is the -target flag risky, and when is it acceptable to use?", "a": "-target applies to a specific resource and its dependencies only, bypassing Terraform's full-graph reconciliation \u2014 so it can silently leave other pending changes unapplied or cause state to diverge from what a full plan would show. Acceptable as a targeted emergency fix or to unblock a specific broken resource, but should always be followed by a full plan/apply to confirm the overall state is consistent."}, {"q": "How does terraform import work, and what's a common mistake with it?", "a": "import binds an existing real resource to a Terraform state address so Terraform starts managing it \u2014 but import does NOT generate the matching HCL configuration for you. The common mistake is importing into state without writing accurate matching config first; the next plan will then show a large, confusing diff as Terraform tries to reconcile config against the real resource."}, {"q": "What is the moved block for, and why is it considered high-value to know?", "a": "moved lets you refactor Terraform code (rename a resource, move it into a module) while telling Terraform 'this is the same resource, just relocated' \u2014 avoiding a destroy/recreate. It's high-value because the failure mode without it is silent and expensive: a refactor that looks cosmetic in a PR can actually queue up a destroy-and-recreate of a production resource (like a database) if Terraform can't tell it's the same object."}, {"q": "How would you manage multiple environments (dev/stage/prod) \u2014 workspaces, separate state per environment, or Terragrunt?", "a": "Bring your own preference, but the generally safer pattern at scale is separate state files per environment (via separate directories or a tool like Terragrunt) rather than Terraform workspaces sharing one backend/config \u2014 workspaces make it easy to accidentally apply against the wrong environment since the code path is identical and only a workspace name differs."}, {"q": "How do you roll back a bad terraform apply?", "a": "Terraform doesn't have a built-in 'undo' \u2014 the standard approach is to revert the code change in version control and re-apply, which reconciles infrastructure back toward the previous desired state. For state-only corruption (not actual resource damage), a state backup/versioned S3 backend lets you restore a prior state file if needed."}, {"q": "How do you integrate Terraform into CI/CD safely?", "a": "Run terraform plan automatically on every pull request (posted as a PR comment for reviewers), require human approval before apply, restrict who/what can run apply against production (often a separate protected pipeline stage), and never let developers run terraform apply from their laptops against shared environments."}]}]}, {"id": "cloud", "label": "Cloud Computing Fundamentals", "groups": [{"name": "Foundations", "items": [{"q": "Explain the shared responsibility model.", "a": "The cloud provider secures 'the cloud' (physical infrastructure, hypervisor, managed-service internals); the customer secures 'in the cloud' (data, IAM configuration, network rules, OS patching on unmanaged instances, application security). The exact line shifts depending on the service tier \u2014 e.g. AWS patches the OS for a managed RDS instance but not for a raw EC2 instance."}, {"q": "Compare IaaS, PaaS, and SaaS.", "a": "IaaS (e.g. EC2, Azure VMs) gives raw compute/storage/network \u2014 you manage the OS up. PaaS (e.g. Elastic Beanstalk, App Service, RDS) manages the runtime/OS/patching for you \u2014 you manage code and config. SaaS (e.g. Salesforce, Office 365) is a fully managed application \u2014 you manage only your data and users."}, {"q": "What's the difference between high availability and disaster recovery?", "a": "High availability is about minimizing downtime during normal operation or a localized failure (e.g. multi-AZ redundancy so one AZ failing doesn't take the service down). Disaster recovery is the plan for a larger-scale event (region loss, major data corruption) and is measured by RPO (how much data you can afford to lose) and RTO (how fast you must recover) \u2014 DR often involves a separate region and a documented, tested failover process."}, {"q": "Horizontal vs vertical scaling \u2014 when do you use each?", "a": "Vertical scaling (bigger instance) is simpler but has a hard ceiling and usually requires downtime; it's fine for early-stage or single-instance stateful systems. Horizontal scaling (more instances behind a load balancer) is the standard approach for reliability at scale since it also improves fault tolerance \u2014 one instance failing doesn't take down the service \u2014 but requires the application to be stateless or externalize state."}, {"q": "What cost-optimization levers do you use in cloud environments?", "a": "Rightsizing based on actual utilization data, Reserved Instances/Savings Plans for predictable steady-state workloads, Spot instances for fault-tolerant/stateless batch workloads, S3 lifecycle policies to move cold data to cheaper tiers, and tagging/cost-allocation to make spend visible per team so waste is caught rather than hidden in a shared bill."}, {"q": "Multi-region vs multi-AZ \u2014 what's the tradeoff?", "a": "Multi-AZ protects against a data-center-level failure within a region with low latency and relative simplicity (most managed services support it natively). Multi-region protects against a full regional outage but adds significant complexity \u2014 data replication/consistency, DNS failover, and often materially higher cost \u2014 so it's usually reserved for services with strict regulatory or business-continuity requirements."}, {"q": "What is the AWS/cloud Well-Architected Framework, and what are its pillars?", "a": "A structured way to evaluate a system's design against best practices, typically covering: Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization, and Sustainability. It's used as a review checklist \u2014 walking through a design and asking, for each pillar, what risks or gaps exist."}, {"q": "How do you position your Azure certifications (AZ-104, SC-300, SC-100) for what looks like an AWS-heavy role?", "a": "Frame it directly as a strength, not a mismatch: your hands-on depth is AWS (6+ years), but the Azure certifications give you genuine dual-cloud fluency \u2014 identity/security concepts (SC-300/SC-100) and infrastructure fundamentals (AZ-104) transfer conceptually across clouds, so you ramp faster on any Azure-adjacent work KPMG's client engagements might touch, which is a real advantage in a consulting environment that likely serves clients on both platforms."}]}]}, {"id": "linux", "label": "Linux Administration & Troubleshooting", "groups": [{"name": "Diagnosis & Tools", "items": [{"q": "Server shows high load average but CPU usage looks low \u2014 what do you check?", "a": "Load average includes processes waiting on I/O, not just CPU-bound ones \u2014 so check iostat/vmstat for disk I/O wait, and check for processes stuck in uninterruptible sleep (D state) via ps aux. High load with low CPU usually points to disk or network I/O bottlenecks, not compute."}, {"q": "A disk is at 100% \u2014 how do you find what's consuming space fast?", "a": "du -sh /* (or du -h --max-depth=1 on a suspect directory) to find the largest top-level directories, drilling down from there; df -h to confirm which mount is actually full. Also check for deleted-but-still-open files holding space via lsof | grep deleted, since du won't show space held by a file that's unlinked but still open by a process."}, {"q": "A process seems hung \u2014 how do you investigate without just killing it?", "a": "strace -p <pid> to see what syscalls it's currently making (or stuck on), lsof -p <pid> to see open files/sockets, and for a stack-level view, gdb -p <pid> with a backtrace, or jstack for a JVM process specifically. This tells you whether it's stuck on I/O, a lock, or genuinely CPU-spinning before deciding to kill it."}, {"q": "How does the Linux OOM killer decide which process to kill?", "a": "It scores processes by an oom_score (influenced by memory usage and an adjustable oom_score_adj), generally favoring killing the process using the most memory unless it's been explicitly protected. In containers, this often surprises people because a container can be OOMKilled by the kernel without ever logging an application-level OutOfMemoryError, if its cgroup memory limit is hit."}, {"q": "How do you troubleshoot a service that won't start under systemd?", "a": "systemctl status <service> for the immediate error and recent log lines, then journalctl -u <service> -n 100 --no-pager for fuller context, checking exit code and whether it's a config error, permission issue, or a dependency (After=/Requires=) that hasn't started yet."}, {"q": "Explain file permissions and umask with a practical example.", "a": "Permissions are read/write/execute for owner/group/other (e.g. 755 = rwxr-xr-x). umask subtracts from the default (666 for files, 777 for directories) at creation time \u2014 a umask of 022 means new files default to 644 and new directories to 755. If a deployed file unexpectedly has group-write access, checking the deploying process's umask is a common first step."}, {"q": "What's the difference between a zombie process and an orphan process?", "a": "A zombie has finished executing but still has an entry in the process table because its parent hasn't called wait() to read its exit status \u2014 it's dead but not yet reaped. An orphan is still running but its parent has exited before it did; orphans get re-parented to init/systemd, which will reap them normally."}, {"q": "Walk through your sequence for troubleshooting 'can't reach a service' end to end.", "a": "Start local and move outward: can the client resolve DNS (dig/nslookup)? Can it reach the IP at all (ping, though ICMP may be blocked)? Can it open the TCP port (nc -zv or telnet)? If that fails, check security groups/firewall rules and routing tables. If the port opens but the app doesn't respond correctly, move up to application logs and health-check behavior."}, {"q": "Give a real example of using awk, sed, or grep to extract something useful from a log file.", "a": "Example: grep 'ERROR' app.log | awk -F'|' '{print $3}' | sort | uniq -c | sort -rn to pull out error messages, isolate a specific field, and rank them by frequency \u2014 a fast way to spot the dominant error type during an incident without writing a script."}, {"q": "How do you use find and xargs together, and why combine them?", "a": "find locates files matching criteria (name, age, size), and piping to xargs lets you act on all of them in bulk efficiently \u2014 e.g. find /var/log -name '*.log' -mtime +30 | xargs rm, or find . -name '*.tmp' -print0 | xargs -0 rm to safely handle filenames with spaces."}, {"q": "When would you reach for lsof, and what does it tell you?", "a": "When you need to know what a process has open \u2014 files, sockets, or pipes. Classic uses: 'why can't I unmount this disk' (lsof shows what's still using it), or 'why is this port already in use' (lsof -i :PORT shows the owning process)."}, {"q": "How do you approach a root-cause analysis using /var/log and journalctl after an incident?", "a": "Correlate timestamps across sources \u2014 start from the alert/incident time, work backward in the application log for the first anomaly, then cross-reference system logs (journalctl, /var/log/syslog or /var/log/messages) for the same window to catch OS-level events (OOM kills, disk errors, network flaps) that the application log alone wouldn't show."}]}]}, {"id": "slo", "label": "SLAs, SLOs & Error Budgets", "groups": [{"name": "Concepts & Application", "items": [{"q": "Explain the difference between SLA, SLO, and SLI.", "a": "SLI (Service Level Indicator) is the actual measured metric \u2014 e.g. request success rate. SLO (Service Level Objective) is your internal target for that metric \u2014 e.g. 99.9% success rate over 30 days. SLA (Service Level Agreement) is the external, often contractual, commitment to a customer \u2014 usually set looser than the internal SLO, with penalties or credits if breached, so you have margin to catch problems before they become SLA violations."}, {"q": "How do you choose good SLIs for a service?", "a": "Pick metrics that reflect actual user experience, not just infrastructure health \u2014 request latency and success rate as experienced by the client, not just 'is the server up.' Keep the set small (a handful of golden signals) rather than trying to track everything, since too many SLIs dilutes focus during an incident."}, {"q": "What is an error budget, and how do you use it day to day?", "a": "If your SLO is 99.9%, your error budget is the remaining 0.1% of allowed failure over the period. It's used as a decision-making tool: if the budget is healthy, teams can ship faster and take more risk; if it's nearly exhausted, the team should slow down, freeze risky releases, and focus on reliability work until it recovers."}, {"q": "What's the difference between fast-burn and slow-burn alerting on an error budget?", "a": "Fast-burn alerts catch a severe event that would exhaust the whole budget in hours (needs immediate paging). Slow-burn alerts catch a milder, sustained degradation that would exhaust the budget over days or weeks (can often wait for business-hours attention). Using both avoids either missing slow degradation or paging on end for minor blips."}, {"q": "What should happen operationally when an error budget is exhausted?", "a": "Ideally there's a pre-agreed policy: feature releases pause or require extra sign-off, and the team's priority shifts to reliability work until the budget recovers. Without a pre-agreed policy, this becomes a political argument in the moment \u2014 so part of implementing SLOs well is getting that policy agreed before you need it."}, {"q": "How do internal SLOs typically relate to external, contractual SLAs?", "a": "The SLO should be stricter than the SLA \u2014 e.g. an internal 99.95% SLO backing a contractual 99.9% SLA \u2014 so that normal operational noise doesn't turn into a contractual breach and credit payout. The SLA is the customer-facing floor; the SLO is the internal ceiling you actually manage against."}, {"q": "How do you decide whether a service needs a 99.9% vs 99.99% SLO?", "a": "Base it on actual business/user impact and cost, not aspiration \u2014 every additional 9 gets exponentially more expensive to engineer for. Ask what the real cost of downtime is (revenue, safety, regulatory exposure) and whether the current architecture can even support the target without a fundamental redesign, then set the target to match reality rather than picking a round number."}, {"q": "Explain multi-window, multi-burn-rate alerting.", "a": "Instead of one static threshold, you alert on burn rate across multiple time windows simultaneously (e.g. a short 5-minute window catching sudden severe spikes, and a longer 1-hour window catching sustained moderate degradation) \u2014 this reduces both false positives from brief blips and false negatives from slow, steady leaks."}, {"q": "How would you explain an SLO breach to a non-technical stakeholder?", "a": "Translate the number into business impact rather than leading with the metric \u2014 e.g. 'roughly 1 in 500 customer requests failed during this window, concentrated around the deployment at 2pm' rather than 'p99 latency exceeded 800ms.' Then state what's being done about it and by when, since stakeholders generally want to know impact and next steps more than the raw metric."}, {"q": "How do the golden signals (latency, traffic, errors, saturation) relate to SLIs?", "a": "The golden signals are the standard starting menu for picking SLIs \u2014 most services can build a solid SLI set just from latency (how fast), traffic (how much load), errors (how often it fails), and saturation (how close to capacity), rather than inventing metrics from scratch."}]}]}, {"id": "aws", "label": "AWS Solutions", "groups": [{"name": "Core Services", "items": [{"q": "Walk through basic VPC design \u2014 subnets, route tables, NAT vs Internet Gateway.", "a": "A VPC is split into subnets, typically public (route to an Internet Gateway, for load balancers/bastion hosts) and private (route outbound traffic through a NAT Gateway, no direct inbound internet access \u2014 for application servers and databases). Route tables control which subnet uses which gateway; this separation keeps backend resources unreachable directly from the internet."}, {"q": "What are IAM best practices you follow?", "a": "Least privilege by default (start with nothing, add only what's needed), prefer roles over long-lived user access keys \u2014 especially for workloads (EC2/Lambda/ECS should assume a role, not embed static keys), use groups to manage human user permissions rather than per-user policies, and enable MFA for anything with elevated access. Understand policy evaluation logic: an explicit Deny always wins over an Allow."}, {"q": "RDS vs Aurora \u2014 when would you choose one over the other, and how does failover differ?", "a": "RDS runs standard engines (MySQL/Postgres/etc.) with traditional replication; Aurora is AWS's cloud-native engine with storage decoupled from compute across multiple AZs, giving faster failover (often under 30 seconds) because a replica is promoted against the same shared storage layer rather than needing to catch up first. Choose Aurora for MySQL/Postgres-compatible workloads needing higher availability and read-scaling; choose standard RDS for engines Aurora doesn't support or simpler/cheaper workloads."}, {"q": "What are S3 storage classes and how do lifecycle policies work?", "a": "Classes range from Standard (frequent access) through Infrequent Access, Glacier, and Glacier Deep Archive (cheaper storage, higher retrieval cost/latency). Lifecycle policies automatically transition objects between classes or expire them based on age \u2014 e.g. move logs to Infrequent Access after 30 days and Glacier after 90, without manual intervention."}, {"q": "What's a common Auto Scaling Group pitfall around health checks?", "a": "If the health-check grace period is too short relative to how long the application actually takes to become ready, the ASG can mark a perfectly healthy but still-starting instance as unhealthy and cycle it repeatedly \u2014 masking the real issue and causing constant churn. Always align the grace period with real observed startup time."}, {"q": "Compare ALB, NLB, and Classic Load Balancer.", "a": "ALB (Application Load Balancer) operates at Layer 7 \u2014 supports path/host-based routing, ideal for HTTP(S) microservices. NLB (Network Load Balancer) operates at Layer 4 \u2014 ultra-low latency, static IPs, handles millions of requests/sec, used for TCP/UDP or extreme performance needs. Classic Load Balancer is the legacy option, largely superseded by the other two."}, {"q": "What causes Lambda cold starts, and how do you mitigate them?", "a": "A cold start happens when Lambda has to initialize a new execution environment (download code, start the runtime, run init code) rather than reuse a warm one. Mitigate with provisioned concurrency for latency-sensitive functions, keeping deployment packages small, minimizing heavy work in global/init scope, and choosing a faster-starting runtime where possible."}, {"q": "ECS vs EKS \u2014 how do you decide which to use?", "a": "ECS is AWS-native, simpler to operate, and sufficient if you don't need Kubernetes-specific portability or its ecosystem (Helm, custom operators, multi-cloud consistency). EKS is the right call when you need Kubernetes itself \u2014 either for portability across clouds, an existing K8s-based toolchain, or because the team's expertise and tooling are already K8s-centric."}, {"q": "How do you design CloudWatch alerting to avoid noise?", "a": "Alert on symptoms that matter to users (error rate, latency, saturation) rather than every possible metric, use composite alarms to require multiple signals before paging, and use anomaly-detection alarms for metrics with natural variability (like traffic) instead of static thresholds that trigger false positives on predictable daily patterns."}, {"q": "How do you handle cross-account access in AWS?", "a": "Use IAM roles with a trust policy allowing the other account to assume the role (sts:AssumeRole), rather than sharing credentials \u2014 this gives auditable, time-limited access and avoids duplicating IAM users across accounts. Resource-based policies (e.g. an S3 bucket policy) are the alternative when the resource itself needs to grant cross-account access directly."}, {"q": "Can an RDS instance or an S3 bucket be renamed?", "a": "RDS instances CAN be renamed (modify-db-instance --new-db-instance-identifier) but the endpoint/DNS name changes and a reboot occurs, so downstream configs need updating. S3 buckets CANNOT be renamed at all \u2014 bucket names are globally unique with no rename API, so a 'rename' actually means creating a new bucket and copying/migrating objects. This distinction trips up a lot of engineers under interview pressure \u2014 good to have memorized cold."}, {"q": "How do you balance cost and reliability in an AWS architecture?", "a": "Use Reserved Instances or Savings Plans for steady-state, predictable baseline load; use Spot for stateless/fault-tolerant batch or non-critical workloads where interruption is acceptable; keep the reliability-critical path (databases, core routing) on stable on-demand/reserved capacity rather than chasing savings where it would compromise availability."}]}]}, {"id": "k8s", "label": "Kubernetes", "groups": [{"name": "Troubleshooting & Concepts", "items": [{"q": "A pod is stuck in Pending \u2014 how do you diagnose it?", "a": "kubectl describe pod shows the Events section, which almost always states the reason directly \u2014 most commonly insufficient CPU/memory on any node, an unsatisfiable node selector/affinity rule, or no available PersistentVolume matching a claim. Start there before digging deeper."}, {"q": "A pod is in CrashLoopBackOff \u2014 what's your diagnosis sequence?", "a": "kubectl logs <pod> (and --previous to see the log from before the last crash, since the current container may not have logged anything yet) to find the application-level error, then kubectl describe pod for OOMKilled or liveness-probe-triggered restarts, which look identical to an app crash from the surface but have a completely different fix."}, {"q": "A Service has no endpoints \u2014 what usually causes this?", "a": "Almost always a label selector mismatch between the Service and the pods it's supposed to target \u2014 the Service's selector doesn't match the pods' actual labels, or the pods aren't in a Ready state yet (a Running pod that's failing its readiness probe won't appear as an endpoint)."}, {"q": "Deployment vs StatefulSet \u2014 when do you use each?", "a": "Deployment is for stateless, interchangeable replicas \u2014 any pod can be replaced by any other with no identity requirement. StatefulSet is for workloads needing stable network identity, stable storage per replica, and ordered startup/shutdown \u2014 like databases or anything where 'which specific instance' matters."}, {"q": "Explain requests vs limits, and what QoS class results.", "a": "Requests are what's guaranteed/reserved for scheduling; limits are the hard ceiling. A pod with requests==limits for both CPU and memory gets Guaranteed QoS (last to be evicted under pressure); requests less than limits gives Burstable; no requests/limits at all gives BestEffort (first to be evicted)."}, {"q": "Compare HPA, VPA, and Cluster Autoscaler.", "a": "HPA (Horizontal Pod Autoscaler) adds/removes pod replicas based on metrics like CPU or custom metrics. VPA (Vertical Pod Autoscaler) adjusts a pod's own requests/limits over time. Cluster Autoscaler adds/removes nodes when pods can't be scheduled due to insufficient cluster capacity, or removes underutilized nodes. They solve different layers and are often used together."}, {"q": "A PodDisruptionBudget is blocking a node drain \u2014 how do you handle it?", "a": "First understand why the PDB exists (usually to guarantee minimum availability during voluntary disruptions) before overriding it. If the drain is genuinely necessary and safe, you can temporarily adjust the PDB or force the eviction, but the better first step is checking whether the blocked pods can tolerate the disruption (e.g. is there actually enough capacity for a safe rolling replacement) rather than just forcing through."}, {"q": "You updated a ConfigMap but the running pod isn't picking up the change \u2014 why?", "a": "Kubernetes doesn't automatically restart pods when a ConfigMap changes \u2014 if it's mounted as a volume, the file content does eventually update in the container's filesystem (with some propagation delay), but the application itself typically doesn't re-read it without being restarted or explicitly designed to watch for file changes. If it's consumed as an environment variable, it genuinely never updates without a pod restart, since env vars are set once at container start."}, {"q": "A node shows NotReady \u2014 what do you check?", "a": "kubectl describe node for conditions (MemoryPressure, DiskPressure, network unavailable), then check kubelet health directly on the node (systemctl status kubelet, journalctl -u kubelet) \u2014 common causes are kubelet crashing, disk pressure from log/image buildup, or a network partition between the node and control plane."}, {"q": "How do you troubleshoot DNS/networking issues inside a cluster?", "a": "Check CoreDNS pod health and logs first (a common root cause), test resolution from inside a debug pod (nslookup against the service name), and check NetworkPolicies that might be silently blocking traffic between namespaces even though DNS resolves fine \u2014 a policy issue looks like 'connection refused/timeout' rather than a DNS failure, which helps distinguish the two."}, {"q": "Explain RBAC basics \u2014 Role vs ClusterRole.", "a": "A Role grants permissions within a single namespace; a ClusterRole grants permissions cluster-wide (or can be bound within a specific namespace via a RoleBinding referencing it). RoleBinding/ClusterRoleBinding actually attach the permissions to a user, group, or service account \u2014 the Role/ClusterRole alone defines the permissions but grants nothing until bound."}, {"q": "What EKS-specific considerations come up beyond vanilla Kubernetes?", "a": "IRSA (IAM Roles for Service Accounts) for giving pods fine-grained AWS permissions instead of node-wide IAM roles, managed node groups vs Fargate profiles for compute, and enabling control-plane logging (API server, audit, authenticator logs) to CloudWatch, which isn't on by default and is often the first thing missing when you need to debug an auth or scheduling issue after the fact."}]}]}, {"id": "networking", "label": "Networking", "groups": [{"name": "Fundamentals", "items": [{"q": "Why is the OSI model still relevant when troubleshooting?", "a": "It gives you a systematic order to isolate a problem \u2014 physical/link (is the cable/interface up), network (routing/IP reachability), transport (can the port even be opened), and application (is the service actually responding correctly). Working layer by layer from bottom up prevents wasting time debugging application code when the real issue is a security group at layer 3/4."}, {"q": "Quick subnetting example: how many usable hosts in a /26?", "a": "/26 gives 2^(32-26) = 64 total addresses, minus network and broadcast addresses = 62 usable hosts. Being fluent in quick CIDR math (/24=254 usable, /28=14 usable) is a common quick-fire interview check."}, {"q": "What are the main DNS record types and what do they do?", "a": "A (hostname to IPv4), AAAA (hostname to IPv6), CNAME (alias to another hostname), MX (mail server priority), TXT (arbitrary text, often used for domain verification/SPF), and NS (which nameservers are authoritative for the domain)."}, {"q": "Walk through the TCP three-way handshake and a common connection issue tied to it.", "a": "SYN (client requests connection) \u2192 SYN-ACK (server acknowledges and responds) \u2192 ACK (client confirms) \u2014 connection is then established. A common issue is a SYN flood or an overloaded server not completing the handshake in time, seen as connection timeouts even though the server process itself is technically running; another is a firewall silently dropping SYN packets, which looks identical to the server being down from the client's perspective."}, {"q": "Someone reports 'I can't reach the service' \u2014 walk through your layer-by-layer approach.", "a": "DNS resolution first (dig/nslookup) \u2192 basic reachability (ping, keeping in mind ICMP may be blocked even when the host is fine) \u2192 can the specific port be opened (nc -zv host port) \u2192 if the port opens, is the application actually responding correctly (curl with verbose output, checking status code and response body) \u2192 only then look at application logs."}, {"q": "What's a common load balancer health-check misconfiguration?", "a": "Checking a path that doesn't reflect real application health (e.g. a static file that always returns 200 regardless of whether the app's dependencies, like its database connection, are actually working) \u2014 this makes the load balancer send traffic to instances that are 'up' but functionally broken."}, {"q": "VPC Peering vs Transit Gateway \u2014 when do you use each?", "a": "VPC Peering is simple, direct point-to-point connectivity between two VPCs but doesn't scale well (no transitive routing \u2014 connecting many VPCs means many individual peering connections). Transit Gateway acts as a central hub, letting many VPCs (and on-prem via VPN/Direct Connect) route through one place, and is the standard choice once you're beyond a handful of VPCs."}, {"q": "Security Group vs Network ACL \u2014 what's the practical difference?", "a": "Security Groups are stateful (return traffic is automatically allowed) and operate at the instance/ENI level, allow-rules only. NACLs are stateless (you must explicitly allow both inbound and outbound), operate at the subnet level, and support both allow and deny rules \u2014 useful for explicitly blocking a known-bad IP range at the subnet boundary rather than in every security group."}]}]}, {"id": "security", "label": "Security", "groups": [{"name": "Practices & Incident Response", "items": [{"q": "How do you apply the principle of least privilege in practice?", "a": "Start every new role/policy with zero permissions and add only what's proven necessary through actual usage (e.g. via IAM Access Analyzer/CloudTrail-informed policy generation), scope permissions to specific resources/actions rather than wildcard *, and review/prune unused permissions periodically rather than only adding, never removing."}, {"q": "What secrets management approaches do you use?", "a": "AWS Secrets Manager or Parameter Store (SecureString) for AWS-native workloads with automatic rotation support, HashiCorp Vault for more complex/multi-cloud secret needs, and KMS for envelope encryption underneath any of these. The common thread: secrets are never stored in code, config files committed to git, or environment variables baked into an image."}, {"q": "How do you approach patch management across a fleet?", "a": "Automate where possible (AWS Systems Manager Patch Manager or equivalent), patch in waves/canary groups rather than the whole fleet at once so a bad patch doesn't take everything down simultaneously, and track compliance/patch status centrally so gaps are visible rather than assumed."}, {"q": "Walk through your first steps on a suspected security incident.", "a": "Contain first, investigate second \u2014 isolate the affected resource (e.g. quarantine security group, disable compromised credentials) without necessarily destroying evidence, preserve logs, and notify the appropriate team/escalation path per the incident response plan. Avoid the instinct to immediately terminate/rebuild before understanding scope, since that can destroy forensic evidence needed to know what else was touched."}, {"q": "How do you implement encryption at rest and in transit?", "a": "At rest: enable encryption on storage services (EBS, S3 SSE, RDS storage encryption) using KMS-managed keys. In transit: enforce TLS everywhere (ALB listeners, RDS SSL connections, internal service-to-service mTLS where warranted) and reject plaintext connections where the service supports enforcing it."}, {"q": "Why are IAM roles generally preferred over IAM users for workloads?", "a": "Roles provide temporary, automatically-rotated credentials assumed at runtime rather than long-lived static access keys that can leak and remain valid indefinitely. A compromised role credential expires quickly; a leaked static access key is a standing risk until someone notices and rotates it."}, {"q": "How do you approach container image security?", "a": "Scan images for known CVEs in the build pipeline (e.g. Trivy) before they're allowed to deploy, use minimal base images to reduce attack surface, pin dependency versions rather than floating tags, and avoid running containers as root by default."}, {"q": "Given KPMG's audit/regulated-client context, what compliance awareness is relevant here?", "a": "Familiarity with frameworks like SOC 2 and ISO 27001 \u2014 change management with audit trails, access reviews, and evidence of least-privilege enforcement \u2014 is valuable in a Big Four environment since client engagements are often themselves audit-adjacent. Bring your own: reference your Barclays/regulated-banking experience as direct evidence you're used to operating under this level of scrutiny."}]}]}, {"id": "storage", "label": "Storage", "groups": [{"name": "Types & Design", "items": [{"q": "Block, object, and file storage \u2014 when do you use each?", "a": "Block storage (EBS) attaches to a single instance like a raw disk, needed for databases and low-latency filesystem access. Object storage (S3) is for unstructured data accessed over HTTP APIs at massive scale \u2014 backups, static assets, logs. File storage (EFS/FSx) provides a shared, POSIX-compliant filesystem multiple instances can mount simultaneously."}, {"q": "EBS volume types \u2014 gp3 vs io2, when would you choose each?", "a": "gp3 is the general-purpose default for most workloads, with baseline IOPS/throughput independently configurable from volume size (an improvement over gp2). io2 is for high-performance, IOPS-intensive workloads (large databases) where you need very high, consistent IOPS and stronger durability guarantees than gp3 provides."}, {"q": "What's S3's durability and availability model?", "a": "S3 Standard is designed for 99.999999999% (11 nines) durability by redundantly storing objects across multiple AZs, with 99.99% availability SLA. It offers strong read-after-write consistency for all operations, meaning a read immediately after a write reflects that write."}, {"q": "How do you design a backup strategy?", "a": "Start from business requirements, not technology \u2014 define RPO (acceptable data loss window) and RTO (acceptable recovery time) first, then choose backup frequency, retention, and storage location (including cross-region for disaster scenarios) to meet those targets, and actually test restores periodically rather than assuming backups work."}, {"q": "Explain PersistentVolumes/PersistentVolumeClaims in Kubernetes and reclaim policy.", "a": "A PV represents actual provisioned storage; a PVC is a pod's request for storage matching certain criteria (size, access mode, storage class), which Kubernetes binds to a matching PV. Reclaim policy determines what happens to the underlying storage when the PVC is deleted \u2014 Retain (keep the data, manual cleanup needed) vs Delete (storage is destroyed automatically) \u2014 getting this wrong on a stateful workload can mean either an unwanted data-loss risk or an accumulating pile of orphaned volumes."}, {"q": "How do you handle storage capacity proactively rather than reactively?", "a": "Alert on a trend (e.g. 'will hit 90% in 7 days at current growth rate'), not just a static threshold, so there's lead time to act; combine with automated lifecycle policies (moving cold data to cheaper/archival tiers) so growth doesn't silently consume expensive storage."}]}]}, {"id": "observability", "label": "Observability (Prometheus/Graphite/Grafana/ELK)", "groups": [{"name": "Metrics, Dashboards & Logs", "items": [{"q": "Explain Prometheus's basic architecture.", "a": "Prometheus scrapes (pulls) metrics from targets on an interval via HTTP endpoints (either instrumented directly or via exporters like node_exporter), stores them in its own time-series database (TSDB), and Alertmanager (a separate component) handles routing/deduplicating/silencing alerts fired by Prometheus's rule evaluation."}, {"q": "What's the difference between rate() and irate() in PromQL, and when do you use each?", "a": "rate() calculates the average per-second rate over the whole time range given, smoothing out spikes \u2014 good for alerting and dashboards where you want stability. irate() uses only the last two data points, so it's more reactive to sudden spikes but noisier \u2014 better for fast-moving debugging graphs than for alert thresholds."}, {"q": "How does Alertmanager handle routing, grouping, and silencing?", "a": "Routing sends alerts to different receivers (Slack, PagerDuty, email) based on label matching (e.g. severity=critical goes to PagerDuty). Grouping batches related alerts into a single notification (e.g. all pods down in one deployment become one alert, not twenty) to reduce noise. Silencing temporarily suppresses alerts matching certain labels \u2014 used during planned maintenance so expected alerts don't page anyone."}, {"q": "What makes a good on-call Grafana dashboard?", "a": "Leads with the golden signals for the service at a glance, is organized top-down from 'is there a problem' to 'where is the problem' (overview panel first, drill-down panels below), and avoids dozens of panels someone has to hunt through at 3am \u2014 the goal is fast triage, not comprehensive data dumping."}, {"q": "How does Graphite differ from Prometheus in its data model?", "a": "Graphite uses a simpler dot-delimited metric-naming hierarchy (e.g. servers.web1.cpu.load) with limited built-in labeling, historically paired with a separate storage backend (whisper). Prometheus uses a multi-dimensional label model (metric_name{label=value,...}), which makes flexible querying and aggregation across dimensions much easier without needing to encode everything into the metric name itself."}, {"q": "Describe the ELK stack's components and how they fit together.", "a": "Elasticsearch stores and indexes log data for fast search; Logstash (or lighter-weight Beats agents) collect, parse, and ship logs into Elasticsearch; Kibana provides the visualization/search UI on top. Together they form a centralized logging pipeline so logs from many hosts/services are searchable in one place instead of SSH-ing into each host."}, {"q": "What is Index Lifecycle Management in Elasticsearch, and why does it matter?", "a": "ILM automatically moves indices through phases (hot \u2192 warm \u2192 cold \u2192 delete) based on age or size, moving older, less-frequently-queried log data to cheaper storage tiers and eventually deleting it per retention policy \u2014 without it, indices accumulate indefinitely and both cost and query performance degrade over time."}, {"q": "How do you use Kibana during an actual incident?", "a": "Build a quick filtered search scoped to the affected service and time window, then use visualizations (like a bar chart of error types over time) to spot when a specific error first appeared and whether it correlates with a deploy or config change, rather than scrolling raw logs manually."}, {"q": "How do you design alerting to reduce noise and alert fatigue?", "a": "Alert only on symptoms that require human action (not every anomaly), tune thresholds against real historical data rather than guesses, use multi-window burn-rate style alerting instead of single static thresholds, and route by actual severity so low-priority signals don't page anyone at night. This kind of systematic review is what drove a roughly 40% alert-noise reduction in one of my past roles \u2014 fewer, more meaningful alerts, not just quieter ones."}, {"q": "How do you correlate metrics, logs, and traces during an incident?", "a": "Start from the metric that triggered the alert to establish the time window and affected service, pull logs scoped to that exact window and service to find the specific error, and if traces are available, follow a slow/failed request end to end across services to see exactly where time was lost or an error originated \u2014 metrics tell you something's wrong, logs and traces tell you why."}, {"q": "What causes cardinality explosion in Prometheus, and how do you mitigate it?", "a": "Using high-cardinality values as label values (like a raw user ID or a full URL path with dynamic segments) causes Prometheus to create a huge number of unique time series, which can degrade performance or exhaust memory. Mitigate by avoiding unbounded labels, aggregating at the source before exposing metrics, or using recording rules to pre-aggregate before storage."}, {"q": "Push vs pull metrics models \u2014 how do you choose?", "a": "Pull (Prometheus's default model) works well for long-lived services with stable, discoverable endpoints, and keeps the scraper in control of load. Push is better for short-lived jobs (batch/cron tasks) that finish before a pull could happen, typically via a push gateway that holds the metric until the next scrape."}]}]}, {"id": "behavioral", "label": "Behavioral & Interpersonal", "groups": [{"name": "STAR-Style Frameworks", "items": [{"q": "Tell me about a time you resolved a major incident.", "a": "Bring your own real incident, structured as Situation \u2192 Task \u2192 Action \u2192 Result. You have verified material to anchor to: a chaos-engineering initiative that identified 3 single points of failure and contributed to a ~45% improvement in recovery time, or an alerting/observability overhaul that reduced alert noise by ~40% and improved detection speed. Pick the one closest to what KPMG's platform likely looks like and add the real specifics only you know."}, {"q": "Describe a conflict with a team member or stakeholder and how you resolved it.", "a": "Bring your own \u2014 structure as: what the disagreement was actually about (usually a tradeoff \u2014 speed vs safety, whose priority wins), how you approached the conversation (data/reasoning over authority), and the outcome. Avoid framing where you were simply 'right' and they were 'wrong'; interviewers are listening for how you handle disagreement, not who won."}, {"q": "How do you explain a technical problem to a non-technical stakeholder \u2014 relevant in a client-facing consulting environment like KPMG?", "a": "Lead with business impact, not mechanism ('checkout is failing for about 1 in 20 customers' before 'the payment service pod is CrashLoopBackOff'), avoid jargon unless asked to go deeper, and always pair the explanation with what's being done and a realistic timeline \u2014 stakeholders are usually most anxious about the unknown, not the technical detail itself."}, {"q": "Tell me about a time you improved a process through automation.", "a": "Bring your own, anchored to a real result \u2014 e.g. an automation initiative that reduced manual deployment effort by roughly 60%. Structure as: what was manual and error-prone \u2192 what you built and why that approach \u2192 the measured improvement \u2192 what you'd still improve further, which shows ongoing ownership rather than a one-and-done project."}, {"q": "How do you approach being on-call sustainably, avoiding burnout for yourself or your team?", "a": "Bring your own philosophy, but strong answers usually include: reducing noisy/actionless alerts so on-call time isn't spent triaging false positives, maintaining clear runbooks so incidents don't always require the same one or two people, and treating a rough on-call rotation as a signal to fix the underlying reliability gap, not just something to tough out."}, {"q": "Describe how you mentor or support less experienced team members.", "a": "Bring your own \u2014 concrete examples land better than general statements (pairing on an actual incident post-mortem, walking someone through a runbook rather than just doing the fix yourself, reviewing their IaC changes with explanation rather than just approving)."}, {"q": "How do you stay current with new technologies and practices?", "a": "Bring your own routine, but tie it to something concrete and recent rather than a vague 'I read blogs' \u2014 e.g. hands-on exploration of a specific new AWS service, a cert you recently pursued (your SC-100/SC-300 track is good evidence here), or a tool you evaluated and either adopted or consciously decided against."}, {"q": "How do you balance compliance/regulatory requirements with the need to move fast, given your banking background?", "a": "Bring your own, but a strong framing: treat compliance requirements (change approval, audit trails, access reviews) as things you engineer around rather than fight \u2014 e.g. automating the evidence-collection/approval trail itself so it doesn't become a manual bottleneck. Reference your Barclays experience directly as proof you're comfortable operating this way already."}]}]}];
+const STORAGE_KEY = 'kpmg-prism-sre-mastery-v1';
+
+let mastered = {};
+try { mastered = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { mastered = {}; }
+
+let activeTab = TABS[0].id;
+let activePill = 'all';
+let searchTerm = '';
+
+// assign stable ids to every item
+TABS.forEach(tab => {
+  tab.groups.forEach((grp, gi) => {
+    grp.items.forEach((item, ii) => {
+      item.id = tab.id + '__' + gi + '__' + ii;
+      item.group = grp.name;
+    });
+  });
+});
+
+function saveMastery() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(mastered)); } catch(e) {}
+}
+
+function allItemsInTab(tab) {
+  let out = [];
+  tab.groups.forEach(g => g.items.forEach(it => out.push(it)));
+  return out;
+}
+
+function renderSidebar() {
+  const el = document.getElementById('tab-list');
+  el.innerHTML = '';
+  TABS.forEach(tab => {
+    const count = allItemsInTab(tab).length;
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (tab.id === activeTab ? ' active' : '');
+    btn.innerHTML = tab.label + '<span class="tab-count">' + count + '</span>';
+    btn.onclick = () => { activeTab = tab.id; activePill = 'all'; searchTerm=''; document.getElementById('search').value=''; render(); };
+    el.appendChild(btn);
+  });
+}
+
+function renderPills() {
+  const tab = TABS.find(t => t.id === activeTab);
+  const el = document.getElementById('pills');
+  el.innerHTML = '';
+  const allPill = document.createElement('div');
+  allPill.className = 'pill' + (activePill === 'all' ? ' active' : '');
+  allPill.textContent = 'All';
+  allPill.onclick = () => { activePill = 'all'; render(); };
+  el.appendChild(allPill);
+  tab.groups.forEach(g => {
+    const p = document.createElement('div');
+    p.className = 'pill' + (activePill === g.name ? ' active' : '');
+    p.textContent = g.name + ' (' + g.items.length + ')';
+    p.onclick = () => { activePill = g.name; render(); };
+    el.appendChild(p);
+  });
+}
+
+function highlight(text, term) {
+  if (!term) return text;
+  const idx = text.toLowerCase().indexOf(term.toLowerCase());
+  if (idx === -1) return text;
+  return text.slice(0,idx) + '<mark>' + text.slice(idx, idx+term.length) + '</mark>' + text.slice(idx+term.length);
+}
+
+function renderList() {
+  const tab = TABS.find(t => t.id === activeTab);
+  document.getElementById('tab-title').textContent = tab.label;
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  const term = searchTerm.trim().toLowerCase();
+  let shown = 0;
+
+  tab.groups.forEach(grp => {
+    if (activePill !== 'all' && activePill !== grp.name) return;
+    let matchingItems = grp.items.filter(it => {
+      if (!term) return true;
+      return it.q.toLowerCase().includes(term) || it.a.toLowerCase().includes(term);
+    });
+    if (matchingItems.length === 0) return;
+
+    const h = document.createElement('h3');
+    h.className = 'group-title';
+    h.textContent = grp.name;
+    list.appendChild(h);
+
+    matchingItems.forEach(it => {
+      shown++;
+      const card = document.createElement('div');
+      card.className = 'card' + (mastered[it.id] ? ' mastered' : '') + (term ? ' open' : '');
+      card.dataset.id = it.id;
+
+      const qRow = document.createElement('div');
+      qRow.className = 'card-q';
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = !!mastered[it.id];
+      cb.onclick = (e) => {
+        e.stopPropagation();
+        if (cb.checked) mastered[it.id] = true; else delete mastered[it.id];
+        saveMastery();
+        card.classList.toggle('mastered', cb.checked);
+        updateStats();
+      };
+
+      const qText = document.createElement('div');
+      qText.className = 'qtext';
+      qText.innerHTML = highlight(it.q, term);
+
+      const caret = document.createElement('div');
+      caret.className = 'caret';
+      caret.textContent = '▶';
+
+      qRow.appendChild(cb);
+      qRow.appendChild(qText);
+      qRow.appendChild(caret);
+      qRow.onclick = () => card.classList.toggle('open');
+
+      const aDiv = document.createElement('div');
+      aDiv.className = 'card-a';
+      aDiv.innerHTML = highlight(it.a, term);
+
+      card.appendChild(qRow);
+      card.appendChild(aDiv);
+      list.appendChild(card);
+    });
+  });
+
+  document.getElementById('empty-msg').style.display = shown === 0 ? 'block' : 'none';
+  updateExpandButtonLabel();
+}
+
+function updateStats() {
+  const all = TABS.flatMap(allItemsInTab);
+  const total = all.length;
+  const done = all.filter(it => mastered[it.id]).length;
+  document.getElementById('stat-label').textContent = done + ' / ' + total + ' mastered';
+  const pct = total ? Math.round((done/total)*100) : 0;
+  document.getElementById('stat-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function updateExpandButtonLabel() {
+  const cards = Array.from(document.querySelectorAll('#list .card'));
+  const visible = cards; // all currently rendered cards are "visible" (filter already applied)
+  const btn = document.getElementById('expand-all-btn');
+  if (visible.length === 0) { btn.textContent = 'Expand All'; return; }
+  const allOpen = visible.every(c => c.classList.contains('open'));
+  btn.textContent = allOpen ? 'Collapse All' : 'Expand All';
+}
+
+document.getElementById('expand-all-btn').onclick = () => {
+  const cards = Array.from(document.querySelectorAll('#list .card'));
+  const allOpen = cards.length > 0 && cards.every(c => c.classList.contains('open'));
+  cards.forEach(c => c.classList.toggle('open', !allOpen));
+  updateExpandButtonLabel();
+};
+
+document.getElementById('reset-btn').onclick = () => {
+  if (!confirm('Reset all mastery progress for this handbook?')) return;
+  mastered = {};
+  saveMastery();
+  render();
+};
+
+document.getElementById('search').addEventListener('input', (e) => {
+  searchTerm = e.target.value;
+  renderList();
+  updateStats();
+});
+
+function render() {
+  renderSidebar();
+  renderPills();
+  renderList();
+  updateStats();
+}
+
+render();
+</script>
+</body>
+</html>

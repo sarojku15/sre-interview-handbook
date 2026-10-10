@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Girmiti Software — DevOps Engineer (AWS) Interview Prep</title>
+<style>
+  :root{
+    --bg:#0a0e14;
+    --bg2:#0d1219;
+    --card:#121826;
+    --card-hover:#161e2e;
+    --border:#212c3d;
+    --text:#e6edf5;
+    --text-dim:#93a2b8;
+    --text-faint:#5c6a80;
+    --accent:#38bdf8;
+    --mastered:#34d399;
+    --code-bg:#080b10;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.55;
+  }
+  code, pre{
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  pre{
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:12px 14px;
+    overflow-x:auto;
+    font-size:12.5px;
+    line-height:1.5;
+    color:#c9e8ff;
+    margin:10px 0;
+  }
+  code.inline{
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:1px 5px;
+    font-size:0.9em;
+    color:#c9e8ff;
+  }
+  a{color:var(--accent);}
+
+  /* ---------- Header ---------- */
+  header{
+    padding:22px 28px 18px;
+    border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg,#0d131c 0%, var(--bg) 100%);
+  }
+  header h1{
+    margin:0 0 4px;
+    font-size:21px;
+    font-weight:650;
+    letter-spacing:-0.01em;
+  }
+  header .sub{
+    color:var(--text-dim);
+    font-size:13.5px;
+  }
+  .banner{
+    margin-top:14px;
+    padding:12px 16px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-left:3px solid var(--accent);
+    border-radius:6px;
+    font-size:13px;
+    color:var(--text-dim);
+  }
+  .banner b{color:var(--text);}
+
+  /* ---------- Layout ---------- */
+  #app{
+    display:flex;
+    min-height:calc(100% - 118px);
+  }
+  #sidebar{
+    width:250px;
+    flex-shrink:0;
+    border-right:1px solid var(--border);
+    padding:14px 10px;
+    overflow-y:auto;
+  }
+  .tab-btn{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    color:var(--text-dim);
+    padding:9px 12px;
+    border-radius:6px;
+    font-size:13px;
+    cursor:pointer;
+    margin-bottom:2px;
+    gap:8px;
+  }
+  .tab-btn:hover{background:var(--card-hover); color:var(--text);}
+  .tab-btn.active{background:var(--card); color:var(--text); font-weight:600; box-shadow:inset 3px 0 0 var(--accent-color, var(--accent));}
+  .tab-count{
+    font-size:10.5px;
+    color:var(--text-faint);
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:1px 7px;
+    flex-shrink:0;
+  }
+  .tab-count.done{color:var(--mastered); border-color:#1f4d3d;}
+
+  #main{
+    flex:1;
+    min-width:0;
+    padding:0 26px 40px;
+  }
+
+  /* ---------- Sticky control cluster ---------- */
+  .controls{
+    position:sticky;
+    top:0;
+    z-index:15;
+    background:var(--bg);
+    padding:16px 0 12px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:16px;
+  }
+  .controls-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-bottom:10px;
+  }
+  #search{
+    flex:1;
+    min-width:200px;
+    background:var(--card);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:9px 12px;
+    border-radius:6px;
+    font-size:13.5px;
+    outline:none;
+  }
+  #search:focus{border-color:var(--accent);}
+  .btn{
+    background:var(--card);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    padding:9px 14px;
+    border-radius:6px;
+    font-size:13px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .btn:hover{color:var(--text); border-color:var(--accent);}
+  .toggle-wrap{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:12.5px;
+    color:var(--text-dim);
+    white-space:nowrap;
+    padding:0 4px;
+  }
+  .pills{
+    display:flex;
+    gap:7px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+  .pill{
+    background:var(--card);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    padding:5px 12px;
+    border-radius:14px;
+    font-size:12px;
+    cursor:pointer;
+  }
+  .pill:hover{color:var(--text);}
+  .pill.active{background:var(--accent); color:#001622; border-color:var(--accent); font-weight:600;}
+  .statbar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:12px;
+    color:var(--text-faint);
+  }
+  .progress-track{
+    flex:1;
+    height:6px;
+    background:var(--bg2);
+    border-radius:4px;
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--mastered);
+  }
+
+  /* ---------- Cards ---------- */
+  .group-heading{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--text-faint);
+    margin:22px 0 8px;
+    padding-bottom:6px;
+    border-bottom:1px solid var(--border);
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-left:3px solid var(--accent-color, var(--accent));
+    border-radius:8px;
+    margin-bottom:10px;
+    overflow:hidden;
+  }
+  .card-q{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+    padding:13px 16px;
+    cursor:pointer;
+  }
+  .card-q:hover{background:var(--card-hover);}
+  .q-text{font-size:14px; font-weight:560; flex:1;}
+  .q-meta{display:flex; align-items:center; gap:10px; flex-shrink:0;}
+  .caret{color:var(--text-faint); font-size:11px; transition:transform .15s;}
+  .card.open .caret{transform:rotate(90deg);}
+  .mastered-dot{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--mastered);
+    flex-shrink:0;
+    opacity:0;
+  }
+  .card.mastered .mastered-dot{opacity:1;}
+  .card-a{
+    display:none;
+    padding:0 16px 16px 16px;
+    font-size:13.5px;
+    color:var(--text-dim);
+    border-top:1px solid var(--border);
+  }
+  .card.open .card-a{display:block; padding-top:12px;}
+  .card-a ul{margin:6px 0; padding-left:20px;}
+  .card-a li{margin-bottom:4px;}
+  .mastery-row{
+    margin-top:12px;
+    padding-top:10px;
+    border-top:1px dashed var(--border);
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:12px;
+    color:var(--text-faint);
+  }
+  .mastery-row input{cursor:pointer;}
+  .empty-state{
+    color:var(--text-faint);
+    font-size:13.5px;
+    padding:40px 0;
+    text-align:center;
+  }
+  @media (max-width:820px){
+    #app{flex-direction:column;}
+    #sidebar{width:100%; border-right:none; border-bottom:1px solid var(--border); display:flex; flex-wrap:wrap;}
+    .tab-btn{width:auto;}
+    .controls{position:static;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Girmiti Software — DevOps Engineer (AWS)</h1>
+  <div class="sub">Bangalore · 10–14 yrs · Payment services provider (banking, transit, e-commerce, telecom, sports, healthcare clients across US/EMEA/Canada/APAC) · ISO 9001:2008 &amp; ISO/IEC 27000:2013, CMMI L3</div>
+  <div class="banner">
+    <b>Positioning:</b> this is a payments-domain infra role, which lines up directly with your Barclays and Russell Investments banking background — lean on that, not just AWS years. The JD's SOC 2 / PCI DSS audit-support line is the standout differentiator versus a generic AWS-ops posting, and your AZ-104 / SC-300 / SC-100 certs are worth framing as security-architecture thinking that transfers cloud-agnostically, with AWS hands-on (6+ yrs) as the primary claim. 123 questions across 16 topics, weighted toward what's distinctive in this JD: PCI/SOC2 compliance, TLS/mTLS &amp; certificate rotation, and the Bamboo/Bitbucket/Maven/Gradle/Nexus toolchain.
+  </div>
+</header>
+
+<div id="app">
+  <div id="sidebar"></div>
+  <div id="main">
+    <div class="controls">
+      <div class="controls-row">
+        <input id="search" type="text" placeholder="Search questions and answers…">
+        <button class="btn" id="expandBtn">Expand All</button>
+      </div>
+      <div class="pills" id="pills"></div>
+      <div class="controls-row" style="margin-bottom:0;">
+        <div class="statbar" style="flex:1;">
+          <span id="statText">0 / 0 mastered</span>
+          <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+        <label class="toggle-wrap"><input type="checkbox" id="unmasteredToggle"> Unmastered only</label>
+        <button class="btn" id="resetBtn">Reset progress</button>
+      </div>
+    </div>
+    <div id="list"></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "girmiti-devops-aws-mastery-v1";
+
+const TABS = [
+{id:"t1", label:"Positioning & Fit", accent:"#38bdf8", items:[
+  {id:"t1i1", group:"Framing Your Background", q:"Walk me through your background — tailor it to this role.",
+   a:"<ul><li>Lead with 14+ years as a Senior SRE/DevOps Engineer, most recently in production-critical AWS environments.</li><li>Explicitly name Barclays and Flyingedge/Russell Investments — both financial-services environments carrying the same compliance DNA (SOC 2/PCI-adjacent controls) as Girmiti's payments book of business.</li><li>Land on the concrete numbers: AWS 6+ years, Kubernetes 6+ years, Terraform 3–6 years, hands-on.</li><li>Close with genuine interest in the payments domain specifically, since it's where reliability engineering and compliance intersect — exactly the kind of ownership this JD describes.</li></ul>"},
+  {id:"t1i2", group:"Framing Your Background", q:"Why Girmiti Software specifically?",
+   a:"Girmiti is a payment service provider serving banking, transit, e-commerce, retail, telecom, sports, and healthcare clients across the US, EMEA, Canada, and APAC. That breadth means the infra team is solving multi-region compliance and diverse partner-integration problems simultaneously — exactly the kind of end-to-end ownership that fits your profile. Also worth noting: ISO 9001 / ISO 27001 and CMMI L3 signal a process-mature organization, a good fit for someone who documents and owns change management rigorously rather than moving fast and loose."},
+  {id:"t1i3", group:"Framing Your Background", q:"You're AWS-focused here but hold three Azure certifications (AZ-104, SC-300, SC-100). How does that help this role?",
+   a:"SC-300 and SC-100 are identity/security <i>architecture</i> disciplines — Zero Trust, conditional access, IAM governance — that transfer directly to AWS IAM/KMS/Secrets Manager design; security thinking isn't cloud-specific. AZ-104 gives cross-cloud networking/VM/storage fluency, useful if Girmiti's client base ever touches Azure-hosted partners. Keep the primary claim on the 6+ years hands-on AWS experience — the certs are a supporting strength, not the headline."},
+  {id:"t1i4", group:"Framing Your Background", q:"At 10–14 years of experience, how do you convince us you'll stay hands-on and not just theorize?",
+   a:"Talk concretely about wanting IC ownership of production systems rather than a pure-architecture role — this JD explicitly wants someone who owns \"technical activities through implementation, validation, documentation, and closure,\" not someone who hands off design and walks away. Point to genuine interest in going deeper on payments/PCI-specific infrastructure as the growth angle that keeps you engaged hands-on."},
+  {id:"t1i5", group:"Framing Your Background", q:"The JD asks for \"responsible use of approved AI-assisted tools.\" What does that mean to you in practice?",
+   a:"AI tools accelerate boilerplate — Terraform module skeletons, shell scripts, documentation drafts — but every output gets the same review bar as human-written code, especially in a PCI environment. AI-generated IAM policies or security-group rules never get pasted in and trusted blindly; they go through the same static-analysis and security-scanning gates as anything else, and secrets or production configuration are never pasted into a prompt."},
+  {id:"t1i6", group:"Framing Your Background", q:"What's your understanding of Girmiti's compliance posture (ISO 9001, ISO/IEC 27000, CMMI L3), and why does it matter to a DevOps hire?",
+   a:"ISO 9001 is quality-management process discipline; ISO/IEC 27001 (the 27000 family) is an information security management system, meaning access control, change control, and audit logging aren't optional extras — they're embedded expectations. CMMI L3 means defined, standardized processes across projects. As the infra hire, expect your IaC, pipelines, and runbooks to be treated as auditable process artifacts, not just tooling."}
+]},
+{id:"t2", label:"AWS Core Infrastructure", accent:"#22c55e", items:[
+  {id:"t2i1", group:"Compute & Containers", q:"EC2 vs ECS vs EKS — when would you pick ECS specifically, since the JD names ECS, not EKS?",
+   a:"ECS with Fargate is the right call when you want container orchestration without owning Kubernetes control-plane/node-group operations — lower operational overhead, native deep integration with IAM, ALB, and CloudWatch, and a good fit for a services company running many client-specific workloads that don't need Kubernetes' portability. EKS earns its complexity when you need multi-cloud portability, a large existing K8s ecosystem, or very fine-grained scheduling — worth mentioning comfort with EKS from other experience even though this JD is ECS-first."},
+  {id:"t2i2", group:"Compute & Containers", q:"Fargate vs EC2 launch type for ECS — what are the trade-offs?",
+   a:"Fargate removes node patching and capacity management entirely (serverless-per-task) — simpler operations, at a cost premium. EC2 launch type gives control over instance types (needed for a licensing or performance constraint) and better cost at high sustained utilization via Reserved/Savings Plans, but you own AMI patching, cluster capacity, and bin-packing. For a payments workload with a steady baseline plus occasional spikes, Fargate plus EC2 Spot or Compute Savings Plans is a common middle ground."},
+  {id:"t2i3", group:"Compute & Containers", q:"Explain Docker image layering and why it matters for build speed and security.",
+   a:"Each Dockerfile instruction creates a cacheable layer. Ordering rarely-changing layers (base OS, dependency install) before frequently-changing layers (app code) maximizes cache hits. Multi-stage builds compile in a heavier builder image and copy only the final artifact into a slim runtime image, shrinking both image size and attack surface — important when images get scanned for compliance."},
+  {id:"t2i4", group:"Networking & Load Balancing", q:"Describe a standard production VPC layout.",
+   a:"Public subnets host only the ALB and NAT gateways; private subnets host ECS tasks and RDS. Subnet tiers are duplicated across 2–3 AZs for HA. Route tables split public (route to IGW) from private (route to NAT). Security groups are scoped tightly — ALB→ECS on the app port only, ECS→RDS on 5432 only — with NACLs as a coarser second layer, which matters later for PCI network segmentation."},
+  {id:"t2i5", group:"IAM & Observability", q:"IAM — roles vs. users vs. policies, and what does \"least privilege\" look like day to day?",
+   a:"Roles are assumed identities (services, cross-account, federated humans) and are preferred over long-lived user access keys. Policies are JSON documents attached to roles, users, or groups. Least privilege in practice means scoping resource ARNs instead of using <code class=\"inline\">*</code>, adding condition keys (source IP, MFA, resource tags), and periodically running Access Analyzer or unused-permission reports — directly reusable as PCI/SOC 2 audit evidence."},
+  {id:"t2i6", group:"Networking & Load Balancing", q:"ALB vs. NLB — how do you choose?",
+   a:"ALB operates at Layer 7 — host/path routing, WebSocket support, native mTLS termination options — the right choice for HTTP(S) payment APIs needing path-based routing to microservices. NLB operates at Layer 4 — ultra-low latency, static IP support — needed when a partner requires IP allowlisting or you're proxying non-HTTP TCP traffic."},
+  {id:"t2i7", group:"Database (RDS PostgreSQL)", q:"RDS PostgreSQL — Multi-AZ vs. read replicas, and what actually happens during a failover?",
+   a:"Multi-AZ is a synchronous standby for HA — failover swaps the DNS CNAME to the standby, typically under a minute, but existing connections drop and must reconnect, a gotcha teams frequently miss. Read replicas are asynchronous, built for read scaling, not automatic failover targets, though they can be promoted manually. For payments, Multi-AZ is close to mandatory; replicas help offload reporting queries away from the transactional path."},
+  {id:"t2i8", group:"Database (RDS PostgreSQL)", q:"Why does connection pooling (PgBouncer / RDS Proxy) matter specifically for a payments platform?",
+   a:"Payment services tend to be short, bursty transactions from many app instances; PostgreSQL's per-connection process model gets expensive fast under high concurrency. RDS Proxy or PgBouncer multiplexes many client connections onto fewer DB connections, smooths failover (RDS Proxy keeps the proxy connection alive across a Multi-AZ failover so the app doesn't need to reconnect), and protects against connection-exhaustion outages during traffic spikes."},
+  {id:"t2i9", group:"IAM & Observability", q:"How do CloudWatch metrics, alarms, and Logs Insights fit together?",
+   a:"Metrics (namespace/dimension/statistic) feed alarms (threshold + evaluation periods + an SNS or other action). Logs Insights lets you query structured or unstructured log groups with a purpose-built query language for root-causing an alarm firing. The usual workflow: alarm fires → Logs Insights query scoped to that time window and service → correlate with a deploy or a dependency."},
+  {id:"t2i10", group:"IAM & Observability", q:"Scenario: an ECS service is stuck with tasks in PENDING and never reaches RUNNING. Walk through your diagnosis.",
+   a:"Check the ECS events tab first — it's the fastest signal, and typically shows reasons like \"unable to place task\" (capacity or CPU/memory reservation mismatch), image pull failures (wrong tag, ECR permission issue), task-definition errors (a bad environment-variable reference to a missing Secrets Manager ARN), or a security-group/subnet misconfiguration blocking the task from reaching ECR or CloudWatch Logs endpoints when no NAT gateway or VPC endpoint exists."},
+  {id:"t2i11", group:"Networking & Load Balancing", q:"Scenario: the ALB is returning intermittent 502/504s under load. Where do you look?",
+   a:"502 usually means the target closed the connection unexpectedly — check for app crashes or a keep-alive mismatch between the ALB's idle timeout and the app server's own timeout, plus target group health checks and app logs. 504 means the target didn't respond within the ALB's idle timeout — look for slow downstream calls (DB connection exhaustion is a classic root cause), thread-pool saturation, or an undersized target group during a traffic spike; correlate ALB access logs with CloudWatch target response-time metrics."},
+  {id:"t2i12", group:"Database (RDS PostgreSQL)", q:"Scenario: RDS PostgreSQL is hitting \"too many connections\" during peak transaction volume. What's your fix, short-term and long-term?",
+   a:"Short-term: carefully raise <code class=\"inline\">max_connections</code> (constrained by instance memory) or kill idle-in-transaction sessions. Long-term: introduce RDS Proxy or PgBouncer, right-size app connection-pool settings against DB <code class=\"inline\">max_connections</code>, and consider read replicas to move reporting load off the primary."},
+  {id:"t2i13", group:"Networking & Load Balancing", q:"Security groups vs. NACLs — what's the practical difference, and why do teams get this wrong?",
+   a:"Security groups are stateful and attached to ENIs — return traffic is automatically allowed. NACLs are stateless and subnet-level — you must explicitly allow both inbound and outbound, including ephemeral return ports. Teams get bitten when they lock down a NACL's outbound rules and forget ephemeral ports (1024–65535), silently breaking return traffic that looks perfectly fine at the security-group layer."},
+  {id:"t2i14", group:"Networking & Load Balancing", q:"Can an RDS instance identifier or an S3 bucket name be renamed after creation?",
+   a:"RDS instances can be renamed via <code class=\"inline\">modify-db-instance --new-db-instance-identifier</code>, but the endpoint/DNS changes and a reboot is involved, so anything hardcoding the old endpoint breaks. S3 bucket names cannot be renamed at all — the namespace is global and immutable, so a \"rename\" really means create a new bucket, copy objects, update every reference, then delete the old one. Worth knowing cold; it's a common trick question."}
+]},
+{id:"t3", label:"Infrastructure as Code", accent:"#a78bfa", items:[
+  {id:"t3i1", group:"Choosing the Right Tool & CloudFormation", q:"CloudFormation vs. Terraform — how would you decide which to use for a given service here, given the JD lists both?",
+   a:"CloudFormation is native — no state file to manage, tight IAM/StackSets integration, first-class support for new AWS features on day one — a good default within a pure-AWS shop. Terraform's strength is being provider-agnostic with a richer module ecosystem — worth reaching for when a stack spans AWS plus something else (a DNS provider, a monitoring SaaS, GitHub repo config) or where the team already has strong Terraform muscle memory. Most shops standardize on one to avoid split tooling debt — worth asking in the interview which is primary here and why."},
+  {id:"t3i2", group:"Choosing the Right Tool & CloudFormation", q:"Explain CloudFormation nested stacks and when you'd use them.",
+   a:"Nested stacks let a parent stack reference child templates as reusable components — for example, a \"standard VPC\" child stack reused by every service's parent stack. This keeps templates DRY and lets shared infra patterns version independently, at the cost of extra indirection when debugging, since you often need to drill into the child stack's own events."},
+  {id:"t3i3", group:"Choosing the Right Tool & CloudFormation", q:"What are CloudFormation change sets for, and why should you always review one before executing?",
+   a:"A change set previews exactly what will be added, modified, or replaced without applying it. This is critical because some property changes force a full resource <i>replacement</i> rather than an in-place update — for a database, that's a data-loss risk if it isn't caught before execution."},
+  {id:"t3i4", group:"Choosing the Right Tool & CloudFormation", q:"What is CloudFormation drift detection, and why does it matter for compliance?",
+   a:"Drift detection compares the stack's template-defined state against actual resource configuration in AWS, surfacing manual out-of-band changes. It's valuable operationally (catch someone's late-night console fix before it causes confusion) and as PCI/SOC 2 evidence that infrastructure changes flow through a controlled pipeline rather than ad hoc console edits."},
+  {id:"t3i5", group:"Terraform", q:"How does Terraform state locking work, and what happens if it fails?",
+   a:"With an S3 backend plus a DynamoDB table for locking, Terraform writes a lock item to DynamoDB before any apply (or a plan that refreshes state). If a second run tries to acquire the lock while it's held, it fails fast rather than risking two concurrent writers corrupting state. If a process crashes and leaves a stale lock, you force-unlock deliberately — never routinely — after confirming no other apply is actually in flight."},
+  {id:"t3i6", group:"Terraform", q:"How do you structure Terraform modules for reuse across multiple payment-processing services without duplicating code?",
+   a:"A thin root module per service composes shared modules (network, ECS-service, RDS) with clear input/output contracts. Version-pin shared modules — via a git tag or a private registry — so one team's in-progress module change doesn't silently break another service's next apply. Keep environment differences in tfvars, not in branching module logic."},
+  {id:"t3i7", group:"Terraform", q:"Explain the count vs. for_each gotcha in Terraform.",
+   a:"<code class=\"inline\">count</code> indexes resources by position (0, 1, 2…) — deleting a middle element from a list reindexes everything after it, causing Terraform to plan a destroy/recreate on resources that didn't actually change. <code class=\"inline\">for_each</code> keys resources by a stable map or set key, so removing one element only affects that one resource. <code class=\"inline\">for_each</code> is almost always the safer default beyond a fixed, unchanging count."},
+  {id:"t3i8", group:"Terraform", q:"How would you protect sensitive values (e.g., DB credentials) in Terraform, and what's the historical gotcha with sensitive = true?",
+   a:"Reference Secrets Manager or Parameter Store rather than hardcoding values in tfvars. Marking a variable <code class=\"inline\">sensitive = true</code> only suppresses it from CLI and plan output — it was historically still stored in plaintext in the state file, so the state itself must be encrypted (S3 SSE-KMS) and tightly access-controlled. Newer Terraform versions (1.10/1.11) added ephemeral/write-only attribute support to avoid persisting certain values to state at all."},
+  {id:"t3i9", group:"Choosing the Right Tool & CloudFormation", q:"What happens when a CloudFormation rollback itself fails?",
+   a:"The stack lands in a state like UPDATE_ROLLBACK_FAILED and gets stuck — you typically have to use <code class=\"inline\">continue-update-rollback</code>, optionally skipping the specific resource that's stuck, before you can attempt further updates. This is why testing changes in a lower environment first matters more with CloudFormation's all-or-nothing update model than it might first seem."},
+  {id:"t3i10", group:"Terraform", q:"Scenario: a terraform apply fails halfway through creating a new environment. What's your recovery approach?",
+   a:"Don't panic-delete state. Run <code class=\"inline\">terraform plan</code> to see exactly what's partially created versus what's desired, address the specific failure (often an IAM permission gap or a naming collision), then re-apply — Terraform is designed to reconcile from partial state. If a resource was created outside Terraform's knowledge, use <code class=\"inline\">terraform import</code> or <code class=\"inline\">state rm</code> as appropriate rather than guessing."}
+]},
+{id:"t4", label:"CI/CD — Bamboo & Nexus Stack", accent:"#f97316", items:[
+  {id:"t4i1", group:"Bamboo & Bitbucket Workflow", q:"Describe the structure of a Bamboo pipeline — plans, stages, jobs.",
+   a:"A Bamboo Plan is the top-level pipeline tied to a repository. It's broken into Stages that run sequentially — Build → Test → Deploy-Staging → Deploy-Prod. Each Stage contains one or more Jobs that can run in parallel within that stage. Jobs contain Tasks (checkout, script, artifact publish) — the same mental model as GitHub Actions jobs/steps or Jenkins stages, just Atlassian's naming."},
+  {id:"t4i2", group:"Bamboo & Bitbucket Workflow", q:"How does a Bitbucket-based branching/PR workflow typically look, and what would you enforce for a payments codebase specifically?",
+   a:"Trunk-based or a lightweight Gitflow with short-lived feature branches, mandatory PR review, branch permissions preventing direct pushes to main/release branches, and required build-status checks (Bamboo build plus a security scan) before a merge is allowed. For a PCI-scoped codebase, also enforce that merges require review from someone outside the author — segregation of duties, an actual PCI DSS control."},
+  {id:"t4i3", group:"Build & Artifact Management", q:"Walk through the Maven build lifecycle phases relevant to a CI pipeline.",
+   a:"validate → compile → test → package → verify → install → deploy. A typical Bamboo job runs <code class=\"inline\">mvn clean verify</code> to compile, run unit/integration tests, and package — failing the build on any lifecycle step failure before an artifact ever reaches Nexus."},
+  {id:"t4i4", group:"Build & Artifact Management", q:"Why might a shop use both Maven and Gradle rather than standardizing on one?",
+   a:"Usually historical — older or legacy services stay on Maven's rigid XML-and-convention model, newer services move to Gradle's more flexible Groovy/Kotlin DSL and faster incremental builds. A senior engineer's job isn't to force a rewrite but to make sure both build systems publish artifacts to Nexus in a consistent, pipeline-compatible way, and that build times/caching are reasonable for both."},
+  {id:"t4i5", group:"Build & Artifact Management", q:"Explain Nexus Repository Manager's proxy, hosted, and group repository types.",
+   a:"A proxy repo caches external artifacts (e.g., Maven Central) so builds don't depend on the public internet, and gives you a chokepoint for vulnerability scanning of third-party dependencies. A hosted repo stores your own built artifacts. A group repo aggregates several repos behind one URL so consumers don't need to know which underlying repo an artifact lives in. Artifact promotion — moving a build from a snapshot/staging repo to a release repo — gives a controlled gate before something is considered production-ready."},
+  {id:"t4i6", group:"Security in the Pipeline", q:"How would you integrate SAST/dependency scanning into a Bamboo pipeline without wrecking developer velocity?",
+   a:"Run fast checks (linting, secret-scanning) on every PR build. Run heavier SAST/SCA scans as a parallel stage that gates merges to release branches rather than every commit. Fail the build only on new critical/high findings above an agreed threshold, with a documented exception process for accepted risk — this mirrors how PCI DSS expects vulnerability management to be continuous, not a once-a-quarter checkbox."},
+  {id:"t4i7", group:"Security in the Pipeline", q:"How do you manage secrets used inside a Bamboo pipeline (DB passwords, API keys, deploy credentials)?",
+   a:"Use Bamboo's built-in secure/shared credentials or an external vault (Secrets Manager or HashiCorp Vault) pulled at runtime, rather than plaintext in the plan configuration or a checked-in properties file. Secrets should never appear in build logs — mask them explicitly, and audit plan configuration for accidental echo statements."},
+  {id:"t4i8", group:"Bamboo & Bitbucket Workflow", q:"How would you implement blue-green or canary deployment for an ECS service through Bamboo?",
+   a:"Blue-green: stand up a second target group/task set at the new version, run smoke tests against it directly, then flip the ALB listener (or use CodeDeploy's ECS blue-green hook) to cut traffic over, keeping the old task set warm briefly for instant rollback. Canary: shift a small traffic percentage via weighted target groups, watch error-rate/latency dashboards for a defined bake time, then progressively increase. Either way, Bamboo orchestrates the AWS API calls and gates progression on a health check — it doesn't just fire and forget."},
+  {id:"t4i9", group:"Bamboo & Bitbucket Workflow", q:"Scenario: the Bamboo build goes green, but the deployed service is broken in production. What's your triage sequence?",
+   a:"A green build only proves compile-plus-unit-tests passed, not that the <i>right</i> artifact reached the <i>right</i> environment with the <i>right</i> config. First check whether the deployed image/artifact version actually matches what you expect — a stale cached image, the wrong environment's config or secrets injected, or a migration that didn't run. This is the classic \"green pipeline ≠ healthy service\" trap; the fix going forward is adding a post-deploy smoke-test/health-check gate to the pipeline itself."},
+  {id:"t4i10", group:"Build & Artifact Management", q:"Why does artifact versioning through Nexus matter for a PCI-scoped service, beyond just avoiding \"works on my machine\"?",
+   a:"Immutable, uniquely-versioned artifacts — not a floating \"latest\" — give you a verifiable chain from a specific commit to a specific build, to a specific artifact, to a specific deployment. That traceability is exactly what an auditor asks for when validating that only reviewed, tested code reached production."}
+]},
+{id:"t5", label:"Python & Shell Scripting", accent:"#eab308", items:[
+  {id:"t5i1", group:"Scripting for Production Automation", q:"Show a small Boto3 example automating a real ops task, and explain the design choices.",
+   a:"Example: a script listing EC2 instances missing a required tag, or checking ACM certificates approaching expiry." +
+     "<pre>import boto3\nfrom datetime import datetime, timezone, timedelta\n\nacm = boto3.client('acm')\npaginator = acm.get_paginator('list_certificates')\nsoon = datetime.now(timezone.utc) + timedelta(days=30)\n\nfor page in paginator.paginate(CertificateStatuses=['ISSUED']):\n    for cert in page['CertificateSummaryList']:\n        detail = acm.describe_certificate(CertificateArn=cert['CertificateArn'])\n        expiry = detail['Certificate']['NotAfter']\n        if expiry &lt;= soon:\n            print(f\"Expiring soon: {cert['DomainName']} on {expiry}\")</pre>" +
+     "Design choices: use an assumed role rather than embedded access keys; paginate with the built-in paginator rather than assuming one API call returns everything; let boto3's built-in retry/backoff handle throttling instead of custom sleep loops."},
+  {id:"t5i2", group:"Scripting for Production Automation", q:"What does \"idempotent\" mean for an automation script, and why is it non-negotiable in a payments environment?",
+   a:"Running the script twice — accidentally, via a retry, or because a cron overlapped — produces the same end state, not duplicated side effects. This is critical anywhere a script might touch anything transaction-adjacent, like a reconciliation job. Practically, this means checking current state before acting (does this resource already exist, has this record already been processed) rather than blindly creating or inserting."},
+  {id:"t5i3", group:"Scripting for Production Automation", q:"Explain <code class=\"inline\">set -euo pipefail</code> and why every production shell script should start with it.",
+   a:"<code class=\"inline\">-e</code> exits on any command failure instead of silently continuing. <code class=\"inline\">-u</code> treats an unset variable as an error instead of silently expanding to an empty string. <code class=\"inline\">-o pipefail</code> makes a pipeline's exit status reflect the first failing command rather than only the last. Without all three, a script can fail halfway through and still report success — dangerous for anything touching production."},
+  {id:"t5i4", group:"Scripting for Production Automation", q:"When would you reach for Python over Bash for an automation task, and vice versa?",
+   a:"Bash is fine for short, linear, \"glue\" tasks — file manipulation, calling a handful of CLI tools, simple loops. Python wins once you need real error handling, structured data (JSON/API responses), retries with backoff, or the script will be maintained by more than one person — Boto3 is also far more ergonomic and safer than shelling out to the raw AWS CLI and parsing JSON by hand."},
+  {id:"t5i5", group:"Scripting for Production Automation", q:"How do you write an automation script that's safe to re-run against production without risking duplicate side effects — specifically in a payments context?",
+   a:"Check-before-act patterns (query current state, act only on the delta); use unique idempotency keys or tokens when calling any downstream API that itself supports idempotency, as many payment gateways do; log every action taken with enough context to manually reconcile; and default to a dry-run mode requiring an explicit <code class=\"inline\">--apply</code> flag for real changes."},
+  {id:"t5i6", group:"Scripting for Production Automation", q:"Scenario: you're asked to build automated monitoring for TLS certificate expiry across dozens of services. Outline your approach.",
+   a:"A scheduled Lambda or cron job iterating ACM (plus any externally-issued certs tracked separately) checking <code class=\"inline\">NotAfter</code> dates, alerting at multiple thresholds — 30, 14, 3 days — via SNS or Slack rather than a single last-minute alert. Tag owners per certificate so alerts route to the right team, and log results centrally so \"did we check this week\" is itself auditable — directly reusable as evidence for the audit-trail requirement."}
+]},
+{id:"t6", label:"Cloud Networking & Troubleshooting", accent:"#06b6d4", items:[
+  {id:"t6i1", group:"DNS & Resolution", q:"Walk through DNS resolution end to end when a client hits your API's hostname.",
+   a:"Client's stub resolver → recursive resolver (ISP or a public resolver) → root servers → TLD servers → your authoritative nameserver (Route 53) → returns the ALB's DNS record, often an alias record rather than a plain CNAME so it can point at the zone apex. The client then does the actual TCP/TLS handshake to the resolved IP. Caching (TTL) at each layer is why DNS changes can take time to propagate."},
+  {id:"t6i2", group:"Connectivity Troubleshooting", q:"A service can't reach another service in the same VPC. Where do you look, in order?",
+   a:"Security groups first, both directions — outbound on the source, inbound on the destination. Then NACLs, remembering they're stateless and ephemeral ports matter. Then route tables — is there actually a route between the subnets, especially across peering or Transit Gateway. Then check whether it's actually a DNS problem rather than connectivity — can you reach it by IP but not by hostname. Narrowing systematically beats guessing."},
+  {id:"t6i3", group:"VPC Architecture for Partners", q:"VPC Peering vs. Transit Gateway vs. PrivateLink — when would you use each for partner connectivity specifically?",
+   a:"Peering is simplest for a small number of 1:1 VPC connections but doesn't scale well — no transitive routing, becomes a mesh. Transit Gateway is the right call once you have many VPCs or accounts needing to talk to each other or to on-prem, acting as a central hub. PrivateLink is ideal for partner-facing services because it exposes a single service endpoint without exposing the whole VPC's routing — the partner never needs their own CIDR to avoid overlapping with yours, which matters a lot when onboarding many external partners."},
+  {id:"t6i4", group:"Connectivity Troubleshooting", q:"Scenario: two services communicate fine most of the time but see intermittent timeouts under load. How do you investigate?",
+   a:"Check for ephemeral port exhaustion or connection-tracking limits on NAT gateways — a very common silent bottleneck at scale — via the CloudWatch <code class=\"inline\">ErrorPortAllocation</code> metric. Review security group/NACL conntrack limits, and use VPC Flow Logs filtered to REJECT actions during the timeout window to see if traffic is actually being dropped versus just slow."},
+  {id:"t6i5", group:"DNS & Resolution", q:"Quick reference: what are A, AAAA, CNAME, MX, TXT, and NS records for?",
+   a:"<ul><li><b>A</b> — hostname → IPv4</li><li><b>AAAA</b> — hostname → IPv6</li><li><b>CNAME</b> — alias to another hostname (can't coexist with other records at the same name, unlike Route 53's ALIAS)</li><li><b>MX</b> — mail routing priority</li><li><b>TXT</b> — arbitrary text, commonly used for domain verification and SPF/DKIM</li><li><b>NS</b> — delegates a zone to specific nameservers</li></ul>"},
+  {id:"t6i6", group:"VPC Architecture for Partners", q:"Quick CIDR math: how many usable hosts in a /27, and why might that matter when sizing subnets for a payments VPC?",
+   a:"A /27 has 32 addresses total; AWS reserves 5 per subnet (network, broadcast, VPC router, DNS, and future use), leaving 27 usable. Undersizing subnets is a common mistake that later blocks horizontal scaling of ECS tasks or Lambda ENIs. Size subnets generously up front, since resizing a live VPC's CIDR is disruptive."},
+  {id:"t6i7", group:"Connectivity Troubleshooting", q:"Scenario: a partner reports your API is unreachable, but your dashboards show everything green. How do you approach it?",
+   a:"Don't assume the partner is wrong — reproduce from outside your network if possible, or ask for a <code class=\"inline\">curl -v</code>/traceroute from their side. Check whether it's partner-specific (an IP-allowlist rule blocking their new egress IP, an mTLS cert mismatch, a WAF rule triggering on their specific payload) versus global, and check CloudTrail/WAF logs for their source IP specifically rather than only aggregate metrics that would hide a single-partner issue."},
+  {id:"t6i8", group:"Connectivity Troubleshooting", q:"What are VPC Flow Logs, and how do you use them to troubleshoot a REJECTed connection?",
+   a:"Flow Logs capture IP traffic metadata — source/dest IP and port, protocol, action (ACCEPT/REJECT), bytes — at the ENI, subnet, or VPC level. Filtering to REJECT for a specific time window and IP pair tells you definitively whether traffic is being blocked at the security-group/NACL layer versus a problem further up the stack (app-level, DNS) — often the fastest way to rule the network layer in or out."}
+]},
+{id:"t7", label:"TLS/mTLS & Certificate Management", accent:"#ec4899", items:[
+  {id:"t7i1", group:"TLS/mTLS Fundamentals", q:"Explain the TLS handshake in plain terms.",
+   a:"Client hello (supported ciphers/TLS version) → server hello plus certificate (public key and issuer chain) → client validates the certificate against trusted CAs → a key exchange establishes a shared symmetric session key → both sides switch to encrypted communication using that session key. Asymmetric crypto is only used briefly to bootstrap trust; the bulk of data transfer uses fast symmetric encryption."},
+  {id:"t7i2", group:"TLS/mTLS Fundamentals", q:"What is mTLS, and why do payment/partner integrations often require it over plain TLS?",
+   a:"Mutual TLS adds a second validation direction — the server also verifies a client certificate, so both parties cryptographically prove identity, not just the server. For payment partner integrations, this replaces or supplements API keys as a stronger authentication factor, since a stolen API key alone isn't enough without the corresponding private key, which is much harder to exfiltrate if stored properly in an HSM or keystore."},
+  {id:"t7i3", group:"Certificate Rotation & Troubleshooting", q:"How do you rotate a certificate on a production service without downtime?",
+   a:"Load the new certificate alongside the old one where the platform supports SNI or multiple certs, or use a rolling-restart pattern where each instance/task picks up the new cert on its own health-checked restart so the ALB never routes to an instance mid-swap. For ACM-managed certs behind an ALB, renewal is automatic and largely invisible. For self-managed or partner-issued certs, deploy the new cert to a subset first, validate the handshake succeeds, then roll the rest — never a single big-bang swap."},
+  {id:"t7i4", group:"TLS/mTLS Fundamentals", q:"Keystore vs. truststore — what's the conceptual difference?",
+   a:"A keystore holds your own private key and certificate — what you present to prove your identity. A truststore holds the public certificates of CAs or peers you're willing to trust — what you check incoming certificates against. Conflating the two is a common misconfiguration, for example accidentally putting a partner's certificate in your keystore instead of your truststore."},
+  {id:"t7i5", group:"Certificate Rotation & Troubleshooting", q:"What are the most common certificate rotation failure modes you should know to explain in an interview?",
+   a:"<ul><li>An expired intermediate CA certificate in the chain (the leaf renewed but the chain wasn't rebuilt)</li><li>Wrong or missing SAN entries after renewal (the cert was issued for the old hostname only)</li><li>A keystore password mismatch after a rotation script updates the certificate but not the app's stored keystore password</li><li>Clock skew causing a client to reject a newly-issued certificate as \"not yet valid\"</li></ul>"},
+  {id:"t7i6", group:"Certificate Rotation & Troubleshooting", q:"How would you automate certificate rotation using ACM, an internal CA, or Let's Encrypt?",
+   a:"ACM-issued certificates attached to an ALB or CloudFront auto-renew and auto-deploy with zero engineer involvement as long as DNS validation records stay in place — the main failure mode is someone removing the validation CNAME. For self-managed certificates (an internal CA, or Let's Encrypt via something like cert-manager on Kubernetes or certbot on EC2), automation means a scheduled renewal job well before expiry, automated deployment to the keystore or load balancer, and a post-rotation handshake test before declaring success."},
+  {id:"t7i7", group:"Certificate Rotation & Troubleshooting", q:"Scenario: a partner's mTLS handshake starts failing after a certificate rotation on your side. How do you debug it?",
+   a:"First confirm which side actually changed. Check the new cert's SAN/CN matches what the partner expects, verify the full chain — including any intermediate — was actually deployed and not just the leaf, and use <code class=\"inline\">openssl s_client -connect</code> against your endpoint to inspect exactly what chain is being presented. Confirm the partner has been given your new certificate's public key or CA if they pin against it — often the \"handshake failure\" is really the partner's truststore not yet updated, not your config being wrong."},
+  {id:"t7i8", group:"TLS/mTLS Fundamentals", q:"What is certificate pinning, and what should you warn a partner-onboarding team about it?",
+   a:"Pinning hard-codes trust to a specific certificate or public key rather than trusting any cert signed by a valid CA — more secure against a compromised CA, but it means every certificate rotation on your side requires coordinated action from the partner to update their pin, or their integration breaks. If you support pinning for partners, you need a documented, advance-notice rotation process, since \"just rotate it, it's automatic\" doesn't hold when a partner is pinning."}
+]},
+{id:"t8", label:"Monitoring & Observability", accent:"#14b8a6", items:[
+  {id:"t8i1", group:"Tooling & Correlation", q:"How do CloudWatch and AppDynamics complement each other rather than overlap?",
+   a:"CloudWatch is strong at infrastructure-level metrics, logs, and alarms native to AWS services — CPU, ALB latency, RDS connections. AppDynamics is an APM tool focused on application-level tracing — business transactions, code-level method timing, database call breakdowns inside a request. Together they answer \"is the infrastructure healthy\" and \"why is this specific transaction slow,\" respectively."},
+  {id:"t8i2", group:"Tooling & Correlation", q:"Describe how the ELK/Kibana stack fits into a troubleshooting workflow.",
+   a:"Logstash, Filebeat, or Fluent Bit ships structured logs from services into Elasticsearch; Kibana provides search and visualization on top. The key design decision is structured logging with a consistent correlation ID field from day one, so a single failed transaction can be traced across every microservice's logs with one Kibana query instead of grepping instance by instance."},
+  {id:"t8i3", group:"Alerting & Golden Signals", q:"Design an alert for a spike in payment transaction failures. What would you actually alert on?",
+   a:"Alert on a rate or ratio — failed transactions over total transactions in a rolling window — not a raw count, so it scales correctly with traffic. Set a threshold informed by a historical baseline plus a minimum absolute-volume floor to avoid noisy alerts during low-traffic periods. Route to on-call with enough context in the alert payload — which payment method, partner, or region — to start triage immediately rather than requiring a dashboard hunt."},
+  {id:"t8i4", group:"Tooling & Correlation", q:"What does \"business transaction monitoring\" mean in AppDynamics, applied to a payment flow?",
+   a:"AppDynamics auto-discovers and names logical business transactions — such as \"AuthorizePayment\" or \"CaptureTransaction\" — by entry point, then tracks their response time, error rate, and call graph across every downstream tier. That lets you see \"CaptureTransaction\" specifically is slow because of a downstream fraud-check service, rather than just \"the app is slow\" in aggregate."},
+  {id:"t8i5", group:"Alerting & Golden Signals", q:"What golden signals would you track for a payment gateway service specifically?",
+   a:"Latency (p50/p95/p99, since payments are latency-sensitive for user experience), traffic (transactions/sec), errors broken down by <i>type</i> — declined vs. gateway-timeout vs. validation error, since these need very different responses — and saturation (connection-pool usage, thread pool, downstream dependency capacity). For payments specifically, also track a business-level \"authorization success rate\" as a synthetic fifth signal, since infra-green doesn't guarantee business-green."},
+  {id:"t8i6", group:"Tooling & Correlation", q:"How do you correlate a single failed transaction across multiple microservices in logs?",
+   a:"Generate a correlation or trace ID at the edge — the API gateway or first service touched — and propagate it through every downstream call, whether via an HTTP header or message-queue metadata. Log it as a structured field on every log line. Kibana, or CloudWatch Logs Insights, can then filter the entire distributed request path with one query instead of manually stitching timestamps across services."},
+  {id:"t8i7", group:"Alerting & Golden Signals", q:"Describe a systematic approach to reducing alert fatigue on a noisy on-call rotation.",
+   a:"Audit which alerts actually led to action in the last several incidents versus which were routinely acknowledged and ignored. Consolidate related low-value alerts into fewer, higher-signal composite alerts. Tune thresholds against real historical baselines instead of arbitrary round numbers. Route by actual severity so a P3 doesn't page someone at 3 a.m. This is the same category of work behind a real ~40% alert-noise reduction from prior roles — systematic auditing plus threshold tuning, not just muting things."},
+  {id:"t8i8", group:"Alerting & Golden Signals", q:"Scenario: dashboards show green across the board, but customers are reporting failed payments. What's your approach?",
+   a:"Assume the dashboards are measuring the wrong thing before assuming customers are wrong. Check if the failure is scoped to a specific payment method, partner, or region that aggregate dashboards would average away. Check the business-level success-rate metric specifically rather than infra health, and check whether the failure is happening downstream at a third-party payment processor that wouldn't show up in your own infra metrics at all."}
+]},
+{id:"t9", label:"Vulnerability Management & CI/CD Security", accent:"#ef4444", items:[
+  {id:"t9i1", group:"Scanning Categories & Prioritization", q:"What are the main categories of vulnerability scanning, and where does each fit in a pipeline?",
+   a:"SAST (static analysis of your own source code, pre-build), SCA (software composition analysis — scanning third-party dependencies for known CVEs, at build/dependency-resolution time), DAST (dynamic scanning against a running app, post-deploy to a test environment), and container image scanning (scanning the built image's OS packages and layers, post-build pre-deploy). A mature pipeline has all four at different stages, not just one."},
+  {id:"t9i2", group:"Scanning Categories & Prioritization", q:"How do you integrate scanning without blocking every developer's every commit?",
+   a:"Fast, cheap checks — secret scanning, basic linting — on every commit. Heavier SAST/SCA/container scans on PR-to-release-branch or nightly, gating merges only on new critical/high findings rather than pre-existing accepted-risk findings, with a documented exception/waiver process so legitimate blockers don't just get silently bypassed."},
+  {id:"t9i3", group:"Scanning Categories & Prioritization", q:"How do you prioritize which vulnerabilities to remediate first?",
+   a:"CVSS base score alone is a poor sole signal. Also weigh actual exploitability (is there a known exploit in the wild, is it scored high by EPSS), exposure (internet-facing vs. internal-only), and whether the vulnerable code path is actually reachable in your usage — a critical CVE in an unused library function is lower real risk than a medium CVE in code handling cardholder data directly."},
+  {id:"t9i4", group:"Remediation & Hardening", q:"Scenario: a critical CVE is found in a dependency already running in production. Walk through your response.",
+   a:"Confirm exploitability and exposure for your specific usage first, to avoid panic-patching something unreachable while ignoring something worse. Check if a patched version exists and is a drop-in upgrade versus a breaking change requiring code changes. If no immediate patch exists, look for a compensating control — a WAF rule, network isolation — to reduce exposure while a fix is prepared. Document the timeline and decision; that documentation <i>is</i> the audit evidence a PCI assessor wants to see for vulnerability management."},
+  {id:"t9i5", group:"Remediation & Hardening", q:"What does \"hardening a base image\" mean in practice for container scanning?",
+   a:"Start from a minimal base — distroless or slim variants — rather than a full OS image to shrink the attack surface. Remove build tooling from the final runtime layer via multi-stage builds. Pin base image versions, not <code class=\"inline\">:latest</code>, so a scan result is reproducible. Run as a non-root user inside the container."},
+  {id:"t9i6", group:"Remediation & Hardening", q:"How do you prevent secrets from ending up committed to a repository in the first place, and what do you do if one already leaked?",
+   a:"Pre-commit hooks and CI-stage secret scanning (gitleaks/trufflehog-style tools) catch most cases before merge. If a secret is already committed, rotating the credential immediately is the actual fix — removing it from the latest commit doesn't remove it from git history, so treat any committed secret as compromised and rotate rather than relying on history rewriting alone."}
+]},
+{id:"t10", label:"Production Deployment & Change Management", accent:"#f59e0b", items:[
+  {id:"t10i1", group:"Deployment Strategy & Change Management", q:"Describe a healthy change management process for a production deployment, even outside a formal ITIL shop.",
+   a:"A change record capturing what's changing, why, the rollback plan, and the risk level; peer review/approval appropriate to the risk tier (a config tweak needs less ceremony than a schema migration); a defined deployment window with the right people available; and a post-deployment verification step before the change is considered \"done,\" not just \"deployed.\""},
+  {id:"t10i2", group:"Deployment Strategy & Change Management", q:"Compare blue-green, canary, and rolling deployments — which fits a payments service best, and why?",
+   a:"Rolling replaces instances gradually with no full environment duplication — cheapest, but a bad version is briefly live for real traffic before detection. Blue-green gives instant all-or-nothing cutover and instant rollback by flipping traffic back, at double the infra cost during cutover. Canary shifts a small traffic percentage first and watches metrics before continuing — generally the best fit for payments, since it limits blast radius on genuinely new logic while staying cost-efficient, though blue-green is often layered in for major or breaking releases specifically because of its instant-rollback guarantee."},
+  {id:"t10i3", group:"Deployment Strategy & Change Management", q:"How do you design a rollback strategy that actually works when you need it, not just on paper?",
+   a:"Rollback should be a tested, practiced path, not a hope. Keep the previous artifact version immediately deployable, not just \"we can rebuild it.\" Avoid deployments that are hard to reverse, like irreversible schema migrations without a backward-compatible transition period. Define a clear rollback trigger threshold before the deployment starts, so the decision isn't made emotionally mid-incident."},
+  {id:"t10i4", group:"Documentation & Incident Communication", q:"What documentation practices matter most for audit-trail purposes in production changes?",
+   a:"Every production change is traceable back to a ticket or change record, a specific commit/artifact version, who approved it, and when it was deployed. Runbooks are kept current, not written once and abandoned. Incident postmortems feed back into either the runbook or the pipeline's automated checks so the same failure mode gets caught earlier next time."},
+  {id:"t10i5", group:"Documentation & Incident Communication", q:"Scenario: a production deployment causes a partial outage affecting some but not all customers. How do you handle it live?",
+   a:"Decide fast whether to roll forward (fix quickly) or roll back (the safer default under uncertainty) rather than debugging live in production for too long. Communicate status early even with incomplete information rather than going silent. Scope the blast radius — which customers, regions, or payment methods — to inform both the fix and the stakeholder update. Only after mitigation does root-cause investigation get the deep-dive time."},
+  {id:"t10i6", group:"Documentation & Incident Communication", q:"How do you communicate risk, status, and escalation during an active incident to non-technical stakeholders?",
+   a:"Lead with a plain-language impact statement — what's broken, who's affected, since when — before any technical detail. Give a clear \"what we're doing next\" and a committed next-update time, so people aren't left refreshing for news. Escalate proactively rather than waiting to be asked, once severity or time-to-resolution crosses an agreed threshold."}
+]},
+{id:"t11", label:"SOC 2 & PCI DSS Compliance", accent:"#6366f1", items:[
+  {id:"t11i1", group:"SOC 2 & Audit Fundamentals", q:"In plain terms, what is SOC 2, and what's the difference between Type I and Type II?",
+   a:"SOC 2 is an attestation, not a certification, that a service organization's controls meet defined Trust Services Criteria such as security, availability, and confidentiality. Type I attests controls are <i>designed</i> appropriately as of a point in time. Type II attests those controls actually <i>operated effectively</i> over a period, commonly 6–12 months. Type II is the stronger, more commonly requested attestation because it proves ongoing operation, not just paper design."},
+  {id:"t11i2", group:"PCI DSS Technical Controls", q:"What is PCI DSS, at the level relevant to an infrastructure engineer, not a QSA?",
+   a:"A security standard for any system that stores, processes, or transmits cardholder data, organized around 12 core requirement areas — network segmentation and firewalls, no vendor-default passwords, encrypting cardholder data, patching, restricting access on a need-to-know basis, unique user IDs, physical access, logging and monitoring, regular testing, and a documented security policy. As infra, you're most often the one providing evidence for segmentation, encryption, access control, and logging specifically."},
+  {id:"t11i3", group:"SOC 2 & Audit Fundamentals", q:"What kind of evidence does an SRE/DevOps engineer typically produce for a SOC 2 or PCI audit?",
+   a:"Access-review exports — who has production/IAM access and why, reviewed on a cadence; change-management records tying deployments to approved tickets; vulnerability-scan reports plus remediation timelines; backup/restore test results; and the IaC and pipeline configuration itself as evidence that infrastructure changes go through a controlled, repeatable process rather than manual console edits."},
+  {id:"t11i4", group:"SOC 2 & Audit Fundamentals", q:"What does \"control validation\" mean, with a concrete example?",
+   a:"Proving a stated control actually works, not just that it's documented. For example, the control says \"only authorized personnel can access production\" — validation means pulling an actual IAM access report showing current production-access holders match an approved list, with evidence of a periodic review removing anyone who's changed roles or left."},
+  {id:"t11i5", group:"PCI DSS Technical Controls", q:"How does PCI DSS network segmentation translate into AWS VPC design decisions?",
+   a:"Cardholder-data-handling components live in their own tightly-scoped subnets and security groups — the \"CDE,\" or cardholder data environment — with explicit, minimal, documented rules for anything crossing into or out of that boundary. Segmentation reduces PCI DSS scope itself — the fewer systems that can reach the CDE, the fewer systems fall under the full audit scope, which is a real cost and effort lever, not just a security nicety."},
+  {id:"t11i6", group:"PCI DSS Technical Controls", q:"What are the PCI DSS expectations around encrypting cardholder data at rest and in transit, and how does that map to what you'd actually configure?",
+   a:"At rest: encryption via KMS-backed EBS, RDS, or S3 encryption with proper key management — rotation, access-controlled key policies. In transit: TLS 1.2+ enforced, with weak ciphers and protocols disabled at the load balancer level; for internal service-to-service links carrying cardholder data, mTLS is often required rather than \"it's inside the VPC so it's fine\" — network location isn't itself a control PCI accepts as sufficient."},
+  {id:"t11i7", group:"PCI DSS Technical Controls", q:"What do PCI DSS requirement 10.x-style logging expectations mean practically for CloudWatch/Kibana retention and content?",
+   a:"Logs need to capture who did what, when, from where, and on what system, for at least a defined retention window — commonly a year, with a portion immediately available. That means log-group retention settings aren't just a cost decision, they're a compliance one. Logs covering access to cardholder-data systems specifically need tamper-evidence, such as write-once storage or restricted delete permissions, so they can't be quietly altered after an incident."},
+  {id:"t11i8", group:"SOC 2 & Audit Fundamentals", q:"Walk through handling an audit finding end to end, from discovery to closure.",
+   a:"Document the finding precisely — what control failed, its scope, the root cause. Assign an owner and a remediation deadline appropriate to severity. Implement the fix. Re-validate that the fix actually closes the gap, not just \"we made a change.\" Record the closure with evidence — auditors specifically look for this full loop, not just the fix itself."},
+  {id:"t11i9", group:"PCI DSS Technical Controls", q:"What does \"segregation of duties\" mean in a DevOps/CI-CD context, and how do you actually implement it without grinding velocity to a halt?",
+   a:"The person who writes a change generally shouldn't be the sole approver deploying it to production unsupervised. Implement it via mandatory PR review from someone else, branch protection preventing self-merge to protected branches, and separating who has code-merge rights from who has direct production-console access — so a single compromised or malicious actor can't push and deploy unilaterally."},
+  {id:"t11i10", group:"SOC 2 & Audit Fundamentals", q:"Scenario: an auditor asks for evidence of your last quarterly access review. What do you actually hand them?",
+   a:"A dated export of who had access to in-scope systems at review time, the reviewer's name and role, what was reviewed against (job role vs. actual granted permissions), and evidence of any access that was revoked as a result. If this isn't already a routine, calendared, documented process before the audit, that gap itself becomes a finding — which is why building this as an automated recurring report is genuinely valuable, not just paperwork."}
+]},
+{id:"t12", label:"Customer/Partner Onboarding", accent:"#84cc16", items:[
+  {id:"t12i1", group:"Partner Onboarding", q:"Describe a typical partner-onboarding workflow for API-based connectivity.",
+   a:"Exchange of technical contacts and environment details, issuance of API credentials — keys and/or client certificates for mTLS — IP allowlisting on both sides if required, a sandbox/UAT integration phase with test transactions, then a scheduled production cutover with a rollback plan if the partner's first real transactions fail."},
+  {id:"t12i2", group:"Partner Onboarding", q:"Scenario: a new partner's onboarding is stuck — their test calls are all failing. How do you troubleshoot it collaboratively?",
+   a:"Get a concrete failing request/response pair from them first rather than guessing. Check the obvious mismatches — wrong environment URL, expired or wrong-environment credentials, IP not yet allowlisted, or a TLS version mismatch if their client is older. Walk through it live with them if possible, since onboarding issues are often a simple configuration gap on one side, not a deep bug."},
+  {id:"t12i3", group:"Partner Onboarding", q:"What role does an API gateway play in partner onboarding for a payments platform?",
+   a:"Centralizes authentication and authorization — API keys, mTLS termination, OAuth. Rate-limits per partner, protecting your backend from any single partner's traffic spike or bug. Handles request/response transformation so partners don't need to match your internal service contracts exactly. Provides centralized logging per partner, useful for both troubleshooting and per-partner audit trail."},
+  {id:"t12i4", group:"Partner Onboarding", q:"How do you manage per-partner configuration and secrets safely as the partner count grows into the dozens or hundreds?",
+   a:"Store per-partner config and secrets in a structured secrets store, such as Secrets Manager or Parameter Store, keyed by partner ID rather than hardcoded or scattered across config files. Automate the provisioning of new partner config through a script or pipeline rather than manual setup, which reduces error and creates an audit trail of who onboarded what, when. Rotate partner-specific credentials on a defined cadence rather than leaving static keys in place forever."},
+  {id:"t12i5", group:"Partner Onboarding", q:"Scenario: you're onboarding many partners in parallel, each needing their own certificate/connectivity setup. How do you scale this without it becoming chaotic?",
+   a:"Templatize the onboarding process itself — a repeatable checklist, ideally scripted, with certificate request/issuance, allowlist entry, gateway config, and sandbox validation as discrete, automatable steps. Track state centrally, a simple onboarding-status system rather than tribal knowledge in someone's inbox. Build certificate-expiry monitoring into onboarding from day one, so a partner's cert isn't silently expiring unnoticed six months later."}
+]},
+{id:"t13", label:"Cost, Capacity & Disaster Recovery", accent:"#0ea5e9", items:[
+  {id:"t13i1", group:"Cost & Capacity", q:"What are your go-to AWS cost optimization levers, and which would you reach for first here?",
+   a:"Rightsizing informed by CloudWatch data rather than guessing, Reserved Instances/Savings Plans for a steady baseline, Spot for fault-tolerant or non-critical workloads, S3 lifecycle policies to tier or expire old data, and cleaning up orphaned resources like unattached EBS volumes and idle load balancers. For a payments platform, I'd start with Savings Plans on the steady transactional baseline first, since payment traffic patterns are predictable enough to make commitment discounts low-risk."},
+  {id:"t13i2", group:"Cost & Capacity", q:"How do you approach capacity planning for a service with spiky transaction volume — month-end, promotional events?",
+   a:"Build from historical peak data plus a safety margin, not just average load. Use auto-scaling with metrics that actually predict load early enough to scale ahead of the spike — request count or another leading indicator, not just CPU, which often lags. Load-test against realistic peak scenarios beforehand rather than discovering capacity gaps live during the actual event."},
+  {id:"t13i3", group:"Backup & Disaster Recovery", q:"Describe your backup strategy for RDS PostgreSQL specifically.",
+   a:"Automated daily snapshots plus continuous transaction-log backup enabling point-in-time recovery within the retention window, commonly 7–35 days. Periodically <i>test</i> restoring a snapshot to confirm backups are actually valid and the restore time is known, not assumed. Cross-region snapshot copies cover disaster-recovery scenarios beyond a single-region failure."},
+  {id:"t13i4", group:"Backup & Disaster Recovery", q:"Explain the standard DR strategy tiers and how you'd map one to a payments workload.",
+   a:"Backup and restore is the cheapest, with the highest RTO/RPO — hours to a day. Pilot light keeps a minimal always-on core in the DR region, scaled up on failover. Warm standby runs a scaled-down but running full copy for faster failover. Multi-site active-active gives near-zero RTO/RPO at the highest cost and complexity. A payments platform's tolerance for downtime is usually low enough to justify at least pilot light or warm standby for core transaction processing, even if reporting/analytics can tolerate backup and restore."},
+  {id:"t13i5", group:"Backup & Disaster Recovery", q:"What should a backup restoration or DR exercise actually validate, beyond \"did the restore complete\"?",
+   a:"That the restored data is actually consistent and usable, not just present. That RTO/RPO targets are actually met in practice — timed, not estimated. That dependent services can actually reconnect to the restored system, e.g., DNS and connection strings. And that the runbook used during the drill is the same one someone would follow at 3 a.m. during a real incident — drills using a cleaner, different process than the real runbook don't validate anything."},
+  {id:"t13i6", group:"Backup & Disaster Recovery", q:"Scenario: a DR drill reveals the actual restore takes far longer than your documented RTO. What do you do?",
+   a:"Don't just update the documented RTO to match reality. Figure out <i>why</i> it's slow — snapshot restore time scaling with database size, network transfer time for a cross-region copy, manual steps that could be scripted — and address the bottleneck directly. If a smaller RPO/RTO is genuinely required by the business, that may justify moving to a warmer DR tier rather than accepting a slow restore as permanent."}
+]},
+{id:"t14", label:"AI-Assisted Tools in DevOps", accent:"#d946ef", items:[
+  {id:"t14i1", group:"Responsible AI Tool Use", q:"How do you responsibly use AI coding assistants in a regulated, PCI-scoped environment?",
+   a:"Treat AI-generated code or config with the same, or higher, scrutiny as a junior engineer's PR — never accept an IAM policy, security-group rule, or Terraform module wholesale without reviewing exactly what access it grants. Never paste real secrets, cardholder-adjacent data, or production configuration into a prompt to an external tool. Use only company-approved tools, since that's explicitly what this JD calls out."},
+  {id:"t14i2", group:"Responsible AI Tool Use", q:"Give an example of a good, low-risk use of an AI tool in a DevOps workflow.",
+   a:"Drafting boilerplate — a Terraform module skeleton, a first-draft runbook, an explanation of an unfamiliar error message, generating unit-test scaffolding — where the human still fully reviews and owns the final output. High-leverage for speed on well-understood, low-risk tasks."},
+  {id:"t14i3", group:"Responsible AI Tool Use", q:"What are the specific risks of over-relying on AI-generated infrastructure code?",
+   a:"Plausible-looking but subtly wrong IAM policies, such as overly broad resource scoping that \"works\" but violates least privilege; outdated syntax or deprecated resource arguments if the model's training data lags the current provider version; and a false sense of confidence that skips the review rigor a human-written PR would normally get."},
+  {id:"t14i4", group:"Responsible AI Tool Use", q:"What review process would you put around AI-assisted changes before they reach production?",
+   a:"No different gate structurally than human-written changes — the same PR review, the same security/vulnerability scanning, the same change-management approval — but explicitly flag in the PR description that AI assistance was used, so the reviewer knows to look more carefully at anything touching access control or data handling, per whatever the org's AI-usage policy specifies."}
+]},
+{id:"t15", label:"Leadership, Behavioral & Communication", accent:"#f43f5e", items:[
+  {id:"t15i1", group:"Communication & Ownership", q:"Tell me about a time you explained a complex technical issue to a non-technical stakeholder.",
+   a:"<b>Bring your own real example</b> — structure it around: starting from business impact (\"customers can't check out,\" not \"the connection pool is exhausted\"), using a concrete analogy if it helps, stating what's being done and when they'll hear next, and avoiding jargon unless you define it."},
+  {id:"t15i2", group:"Incident & Process Leadership", q:"Tell me about a production incident you owned end-to-end.",
+   a:"<b>Anchor to a real, verifiable example</b> — such as the chaos-engineering-driven recovery-time improvement or the earlier detection-time improvement work — rather than inventing specifics for this JD. Structure: detection, the immediate-mitigation-vs-root-cause tradeoff, who you looped in and when, what the actual fix was, and what changed afterward, like a monitoring gap closed or a runbook written, so it doesn't recur."},
+  {id:"t15i3", group:"Communication & Ownership", q:"How do you provide timely status, risk, and escalation updates during an incident — something this JD explicitly calls out?",
+   a:"Commit to a cadence up front, e.g. \"next update in 15 minutes,\" even if the update is \"no new information yet,\" since silence is worse than a null update. Separate the technical channel — engineers working the problem — from the stakeholder channel — plain-language impact plus ETA — so responders aren't distracted answering the same question repeatedly."},
+  {id:"t15i4", group:"Communication & Ownership", q:"Describe working independently and owning a technical activity through implementation, validation, documentation, and closure — the JD's exact phrase.",
+   a:"Structure the answer around those four stages explicitly: how you scoped and planned the work, how you implemented it, how you validated it actually worked, not just \"deployed,\" and how you documented it for the next person or an audit. Mirroring the JD's own language in your answer signals you read it carefully."},
+  {id:"t15i5", group:"Team & Cross-Functional", q:"Tell me about coordinating with a security or compliance team, especially during an audit.",
+   a:"<b>Framework:</b> treat auditors and compliance as a customer with a specific, answerable need rather than an obstacle. Come prepared with evidence organized before being asked. When a finding surfaces, own the remediation timeline rather than being defensive about it."},
+  {id:"t15i6", group:"Team & Cross-Functional", q:"What do you do when you disagree with a security team's finding or a compliance requirement that seems overly strict?",
+   a:"Push back with specifics and alternatives, not just \"this slows us down.\" Propose a compensating control or a phased remediation if the literal requirement is genuinely impractical, but ultimately treat security/compliance sign-off as authoritative in a regulated environment rather than routing around it."},
+  {id:"t15i7", group:"Team & Cross-Functional", q:"Tell me about mentoring someone or sharing knowledge across a team.",
+   a:"<b>Framework:</b> identify a concrete skill or knowledge gap, how you closed it — pairing, a written runbook, a lunch-and-learn — and how you measured that it actually landed, meaning they could later do the task independently. Bring your own example."},
+  {id:"t15i8", group:"Incident & Process Leadership", q:"Tell me about a time you improved a process, not just fixed a single incident.",
+   a:"<b>Use the real, already-verified alert-noise-reduction story</b> — roughly a 40% reduction — as the anchor. Structure: identify the systemic pattern behind repeated pain, not a one-off; the specific change made, such as threshold tuning, consolidation, or automation; and the measured before/after outcome."}
+]},
+{id:"t16", label:"Tricky & Real-Time Scenarios", accent:"#737373", items:[
+  {id:"t16i1", group:"Pipeline, State & Compliance Curveballs", q:"\"The pipeline shows green, but nothing actually deployed.\" What's your diagnosis?",
+   a:"Green usually means \"the steps that ran, succeeded.\" Check whether a step was silently skipped — a conditional that evaluated false unexpectedly — whether the deploy step actually targeted the environment you think it did, or whether it deployed successfully but to the wrong target group or service due to a stale variable. Verify against the actual running artifact version, not pipeline status alone."},
+  {id:"t16i2", group:"Certificate & Latency Curveballs", q:"\"A certificate rotated fine in staging but broke production.\" What's your first hypothesis?",
+   a:"Environment drift in the chain or SAN. Check whether production's cert has the correct SAN for its actual hostname, whether the full intermediate chain — not just the leaf — was deployed to production's specific keystore or load balancer, and whether an automation script assumed the two environments' certificate-storage paths were identical when they weren't."},
+  {id:"t16i3", group:"Pipeline, State & Compliance Curveballs", q:"\"A PCI auditor flags an EC2 instance with an unexpected public IP.\" How do you respond?",
+   a:"Don't get defensive — confirm the finding is accurate first, then determine root cause: was this created outside IaC or manually, and is it actually in CDE scope. Remediate by removing the public IP or moving it to a private subnet behind a NAT/ALB as appropriate. Critically, explain what control gap allowed it — a missing guardrail such as an SCP preventing public IP assignment, or drift detection not being run — so the auditor sees both the fix and the systemic prevention."},
+  {id:"t16i4", group:"Certificate & Latency Curveballs", q:"\"A partner says your API certificate expired overnight and caused their outage.\" What should have prevented this, and how do you respond right now?",
+   a:"Right now: rotate or renew immediately and confirm the partner's side re-validates against the new cert. Going forward: this is exactly what proactive expiry monitoring with multi-threshold alerting should have caught weeks earlier — the honest answer includes acknowledging the monitoring gap, not just fixing the symptom."},
+  {id:"t16i5", group:"Pipeline, State & Compliance Curveballs", q:"\"Terraform state says a resource exists, but the AWS console shows it was deleted.\" How do you reconcile this?",
+   a:"This is state drift. Run <code class=\"inline\">terraform plan</code> to see how Terraform proposes to reconcile — it will likely want to recreate the \"missing\" resource. Before blindly applying, confirm <i>why</i> it was deleted — a manual deletion, another automation, a different Terraform run targeting the same resource — to avoid recreating something that was intentionally removed. Then either accept the recreate or use <code class=\"inline\">terraform state rm</code> if the removal was intentional and the config should be updated to match."},
+  {id:"t16i6", group:"Certificate & Latency Curveballs", q:"\"CloudWatch shows CPU and memory are fine, but response times are creeping up.\" Where do you look next?",
+   a:"CPU/memory being fine rules out simple resource exhaustion. Look at connection-pool saturation — DB or a downstream service — thread or queue depth if the app has an internal work queue, downstream dependency latency (a third-party call slowing down doesn't show up as your own CPU), or a network-level issue such as DNS resolution time or NAT gateway port exhaustion. The pattern points away from compute and toward a dependency or concurrency bottleneck."},
+  {id:"t16i7", group:"Pipeline, State & Compliance Curveballs", q:"\"Two engineers both manually changed the same Terraform-managed resource around the same time.\" How do you reconcile it?",
+   a:"Run <code class=\"inline\">terraform plan</code> immediately to see the full delta rather than guessing which change \"wins.\" Talk to both engineers to understand intent before applying anything — one change might be the fix, the other a fumble. This is also the argument for why manual production changes should be restricted in the first place — put it in writing as a process gap to close, tying back to segregation of duties and change management, not just a one-off cleanup."},
+  {id:"t16i8", group:"Pipeline, State & Compliance Curveballs", q:"\"Reduce vulnerability-scan false-positive noise without missing real criticals.\" How do you approach this?",
+   a:"Tune scanners against your actual runtime context — suppress findings for code paths that are genuinely unreachable or unused, with documented justification, never a blanket suppression. Tier findings by real exploitability and exposure rather than raw severity alone. Review suppression rules periodically so a \"temporarily accepted\" risk doesn't silently become permanent. The goal is a shorter, higher-confidence list engineers actually act on, not a shorter list at the cost of missing something real."}
+]}
+];
+
+// ---------------- Engine ----------------
+let mastered = new Set();
+try{
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw) mastered = new Set(JSON.parse(raw));
+}catch(e){ mastered = new Set(); }
+
+function saveMastery(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(mastered))); }catch(e){}
+}
+
+let activeTabId = TABS[0].id;
+let activePill = "all";
+let searchQuery = "";
+let unmasteredOnly = false;
+let expandedIds = new Set();
+
+function currentTab(){ return TABS.find(t => t.id === activeTabId); }
+
+function tabGroups(tab){
+  const seen = [];
+  tab.items.forEach(it => { if(!seen.includes(it.group)) seen.push(it.group); });
+  return seen;
+}
+
+function totalCounts(tab){
+  const total = tab.items.length;
+  const done = tab.items.filter(it => mastered.has(it.id)).length;
+  return {total, done};
+}
+
+function matchesSearch(item, q){
+  if(!q) return true;
+  const hay = (item.q + " " + item.a).toLowerCase();
+  return hay.includes(q);
+}
+
+function visibleItems(tab){
+  const q = searchQuery.trim().toLowerCase();
+  return tab.items.filter(it => {
+    if(activePill !== "all" && it.group !== activePill) return false;
+    if(unmasteredOnly && mastered.has(it.id)) return false;
+    if(!matchesSearch(it, q)) return false;
+    return true;
+  });
+}
+
+function renderSidebar(){
+  const el = document.getElementById("sidebar");
+  el.innerHTML = "";
+  TABS.forEach(tab => {
+    const {total, done} = totalCounts(tab);
+    const btn = document.createElement("button");
+    btn.className = "tab-btn" + (tab.id === activeTabId ? " active" : "");
+    btn.style.setProperty("--accent-color", tab.accent);
+    btn.innerHTML = `<span>${tab.label}</span><span class="tab-count${done===total?' done':''}">${done}/${total}</span>`;
+    btn.onclick = () => {
+      activeTabId = tab.id;
+      activePill = "all";
+      searchQuery = "";
+      document.getElementById("search").value = "";
+      expandedIds = new Set();
+      renderAll();
+    };
+    el.appendChild(btn);
+  });
+}
+
+function renderPills(){
+  const tab = currentTab();
+  const groups = tabGroups(tab);
+  const wrap = document.getElementById("pills");
+  wrap.innerHTML = "";
+  if(groups.length <= 1) return;
+  const allPill = document.createElement("button");
+  allPill.className = "pill" + (activePill === "all" ? " active" : "");
+  allPill.textContent = `All (${tab.items.length})`;
+  allPill.onclick = () => { activePill = "all"; renderAll(); };
+  wrap.appendChild(allPill);
+  groups.forEach(g => {
+    const count = tab.items.filter(it => it.group === g).length;
+    const p = document.createElement("button");
+    p.className = "pill" + (activePill === g ? " active" : "");
+    p.textContent = `${g} (${count})`;
+    p.onclick = () => { activePill = g; renderAll(); };
+    wrap.appendChild(p);
+  });
+}
+
+function renderStat(){
+  const tab = currentTab();
+  const {total, done} = totalCounts(tab);
+  document.getElementById("statText").textContent = `${done} / ${total} mastered in this topic`;
+  const pct = total ? Math.round((done/total)*100) : 0;
+  document.getElementById("progressFill").style.width = pct + "%";
+}
+
+function renderList(){
+  const tab = currentTab();
+  const items = visibleItems(tab);
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  if(items.length === 0){
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    empty.textContent = "No questions match your current filters.";
+    list.appendChild(empty);
+    updateExpandBtn(items);
+    return;
+  }
+
+  let lastGroup = null;
+  items.forEach(it => {
+    if(it.group !== lastGroup){
+      const h = document.createElement("div");
+      h.className = "group-heading";
+      h.textContent = it.group;
+      list.appendChild(h);
+      lastGroup = it.group;
+    }
+    const card = document.createElement("div");
+    card.className = "card" + (expandedIds.has(it.id) ? " open" : "") + (mastered.has(it.id) ? " mastered" : "");
+    card.style.setProperty("--accent-color", tab.accent);
+    card.dataset.id = it.id;
+
+    const qRow = document.createElement("div");
+    qRow.className = "card-q";
+    qRow.innerHTML = `<span class="q-text">${it.q}</span><span class="q-meta"><span class="mastered-dot"></span><span class="caret">▶</span></span>`;
+    qRow.onclick = () => {
+      if(expandedIds.has(it.id)) expandedIds.delete(it.id);
+      else expandedIds.add(it.id);
+      renderList();
+    };
+
+    const aRow = document.createElement("div");
+    aRow.className = "card-a";
+    aRow.innerHTML = it.a + `<div class="mastery-row"><label style="cursor:pointer; display:flex; align-items:center; gap:7px;"><input type="checkbox" class="mastery-checkbox" ${mastered.has(it.id) ? "checked" : ""}> Mark as mastered</label></div>`;
+
+    const checkbox = aRow.querySelector(".mastery-checkbox");
+    checkbox.onclick = (e) => {
+      e.stopPropagation();
+      if(checkbox.checked) mastered.add(it.id);
+      else mastered.delete(it.id);
+      saveMastery();
+      renderSidebar();
+      renderStat();
+      card.classList.toggle("mastered", checkbox.checked);
+    };
+    aRow.onclick = (e) => { if(e.target !== checkbox) e.stopPropagation(); };
+
+    card.appendChild(qRow);
+    card.appendChild(aRow);
+    list.appendChild(card);
+  });
+
+  updateExpandBtn(items);
+}
+
+function updateExpandBtn(items){
+  const btn = document.getElementById("expandBtn");
+  if(items.length === 0){ btn.textContent = "Expand All"; return; }
+  const allOpen = items.every(it => expandedIds.has(it.id));
+  btn.textContent = allOpen ? "Collapse All" : "Expand All";
+}
+
+document.getElementById("expandBtn").onclick = () => {
+  const tab = currentTab();
+  const items = visibleItems(tab);
+  const allOpen = items.length > 0 && items.every(it => expandedIds.has(it.id));
+  if(allOpen){
+    items.forEach(it => expandedIds.delete(it.id));
+  }else{
+    items.forEach(it => expandedIds.add(it.id));
+  }
+  renderList();
+};
+
+document.getElementById("search").addEventListener("input", (e) => {
+  searchQuery = e.target.value;
+  renderList();
+});
+
+document.getElementById("unmasteredToggle").addEventListener("change", (e) => {
+  unmasteredOnly = e.target.checked;
+  renderList();
+});
+
+document.getElementById("resetBtn").onclick = () => {
+  const tab = currentTab();
+  if(!confirm(`Reset mastery progress for "${tab.label}"? This can't be undone.`)) return;
+  tab.items.forEach(it => mastered.delete(it.id));
+  saveMastery();
+  renderAll();
+};
+
+function renderAll(){
+  renderSidebar();
+  renderPills();
+  renderStat();
+  renderList();
+}
+
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SRE Guild Lead — TCG Digital Interview Handbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0D12;
+  --bg-elev: #10141B;
+  --bg-card: #141920;
+  --border: #232A35;
+  --border-hover: #34404F;
+  --text: #E7EDF5;
+  --text-dim: #8D97A6;
+  --text-faint: #59626F;
+  --guild: #E8AC1F;
+  --observability: #F0793C;
+  --slo: #2DD4BF;
+  --incident: #F0475B;
+  --k8s: #4C86FF;
+  --iac: #9B6BE0;
+  --script: #00ADD8;
+  --cicd: #34D399;
+  --capacity: #84CC16;
+  --chaos: #DC2626;
+  --ops: #D4A017;
+  --cross: #8B5CF6;
+  --scenario: #EAB308;
+  --behavioral: #60A5FA;
+  --good: #34D399;
+  --radius: 10px;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--k8s); }
+:focus-visible { outline: 2px solid var(--guild); outline-offset: 2px; }
+
+.topbar { background: var(--bg-elev); border-bottom: 1px solid var(--border); }
+.term-chrome { display: flex; align-items: center; padding: 10px 20px; border-bottom: 1px solid var(--border); }
+.term-dots span { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+.term-dots span:nth-child(1) { background: #F0475B; }
+.term-dots span:nth-child(2) { background: #EAB308; }
+.term-dots span:nth-child(3) { background: #34D399; }
+.term-title { font-family: var(--font-mono); font-size: 12px; color: var(--text-faint); margin-left: 10px; }
+.term-prompt { font-family: var(--font-mono); font-size: 12.5px; padding: 10px 20px; color: var(--text-dim); overflow-x: auto; white-space: nowrap; }
+.prompt-user { color: var(--cicd); }
+.prompt-path { color: var(--k8s); }
+.prompt-dollar { color: var(--text-faint); margin: 0 4px; }
+
+.masthead { padding: 20px 20px 6px; max-width: 760px; margin: 0 auto; }
+.masthead .eyebrow { font-family: var(--font-mono); font-size: 11.5px; color: var(--guild); letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 6px; }
+.masthead h1 { font-size: 23px; margin: 0 0 6px; letter-spacing: -0.01em; }
+.masthead .sub { color: var(--text-dim); font-size: 14px; margin: 0; }
+
+.stat-bar { display: flex; gap: 10px; flex-wrap: wrap; padding: 14px 20px 22px; max-width: 760px; margin: 0 auto; }
+.stat-chip { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 12.5px; color: var(--text-dim); }
+.stat-chip b { color: var(--guild); font-family: var(--font-mono); font-size: 13px; }
+
+.hero { padding: 8px 20px 26px; border-bottom: 1px solid var(--border); }
+.guild-diagram { width: 100%; max-width: 400px; height: auto; display: block; margin: 0 auto; }
+.spoke { stroke: var(--guild); stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0.55; }
+.spoke-peer { stroke: var(--cross); }
+.node-pod { fill: #0A0D12; stroke: var(--k8s); stroke-width: 2; }
+.node-peer { fill: #0A0D12; stroke: var(--cross); stroke-width: 2; }
+.node-center { fill: var(--guild); }
+.node-label { font-family: var(--font-mono); font-size: 9.5px; fill: var(--text-dim); letter-spacing: 0.02em; }
+.center-label { font-family: var(--font-mono); font-size: 10px; font-weight: 700; fill: #0A0D12; }
+.diagram-caption { text-align: center; color: var(--text-faint); font-size: 12.5px; font-style: italic; max-width: 460px; margin: 8px auto 0; }
+.role-summary { max-width: 640px; margin: 16px auto 0; font-size: 14.5px; color: var(--text-dim); }
+.role-summary strong { color: var(--text); }
+.about-box { max-width: 640px; margin: 16px auto 0; background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--guild); border-radius: var(--radius); padding: 14px 16px; font-size: 13.5px; color: var(--text-dim); }
+.about-box h3 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--guild); }
+.about-box p { margin: 6px 0; }
+
+.round-tabs { display: flex; gap: 10px; max-width: 760px; margin: 4px auto 0; padding: 0 20px; }
+.round-tab { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 2px; font-family: var(--font-body); }
+.round-tab:hover { border-color: var(--border-hover); }
+.round-tab .round-tab-label { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--text-dim); letter-spacing: 0.02em; }
+.round-tab .round-tab-sub { font-size: 12px; color: var(--text-faint); }
+.round-tab.active { border-color: var(--guild); background: rgba(232,172,31,0.08); }
+.round-tab.active .round-tab-label { color: var(--guild); }
+.round-tab.active .round-tab-sub { color: var(--text-dim); }
+
+.controls { position: sticky; top: 0; z-index: 10; background: rgba(10,13,18,0.94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); padding: 12px 20px; }
+.search-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; max-width: 760px; margin: 0 auto; }
+#search-input { flex: 1 1 220px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 8px; font-size: 14px; font-family: var(--font-body); }
+#search-input:focus { border-color: var(--guild); }
+.btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-dim); padding: 9px 12px; border-radius: 8px; font-size: 12.5px; cursor: pointer; font-family: var(--font-body); }
+.btn:hover { border-color: var(--border-hover); color: var(--text); }
+.toggle-row { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-dim); white-space: nowrap; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px auto 0; max-width: 760px; }
+.chip { background: transparent; border: 1px solid var(--border); color: var(--text-dim); padding: 5px 10px; border-radius: 999px; font-size: 11px; font-family: var(--font-mono); cursor: pointer; letter-spacing: 0.02em; }
+.chip:hover { border-color: var(--border-hover); }
+.chip.active { background: var(--chip-accent, var(--guild)); border-color: var(--chip-accent, var(--guild)); color: #0A0D12; font-weight: 700; }
+
+main { max-width: 760px; margin: 0 auto; padding: 8px 20px 60px; }
+.qa-section { margin-top: 36px; }
+.qa-section.hidden { display: none; }
+.section-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; border-bottom: 2px solid var(--accent); padding-bottom: 8px; margin-bottom: 4px; }
+.section-tag { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--accent); background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 4px; }
+.section-head h2 { font-size: 17px; margin: 0; flex: 1; }
+.section-count { font-size: 11.5px; color: var(--text-faint); font-family: var(--font-mono); }
+.section-intro { color: var(--text-dim); font-size: 13.5px; margin: 8px 0 14px; }
+
+.qa-list { display: flex; flex-direction: column; gap: 8px; }
+.qa-card { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; overflow: hidden; }
+.qa-card.hidden { display: none; }
+.qa-card.mastered { background: rgba(52,211,153,0.05); }
+.qa-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer; }
+.mastery-check { width: 17px; height: 17px; accent-color: var(--good); flex-shrink: 0; cursor: pointer; }
+.qa-index { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-faint); flex-shrink: 0; min-width: 40px; }
+.qa-question { flex: 1; background: none; border: none; color: var(--text); font-family: var(--font-body); font-size: 14.5px; font-weight: 500; text-align: left; padding: 0; cursor: pointer; line-height: 1.4; }
+.qa-chevron { color: var(--text-faint); flex-shrink: 0; transition: transform 0.2s ease; font-size: 11px; }
+.qa-card.expanded .qa-chevron { transform: rotate(180deg); }
+.qa-body { display: none; border-top: 1px solid var(--border); }
+.qa-card.expanded .qa-body { display: block; }
+.qa-body-inner { padding: 10px 14px 16px 42px; font-size: 14px; color: var(--text-dim); }
+.qa-body-inner p { margin: 8px 0; }
+.qa-body-inner ul, .qa-body-inner ol { margin: 8px 0; padding-left: 20px; }
+.qa-body-inner li { margin: 4px 0; }
+.qa-body-inner strong { color: var(--text); }
+.qa-body-inner code { font-family: var(--font-mono); background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 4px; font-size: 0.9em; color: var(--k8s); }
+.qa-body-inner pre { background: #080A0E; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow-x: auto; margin: 10px 0; }
+.qa-body-inner pre code { background: none; padding: 0; color: #C9D4E0; font-size: 12px; line-height: 1.5; }
+.qa-tip { margin-top: 8px; padding: 8px 10px; background: rgba(232,172,31,0.08); border-left: 2px solid var(--guild); border-radius: 4px; font-size: 13px; }
+.qa-tip strong { color: var(--guild); }
+.qa-card.flagship { border-color: var(--guild); border-left-width: 4px; box-shadow: 0 0 0 1px rgba(232,172,31,0.18); }
+.flagship-badge { display: inline-block; font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; color: #0A0D12; background: var(--guild); padding: 2px 7px; border-radius: 999px; margin-left: 8px; white-space: nowrap; vertical-align: middle; }
+
+footer { text-align: center; color: var(--text-faint); font-size: 12px; padding: 30px 20px 50px; font-family: var(--font-mono); }
+
+@media (max-width: 600px) {
+  .masthead h1 { font-size: 19px; }
+  .section-head h2 { font-size: 15px; }
+  .qa-question { font-size: 14px; }
+  .qa-body-inner { padding-left: 14px; }
+  main { padding: 8px 14px 60px; }
+  .hero { padding: 8px 14px 22px; }
+  .controls { padding: 10px 14px; }
+  .round-tabs { padding: 0 14px; gap: 8px; }
+  .round-tab { padding: 10px 10px; }
+  .round-tab .round-tab-sub { font-size: 11px; }
+  .masthead { padding: 18px 14px 6px; }
+  .stat-bar { padding: 10px 14px 18px; }
+  .term-prompt, .term-chrome { padding-left: 14px; padding-right: 14px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="term-chrome">
+    <div class="term-dots"><span></span><span></span><span></span></div>
+    <span class="term-title">saroj@tcg-digital — guild-lead-prep — 82×20</span>
+  </div>
+  <div class="term-prompt"><span class="prompt-user">saroj@sre-guild</span><span class="prompt-path">:~</span><span class="prompt-dollar">$</span>./prepare_interview.sh --role="SRE Guild Lead" --company="TCG Digital" --interview=tomorrow</div>
+</div>
+
+<div class="masthead">
+  <p class="eyebrow">Interview Handbook</p>
+  <h1>SRE Guild Lead — TCG Digital</h1>
+  <p class="sub">Dev Factory · Guild leadership model · 10–15 years experience</p>
+</div>
+
+<div class="stat-bar">
+  <div class="stat-chip"><b id="stat-sections">–</b> sections</div>
+  <div class="stat-chip"><b id="stat-total">–</b> questions</div>
+  <div class="stat-chip"><b id="stat-mastered">–</b> mastered</div>
+</div>
+
+<div class="hero">
+  <svg class="guild-diagram" viewBox="0 0 400 300" role="img" aria-labelledby="guildDiagramTitle">
+    <title id="guildDiagramTitle">Diagram of the SRE Guild Lead at the center, connected by dashed influence lines to four pods and to the DevOps and Infra and Architecture and Design guilds</title>
+    <line x1="200" y1="150" x2="200" y2="35" class="spoke"/>
+    <line x1="200" y1="150" x2="300" y2="92" class="spoke"/>
+    <line x1="200" y1="150" x2="300" y2="208" class="spoke"/>
+    <line x1="200" y1="150" x2="200" y2="265" class="spoke"/>
+    <line x1="200" y1="150" x2="100" y2="208" class="spoke spoke-peer"/>
+    <line x1="200" y1="150" x2="100" y2="92" class="spoke spoke-peer"/>
+    <circle cx="200" cy="35" r="8" class="node-pod"/>
+    <circle cx="300" cy="92" r="8" class="node-pod"/>
+    <circle cx="300" cy="208" r="8" class="node-pod"/>
+    <circle cx="200" cy="265" r="8" class="node-pod"/>
+    <circle cx="100" cy="208" r="8" class="node-peer"/>
+    <circle cx="100" cy="92" r="8" class="node-peer"/>
+    <text x="200" y="18" text-anchor="middle" class="node-label">POD A</text>
+    <text x="312" y="88" text-anchor="start" class="node-label">POD B</text>
+    <text x="312" y="216" text-anchor="start" class="node-label">POD C</text>
+    <text x="200" y="288" text-anchor="middle" class="node-label">POD D</text>
+    <text x="88" y="204" text-anchor="end" class="node-label">DEVOPS &amp; INFRA</text>
+    <text x="88" y="80" text-anchor="end" class="node-label">ARCH &amp; DESIGN</text>
+    <circle cx="200" cy="150" r="32" class="node-center"/>
+    <text x="200" y="146" text-anchor="middle" class="center-label">GUILD</text>
+    <text x="200" y="160" text-anchor="middle" class="center-label">LEAD</text>
+  </svg>
+  <p class="diagram-caption">Reliability standards land through influence and cross-pod coordination — not a reporting line.</p>
+
+  <p class="role-summary"><strong>The core distinction to prepare for:</strong> this is a guild leadership role, not a people-management role. Nobody in the pods reports to you. Your tools are technical credibility, documentation, mentoring, and cross-pod coordination — and the JD says this twice, which means it's almost certainly the spine of the interview, not just one competency among many. Every section below that touches "how would you get pods to adopt X" is really testing this same muscle.</p>
+
+  <div class="about-box">
+    <h3>TCG Digital, at a glance</h3>
+    <p>TCG Digital is the AI and digital arm of The Chatterjee Group (TCG) — a multi-billion-dollar conglomerate spanning petrochemicals, life sciences, real estate, and IT. TCG Digital itself runs on a delivery model built around cross-functional <strong>pods</strong> organized under specialized "Factory" units (Cloud Factory, UX Factory, Mobility Factory, and — per this JD — a Dev Factory), blending onshore and offshore talent per engagement.</p>
+    <p>Their flagship platform, <strong>mcube</strong>, won the ESC National Export Excellence Award for Best AI Product in 2025. Recent public messaging leans heavily into agentic AI, including in regulated (GxP/pharma) environments — worth knowing since it signals the reliability bar the SRE guild will be held to. Company size is roughly 500–1,000 employees globally, HQ functions in New York with a large Kolkata (Salt Lake, Sector V) base. Mantra: "Velocity to Value."</p>
+  </div>
+</div>
+
+<div class="round-tabs" id="round-tabs">
+  <button class="round-tab active" data-round="1" type="button">
+    <span class="round-tab-label">Round 1</span>
+    <span class="round-tab-sub">Technical &amp; Guild Practice</span>
+  </button>
+  <button class="round-tab" data-round="2" type="button">
+    <span class="round-tab-label">Round 2</span>
+    <span class="round-tab-sub">Greenfield, Leadership &amp; Fit</span>
+  </button>
+</div>
+
+<div class="controls">
+  <div class="search-row">
+    <input type="text" id="search-input" placeholder="Search questions and answers…" aria-label="Search questions">
+    <button class="btn" id="expand-all" type="button">Expand all</button>
+    <button class="btn" id="collapse-all" type="button">Collapse all</button>
+    <label class="toggle-row"><input type="checkbox" id="unmastered-toggle"> Unmastered only</label>
+  </div>
+  <div class="chips" id="category-chips"></div>
+</div>
+
+<main id="sections-container">
+  <p style="color:var(--text-faint);font-family:var(--font-mono);font-size:13px;">Loading…</p>
+</main>
+
+<footer>
+  Built for your TCG Digital interview — tomorrow. Good luck. Progress saves automatically on this device.
+</footer>
+
+<script>
+const STORAGE_KEY = 'tcg-guild-lead-handbook-mastery';
+
+const DATA1 = [
+{
+  id: 'guild', tag: 'GUILD', color: 'var(--guild)',
+  title: 'Guild Leadership &amp; Influence Without Authority',
+  intro: 'The flagship section. Essential Skills line one is "able to set and land standards across pods without formal reporting authority" — expect this tested from multiple angles, not just as one behavioral question at the end.',
+  questions: [
+    { id:'g1', q:'What does "guild" actually mean here, and how is it different from your reporting line?', a:`
+      <p>A guild is a <strong>practice community</strong>, not an org chart box. It groups people around a discipline (reliability) that cuts across the delivery structure (pods, which are themselves organized by client/product under "Factory" units at TCG). The model echoes what Spotify popularized with guilds and chapters: chapters are your functional home, guilds are cross-cutting communities of practice that share standards and learning across chapter/team boundaries.</p>
+      <p>Practically: engineers doing SRE/DevOps work sit embedded <em>inside</em> pods and report to their pod lead or delivery manager. You don't own their headcount, their performance review, or their sprint priorities. What you own is the <strong>practice</strong> — the standards, tooling patterns, and craft those engineers are expected to apply, wherever they sit.</p>`},
+    { id:'g2', q:'How would you write the SRE guild charter for TCG Digital?', a:`
+      <p>Keep it to one page, because a charter nobody reads is not a charter. I'd structure it as:</p>
+      <ul>
+        <li><strong>Purpose</strong> — why the guild exists (consistent reliability practice regardless of which pod or client engagement a service sits under)</li>
+        <li><strong>Scope</strong> — what's in (SLOs, incident process, observability standards, IaC/automation patterns) vs. explicitly out (day-to-day pod delivery priorities, which stay with pod leads)</li>
+        <li><strong>Non-negotiables</strong> — the small set of standards every pod must meet (e.g., every production service has an owner, an SLO, and an on-call path) vs. recommended patterns pods can adapt</li>
+        <li><strong>Engagement model</strong> — guild sync cadence, how a pod raises an exception, how the guild escalates a gap to delivery leadership</li>
+        <li><strong>Success metrics</strong> — the guild health numbers you'll track and report</li>
+      </ul>
+      <p>The charter is a starting draft, not a decree — I'd socialize it with pod leads before it's final, because buy-in on the non-negotiables list is the actual hard part.</p>`},
+    { id:'g3', q:'A pod lead says "we don\'t have time for your observability standard this sprint." What do you do?', a:`
+      <p>I don't escalate first — I reframe first. Their real objection is usually "this is extra work with no payoff for me," so I'd connect the standard to something they already feel: fewer 2am pages, faster root-causing when something breaks on <em>their</em> service, less time spent explaining incidents to the client. If I can show a golden-path template that gets them 80% of the standard with minutes of setup (a Helm chart with dashboards/alerts pre-wired), the friction argument usually disappears.</p>
+      <p>If they still say no, I ask what they'd need to fit it in — sometimes it's genuinely a sequencing problem, not a values problem, and I can pair with one engineer for an afternoon instead of asking the whole pod to context-switch. Escalation to delivery leadership is a last resort, reserved for a pattern of refusal, not a single sprint's pushback.</p>`},
+    { id:'g4', q:'How is a guild lead different from an engineering manager, in your own words?', a:`
+      <p>An EM's authority is positional — headcount, reviews, sprint priorities. A guild lead's authority is earned and constantly re-earned — through technical credibility, the usefulness of what you publish, and whether pods actually get value from engaging with you. If I stop being useful, pods stop showing up to guild syncs; there's no org chart forcing them to. That's a sharper incentive to stay hands-on than most management roles carry.</p>
+      <p>It also changes what "success" looks like: an EM's team ships what the EM prioritizes. A guild's success is measured by <em>adoption</em> — how many pods actually run the standard, not how many were told to.</p>`},
+    { id:'g5', q:'How would you run an effective guild sync?', a:`
+      <p>Short, regular, and artifact-producing — not a status meeting. My default cadence: 30 minutes, biweekly, standing agenda:</p>
+      <ul>
+        <li>One incident learning from the last two weeks (what pattern should every pod know about)</li>
+        <li>One standard proposal or update, open for pushback</li>
+        <li>One tooling demo or golden-path improvement (5 minutes, rotating presenter across pods — this is also how you build embedded champions)</li>
+        <li>Open floor for any pod's blocker</li>
+      </ul>
+      <p>Everything discussed gets written down in the guild's shared space the same day — if it's not written down, it didn't happen, and the next pod that hits the same question has to ask again instead of finding an answer.</p>`},
+    { id:'g6', q:'What artifacts does a healthy guild actually maintain?', a:`
+      <ul>
+        <li>The charter and standards/RFCs (versioned, with a lightweight "propose → discuss → adopt" process)</li>
+        <li>Shared runbooks and playbooks, indexed by symptom, not just by service</li>
+        <li>Golden-path templates (Helm charts, Terraform modules, CI/CD pipeline templates) that make the standard the path of least resistance</li>
+        <li>A guild health dashboard (SLO attainment, MTTR trend, automation coverage, standard-adoption rate across pods)</li>
+        <li>An onboarding doc for new pods joining the guild's scope</li>
+      </ul>`},
+    { id:'g7', q:'How do you build technical credibility with engineers who don\'t report to you?', a:`
+      <p>By showing up where the work actually happens, not just where the standards get published. Concretely: joining a pod's incident retro even when I wasn't paged, opening a PR against their repo instead of just filing a suggestion, being reachable during someone else's on-call shift the first time they use a new runbook I wrote. Credibility with senior engineers is earned in the trenches, not in the charter document.</p>
+      <p>The fastest way to lose it is publishing a "standard" that's clearly never been run against a real production service — so before I'd propose anything guild-wide, I'd pilot it myself against one real pod first.</p>`},
+    { id:'g8', q:'Tell me about a time you influenced a technical decision without formal authority over the people involved.', a:`
+      <p>This is the question this whole role hinges on, so don't wing it — structure it in STAR (Situation, Task, Action, Result), and pull a real example from your 14+ years, ideally one where you moved a team toward a practice or tool (Kubernetes adoption, a Terraform/IaC standard, an observability change) without having line authority over the people you convinced.</p>
+      <p>What the interviewer is scoring: did you lead with data/credibility or with insistence, did you adapt when you hit resistance, and did the change actually stick after you moved on to the next thing. A guild lead who can point to one practice that "runs itself" now, months after they stopped pushing it, is exactly the signal this role wants.</p>
+      <div class="qa-tip"><strong>Prep note:</strong> pick a real, specific story from Barclays or Flyingedge/Russell Investments before tomorrow, and rehearse the numbers you actually remember — don't reach for a number you're not sure of live in the room.</div>`},
+    { id:'g9', q:'Two pods want conflicting standards — one wants Datadog, one wants OSS Prometheus/Grafana for cost reasons. How do you decide?', a:`
+      <p>I wouldn't force one tool guild-wide unless there's a real reason to (shared on-call tooling, a client compliance requirement, or genuine guild-wide cost pressure). What I'd standardize is the <strong>outcome</strong> — every pod exposes the four golden signals, every pod's alerts route through the same on-call/escalation path, every pod's SLO dashboard follows the same layout convention — and let implementation vary if the outcome is equivalent.</p>
+      <p>Over-standardizing tooling when the pods have genuinely different constraints (client-mandated tools, existing investment, team familiarity) is how guilds lose credibility. Standardize the contract, not the vendor, unless there's a concrete reason the vendor itself needs to be uniform.</p>`},
+    { id:'g10', q:'You don\'t own headcount, but the JD says you contribute to hiring and career pathing for the SRE discipline. How?', a:`
+      <p>I'd build a shared SRE competency rubric (junior → senior → staff-equivalent, by skill area) that pod leads use when writing job descriptions and doing performance calibration for SRE-flavored roles — so "senior SRE" means the same thing whether the pod is in Kolkata or Hyderabad. I'd sit on interview panels for SRE-titled roles across pods as the technical-bar-setter, and I'd offer a light mentoring track for engineers in a pod who want to grow into SRE work, even though they don't report to me.</p>
+      <p>The value to delivery leadership: without this, every pod invents its own bar for "SRE," and quality becomes inconsistent across client engagements — which is exactly the risk a services company like TCG Digital can't afford.</p>`},
+    { id:'g11', q:'How would you track and report "guild health" to Dev Factory leadership?', a:`
+      <p>A small, honest dashboard beats a big vanity one. I'd report: incident trend (volume + severity mix over time), MTTR trend, SLO attainment rollup across pods, and automation/toil-reduction coverage (% of repetitive ops work that's been self-serviced or automated). I'd present it monthly, with one paragraph of "what changed and why" rather than just numbers — leadership needs the story, not just the chart.</p>
+      <p>I'd resist the urge to report "adoption %" as a vanity metric alone — a pod that adopted the standard on paper but never actually alerts on it isn't a win, so I'd pair adoption with an outcome metric (did their MTTR actually improve).</p>`},
+    { id:'g12', q:'You\'re the senior escalation point for a critical incident in a pod using a stack you don\'t know deeply. What do you actually add?', a:`
+      <p>Not deep service knowledge — that's the pod's job. What I add is incident command discipline: keeping one person driving, one person scribing, making sure someone's actually watching the clock against the SLO burn rate, and asking the cross-cutting questions the pod is too close to ask themselves ("did anything else deploy in this window," "has this exact symptom happened on another pod before"). Pattern recognition across pods is the genuinely unique value a guild lead brings to an incident they don't own day-to-day.</p>
+      <p>I also protect the pod from stakeholder noise during the incident, so their engineers can stay heads-down fixing it instead of fielding status requests.</p>`},
+    { id:'g13', q:'How do you avoid becoming a bottleneck if every pod routes reliability questions through you?', a:`
+      <p>Documentation-first and self-service by default — if I answer the same question twice, the second answer becomes a runbook entry, not a repeat conversation. I'd deliberately cultivate an embedded "champion" in each pod (not a formal role, just the engineer who's absorbed the most guild context) so questions get answered locally most of the time, and I only get pulled in for genuinely novel problems.</p>
+      <p>If I notice I'm the single point of failure for a decision that should be routine, that's a signal the standard isn't documented well enough yet — not a reason to keep being the bottleneck.</p>`},
+    { id:'g14', q:'An embedded SRE/DevOps engineer in a pod isn\'t following guild standards. You have no authority to discipline them — what\'s your move?', a:`
+      <p>Coach first, and assume good faith — usually it's a constraint I don't know about yet (a client deadline, a legacy system that doesn't fit the standard cleanly), not defiance. I'd have a direct, low-drama conversation, understand the blocker, and either help solve it or adjust the standard if it genuinely doesn't fit their context.</p>
+      <p>If it's a repeated pattern with no real constraint behind it, I'd loop in their pod lead — not to get someone in trouble, but because sustained non-adoption is a signal the standard itself needs the pod lead's buy-in, which is their call to give, not mine to force.</p>`},
+    { id:'g15', q:'In one sentence — what\'s your leadership style, and how does it translate to a role with zero direct reports?', a:`
+      <p>Answer this with something true about how you've actually operated across 14+ years as a senior IC/technical lead — most senior SREs already lead this way day-to-day (setting a technical direction other engineers follow without a formal reporting line), they just haven't had to name it as a discipline before. The honest framing: "I've been doing guild-style leadership inside teams for years; this role just makes it the explicit job instead of a side effect of being the senior person in the room."</p>
+      <div class="qa-tip"><strong>Prep note:</strong> write your own one-sentence version tonight and say it out loud once before the interview — a leadership answer that sounds rehearsed-but-not-memorized lands far better than one you're composing live.</div>`},
+  ]
+},
+{
+  id: 'observability', tag: 'OBS', color: 'var(--observability)',
+  title: 'Observability &amp; Golden Signals',
+  intro: 'Named tools: Prometheus, Grafana, ELK/OpenSearch, Datadog. The JD explicitly calls out "golden signals" — that\'s Google SRE Book language, and a strong signal the interviewer is fluent in that framework.',
+  questions: [
+    { id:'o1', q:'Define the four golden signals with a concrete threshold example for each.', a:`
+      <ul>
+        <li><strong>Latency</strong> — time to serve a request. Split success vs. error latency separately (a fast error is not "good latency"). Example: p99 &lt; 300ms for checkout.</li>
+        <li><strong>Traffic</strong> — demand on the system, e.g. requests/sec or queue depth. Baseline it so you can spot anomalies, not just absolute spikes.</li>
+        <li><strong>Errors</strong> — rate of failed requests, explicit (5xx) and implicit (200 with wrong content). Example: error rate &gt; 1% over 5 minutes pages.</li>
+        <li><strong>Saturation</strong> — how "full" the system is (CPU, memory, connection pool, queue). Example: alert at 80% of a hard resource ceiling, before you hit it.</li>
+      </ul>`},
+    { id:'o2', q:'Monitoring vs. observability — what\'s the actual difference, and why do people conflate them?', a:`
+      <p>Monitoring answers questions you thought to ask in advance — dashboards and alerts built around known failure modes. Observability is the property that lets you answer questions you <em>didn't</em> anticipate, by exploring high-cardinality data after the fact. The three pillars — metrics, logs, traces — are the raw material; observability is what you can do with them when a novel failure shows up.</p>
+      <p>They get conflated because good monitoring is built on observable systems, but you can have excellent dashboards for known failure modes and still be blind the first time something genuinely new breaks — that gap is exactly what "observability" as a discipline exists to close.</p>`},
+    { id:'o3', q:'You have pods on Datadog and pods on OSS Prometheus/Grafana. How do you standardize observability across them without forcing a tool migration?', a:`
+      <p>Standardize the contract, not the backend: every service exposes the same four golden signals, under the same naming convention, alertable through the same on-call routing regardless of which backend stores the data. I'd publish a "golden signal spec" (metric names, label conventions, alert severity mapping) that both a Prometheus exporter and a Datadog agent config can satisfy.</p>
+      <p>Where I would push for consolidation is the <em>on-call and escalation layer</em> — everyone should page through one path (e.g., a shared PagerDuty/Opsgenie integration) even if the metrics live in different backends, because inconsistent paging is where guild-wide incident response actually breaks down.</p>`},
+    { id:'o4', q:'Write a PromQL alert for error rate above 1% over 5 minutes.', a:`
+      <pre><code>- alert: HighErrorRate
+  expr: |
+    sum(rate(http_requests_total{status=~"5.."}[5m]))
+    /
+    sum(rate(http_requests_total[5m]))
+    &gt; 0.01
+  for: 5m
+  labels:
+    severity: page
+  annotations:
+    summary: "Error rate above 1% for 5m on {{ $labels.job }}"
+    runbook: "https://guild.internal/runbooks/high-error-rate"</code></pre>
+      <p>Note the <code>for: 5m</code> — it prevents paging on a single noisy scrape; the condition has to hold for the full window. I'd always attach a runbook link in the annotation — an alert without a runbook is a guaranteed 2am Google search.</p>`},
+    { id:'o5', q:'Where does ELK/OpenSearch fit next to a metrics stack like Prometheus/Grafana?', a:`
+      <p>Metrics tell you <em>that</em> something's wrong and roughly where; logs tell you <em>why</em>, at the level of an individual request or stack trace. I'd reach for Prometheus/Grafana first for alerting and trend analysis (cheap to store, fast to query, built for numeric time series), and drop into OpenSearch/ELK when I need to search unstructured detail — a specific error message, a correlation ID across services, an audit trail.</p>
+      <p>OpenSearch is the AWS-driven, Apache-2.0-licensed continuation of the pre-license-change Elasticsearch/Kibana stack — functionally similar to ELK for most SRE use cases, and the more common choice now for teams that don't want Elastic's licensing terms.</p>`},
+    { id:'o6', q:'What makes an alert good instead of noisy?', a:`
+      <ul>
+        <li>Symptom-based (user-facing impact), not cause-based — alert on "checkout is slow," not "CPU is at 70%" (that's a diagnostic signal, not a page)</li>
+        <li>Actionable — if there's nothing a human can do at 2am, it shouldn't page; it can log or ticket instead</li>
+        <li>Has a runbook link</li>
+        <li>Distinguishes page-worthy (customer impact, now) from ticket-worthy (needs attention, not urgent)</li>
+        <li>Tuned against real burn rate, not a static threshold that pages on every minor blip</li>
+      </ul>
+      <p>Alert fatigue is a reliability risk in itself — a guild-wide review of alert-to-page ratio per pod is a good recurring guild health check.</p>`},
+    { id:'o7', q:'How do you design dashboards that work for both engineers and non-technical delivery leadership?', a:`
+      <p>Two layers, not one dashboard trying to do both jobs. Engineers get a drill-down view: golden signals per service, saturation detail, recent deploys overlaid on the graph. Leadership gets a rollup: SLO attainment as a single number/color per client engagement, incident count trend, nothing that requires reading a PromQL query to interpret. I'd link the leadership view down into the engineering view for anyone who wants to go deeper, rather than maintaining two disconnected dashboards.</p>`},
+    { id:'o8', q:'What causes cardinality explosion in Prometheus, and how do you fix it?', a:`
+      <p>Usually an unbounded label value — putting a user ID, request ID, or raw URL path into a metric label instead of a bounded value like a route template or status class. Each unique label combination is a new time series, and Prometheus's memory/query cost scales with that. Fix: move high-cardinality data to logs/traces instead of metric labels, use route templates ("/users/:id") instead of literal paths, and set up a cardinality-limiting relabel rule or recording rule to catch regressions before they take down the TSDB.</p>`},
+    { id:'o9', q:'What does "dashboards and alerts as code" look like in practice?', a:`
+      <p>Grafana dashboards defined as JSON (or via a tool like Grafonnet/Jsonnet for reuse) and committed to git, synced into Grafana via its provisioning API or a sidecar rather than clicked together in the UI. Alert rules live as YAML next to the service's other IaC. The payoff for a guild specifically: a golden-path dashboard template a new pod can fork and get 90% of the standard instantly, with changes reviewable in a PR instead of silently drifting in someone's browser session.</p>`},
+    { id:'o10', q:'How would you handle log isolation and cost control for a multi-tenant, multi-client observability setup?', a:`
+      <p>Since TCG Digital's pods often serve different client engagements, log isolation isn't just tidiness — it can be a contractual/compliance requirement. I'd use index-per-pod or index-per-client naming conventions in OpenSearch with role-based access scoped accordingly, tiered retention (hot for recent, cold/archived for compliance-driven longer retention), and sampling on high-volume, low-value log lines (health checks, debug-level noise) to keep ingest cost proportional to actual signal.</p>`},
+    { id:'o11', q:'What would a guild-provided "golden path" observability starter kit look like?', a:`
+      <p>A Helm chart or Terraform module a pod applies to a new service that wires up, by default: the four golden signal dashboards, a standard alert set (error rate, latency SLO burn, saturation), log shipping to the shared OpenSearch cluster with the pod's index namespace pre-configured, and a runbook stub. The goal is that adopting the guild standard is <em>less</em> work than not adopting it — that's the only way voluntary adoption scales past a handful of pods.</p>`},
+    { id:'o12', q:'A pod\'s dashboards look healthy but customers are complaining. What\'s your first move?', a:`
+      <p>Check what the dashboard is actually measuring versus what the customer is experiencing — a classic gap is server-side metrics looking clean while the problem is client-side (a CDN, a third-party API, DNS, or a mobile app version). I'd pull real user monitoring or synthetic checks from outside the infrastructure if they exist, and if they don't, that's itself the finding: the observability gap is between "what we instrument" and "what the user experiences," and closing it becomes the actual follow-up work.</p>`},
+  ]
+},
+{
+  id: 'slo', tag: 'SLO', color: 'var(--slo)',
+  title: 'SLIs, SLOs &amp; Error Budgets — Governed Across Pods',
+  intro: 'The JD asks for someone who defines AND operationalizes SLOs "to drive engineering and release decisions" — across pods with different products and clients. The governance angle, not just the textbook definitions, is what separates this from an IC-level answer.',
+  questions: [
+    { id:'s1', q:'Define SLI, SLO, SLA, and error budget with one example that ties them together.', a:`
+      <ul>
+        <li><strong>SLI</strong> — the measured indicator, e.g. "% of requests served in under 300ms"</li>
+        <li><strong>SLO</strong> — the internal target for that SLI, e.g. "99.9% of requests under 300ms, over a 30-day window"</li>
+        <li><strong>SLA</strong> — the external, often contractual commitment, usually looser than the SLO on purpose, with a penalty if breached</li>
+        <li><strong>Error budget</strong> — the allowed unreliability: 100% − SLO. At 99.9%, that's ~43 minutes of budget per 30 days. Spend it on risk (releases, experiments); once it's gone, the policy shifts toward stability work.</li>
+      </ul>`},
+    { id:'s2', q:'A pod has never done SLOs before. How do you help them define their first one?', a:`
+      <p>Start narrow and user-facing, not comprehensive. I'd pick the single metric that most directly reflects whether a real user had a good experience — usually availability or latency on the primary user journey (checkout, login, the core API call) — and resist the urge to instrument everything on day one. A pod's first SLO should take an afternoon to define and a week to start getting real data on, not a quarter-long project.</p>
+      <p>I'd also set the initial target from <em>observed</em> historical performance, not an aspirational number pulled from nowhere — if they're actually running at 99.5% today, starting the SLO at 99.99% guarantees an immediately blown budget and kills buy-in on day one.</p>`},
+    { id:'s3', q:'What actually happens when a pod\'s error budget is exhausted?', a:`
+      <p>The policy I'd propose guild-wide: once budget hits zero, feature releases pause except for changes that directly improve reliability, until the budget recovers above a re-entry threshold (not necessarily back to 100% — that's too strict and creates its own gaming incentive). It needs teeth — if "budget exhausted" never actually changes anyone's behavior, the whole SLO exercise is theater. The pod lead and delivery lead need to agree to this policy <em>before</em> the first time it triggers, or it becomes a fight in the moment instead of a pre-agreed process.</p>`},
+    { id:'s4', q:'How do you use SLOs to drive an actual release go/no-go decision?', a:`
+      <p>Before a release: check current burn rate. If the budget's healthy, ship normally. If it's tight, either delay, ship behind a flag to a small percentage first, or require an explicit sign-off from the pod lead acknowledging the risk. After: watch burn rate in the minutes/hours post-deploy as a primary rollback signal — a fast-burning budget after a deploy is often a clearer, earlier signal than waiting for a support ticket to land.</p>`},
+    { id:'s5', q:'How do you standardize SLO practice across pods serving completely different products and clients?', a:`
+      <p>You don't standardize the <em>numbers</em> — a batch data pipeline and a customer-facing checkout API have nothing in common numerically. You standardize the <em>process</em>: every production service must have at least one SLO, defined using the guild's template, reviewed quarterly, reported through the same rollup format, with an error budget policy that's actually enforced. That's the governance layer a guild lead owns; the specific target and SLI stay with the pod that knows their service and their client's actual needs best.</p>`},
+    { id:'s6', q:'What is multi-window, multi-burn-rate alerting, and why bother?', a:`
+      <p>Instead of one static threshold, you alert on the <em>rate</em> at which budget is being consumed, checked over multiple windows (e.g., 5 minutes and 1 hour) simultaneously. A fast burn over a short window catches a sudden outage quickly; a slower burn checked over a longer window catches a persistent, lower-grade degradation that a short-window check would miss entirely. Google's SRE workbook popularized the standard 2%/5%/10% budget-consumption thresholds mapped to different urgency levels — worth knowing that specific framework by name if it comes up.</p>`},
+    { id:'s7', q:'What does a good SLO rollup look like when reporting to Dev Factory leadership across many pods?', a:`
+      <p>One row per pod/service: current attainment vs. target, budget remaining, trend arrow, and a one-line "why" if it's red. Leadership doesn't need the PromQL; they need to know which client engagements are at reliability risk this month and whether that risk is improving or worsening. I'd flag persistent red rows as a guild-level intervention candidate, not just a pod problem to quietly track.</p>`},
+    { id:'s8', q:'A client contractually demands an SLA that\'s unrealistic given the current architecture. How do you handle it?', a:`
+      <p>This is a guild-to-delivery-leadership conversation, not something an engineer should be left holding alone. I'd translate the SLA into the internal SLO it implies, show the gap against current measured reality with data, and give delivery/account leadership the actual tradeoffs: what architecture investment would close the gap, what it costs, and what the risk is if we commit anyway without it. My job is to make the risk visible and quantified — the business call on whether to accept that risk with the client isn't mine to make alone, but it's absolutely mine to surface clearly and early, not after a breach.</p>`},
+    { id:'s9', q:'What\'s the practical engineering-effort difference between a 99.9% and a 99.95% SLO?', a:`
+      <p>99.9% allows ~43 minutes of downtime per month; 99.95% allows ~21.6 minutes — roughly half. That last increment usually costs disproportionately more: multi-AZ isn't enough anymore, you need multi-region or true zero-downtime deploy patterns, more sophisticated retry/circuit-breaker logic, and often a fundamentally different on-call response time commitment. I'd push back hard on any pod or client defaulting to "five nines" without discussing what that actually costs to build and staff — most services genuinely don't need it, and chasing it is often waste, not rigor.</p>`},
+    { id:'s10', q:'How do you set an achievable starting SLO for a chronically unreliable legacy service?', a:`
+      <p>Set it at (or just slightly above) current measured performance, not at an industry-standard target. The point of an SLO here isn't aspiration, it's making the <em>current</em> reliability visible and giving the team a real, honest baseline to improve from. I'd pair it with an explicit improvement roadmap and revisit the target quarterly as reliability work actually lands — an SLO the team already knows they're failing on day one just gets ignored.</p>`},
+    { id:'s11', q:'How would you tie error budgets to how pods allocate engineering time?', a:`
+      <p>As a guild-wide policy recommendation, not a mandate I can enforce directly: when a service is consistently burning its full budget, that's a signal the pod should allocate a fixed share of the next sprint (I'd suggest a ballpark like 10–20%, tuned per pod) to reliability work before taking on new feature scope. I'd frame this to pod leads as protecting their own velocity, not slowing it — an unreliable service generates more interrupt-driven firefighting than the reliability work would have cost, it's just less visible in a sprint plan.</p>`},
+  ]
+},
+{
+  id: 'incident', tag: 'INC', color: 'var(--incident)',
+  title: 'Incident Management &amp; Blameless Postmortems',
+  intro: 'JD language: "oncall design, escalation paths, severity classification, and blameless postmortems," plus you\'re explicitly the "senior escalation point for critical production incidents."',
+  questions: [
+    { id:'i1', q:'How would you design on-call rotations across pods with different sizes and a mixed onshore/offshore setup?', a:`
+      <p>No single rotation guild-wide — each pod owns its own primary/secondary rotation, sized to their team (a 3-person pod can't sustain the same rotation cadence as a 12-person one without burning people out). What I would standardize is the <em>handoff and escalation contract</em>: a documented handoff checklist, a maximum acceptable time-to-acknowledge per severity, and — given TCG's onshore/offshore blend — explicit time-zone-aware routing so a Sev1 doesn't sit waiting for someone who's asleep when a follow-the-sun handoff was available.</p>
+      <p>I'd also push for a minimum team size before a pod runs its own rotation at all (below a certain size, on-call burnout risk outweighs the benefit of pod-local ownership, and it may be better to pool with a neighboring pod).</p>`},
+    { id:'i2', q:'Walk through a severity classification framework with response-time expectations.', a:`
+      <ul>
+        <li><strong>Sev1</strong> — full outage or critical data issue, customer-facing. Page immediately, 15-min ack, all-hands-on-deck, guild lead pulled in as senior escalation.</li>
+        <li><strong>Sev2</strong> — major degradation, partial impact. Page, 30-min ack, pod handles with pod lead aware.</li>
+        <li><strong>Sev3</strong> — minor impact, workaround exists. Ticket, next business day.</li>
+        <li><strong>Sev4</strong> — cosmetic/no user impact. Backlog.</li>
+      </ul>
+      <p>The exact thresholds matter less than the discipline of classifying <em>consistently</em> across pods — a "Sev1" in one pod and a "Sev2" for the identical symptom in another erodes the whole framework's credibility with leadership.</p>`},
+    { id:'i3', q:'Design an escalation path — who gets paged, and when does the guild lead get pulled in?', a:`
+      <p>Primary on-call → secondary (if no ack in X minutes) → pod lead (for Sev1/Sev2, for awareness and any business-impact decisions) → guild lead (for Sev1s past a duration threshold, cross-pod incidents, or when the pod's own on-call is stuck and needs fresh eyes / cross-pod pattern-matching). I'd make the "guild lead gets paged" trigger explicit and automatic — e.g., any Sev1 unresolved past 30 minutes — rather than leaving it to someone's judgment call mid-incident, because that's exactly the moment judgment is most impaired.</p>`},
+    { id:'i4', q:'What actually makes a postmortem "blameless" — not just labeled that way?', a:`
+      <ul>
+        <li>Timeline of <strong>events and decisions</strong>, not people's names attached to mistakes ("the deploy at 14:02 introduced X," not "Priya's deploy broke X")</li>
+        <li>Facilitator explicitly reframes any blame-flavored comment in the room, in real time</li>
+        <li>Root cause analysis goes past the human action to the systemic gap that allowed it — if a person "should have caught it," ask why the system didn't catch it for them</li>
+        <li>Action items target process/tooling, not "be more careful"</li>
+        <li>Leadership visibly doesn't punish the person who caused the incident — this has to be demonstrated, not just stated, or nobody believes the "blameless" label</li>
+      </ul>`},
+    { id:'i5', q:'Walk through a Five Whys example.', a:`
+      <p>Symptom: checkout API returned 500s for 12 minutes.</p>
+      <ol>
+        <li>Why? Database connection pool was exhausted.</li>
+        <li>Why? A new endpoint didn't release connections on a timeout path.</li>
+        <li>Why? The timeout handling wasn't covered by the connection-leak test suite.</li>
+        <li>Why? That test suite only covers the happy path for new endpoints — timeout scenarios aren't in the checklist.</li>
+        <li>Why? There's no PR template item requiring timeout-path test coverage for new DB-touching endpoints.</li>
+      </ol>
+      <p>Action item lands on the process gap (add the checklist item / lint rule), not on "the engineer should have tested timeouts" — that's the difference between Five Whys done well and done as a blame exercise with extra steps.</p>`},
+    { id:'i6', q:'You\'re pulled into a critical incident in a pod\'s stack you barely know. What do you do in the first 15 minutes?', a:`
+      <p>I don't try to become the domain expert in 15 minutes — I run the incident, and let the pod be the domain expert. Concretely: confirm someone's driving the technical fix and someone's scribing the timeline, ask the cross-cutting questions the pod may be too deep in the weeds to ask ("what changed in the last hour — deploys, config, traffic pattern," "has this symptom shown up on another pod recently"), and start tracking SLO burn rate against a mitigation deadline so we know when to consider a rollback versus continuing to chase root cause live.</p>
+      <p>My value in those 15 minutes is process and pattern-matching, not stack-specific knowledge — and being explicit about that with the pod up front avoids me getting in the way of people who know the system better than I do.</p>`},
+    { id:'i7', q:'What is the incident commander role, concretely, during a live Sev1?', a:`
+      <p>Not necessarily the person fixing the issue — the person coordinating everyone who is. Responsibilities: keep a single source of truth for status, decide when to escalate or pull in more people, manage stakeholder communication so engineers aren't interrupted mid-fix, make the call on rollback vs. continue-forward, and declare when the incident is actually resolved (not just "looks better"). On a cross-pod incident, the guild lead is a natural fit for this role since nobody in a single pod has the standing to coordinate across pod boundaries.</p>`},
+    { id:'i8', q:'How do you actually reduce MTTR across pods, not just report the number?', a:`
+      <ul>
+        <li>Better alerting (symptom-based, with runbook links) cuts time-to-detect</li>
+        <li>Standardized dashboards cut time-to-diagnose — engineers aren't relearning a new dashboard layout per incident</li>
+        <li>Rehearsed rollback procedures (not "we could roll back" but "here's the one command") cut time-to-mitigate</li>
+        <li>A guild-maintained "common failure patterns" doc cuts time-to-root-cause for repeat-shaped incidents</li>
+      </ul>
+      <p>MTTR is a lagging indicator of all of the above being in place — chasing the number directly without fixing the inputs just produces gamed reporting.</p>`},
+    { id:'i9', q:'What does a good runbook actually contain, and how do you keep it from going stale?', a:`
+      <p>Symptom (how you'd recognize this from an alert), diagnosis steps in order, the actual fix commands (not "restart the service" — the real command, with the right namespace/flags), rollback steps if the fix doesn't work, and escalation contact if it's beyond the runbook's scope. Staleness prevention: every runbook gets used-and-verified during its incident, or reviewed at a fixed cadence (quarterly) with an owner accountable for it — an unowned runbook rots within two quarters, reliably.</p>`},
+    { id:'i10', q:'Postmortem action items keep piling up unresolved. How do you fix that guild-wide?', a:`
+      <p>Treat unresolved action items as a guild health metric, reported alongside MTTR and SLO attainment — visibility alone fixes a surprising amount of this. Beyond that: every action item needs an owner and a due date at the moment it's created (not "someone should"), items should be sized small enough to actually fit in a sprint, and I'd propose a rule that a pod can't have more than N open postmortem actions before it's flagged in the guild health review — forcing prioritization instead of infinite backlog growth.</p>`},
+    { id:'i11', q:'A shared platform dependency breaks and multiple pods are affected simultaneously. How do you coordinate?', a:`
+      <p>This is exactly the cross-pod scenario the guild-lead escalation point exists for. I'd immediately establish a single incident channel spanning all affected pods (not N separate pod-local incidents running in parallel with no shared visibility), assign one incident commander — likely me, since I'm the only person with standing across all affected pods — and have each pod report impact and status into the shared channel rather than fixing in isolation. Root cause ownership goes to whoever owns the shared dependency (possibly the DevOps &amp; Infra guild, if it's platform infrastructure), while each pod handles their own service-level mitigation in parallel.</p>`},
+    { id:'i12', q:'The same root cause keeps recurring across incidents in one pod. What\'s the guild-level move?', a:`
+      <p>A single postmortem action item clearly isn't fixing it, so I'd escalate this to a guild-level intervention rather than letting it stay a pod-local backlog item: pull the pattern together across incidents (showing it's not three unrelated issues but one systemic gap), bring it to the pod lead with that data, and offer hands-on help — pairing, a focused reliability sprint, or bringing in the Architecture &amp; Design guild if it's a design-level gap rather than an operational one. Recurring incidents are one of the clearest signals that guild-level coordination is adding real value over pod-local fixes.</p>`},
+  ]
+},
+{
+  id: 'k8s', tag: 'K8S', color: 'var(--k8s)',
+  title: 'Kubernetes &amp; Cloud-Native Infrastructure',
+  intro: 'JD lists AWS, Azure, or GCP — kept concise here since deep Kubernetes drilling almost certainly belongs in your existing K8s-focused handbooks; this section stays scoped to what\'s specific to a guild-wide, multi-cloud, multi-client context.',
+  questions: [
+    { id:'k1', q:'A pod\'s pod (the Kubernetes kind) is stuck in CrashLoopBackOff. Walk through your triage.', a:`
+      <p><code>kubectl describe pod</code> for events first (image pull failure, OOMKilled, failed readiness probe), then <code>kubectl logs --previous</code> to see the crash before the restart wiped it. Common root causes in order of frequency: bad config/env var, a missing dependency the app expects at startup, resource limits too tight causing OOMKill, or a readiness/liveness probe misconfigured against a slow-starting app. I'd check resource limits early since it's one of the most common and fastest to confirm.</p>`},
+    { id:'k2', q:'The JD says AWS, Azure, or GCP — what actually changes operationally between clouds, and what stays the same?', a:`
+      <p>What stays the same: Kubernetes primitives, your golden-signal instrumentation approach, your GitOps/CI-CD model, your IaC discipline. What changes: managed-cluster specifics (EKS IAM/IRSA vs. AKS managed identity vs. GKE workload identity), networking model details (VPC/subnet design differs meaningfully between AWS and Azure), and native observability tooling (CloudWatch/X-Ray vs. Azure Monitor vs. Cloud Operations). Practically, I'd keep the guild's standards cloud-agnostic at the Kubernetes layer and maintain a thin per-cloud adapter for the identity/networking bits that genuinely can't be abstracted away.</p>
+      <div class="qa-tip"><strong>Prep note:</strong> your Azure certifications (AZ-104, SC-300, SC-100) plus hands-on AWS experience map well onto this exact "AWS, Azure, or GCP" line — this JD is one of the few where the multi-cloud framing works in your favor rather than against it. Say so directly if asked about it.</div>`},
+    { id:'k3', q:'How would you approach multi-tenancy for pods sharing guild-managed Kubernetes infrastructure?', a:`
+      <p>Namespace-per-pod (or per-client, where isolation needs to be stricter than per-pod) as the baseline, with ResourceQuotas and LimitRanges enforced per namespace to prevent noisy-neighbor resource starvation. NetworkPolicies to restrict cross-namespace traffic to only what's explicitly needed. For clients with real compliance requirements, dedicated node pools or even dedicated clusters may be justified — the guild's job is defining that decision framework (when does a client need cluster-level isolation vs. namespace-level), not deciding it unilaterally per case.</p>`},
+    { id:'k4', q:'How do you design RBAC when many pods share guild-managed clusters?', a:`
+      <p>Role per pod, scoped to their namespace(s) only, granted via RoleBindings rather than ClusterRoleBindings wherever possible. The guild/platform team holds cluster-admin; pod engineers get namespace-scoped edit access; a narrower read-only ClusterRole for cross-namespace observability tooling. I'd tie role assignment to the same identity provider used org-wide (leaning on the SC-300/Azure AD-style setup if that's the org's IdP) rather than maintaining Kubernetes-native RBAC as a separate source of truth.</p>`},
+    { id:'k5', q:'How would Helm serve as the guild\'s golden-path delivery mechanism?', a:`
+      <p>A shared base chart (or library chart) encoding the guild's non-negotiables — resource requests/limits set, liveness/readiness probes required, standard labels for cost attribution and observability, default PodDisruptionBudget — that pods extend rather than reinvent per service. New pods start from <code>helm create --starter guild-baseline</code> equivalent instead of a blank chart, so the standard is the default, not an afterthought someone has to remember to bolt on.</p>`},
+    { id:'k6', q:'How do you approach a guild-wide cluster upgrade without breaking dozens of pods\' workloads?', a:`
+      <p>Staged rollout: a non-production or shared staging cluster first, a canary production cluster (or one low-risk pod's namespace) second, then the rest — never all pods on the first attempt. I'd communicate the upgrade window and any deprecated API versions well in advance (<code>kubectl</code> deprecation warnings and <code>pluto</code>/<code>kubent</code>-style scanning catch most breakage before it happens), and I'd own the guild-wide comms so no pod is surprised by an upgrade they didn't know was coming.</p>`},
+    { id:'k7', q:'How would you give pod-level cost visibility on shared Kubernetes infrastructure?', a:`
+      <p>Consistent cost-attribution labels enforced by the golden-path chart (pod-id, client-id) feeding a chargeback tool like Kubecost or OpenCost, with a per-pod cost dashboard as part of the guild's standard offering. Without enforced labeling at the chart level, cost attribution silently rots the first time someone forgets a label on a new service — so I'd make the label a schema-validated requirement, not a convention people are expected to remember.</p>`},
+    { id:'k8', q:'Resource requests are set far too low across several pods\' services, causing scheduling and stability issues. How do you fix it at guild scale?', a:`
+      <p>Rather than manually auditing every pod's YAML, I'd point VPA (Vertical Pod Autoscaler) in recommendation-only mode at the affected namespaces first to get real usage-based numbers, then propose right-sized requests as a PR against each pod's chart values rather than a top-down mandate — reviewable, low-drama, backed by data. I'd also add a guild-wide lint check (e.g., via OPA/Conftest in CI) that fails a chart missing requests/limits entirely, so this stops recurring for new services.</p>`},
+  ]
+},
+{
+  id: 'iac', tag: 'IAC', color: 'var(--iac)',
+  title: 'Infrastructure as Code &amp; Toil Reduction',
+  intro: 'Terraform, Ansible, Helm — "with a strong toil-reduction mindset" per the JD. Kept concise since deep Terraform drilling likely belongs in your dedicated Terraform handbook; this stays focused on the guild-scale/governance angle.',
+  questions: [
+    { id:'a1', q:'How would you design reusable Terraform modules that many pods can consume?', a:`
+      <p>A small set of guild-maintained modules for the patterns every pod needs (a standard VPC/network baseline, an EKS/AKS node group pattern, an RDS-with-backups pattern) published from a guild-owned repo and versioned with semantic tags, so pods pin to a known-good version rather than pulling <code>main</code> and inheriting breaking changes unexpectedly. Modules should expose sane defaults (encryption on, tagging enforced, logging on) with narrow, deliberate points of customization — not forty optional variables that let a pod accidentally disable every guardrail.</p>`},
+    { id:'a2', q:'How do you handle Terraform state management across many pods without it becoming a mess?', a:`
+      <p>Separate state per pod (or per pod-per-environment), never one shared monolithic state file — a single state file across dozens of pods turns every apply into a blast-radius risk and a lock-contention bottleneck. Remote backend (S3+DynamoDB, or Azure equivalent) with state files namespaced by pod and environment, and the guild owns the backend infrastructure itself (bucket, lock table, access policy) so pods don't each reinvent that plumbing.</p>`},
+    { id:'a3', q:'Terraform vs. Ansible — where does each fit in a guild-standardized toolchain?', a:`
+      <p>Terraform for declarative infrastructure provisioning — the "what should exist" layer (VPCs, clusters, databases, IAM). Ansible for configuration and orchestration on things that already exist — the "how do I configure this box/app" layer, and for one-off operational tasks that don't fit Terraform's declarative model well. I wouldn't force every pod onto both; if a pod is fully containerized on Kubernetes, they may have little need for Ansible at all, and mandating it anyway is exactly the kind of over-standardization that erodes guild credibility.</p>`},
+    { id:'a4', q:'Define "toil" per the Google SRE book, and how would you measure it across pods guild-wide?', a:`
+      <p>Toil is manual, repetitive, automatable, tactical work that scales linearly with service growth and carries no enduring value once done. I'd have each pod self-report (roughly) what share of their operational time is toil during a quarterly guild check-in, track the trend rather than chase precision, and prioritize guild-level automation investment toward whichever toil pattern shows up identically across the <em>most</em> pods — that's where a single guild-built tool gets the most leverage.</p>`},
+    { id:'a5', q:'Show a toil-reduction script example — Docker image cleanup.', a:`
+      <pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+# Remove dangling and unused images/containers older than 14 days (336h)
+docker image prune -af --filter "until=336h"
+docker container prune -f --filter "until=336h"
+
+echo "Toil cleanup complete"</code></pre>
+      <p><code>set -euo pipefail</code> is the non-negotiable first line of any production bash script — exit on error, exit on unset variable, and fail a pipeline if any stage fails, not just the last one.</p>`},
+    { id:'a6', q:'What would guild-mandated "policy as code" look like, and how do you enforce it without becoming the bottleneck?', a:`
+      <p>OPA/Conftest (or the Terraform-native Sentinel, cloud-dependent) rules checked in CI before any pod's <code>terraform apply</code> — no encryption-disabled S3 buckets, no security groups open to 0.0.0.0/0, mandatory cost-attribution tags. The key to not becoming a bottleneck: these run automatically in each pod's own pipeline, guild-owned as a shared CI template, not as a manual review I personally have to approve every time. Automated guardrails scale; a human approval gate on every pod's infra change does not.</p>`},
+    { id:'a7', q:'How would you detect and manage Terraform drift at guild scale across dozens of pods\' infrastructure?', a:`
+      <p>A scheduled <code>terraform plan</code> (read-only, no apply) run against every pod's state on a recurring cadence, with any detected drift surfaced to a shared guild dashboard rather than silently discovered during the next real change. Drift usually means someone made a manual console change under incident pressure — I'd treat repeated drift on the same resource as a signal to either lock that resource down harder or accept it needs a documented manual-change exception, rather than just re-applying and hoping it doesn't happen again.</p>`},
+    { id:'a8', q:'How do you make Helm the guild\'s packaging standard without it feeling like a mandate?', a:`
+      <p>Same golden-path logic as everywhere else in this handbook: make the guild-provided chart genuinely the fastest way to ship a compliant service, with real documentation and a working example, and adoption follows because it's easier — not because it's required. I'd track adoption as a guild health metric, but the actual lever is chart quality and pilot success stories from early-adopter pods, not a top-down deadline.</p>`},
+  ]
+},
+{
+  id: 'script', tag: 'CODE', color: 'var(--script)',
+  title: 'Scripting for Automation — Python, Go, Shell',
+  intro: 'Go is explicitly named alongside Python and Shell — likely lighter-covered ground than Python/Bash in your other prep, so weighted accordingly here.',
+  questions: [
+    { id:'c1', q:'Why would an SRE guild specifically reach for Go over Python for tooling?', a:`
+      <p>Distribution is the big one: Go compiles to a single static binary with no runtime/dependency install needed, which matters enormously when you're shipping a guild-wide CLI tool to dozens of pods that may not all have the same Python version or virtualenv discipline. Performance and real concurrency (goroutines) matter for anything doing a lot of parallel I/O, like polling many services' health endpoints. It's also the native language of the ecosystem you're already operating in — Kubernetes, Prometheus, Terraform, Docker are all written in Go, so contributing to or extending those tools' own ecosystem favors Go.</p>
+      <p>Python still wins for quick scripts, data-shaping, and anything glueing together APIs where developer velocity matters more than distribution or raw performance.</p>`},
+    { id:'c2', q:'Show a short Go example — a concurrent health checker.', a:`
+      <pre><code>package main
+
+import (
+	"fmt"
+	"net/http"
+	"sync"
+	"time"
+)
+
+func checkHealth(url string, wg *sync.WaitGroup, mu *sync.Mutex, results map[string]bool) {
+	defer wg.Done()
+	client := http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Get(url)
+	ok := err == nil &amp;&amp; resp.StatusCode == 200
+	mu.Lock()
+	results[url] = ok
+	mu.Unlock()
+}
+
+func main() {
+	pods := []string{"http://pod-a/healthz", "http://pod-b/healthz", "http://pod-c/healthz"}
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	results := make(map[string]bool)
+
+	for _, url := range pods {
+		wg.Add(1)
+		go checkHealth(url, &amp;wg, &amp;mu, results)
+	}
+	wg.Wait()
+
+	for url, ok := range results {
+		fmt.Printf("%s healthy=%v\\n", url, ok)
+	}
+}</code></pre>
+      <p>Each pod's health check runs concurrently via a goroutine, <code>sync.WaitGroup</code> waits for all to finish, and a mutex protects the shared results map from concurrent writes — the standard pattern for fan-out/fan-in in Go.</p>`},
+    { id:'c3', q:'Show a Python example — rolling up SLO burn rate across services for a guild health report.', a:`
+      <pre><code>#!/usr/bin/env python3
+"""Roll up SLO burn-rate across pods for the weekly guild health report."""
+import requests
+
+PROM_URL = "http://prometheus.guild.svc:9090"
+SERVICES = ["checkout", "payments", "catalog", "search"]
+
+def burn_rate(service: str) -> float:
+    query = (
+        f'sum(rate(http_requests_total{{job="{service}",status=~"5.."}}[1h])) '
+        f'/ sum(rate(http_requests_total{{job="{service}"}}[1h]))'
+    )
+    resp = requests.get(f"{PROM_URL}/api/v1/query", params={{"query": query}}, timeout=5)
+    result = resp.json()["data"]["result"]
+    return float(result[0]["value"][1]) if result else 0.0
+
+for svc in SERVICES:
+    rate = burn_rate(svc)
+    flag = "AT RISK" if rate &gt; 0.01 else "OK"
+    print(f"{svc:12s} error_rate={{rate:.4%}}  {{flag}}")</code></pre>
+      <p>Doubled braces (<code>{{</code> / <code>}}</code>) inside the f-string are how you escape a literal brace when the string itself also needs f-string interpolation — worth knowing cold if you're live-coding a PromQL query builder.</p>`},
+    { id:'c4', q:'What does a production-grade Bash script skeleton look like, versus a throwaway one?', a:`
+      <pre><code>#!/usr/bin/env bash
+set -euo pipefail
+trap 'echo "FAILED at line $LINENO" &gt;&amp;2' ERR
+
+LOG_FILE="/var/log/guild/$(basename "$0").log"
+log() { echo "[$(date -Is)] $*" | tee -a "$LOG_FILE"; }
+
+log "Starting..."
+# ... actual work here ...
+log "Done."</code></pre>
+      <p>The difference from a quick one-liner: <code>set -euo pipefail</code> for fail-fast behavior, a trap that reports exactly which line failed (invaluable when a guild-wide script fails silently in a pod you don't have eyes on), and structured logging instead of bare <code>echo</code> so failures are traceable after the fact, not just in a terminal that's already gone.</p>`},
+    { id:'c5', q:'When would you actually choose Go over Python for a specific SRE tool, concretely?', a:`
+      <p>If it's going to be distributed as a CLI to every pod (no dependency install friction), if it needs real concurrency at scale (checking hundreds of endpoints in parallel), or if it's extending something already in the Go ecosystem (a kubectl plugin, a Prometheus exporter, a Terraform provider). If it's a one-off analysis script, a quick API glue job, or something only the guild itself runs, Python's faster to write and iterate on — I wouldn't rewrite something in Go just for its own sake.</p>`},
+    { id:'c6', q:'How would you package and distribute a guild-wide CLI tool to pods that don\'t all have the same environment?', a:`
+      <p>This is where Go's single-binary distribution pays off directly: a GitHub Actions/GitLab CI release pipeline that cross-compiles for linux/amd64 and arm64, publishes to a shared internal artifact store or GitHub Releases, and a one-line install script (<code>curl | sh</code> pattern, or better, a checksum-verified equivalent) pods run once. Versioning matters — pods should be able to pin a known-good version rather than always pulling latest, the same discipline as the Terraform module versioning above.</p>`},
+    { id:'c7', q:'Once a script becomes guild-wide infrastructure other pods depend on, what changes about your quality bar?', a:`
+      <p>It stops being a personal script and starts being a dependency — so it needs: actual error handling (not just letting exceptions crash silently in someone else's pipeline), a test suite if it's doing anything non-trivial, versioned releases instead of "just pull latest," and documentation good enough that a pod engineer can use it without asking me. I'd treat guild-published tooling with the same code review bar as any production service, even if it "started as a quick script" — the moment other teams depend on it, the throwaway-script mindset becomes a liability.</p>`},
+  ]
+},
+{
+  id: 'cicd', tag: 'CI/CD', color: 'var(--cicd)',
+  title: 'CI/CD &amp; Release Engineering',
+  intro: 'Jenkins, GitLab CI, ArgoCD named in the JD. Kept concise — the guild-governance angle (shared templates, standardized gates) is the differentiator over a generic CI/CD Q&amp;A.',
+  questions: [
+    { id:'ci1', q:'Jenkins vs. GitLab CI vs. ArgoCD — where does each fit, and would you push pods to standardize on one?', a:`
+      <p>Jenkins and GitLab CI are both CI (build/test/package) — which one a pod uses often comes down to what their client engagement or existing toolchain already runs, and I wouldn't force a migration purely for guild tidiness unless there's a real driver (cost, security, maintenance burden). ArgoCD is different in kind — it's CD via GitOps, reconciling cluster state to a git source of truth — and I would push harder to standardize on GitOps for the CD half specifically, because a consistent deployment model across pods pays off directly in incident response speed (everyone knows how to check "what's actually deployed" the same way).</p>`},
+    { id:'ci2', q:'Explain the App-of-Apps GitOps pattern with ArgoCD for many pods/services.', a:`
+      <p>A root ArgoCD Application whose only job is to manage other Application manifests — one child Application per pod or per service — so onboarding a new pod's GitOps setup is "add one manifest to the root app" rather than manually configuring ArgoCD per service. It scales guild administration cleanly: I can see and reason about every pod's deployed state from one root application tree instead of dozens of disconnected configurations.</p>`},
+    { id:'ci3', q:'What pipeline security gates would you mandate guild-wide?', a:`
+      <p>SAST (static analysis) on every PR, dependency/SCA scanning for known CVEs, secret scanning to block committed credentials before merge, and container image scanning before anything reaches a registry pods can pull from. I'd make these part of a shared pipeline template rather than something each pod configures independently — consistency here is a security requirement, not just convenience, especially across client engagements with different compliance obligations.</p>`},
+    { id:'ci4', q:'How do you make canary/blue-green deployment a guild-recommended standard that pods without deep deployment expertise can actually use?', a:`
+      <p>Bake it into the golden-path Helm chart and ArgoCD rollout config rather than expecting each pod to hand-roll their own traffic-shifting logic — Argo Rollouts (the ArgoCD-adjacent controller) supports canary/blue-green natively with analysis-based promotion gates tied directly to the golden-signal metrics from the observability section. A pod adopting the standard chart gets safe deployment patterns "for free," which is exactly the leverage a guild should be optimizing for.</p>`},
+    { id:'ci5', q:'How would you roll out shared CI/CD pipeline templates without breaking pods mid-flight?', a:`
+      <p>Versioned templates (pods pin a version, same discipline as the Terraform modules), a deprecation window before an old version is retired, and a pilot pod validating any new template version before it's offered guild-wide. I'd never force an in-flight pipeline update on every pod simultaneously — that's a guaranteed guild-credibility hit the first time it breaks someone's release during a client-facing deadline.</p>`},
+    { id:'ci6', q:'What rollback standard would you push across pods?', a:`
+      <p>Every pod needs a rollback that's a single command or button, rehearsed (not theoretical), and faster than root-causing forward. With GitOps, rollback is usually a git revert of the deployed manifest, which ArgoCD then reconciles automatically — I'd treat "can this pod roll back in under 5 minutes without me on the call" as a real guild-adoption checkbox, not just a nice-to-have.</p>`},
+  ]
+},
+{
+  id: 'capacity', tag: 'CAP', color: 'var(--capacity)',
+  title: 'Capacity Planning, Performance &amp; Cost',
+  questions: [
+    { id:'cp1', q:'How do you approach capacity planning across pods with very different growth trajectories?', a:`
+      <p>Pod-owned forecasting (they know their own client's growth/seasonality far better than I do), guild-provided methodology: trend current utilization against historical growth rate, add a safety margin sized to how volatile that pod's traffic actually is, and review quarterly rather than annually since client engagements can shift fast. I'd standardize the <em>process and cadence</em> guild-wide, not the numbers — a payments pod's capacity planning inputs look nothing like a batch-analytics pod's.</p>`},
+    { id:'cp2', q:'Explain the USE method for performance troubleshooting.', a:`
+      <p>For every resource (CPU, memory, disk, network), check <strong>Utilization</strong> (% busy), <strong>Saturation</strong> (queued work waiting), and <strong>Errors</strong> (failed operations). It's a fast, systematic sweep to find the actual bottleneck instead of guessing — I'd pair it with RED (Rate, Errors, Duration) for the request-facing side of a service, since USE covers resources and RED covers the requests flowing through them.</p>`},
+    { id:'cp3', q:'Where would you start a guild-wide cloud cost optimization initiative?', a:`
+      <p>Orphaned/unattached resources first (unattached EBS volumes, idle load balancers, old snapshots) — pure waste with zero risk to fix. Then right-sizing based on actual utilization data rather than guesswork (VPA recommendations on Kubernetes, Compute Optimizer or equivalent for VMs). Then commitment discipline (reserved instances/savings plans for genuinely steady-state baseline load, kept separate from bursty capacity). I'd surface a per-pod cost dashboard before asking anyone to change anything — most cost waste is invisible simply because nobody's ever seen it broken down by pod before.</p>`},
+    { id:'cp4', q:'What load testing approach and tooling would you offer as a guild service?', a:`
+      <p>k6 or Gatling for scriptable, CI-integratable load tests (both are more developer-friendly and version-controllable than JMeter's XML-heavy format, in my experience) — offered as a guild template a pod can point at their own service, with thresholds tied to their actual SLO rather than an arbitrary pass/fail. I'd distinguish load (expected peak), stress (find the breaking point), soak (sustained duration, catches memory leaks), and spike (sudden burst) testing, since pods often only think to ask for one of these when they actually need a different one for their real risk.</p>`},
+    { id:'cp5', q:'Show a simple k6 load test script.', a:`
+      <pre><code>import http from 'k6/http';
+import { check, sleep } from 'k6';
+
+export const options = {
+  stages: [
+    { duration: '2m', target: 50 },
+    { duration: '5m', target: 50 },
+    { duration: '2m', target: 0 },
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)&lt;300'],
+    http_req_failed: ['rate&lt;0.01'],
+  },
+};
+
+export default function () {
+  const res = http.get('https://api.example.com/checkout');
+  check(res, { 'status is 200': (r) =&gt; r.status === 200 });
+  sleep(1);
+}</code></pre>
+      <p>Ramp to 50 virtual users over 2 minutes, hold for 5, ramp down — with thresholds that fail the CI run automatically if p95 latency or error rate breaches the SLO-derived target, turning this into a real release gate rather than a manual one-off test.</p>`},
+    { id:'cp6', q:'How do you balance cost optimization against reliability so you don\'t cut into error budget headroom?', a:`
+      <p>Never optimize cost against the same margin that's protecting your SLO — e.g., don't shrink autoscaling headroom below what's needed to absorb a real traffic spike just to trim a cloud bill. I'd frame any cost change explicitly against its reliability impact before approving it guild-wide: "this saves $X and costs Yms of p99 headroom" as a joint number, not cost and reliability reviewed by two people who never talk to each other.</p>`},
+  ]
+},
+{
+  id: 'chaos', tag: 'CHAOS', color: 'var(--chaos)',
+  title: 'Chaos Engineering, DR &amp; Multi-Region Resilience',
+  questions: [
+    { id:'ch1', q:'Explain the core principles of chaos engineering.', a:`
+      <p>Define a steady-state hypothesis (what "normal" looks like, measurably), inject a real-world failure (kill a pod, add network latency, saturate a resource), and see whether the steady state holds. Critically: control the blast radius (start in staging, or a small % of production traffic), have an automatic abort condition, and treat every finding as an input to a fix, not just a demo. The goal isn't breaking things for its own sake — it's finding weaknesses before an uncontrolled failure finds them for you.</p>`},
+    { id:'ch2', q:'Compare chaos tooling options briefly — Litmus, Gremlin, Chaos Mesh, AWS FIS.', a:`
+      <ul>
+        <li><strong>LitmusChaos</strong> — CNCF, Kubernetes-native, free/OSS, good default for a Kubernetes-first guild standard</li>
+        <li><strong>Chaos Mesh</strong> — also Kubernetes-native CNCF project, strong for network-level fault injection</li>
+        <li><strong>Gremlin</strong> — commercial, polished UI, broader than just Kubernetes, easier for less chaos-experienced pods to adopt but a licensing cost across every pod</li>
+        <li><strong>AWS FIS</strong> — native to AWS, integrates cleanly if you're AWS-heavy, less useful for Azure/GCP pods</li>
+      </ul>
+      <p>Given TCG Digital's multi-cloud framing (AWS/Azure/GCP), I'd lean toward a Kubernetes-native option like LitmusChaos as the guild default, since it isn't tied to one cloud provider.</p>`},
+    { id:'ch3', q:'How would you run a guild-wide "game day" across multiple pods?', a:`
+      <p>Pick one realistic, well-scoped failure scenario (a shared dependency going down, a region failover), run it against a willing pilot pod first in staging with a clear abort button, document what actually happened versus what the runbook assumed, then fix the gaps before offering it as a repeatable guild service other pods can request. I would not mandate every pod run a game day on a fixed guild-wide schedule on day one — that's a fast way to get resentful, half-hearted participation instead of genuine learning.</p>`},
+    { id:'ch4', q:'How do you standardize DR testing cadence across pods with a guild recommendation?', a:`
+      <p>Every production service needs a documented RTO/RPO and a DR test on a fixed cadence (I'd suggest at minimum annually, more often for anything client-critical) — the guild owns the standard and the reporting, pods own the actual test execution since they know their service's failover mechanics. I'd track "time since last successful DR test" as a guild health metric alongside SLO attainment, since an untested DR plan is really just an assumption.</p>`},
+    { id:'ch5', q:'Active-active vs. active-passive multi-region — how do you help a pod choose?', a:`
+      <p>Active-passive is simpler and cheaper — one region serves traffic, the other stands ready — but costs you failover time and often means the standby region's readiness is untested until the day you actually need it. Active-active serves traffic from both regions simultaneously, giving faster failover and validating both regions continuously, at the cost of real complexity around data consistency and conflict resolution. For most pods I'd default to active-passive unless their SLO genuinely can't tolerate failover time — active-active is a meaningful engineering investment that should be justified by the SLO, not adopted by default.</p>`},
+    { id:'ch6', q:'Give a concrete chaos experiment example with an expected outcome.', a:`
+      <p>Hypothesis: "checkout stays under our 300ms p99 latency SLO even if one of three backend pods is killed." Experiment: LitmusChaos pod-delete targeting one replica of the checkout deployment, 5-minute observation window, abort automatically if error rate exceeds 5%. Expected outcome if healthy: Kubernetes reschedules the pod, the service mesh/load balancer routes around the gap, and golden-signal dashboards show a brief blip within the SLO's error budget — not a customer-visible outage. If it doesn't hold, that's the actual finding: maybe readiness probes aren't fast enough, or there aren't enough replicas for one loss to be absorbed cleanly.</p>`},
+    { id:'ch7', q:'A pod lead is skeptical about running their first chaos experiment in production. How do you bring them along?', a:`
+      <p>I wouldn't start in production at all — start in staging, with a scenario they already believe should be safe, so the first experience is confidence-building rather than risky. Show the blast-radius controls and abort conditions concretely before asking for buy-in, and offer to run the first one myself, live, with them watching, rather than asking them to run something unfamiliar on their own service. Trust builds from a small, successful first experiment — not from a persuasive pitch about chaos engineering's value in the abstract.</p>`},
+    { id:'ch8', q:'A DR test reveals the actual RTO is 3x the documented target. What\'s the guild-level follow-through?', a:`
+      <p>First, get the honest gap in front of the pod lead and delivery leadership immediately — a DR gap discovered in a controlled test is exactly the win the test was meant to produce, not a failure to hide. Then work with the pod on a remediation plan with a real deadline, and re-test against that deadline rather than letting the finding fade into a backlog item nobody circles back to. I'd also check whether the same gap pattern exists in other pods with a similar architecture — one bad DR test is often not actually isolated to just that one pod.</p>`},
+  ]
+},
+{
+  id: 'ops', tag: 'GUILD-OPS', color: 'var(--ops)',
+  title: 'Guild Operations — Runbooks, Metrics &amp; Career Pathing',
+  intro: 'The operational machinery behind guild leadership: maintaining shared runbooks/playbooks, mentoring, contributing to hiring, and reporting guild health — all explicitly named in the JD\'s responsibilities.',
+  questions: [
+    { id:'op1', q:'How would you structure a shared runbook library so it\'s actually usable across pods during an incident?', a:`
+      <p>Indexed primarily by <strong>symptom</strong> (what an on-call engineer is actually seeing at 2am — "high error rate on X," "pods CrashLoopBackOff") rather than purely by service, since during an incident you often don't yet know which service is truly at fault, just what you're observing. Each pod's service-specific runbooks live alongside guild-wide cross-cutting ones (network issues, shared dependency outages), with a consistent template so an engineer from Pod A can follow Pod B's runbook without a learning curve during a cross-pod incident.</p>`},
+    { id:'op2', q:'How do you keep runbooks from rotting?', a:`
+      <p>Explicit ownership per runbook (usually the pod that owns the service), a review trigger every time it's actually used in an incident (did it work as written — update immediately if not, while it's fresh), and a quarterly guild-level sweep flagging anything untouched for two quarters as a review candidate. A runbook without a named owner is the single most reliable way to guarantee it goes stale.</p>`},
+    { id:'op3', q:'Which 4–5 guild health metrics would you actually put in front of leadership, and why those?', a:`
+      <p>SLO attainment rollup, MTTR trend, incident volume/severity mix, automation/toil-reduction coverage, and standard-adoption rate across pods. I'd deliberately keep it to a handful — a guild health report leadership actually reads monthly beats an exhaustive one they skim once and ignore. Each metric should map to a decision leadership might need to make (where to invest, which pod needs help), not just be measured because it's measurable.</p>`},
+    { id:'op4', q:'How do you run knowledge-sharing sessions across pods that people actually show up to?', a:`
+      <p>Short (30 minutes), practical, and tied to something a pod just lived through — a recent incident's lesson, a tool that saved real time, a mistake worth everyone avoiding — rather than abstract "best practices" talks. Rotating the presenter across pods (not always me) builds ownership and surfaces expertise the guild might not otherwise know exists in a pod. I'd record sessions for the offshore/different-timezone folks who couldn't attend live, given TCG's onshore/offshore delivery model.</p>`},
+    { id:'op5', q:'What would you look for in an SRE candidate specifically for TCG Digital\'s pod-embedded reality?', a:`
+      <p>Beyond the technical bar: comfort with ambiguity and context-switching (a pod-embedded SRE may work across different client stacks over their tenure, unlike a single-product company's SRE), some client-facing communication comfort since pods work directly with client engagements, and — importantly — genuine collaborative instinct rather than a pure command-and-control operational style, since success here means influencing a pod, not commanding one. I'd weight "can they explain a technical tradeoff to a non-technical stakeholder" more heavily here than at a product company, given how client-facing the pod model is.</p>`},
+    { id:'op6', q:'What\'s the on-ramp for an engineer inside a pod who wants to grow into SRE work?', a:`
+      <p>Start them on guild-adjacent work inside their own pod first — owning their service's SLO, writing their first runbook, taking rotation on-call — before pulling them into guild-wide activities like presenting at a sync or contributing to a shared module. I'd pair them with the guild's competency rubric (from the hiring/career-pathing question above) so growth has a visible ladder, and invite them into guild syncs as an observer early, since exposure to cross-pod thinking is itself part of the development.</p>`},
+    { id:'op7', q:'Sketch a 30/60/90 for onboarding a brand-new pod onto the guild\'s standards.', a:`
+      <ul>
+        <li><strong>30 days</strong> — baseline audit (what do they have today), golden-path chart adopted for at least one service, first SLO defined</li>
+        <li><strong>60 days</strong> — on-call/escalation path integrated with guild-wide routing, first guild sync attendance, runbook template in use</li>
+        <li><strong>90 days</strong> — full golden-signal dashboard coverage, error budget policy agreed with pod lead, first postmortem run through the guild's blameless format</li>
+      </ul>
+      <p>I'd keep this flexible rather than a rigid checklist — a pod under a hard client deadline in month one needs a different pace than one with breathing room, and forcing the same timeline on both is how onboarding becomes box-checking instead of real adoption.</p>`},
+    { id:'op8', q:'How do you evaluate whether to introduce a new tool guild-wide, without causing tool sprawl?', a:`
+      <p>A lightweight pilot framework: one pod trials it for a fixed period against a real problem, report back what it actually solved versus what it cost to adopt, and only then propose guild-wide rollout — never adopt guild-wide off a vendor demo or a conference talk alone. I'd also require a genuine gap to justify a new tool ("we don't have anything for X") rather than a marginal improvement over something the guild already standardized on, since every additional tool is ongoing maintenance and training cost multiplied across every pod that adopts it.</p>`},
+  ]
+},
+{
+  id: 'cross', tag: 'CROSS', color: 'var(--cross)',
+  title: 'Cross-Guild Collaboration',
+  intro: 'The JD names two specific peer guilds: DevOps &amp; Infra, and Architecture &amp; Design. Knowing where your guild\'s boundary sits relative to each is a strong, specific signal.',
+  questions: [
+    { id:'x1', q:'Concretely, what does the SRE guild bring to a solution design review with the Architecture &amp; Design guild?', a:`
+      <p>Non-functional requirements grounded in operational reality: what does this design cost to run reliably (SLO feasibility given the proposed architecture), what's the failure mode under load, what does on-call actually look like for this once it's live, and does it fit the guild's observability/deployment golden paths or require a bespoke exception. I'd aim to be in the room during design, not just reviewing after the fact — NFR feedback after a design is finalized is far more expensive to act on than the same feedback during design.</p>`},
+    { id:'x2', q:'Where does the SRE guild end and the DevOps &amp; Infra guild begin? How do you avoid turf conflict?', a:`
+      <p>A reasonable split: DevOps &amp; Infra guild owns the underlying platform — cluster provisioning, networking, the CI/CD tooling itself. SRE guild owns the practice layered on top — SLOs, incident process, observability standards, the golden-path templates that <em>use</em> that platform. In practice the boundary gets fuzzy (is a Helm chart's default resource limits an SRE guild standard or a DevOps &amp; Infra platform default?) — I'd resolve that with a standing sync between the two guild leads rather than a rigid RACI nobody actually follows, and treat any recurring ambiguity as a sign the two guilds should just co-own that specific artifact.</p>`},
+    { id:'x3', q:'How do you frame a capacity or staffing gap to delivery leadership so it actually lands?', a:`
+      <p>Business impact language, not "we're short-staffed": "at current pace, Pod X's on-call burden risks burnout by [timeframe], and that's a retention and incident-response-quality risk for a client-facing service" lands very differently than "we need more people." I'd back it with the guild health data already being tracked (incident volume trend, MTTR, alert-to-page ratio) rather than an anecdotal ask — leadership can act on a trend line far more easily than on a feeling.</p>`},
+    { id:'x4', q:'The Architecture &amp; Design guild proposes a design you think is operationally risky. How do you push back constructively pre-launch?', a:`
+      <p>Bring the specific risk with a concrete scenario, not a vague "this feels risky" — "under a 2x traffic spike, this synchronous call chain has no circuit breaker, and a single slow dependency takes down three services with it." Offer an alternative or mitigation, not just an objection, and pick your battles: if the risk is real but the mitigation is expensive relative to actual likelihood, say so honestly rather than blocking on principle. Guild credibility depends on pushback being proportionate and specific, not reflexive.</p>`},
+    { id:'x5', q:'Architecture guild wants speed to market; SRE guild wants a reliability gate. How do you resolve the conflict?', a:`
+      <p>This is rarely actually a binary — I'd look for the smallest reliability gate that catches the highest-risk failure modes without materially slowing the timeline (e.g., "ship without the full chaos-tested DR plan, but not without basic health checks and a rollback path"), and make the tradeoff explicit and owned by delivery leadership if it can't be resolved technically — my job is to make the risk visible and quantified, not to unilaterally block a business decision that isn't mine alone to make.</p>`},
+  ]
+},
+{
+  id: 'scenario', tag: 'SCENARIO', color: 'var(--scenario)',
+  title: 'Scenario &amp; Troubleshooting Bank',
+  intro: 'Cross-pod, guild-flavored scenarios — the kind of question that tests judgment under the specific constraints of this role, not just technical recall.',
+  questions: [
+    { id:'sc1', q:'Multiple pods independently report the same intermittent latency spike, traced to a shared platform service. Walk through your response.', a:`
+      <p>First move: stop treating it as N separate pod issues — open one shared incident channel spanning affected pods immediately, since duplicate parallel investigations waste time and can even conflict (two pods independently "fixing" the same shared dependency). I take or assign incident command since I'm the only one with visibility across all affected pods. Root cause ownership goes to whoever owns the shared service (likely DevOps &amp; Infra guild if it's platform infrastructure); each pod reports impact and applies their own local mitigation (retries, circuit breakers) in parallel while the root cause gets fixed upstream. Postmortem afterward is guild-level, not pod-level, since the fix needs to prevent recurrence for every pod depending on that shared service, not just the ones that happened to notice first.</p>`},
+    { id:'sc2', q:'A pod ships a change mid-quarter that blows through their error budget. What do you do?', a:`
+      <p>Check whether the pod's pre-agreed error budget policy actually triggers here (it should, if it's a real policy) — feature work pauses, reliability work takes priority until budget recovers. I'd have that conversation with the pod lead directly and quickly, not let it linger un-enforced, because an error budget policy that's ignored the first time it actually matters loses all credibility for every pod watching how it plays out. I'd also dig into whether this was a one-off bad release or a symptom of a pattern (rushed testing, no canary) worth a guild-level process fix.</p>`},
+    { id:'sc3', q:'You\'re asked to be the technical judge between two pods proposing different logging solutions. How do you decide?', a:`
+      <p>I'd anchor the decision in the guild's actual standard (does one option satisfy the golden-path observability contract better, does one already have wider adoption that makes consolidation cheaper) rather than a pure technical merits debate — the "best" logging tool in isolation matters less than which choice reduces guild-wide fragmentation. If both are genuinely equivalent against the standard, I'd let the pods' own preference and existing familiarity decide rather than imposing my personal pick — forcing a choice I don't have to live with day-to-day is exactly the over-reach that erodes trust in guild judgment.</p>`},
+    { id:'sc4', q:'A critical incident hits a pod running a stack you don\'t know well. Walk through your first 15 minutes.', a:`
+      <p>Same discipline as the incident-management section: I don't try to become the domain expert — I confirm someone's driving the fix and someone's scribing, ask the cross-cutting questions the pod might be too close to ask ("what changed recently," "seen this pattern elsewhere"), track SLO burn rate against a mitigation decision point, and protect the pod from stakeholder noise so they can stay heads-down. My unfamiliarity with their specific stack is exactly why I stay in the coordination role rather than trying to drive the technical fix myself.</p>`},
+    { id:'sc5', q:'A guild standard proposal gets rejected by 3 of 5 pod leads. What\'s your next move?', a:`
+      <p>That's a real signal, not just resistance to push through — I'd go back to the three who rejected it and actually understand why, since "no" from multiple independent pods usually means the standard has a genuine gap, not that three teams are simultaneously being difficult. I'd revise based on that feedback and re-propose, or if the underlying need is proven by the two pods who did want it, offer it as opt-in for now rather than forcing consensus that isn't there. A guild lead who pushes a rejected standard through anyway on authority they don't actually have burns credibility fast.</p>`},
+    { id:'sc6', q:'A cost spike on shared Kubernetes infrastructure traces back to one pod\'s misconfigured autoscaling. How do you handle it?', a:`
+      <p>Immediate technical fix first — cap the HPA/cluster-autoscaler bounds to stop the bleeding — then the conversation with the pod, not the other way around; a cost conversation while the meter's still running gets tense for no reason. Root cause is usually a missing or wrong maxReplicas / resource request, so beyond the immediate fix, I'd add this as a guild-wide lint check (flag any HPA without an explicit max) so the same misconfiguration can't recur silently in another pod.</p>`},
+    { id:'sc7', q:'A DR test reveals RTO is 3x the target. How do you drive the fix without owning the service?', a:`
+      <p>Same as the chaos-engineering answer: surface the honest gap immediately to the pod lead and delivery leadership, agree a remediation plan with a real deadline together with the pod (I don't own their service, so I can't unilaterally assign myself the fix), and re-test against that deadline rather than letting the finding quietly age into an ignored backlog item. I'd also check whether the gap pattern shows up in other pods with similar architecture, since it rarely is truly isolated.</p>`},
+    { id:'sc8', q:'A new client engagement stands up a pod overnight with an aggressive deadline. How do you get baseline reliability practices in without slowing them down?', a:`
+      <p>I wouldn't hand them the full standards checklist on day one — that's how a guild becomes the thing that slows down a pod under real deadline pressure, which is exactly the reputation you can't afford. I'd offer the smallest viable slice: the golden-path chart (gets them dashboards/alerts basically for free), a lightweight first SLO, and a point of contact for questions — full guild onboarding (runbooks, guild sync attendance, postmortem process) comes once they're past the initial crunch. Meeting a pod where they actually are, under real constraints, is what makes "influence without authority" credible instead of theoretical.</p>`},
+  ]
+},
+{
+  id: 'behavioral', tag: 'CLOSE', color: 'var(--behavioral)',
+  title: 'Behavioral, Positioning &amp; Closing',
+  questions: [
+    { id:'b1', q:'Why TCG Digital, specifically?', a:`
+      <p>Ground this in something real rather than a generic "great culture" answer. TCG Digital is the AI and digital arm of a genuinely diversified, multi-billion-dollar conglomerate — that scale and stability is worth naming if it matters to you at this career stage. Their pod/Factory delivery model means real variety in what you'd touch (their mcube platform won a national AI-product award in 2025, and public messaging leans hard into agentic AI, including in regulated GxP/pharma environments) — which is a genuinely interesting reliability problem: standards that hold up across different client domains and compliance bars, not just one product.</p>
+      <p>If you want a second layer: this guild-lead structure is a chance to operate at a level of technical leadership breadth that a single-product SRE role wouldn't offer — cross-pod influence, not just one team's reliability.</p>`},
+    { id:'b2', q:'Why a guild-lead role specifically, rather than a pure IC SRE role, at this point in your career?', a:`
+      <p>With 14+ years, you've almost certainly already been doing informal guild-lead work inside teams — setting technical direction other engineers followed without a formal reporting line, being the person newer engineers go to. This role is a chance to make that the explicit job instead of a side effect of being the senior person in the room, without taking on the parts of people-management (headcount, performance reviews) that pull time away from staying technically hands-on — which, for someone with your depth, is often the more attractive tradeoff than a traditional EM path.</p>`},
+    { id:'b3', q:'The JD says AWS, Azure, or GCP — how do you position your Azure certifications against your AWS hands-on experience?', a:`
+      <p>This JD is actually one of the more favorable ones for this — it explicitly accepts any of the three, not AWS-only. Lead with the real hands-on breadth (your self-assessed 6+ years AWS, 6+ years Kubernetes, 3–6 years Terraform), then mention the AZ-104/SC-300/SC-100 certifications as evidence you're comfortable operating across cloud providers, which is directly relevant to a guild that needs to set standards pods running on <em>different</em> clouds can all actually follow. Frame the multi-cloud fluency as an asset for this specific role's governance angle, not as a gap to explain away.</p>`},
+    { id:'b4', q:'If they probe on architecture ownership — "did you design this, or did a platform team?" — how do you answer honestly without undercutting yourself?', a:`
+      <p>Don't say "I didn't do that" flat — reframe accurately: "the platform/architecture team owned the initial design; my role was operating, troubleshooting, and evolving it in production" is both more honest and a stronger answer, since production ownership and evolution is real, valuable depth even when you didn't originate the design. For a guild-lead role specifically, this framing is doubly relevant — the role explicitly isn't about being the sole architect, it's about setting standards and improving what's already running across many pods' systems you didn't personally design.</p>`},
+    { id:'b5', q:'Tell me about a time you mentored someone.', a:`
+      <p>Pick a real example — ideally one where the person you mentored ended up capable of something without you, not just "I helped them once." The guild angle to bring out if it fits your real story: mentoring someone who didn't report to you is a much stronger signal for this role than mentoring a direct report, since it's the exact muscle the guild-lead job needs. Structure it STAR-style and keep it concrete — what specifically did you teach, how did you know it landed.</p>`},
+    { id:'b6', q:'Tell me about your biggest production incident and what changed afterward.', a:`
+      <p>Pick a real incident from your 14+ years and be honest about what went wrong — interviewers are usually more interested in what changed systemically afterward than in the drama of the incident itself. The strongest version of this answer names a concrete process or tooling change that came out of the postmortem, ideally one that's still in place, showing the learning stuck rather than the incident just being survived and forgotten.</p>
+      <div class="qa-tip"><strong>Prep note:</strong> pick your real story tonight and rehearse the specific "what changed" part — that's the part interviewers actually probe on follow-up, and it's the part people tend to under-prepare.</div>`},
+    { id:'b7', q:'How do you stay current in a field that moves as fast as SRE tooling does?', a:`
+      <p>Name your actual habits honestly — following specific projects' release notes, hands-on experimentation before adopting anything guild-wide, engaging with the SRE/platform-engineering community. For this role specifically, connect it back to the guild's "stay current on SRE tooling, evaluate and introduce new technologies" responsibility — the pilot-first framework from the guild-operations section is a good concrete answer to "how would you evaluate whether something new is actually worth guild-wide adoption," rather than just "I read a lot."</p>`},
+    { id:'b8', q:'Notice period and compensation expectations — how do you handle these if asked?', a:`
+      <p>Have your actual notice period ready as a plain number rather than hedging (30 days is standard for most India-based roles at your level, but confirm your own contractual obligation). For compensation, it's fine to give a range grounded in your research of comparable AVP/Guild-Lead-equivalent SRE roles rather than a single hard number this early, and it's reasonable to ask about their band before committing to specifics if they ask first — this is a negotiation, not a test with one right answer.</p>`},
+    { id:'b9', q:'What should you ask the interviewer at the end?', a:`
+      <ul>
+        <li>"How many pods currently fall under the SRE guild's scope, and how varied are their tech stacks and client domains today?"</li>
+        <li>"Where is the guild model today — is this a brand-new function, or am I inheriting existing standards and adoption?"</li>
+        <li>"How is guild success actually measured internally right now, if at all?"</li>
+        <li>"What's the single biggest reliability pain point across pods today that made this role a priority to fill?"</li>
+        <li>"How does the SRE guild typically interact day-to-day with the DevOps &amp; Infra and Architecture &amp; Design guilds — is that relationship already well-defined?"</li>
+        <li>"Given the recent push into agentic AI, is the guild expected to extend reliability practice into AI/ML-served workloads, or is that scoped separately for now?"</li>
+      </ul>
+      <p>These do double duty — they're genuinely useful things to know, and asking them signals you're already thinking like someone operating the role, not just interviewing for it.</p>`},
+  ]
+},
+];
+
+const DATA2 = [
+{
+  id: 'greenfield', tag: 'ZERO', color: 'var(--guild)',
+  title: 'Greenfield — Building the SRE Practice From Zero',
+  intro: 'TCG Digital confirmed this is a greenfield guild — no existing SRE practice to inherit. That shifts the interview\'s center of gravity here: expect this to be the most heavily probed territory in round two, especially the 90-day question below.',
+  questions: [
+    { id:'gf1', flagship: true, q:'If we hire you as Guild Lead, what will you do in your first 90 days?', a:`
+      <p>This is very likely the single most important question in the whole process, precisely because they've told you it's greenfield — there's no existing guild to describe improving, so this question effectively <em>is</em> the interview for a founding-level hire. The answer needs to show a deliberate sequence, not a list of good intentions in random order.</p>
+      <p><strong>Days 1–30 — Assessment. Nothing gets mandated yet.</strong></p>
+      <ul>
+        <li>Meet every pod lead one-on-one, not just the loudest or largest pods</li>
+        <li>Inventory what already exists per pod — any monitoring, any on-call, any IaC, any documented incident history</li>
+        <li>Rank pods by risk — client-facing exposure, incident history, blast radius if something breaks</li>
+        <li>Deliverable: a one-page current-state map and risk ranking, shared back with delivery leadership as the "here's what I actually found" moment — proof you listened before you proposed anything</li>
+      </ul>
+      <p><strong>Days 31–60 — Standards, first SLOs, first observability baseline — piloted, not mandated.</strong></p>
+      <ul>
+        <li>Draft a light, one-page guild charter based on what was learned in month one, and socialize it with pod leads before calling it final</li>
+        <li>Pick one willing, real-pain pod as the pilot — get them a first SLO defined and a golden-path observability template applied (the four golden signals, wired up, not theoretical)</li>
+        <li>Publish a short, defensible "non-negotiables" list versus "recommended" patterns — small enough to actually be enforced, not a wishlist</li>
+      </ul>
+      <p><strong>Days 61–90 — Incident process, toil reduction, roadmap, adoption, and the first metrics.</strong></p>
+      <ul>
+        <li>Formalize severity classification and escalation — at minimum for the pilot pod, in outline for the rest — with the guild lead as the senior escalation point</li>
+        <li>Find the single highest-leverage toil pattern shared across multiple pods and ship one real automation or self-service fix for it</li>
+        <li>Publish a sequenced two-to-three-quarter reliability roadmap, tied directly to the risk ranking from day one — not a wishlist</li>
+        <li>Bring a second and third pod into the fold — adoption expanding past the single pilot</li>
+        <li>Deliver the first guild health report to leadership — SLO attainment, incident trend, adoption percentage — even if the numbers are still rough, because a founding guild's first job is proving it produces something measurable</li>
+      </ul>
+      <p>Say the sequence out loud if asked to summarize it: <strong>assessment → standards → SLOs → observability → incident process → toil reduction → reliability roadmap → guild adoption → measurable outcomes.</strong> That exact order matters — standards before assessment reads as arrogance, automation before there's an SLO to protect it reads as busywork, and adoption claimed before it's actually earned reads as spin. The interviewer isn't just checking whether you know these ingredients; they're checking whether you'd sequence them correctly under real greenfield pressure.</p>
+      <div class="qa-tip"><strong>Prep note:</strong> rehearse this one out loud, not just in your head — it's long enough that the first time you say the full sequence shouldn't be in the interview room.</div>`},
+    { id:'gf2', q:'How would you establish an SRE practice from zero, if none exists today?', a:`
+      <p>The same principles as the 90-day plan, stated more generally: start with the highest-leverage, lowest-ceremony win rather than the theoretically most important one. Earn adoption pod by pod instead of mandating guild-wide from day one. Make the golden path genuinely easier than the status quo, so adoption is the path of least resistance rather than an ask. And measure before you claim improvement — you need a real baseline before "better" means anything.</p>`},
+    { id:'gf3', q:'What\'s the very first deliverable you\'d ship, before anything else, to start earning trust?', a:`
+      <p>Not a charter, not a mandate — something genuinely useful, fast. Helping one pod through their next real incident, shipping them a working dashboard, or writing their first runbook <em>with</em> them rather than handing them one. In a greenfield role, trust comes from a concrete, useful artifact landing in someone's hands within the first couple of weeks — a strategy document alone doesn't earn anything yet.</p>`},
+    { id:'gf4', q:'How do you decide which standard to establish first, when there\'s no existing practice to build on?', a:`
+      <p>Start where the pain is worst and most visible — the pod with the highest incident volume or severity — and where the fix is genuinely achievable in weeks, not months. The first standard should be small enough to actually land and prove the model works, not the most theoretically complete one. A greenfield guild that opens with its most ambitious standard usually fails to land any of them.</p>`},
+    { id:'gf5', q:'How would you design a production-support strategy from scratch, before there\'s a guild at all?', a:`
+      <p>Start by defining the boundary that doesn't exist yet: what counts as routine production support (a ticket, handled within business hours) versus a true incident (a page, handled now). Early on, the pod itself is the first line of support — the guild's role is advisor and escalation resource, not first responder, since guild-wide on-call infrastructure doesn't exist yet. I'd design the escalation path to <em>scale</em> as more pods join, rather than building it as if guild-wide coverage already exists on day one.</p>`},
+    { id:'gf6', q:'How does an SRE guild relate to platform engineering — are they the same thing?', a:`
+      <p>Not quite the same: platform engineering builds the paved road — the tooling, the self-service platform, the golden-path infrastructure itself. The SRE guild defines the practice and standards that road needs to enforce — SLOs, incident process, the reliability bar. In a greenfield org without a dedicated platform team yet, a guild lead often ends up doing a bit of both early on — building the first golden path <em>and</em> defining the practice around it — which is worth naming honestly in this interview rather than pretending the two are already cleanly separated from day one.</p>`},
+    { id:'gf7', q:'How do you measure success for a guild starting from zero, with no baseline to compare against?', a:`
+      <p>The first 90 days measures <strong>existence and adoption</strong> — is there now a charter, does one pod have an SLO that didn't exist before, did a first incident actually go through a real process — not <strong>improvement</strong>, which needs a baseline that doesn't exist yet. Once two or three quarters of real data accumulate, the metrics shift to trend — MTTR improving, incident volume dropping. Trying to show improvement in month one is measuring the wrong thing entirely, and a candidate who claims early improvement numbers in a genuinely greenfield context should raise your own skepticism, not just the interviewer's.</p>`},
+    { id:'gf8', q:'How do you identify toil in an environment where nothing has been measured before?', a:`
+      <p>Ask pod engineers directly what they hate doing repeatedly — this is often faster and more accurate early on than trying to instrument toil measurement from a standing start. Shadow an on-call rotation or two to see it firsthand. And watch for the same complaint surfacing independently across multiple pods — that's the highest-leverage guild-wide target, since it justifies guild-level investment rather than a one-pod local fix.</p>`},
+    { id:'gf9', q:'With no existing cloud or Kubernetes foundation to inherit, how do you approach the platform layer\'s architecture as guild lead?', a:`
+      <p>Not as the person personally architecting the cluster from scratch — that's more likely the DevOps &amp; Infra guild's job, or whichever team owns the platform build. As guild lead, the job is making sure reliability requirements — a multi-AZ minimum, standard observability hooks, a golden-path Helm baseline — are designed into that foundation from day one, since retrofitting reliability into infrastructure after the fact is far more expensive than building it in. I'd want a seat at that architecture conversation early, even if I'm not the one holding the pen.</p>`},
+    { id:'gf10', q:'What\'s the single biggest risk in a greenfield guild build, and how do you avoid it?', a:`
+      <p>Over-engineering process before there's any adoption pull — arriving with a lengthy standards document and a mandatory checklist before a single pod has volunteered to try anything. That's what kills a greenfield guild's credibility fastest, and it's an easy trap for a senior hire eager to show up with a complete plan on day one. The mitigation is the thread running through every answer in this section: earn the first real adoption with something genuinely useful, then scale from proof, not from decree.</p>`},
+  ]
+},
+{
+  id: 'exec', tag: 'EXEC', color: '#0EA5E9',
+  title: 'Executive &amp; Strategic Leadership',
+  intro: 'A likely second-round shift: from "can you do the job" to "can we trust you at a higher altitude" — budget, tradeoffs across the whole Dev Factory, and a multi-year view of the guild.',
+  questions: [
+    { id:'e2', q:'How would you present a reliability investment case to VP-level delivery leadership?', a:`      <p>Translate reliability into numbers leadership already tracks: incident hours × engineer cost = the cost of unreliability; a client-facing SLA breach risk = revenue and relationship risk; toil hours reclaimed = capacity redirected to billable or feature work. Framed as "cost avoided" and "capacity unlocked," not as an abstract engineering-quality ask — that's the language that actually gets budget approved.</p>`},
+    { id:'e3', q:'Two pods both need deep guild attention this quarter, but you can only really support one. How do you decide, and how do you communicate that upward?', a:`
+      <p>Objective criteria, not gut feel: client-facing risk severity, blast radius if the current gap causes a failure, and leverage — sometimes a small nudge gets a nearly-there pod fully compliant faster than a huge lift moves a far-behind pod partway. Whichever way I decide, I say so explicitly to delivery leadership rather than quietly choosing — an invisible resourcing tradeoff nobody signed off on is how a guild lead loses trust the first time the "wrong" pod finds out later.</p>`},
+    { id:'e4', q:'Where do you see the SRE guild at TCG Digital in two to three years?', a:`
+      <p>From "guild lead evangelizing standards pod by pod" to "the golden path is just how a new service gets built" — most guild interaction becomes proactive (a design review, a mentoring conversation) rather than reactive (chasing a gap). Ideally, guild health metrics are baked into how new client engagements get scoped from day one, not bolted on after a pod's already live.</p>`},
+    { id:'e5', q:'How does this guild-lead role build toward a broader platform or AVP-level role later?', a:`
+      <p>The honest answer: it largely writes its own case, if done well. Concrete, org-wide outcomes — adoption rate, MTTR trend, incident reduction — done at guild scale across many pods is close to the actual evidence an AVP-level platform-leadership case needs. I'd track those numbers deliberately from day one, not scramble to reconstruct them at promotion-conversation time.</p>`},
+    { id:'e6', q:'A VP asks you to cut reliability investment to hit a cost target this quarter. How do you respond?', a:`
+      <p>Not a flat refusal — a clear translation of what's actually being traded: which pods or SLOs this touches, and what risk goes up as a result. I'd give the VP a real, informed choice, and if a cut has to happen, argue for cutting the lowest-risk item first rather than an across-the-board reduction that damages everything a little. My job is making the tradeoff visible, not overriding a legitimate business call that isn't mine alone to make.</p>`},
+    { id:'e7', q:'How do you measure and report the guild\'s ROI in terms leadership actually cares about?', a:`
+      <p>Incident-hours avoided (estimated from the trend before and after a fix), toil-hours reclaimed and redirected to feature work, and reduced client escalation frequency — each translated into cost or client-relationship terms, not left as raw engineering metrics leadership has to interpret themselves.</p>`},
+    { id:'e8', q:'How would you handle a strategic disagreement with the Head of Engineering or Delivery about the guild\'s scope?', a:`
+      <p>Lead with data — adoption trend, incident trend — not opinion. Assume there's a constraint I don't see (revenue pressure, a client commitment) rather than assuming they're simply wrong. Propose a smaller pilot instead of an all-or-nothing ask, and know when to accept their call gracefully once genuinely heard — a guild lead has real influence, not veto power over delivery leadership's actual authority, and pretending otherwise burns credibility fast.</p>`},
+    { id:'e9', q:'What\'s your framework for deciding which reliability initiatives deserve guild-wide investment versus staying pod-local?', a:`
+      <p>Guild-wide if the pattern shows up across three or more pods, if it's foundational (on-call routing, golden-path templates) rather than service-specific, or if the risk sits at the level of client trust rather than one service's uptime. Otherwise it stays local — guild-wide investment in a genuinely one-off problem is waste, and pods notice when the guild over-invests in things that don't actually generalize.</p>`},
+    { id:'e10', q:'How do you build a business case for headcount you don\'t own, when the guild is stretched thin?', a:`
+      <p>Data first — adoption requests outpacing guild capacity, response times degrading — framed as delivery leadership's decision to make with real evidence in front of them, not a bare "I need more people." I'd also show what I've already tried (embedded champions, automation investment) so the ask reads as a considered escalation, not a first resort.</p>`},
+  ]
+},
+{
+  id: 'client', tag: 'CLIENT', color: '#FB7185',
+  title: 'Client-Facing &amp; Business Acumen',
+  intro: 'TCG Digital\'s pods sit directly under client engagements — a second round is a plausible place to test whether you can operate reliability practice in a services context, not just a product one.',
+  questions: [
+    { id:'cf1', q:'A client stakeholder pushes back on an SLO as "too conservative" and wants a tighter number for a sales pitch. How do you handle it?', a:`
+      <p>I don't let a sales pitch override engineering reality — I'd show the data behind the current number, offer to genuinely explore what a tighter SLO would cost or require, and let account and delivery leadership make the final call on that risk with the real tradeoff in front of them, rather than quietly agreeing to a number engineering can't actually hit.</p>`},
+    { id:'cf2', q:'Walk through presenting a reliability roadmap or postmortem summary to a non-technical client stakeholder.', a:`
+      <p>Lead with business impact — what happened, who was affected, for how long — and skip the technical root-cause detail unless they specifically ask for it. The client wants confidence and a credible forward plan, not a play-by-play of the technical fix; over-explaining the technical side can actually undermine confidence rather than build it.</p>`},
+    { id:'cf3', q:'A pod\'s delivery lead wants to skip a guild reliability gate to hit a client deadline. How do you navigate that?', a:`
+      <p>First, understand what's genuinely at risk if it's skipped — not every gate carries the same weight. I'd offer the fastest <em>safe</em> path rather than a flat no, and if the risk is real, make sure delivery leadership makes that call explicitly rather than the standard getting quietly overridden under deadline pressure with nobody accountable for the decision.</p>`},
+    { id:'cf4', q:'How would you contribute technical credibility to an RFP or proposal for a new client engagement?', a:`
+      <p>Help scope realistic reliability commitments before they're promised to a client — the worst outcome is sales promising an SLA engineering can't actually hit. I'd also position the guild's standards themselves as a genuine differentiator in the pitch: "here's how we'll operate this reliably from day one" is a real sales asset for a services company, not just an internal engineering nicety.</p>`},
+    { id:'cf5', q:'A client asks "why should we trust your reliability practice" in a QBR. What\'s your answer?', a:`
+      <p>Specifics, not reassurance — SLO attainment data, the incident response process, the blameless postmortem discipline behind it. "We take reliability seriously" convinces nobody in that room; a concrete, measurable practice does.</p>`},
+    { id:'cf6', q:'A client\'s own technical requirements conflict with your guild\'s standard. How do you handle it?', a:`
+      <p>Understand the client\'s real constraint first — sometimes it's a genuine contractual or compliance requirement, sometimes just unfamiliarity with why the guild standard exists. Where possible, I'd adapt the implementation while holding the underlying outcome constant — the same "standardize the contract, not the tool" instinct from pod-level guild work, just applied to a client relationship instead.</p>`},
+    { id:'cf7', q:'A client-facing incident becomes a trust issue, not just a technical one. How do you approach it differently?', a:`
+      <p>Treat the technical fix and the relationship repair as two separate tracks needing separate attention. I'd overcommunicate on the relationship side — real transparency, a credible prevention plan, possibly a direct call from delivery leadership — even once the technical issue is resolved, since trust doesn't recover on the incident's timeline; it recovers on its own, slower one.</p>`},
+    { id:'cf8', q:'How do you translate a technical risk — tech debt, a single point of failure — into language a client executive will actually act on?', a:`
+      <p>Business risk with a rough likelihood and cost if it's realized: "if this fails during your peak season, here's the customer impact and the revenue exposure." Executives act on risk to their business, not on an engineering purity argument about code quality for its own sake.</p>`},
+    { id:'cf9', q:'Multiple client engagements report reliability concerns in the same quarter. How do you prioritize fairly across clients?', a:`
+      <p>The same objective criteria as prioritizing across pods internally — severity and blast radius, contractual SLA exposure, and how close each is to resolution with modest effort — and I'd be transparent with delivery and account leadership about that logic, so no client relationship feels arbitrarily deprioritized behind closed doors.</p>`},
+  ]
+},
+{
+  id: 'phil', tag: 'PHIL', color: '#A78BFA',
+  title: 'Deeper Behavioral &amp; Leadership Philosophy',
+  intro: 'A second round often re-asks behavioral territory with sharper follow-ups. These are deliberately different angles from round one\'s behavioral set — pull real examples, and where a question is inherently personal, use the framing as a structure to fill in, not a script.',
+  questions: [
+    { id:'lp1', q:'Tell me about a time you were wrong about a significant technical or strategic call.', a:`
+      <p>Use STAR, and put the weight on how you <em>found out</em> you were wrong and what you did next — not on defending the original call. Interviewers at this stage are listening for genuine self-correction, not a well-disguised justification.</p>
+      <div class="qa-tip"><strong>Prep note:</strong> pick a real one from your 14+ years tonight — this question rewards specificity far more than a smooth, generic answer.</div>`},
+    { id:'lp1b', q:'A senior developer on a pod pushes back that your reliability gate slows down their releases and isn\'t worth the friction. How do you handle that disagreement?', a:`
+      <p>This is different from a pod lead declining on time grounds — it's an individual engineer disputing the gate's value on principle, and it deserves a technical answer, not an authority one. I'd ask them to walk me through a specific release the gate actually slowed down, and look honestly at whether the friction was proportionate to the risk it caught — sometimes they're right and the gate is miscalibrated for that service. If the gate is genuinely justified, I'd show them the failure mode it exists to catch, concretely, rather than asserting the standard's importance. Losing that argument gracefully when they have a point is part of staying credible with engineers who don't report to you; so is holding the line, clearly and respectfully, when they don't.</p>`},
+    { id:'lp2', q:'How do you give hard feedback to a senior engineer in a pod who doesn\'t report to you?', a:`
+      <p>Direct and private, focused on specific behavior and its impact rather than character, framed around a shared goal — the standard, the incident, the client outcome — rather than personal authority. With no positional leverage behind it, the feedback has to be persuasive entirely on its own merits, which usually makes it better feedback, not worse.</p>`},
+    { id:'lp3', q:'Describe a time you disagreed with someone more senior than you.', a:`
+      <p>STAR again — the interesting part is <em>how</em> you raised it (data and reasoning, not just a differing opinion) and what actually happened, including if you turned out to be wrong. A candidate who was right every single time they pushed back reads as either unbelievable or not self-aware — a mixed record, honestly told, lands better.</p>`},
+    { id:'lp4', q:'What\'s the biggest professional regret in your career, and what changed because of it?', a:`
+      <p>Pick something real and specific. The weight of the answer should sit on the concrete change in how you operate now — not on the mistake itself or an extended apology for it.</p>`},
+    { id:'lp5', q:'How do you know when to push harder on a standard versus letting it go?', a:`
+      <p>Weigh actual risk against relationship cost. Push hard on genuine non-negotiables — safety, data integrity, a real client commitment. Flex on style or tooling preference where the outcome is equivalent either way. Treating every standard as equally non-negotiable is how a guild lead runs out of political capital fast.</p>`},
+    { id:'lp6', q:'What\'s your leadership philosophy, broadly — not the guild-specific version from round one?', a:`
+      <p>This one's genuinely yours to answer, not something I should hand you pre-written — a philosophy that sounds coached rather than lived tends to show. Spend a few minutes tonight putting your real one into a sentence or two, grounded in how you've actually operated across your career, and say it plainly rather than reaching for something that sounds impressive.</p>`},
+    { id:'lp7', q:'Tell me about a time your reliability recommendation was overridden. What happened, and were you right?', a:`
+      <p>STAR, and be honest if the answer is that you were wrong, or partly wrong — an interviewer will trust a candidate who admits a mixed track record far more than one who claims to have always been right and simply ignored.</p>`},
+    { id:'lp8', q:'How do you handle burnout risk in yourself, given the scope of a guild-wide, cross-pod role?', a:`
+      <p>Name real, credible habits — boundaries around being the default escalation point at all hours, actually delegating through embedded pod champions rather than staying the single point of contact, protecting focused time instead of living entirely in reactive mode. This isn't a soft wellness question in a guild-lead interview — a guild lead who burns out stops being useful to every pod depending on them, so it's a legitimate operational question about the role's sustainability.</p>`},
+    { id:'lp9', q:'What does "senior" actually mean to you, at this stage of your career?', a:`
+      <p>Worth answering in your own words, grounded in your real 14+ years rather than a textbook definition — things like judgment under ambiguity, multiplying other people's effectiveness rather than just your own output, and being right more often than wrong on calls nobody's double-checking are the usual shape of a strong answer, but make it genuinely yours.</p>`},
+  ]
+},
+{
+  id: 'culture', tag: 'CULTURE', color: '#4ADE80',
+  title: 'Culture, Values &amp; Fit',
+  intro: 'Grounded in TCG Digital\'s own public framing — a genuinely multicultural, multi-country delivery org running on a services model, with "Velocity to Value" as its stated mantra.',
+  questions: [
+    { id:'cu1', q:'TCG\'s culture leans hard into diversity and global teams. How do you operate in a genuinely multicultural, multi-timezone team?', a:`
+      <p>Overcommunicate in writing so nothing important depends on being in the same room or time zone, and be deliberate about not letting whoever's loudest or in the most convenient timezone dominate guild syncs. I'd treat communication-style and cultural differences as something the guild actively accounts for in how it runs meetings and documents decisions, not something people are just expected to adapt to unassisted.</p>`},
+    { id:'cu2', q:'"Velocity to Value" is TCG\'s mantra. How does the speed-versus-rigor tension show up in guild work, and how do you navigate it?', a:`
+      <p>The guild's job isn't to slow velocity down — it's to make the fast path also the safe path, which is exactly what a golden-path template is for. Where genuine tension remains, I'd make the tradeoff visible and let the business decide with eyes open, rather than the guild either unilaterally blocking speed or silently absorbing risk it never surfaced.</p>`},
+    { id:'cu3', q:'This is a services and consulting culture — delivery means adapting to a client\'s priorities, not just your own roadmap. How do you talk about that shift?', a:`
+      <p>Honestly: a guild lead in a services company has to hold real standards while staying genuinely flexible on timing and sequencing around client reality. Rigidity that ignores client context — insisting on the "right" way regardless of what a client engagement actually needs right now — is exactly how a guild loses credibility fast in this kind of organization.</p>`},
+    { id:'cu4', q:'How do you stay motivated in a role where success depends on other people\'s voluntary buy-in, not direct control?', a:`
+      <p>Answer this with something genuinely true for you — visible impact when a pod's incident count actually drops because of something you introduced, the intrinsic pull of influence-based leadership itself, or the variety of touching many different pods' problems rather than one team's. A generic "I love collaboration" line won't land as well as something specific and real.</p>`},
+    { id:'cu5', q:'What would make you walk away from an offer, even a good one?', a:`
+      <p>Worth having a genuine, specific answer ready — values misalignment, a scope that doesn't match the stated authority, a compensation floor — rather than a diplomatic non-answer. Interviewers generally respect a real boundary more than a vague deflection here.</p>`},
+    { id:'cu6', q:'How do you define success for yourself in your first year in this role?', a:`
+      <p>Tie it to something measurable and guild-appropriate: a real number of pods genuinely following the standard (not just told to), a measurable drop in incident recurrence, and credibility earned with at least a handful of pod leads who'd vouch for the guild's value without being asked to.</p>`},
+    { id:'cu7', q:'Where do you want to be in five years, and how does this role fit?', a:`
+      <p>Connect this honestly to your own trajectory toward broader platform or architecture-level leadership — the guild-lead scope here is a natural stepping stone toward that, worth saying plainly if it's genuinely true for you rather than dodging the question with vague "I want to keep growing" language.</p>`},
+  ]
+},
+{
+  id: 'hr', tag: 'HR', color: '#FBBF24',
+  title: 'HR, Compensation &amp; Logistics',
+  intro: 'The practical conversation that usually shows up once a company is genuinely interested — worth walking in with real answers ready rather than improvising.',
+  questions: [
+    { id:'hr1', q:'How do you handle "current CTC / expected CTC" without underselling yourself?', a:`
+      <p>State current CTC factually if asked directly, and give expected as a realistic range grounded in actual market data for AVP or guild-lead-equivalent senior SRE roles — not a single number, and not anchored low just to seem easy to work with. Negotiate from research, not guesswork.</p>`},
+    { id:'hr2', q:'What\'s a reasonable notice period to state, and how do you handle a company wanting you sooner?', a:`
+      <p>State your actual contractual notice honestly rather than what you think they want to hear — commonly 30–90 days depending on your current employer and level in India, so confirm your own real obligation before the conversation. If they push for sooner, that's a negotiation between them and your current employer's terms, not something you should promise a date for on the spot.</p>`},
+    { id:'hr3', q:'How do you answer "why are you leaving your current role" without sounding negative?', a:`
+      <p>Frame around what you're moving <em>toward</em> — broader technical leadership scope, specifically the guild-lead model — rather than what you're moving away from. Even if some frustration is part of the real reason, the interview answer should stay forward-looking; dwelling on what's wrong at your current employer rarely helps and can raise unnecessary flags.</p>`},
+    { id:'hr4', q:'Anything worth flagging about location or remote policy for this specific role?', a:`
+      <p>Yes, genuinely worth asking about directly: TCG Digital's major India base is Kolkata (Salt Lake, Sector V), while you're Bangalore-based, and the JD itself doesn't state this role's location or remote/hybrid policy. That's not something to assume either way going into a second round — it materially affects whether an eventual offer is even logistically workable, so it belongs on your questions-to-ask list, not left for after an offer lands.</p>`},
+    { id:'hr5', q:'How do you handle a lowball offer without burning the relationship?', a:`
+      <p>Respond with data — market range, current comp — rather than emotion, express genuine continued interest while asking for a revision, and know your own walk-away point in advance so you're not deciding it live under pressure in the moment.</p>`},
+    { id:'hr6', q:'What should you have ready for a background verification process?', a:`
+      <p>Accurate, consistent employment dates, titles, and reasons for leaving across your resume, LinkedIn, and whatever you tell HR directly — verification processes commonly cross-check all three, and small inconsistencies, even entirely innocent ones, can slow an offer down or raise unnecessary questions.</p>`},
+    { id:'hr7', q:'How do you negotiate title or level if the initial offer undertitles the role relative to your experience?', a:`
+      <p>Point directly to the JD's own stated scope and requirements — 10–15 years, explicit guild leadership responsibility — against the proposed title or band, and ask plainly whether the level reflects the role's actual scope. This is a normal, legitimate negotiation at this seniority, not an awkward overreach.</p>`},
+    { id:'hr8', q:'What\'s a strong answer to "do you have other offers, or where else are you interviewing"?', a:`
+      <p>Honest and brief, without oversharing specifics that could be used to lowball you. Acknowledging you're in active conversations elsewhere, if true, signals market demand without turning the conversation into a negotiation before an offer even exists.</p>`},
+    { id:'hr9', q:'How do you handle being asked about a gap or a short stint on your resume, if it applies to you?', a:`
+      <p>Brief, factual, and forward-looking — state plainly what happened without over-explaining or apologizing, then pivot to what you did with the time or learned from the stint. Dwelling on it tends to invite more scrutiny than it resolves.</p>`},
+  ]
+},
+{
+  id: 'ask2', tag: 'ASK-II', color: '#38BDF8',
+  title: 'Round 2 — Closing Strong',
+  intro: 'A different set of closing questions than round one\'s — senior and logistics-appropriate, for a conversation that\'s likely later-stage and higher-altitude.',
+  questions: [
+    { id:'aq1', q:'What should you ask the interviewer in this specific round?', a:`
+      <ul>
+        <li>"How is success in this role actually measured at six months, and at one year?"</li>
+        <li>"What does the growth path from Guild Lead look like — is there a defined AVP or Director-equivalent track?"</li>
+        <li>"How involved would this role be in client-facing conversations day-to-day, versus purely internal guild work?"</li>
+        <li>"Is this role tied to a specific location, or is it remote or hybrid — and if location-tied, which base?"</li>
+        <li>"What's leadership's biggest concern about this role six months from now, if it doesn't go the way they hope?"</li>
+        <li>"How much budget or investment authority does the guild lead actually have for tooling or headcount asks?"</li>
+        <li>"Who would I be working most closely with day-to-day, and how much of my time is expected to go to hands-on work versus coordination?"</li>
+      </ul>`},
+    { id:'aq2', q:'With limited time at the end, how do you pick which two or three questions to actually ask?', a:`
+      <p>Prioritize whatever most changes your decision to accept an offer — location and scope questions usually outrank pure curiosity questions at this stage. Read the room too: a tightly scheduled panel earns one or two sharp questions; a more relaxed closing conversation can go longer.</p>`},
+    { id:'aq3', q:'How do you close a senior-round interview strongly, beyond just the questions you ask?', a:`
+      <p>A brief, genuine restatement of why you're specifically excited about this role — not generic enthusiasm — paired with a clear, confident statement that you're interested and ready for next steps. Senior interviews often end anticlimactically simply because the candidate never explicitly closes; don't leave that unsaid.</p>`},
+    { id:'aq4', q:'How do you follow up after this round?', a:`
+      <p>A short thank-you note within 24 hours that references something specific from the actual conversation — not a generic template — reiterating genuine interest. At this seniority it doesn't need to be long; specificity matters more than length.</p>`},
+  ]
+},
+];
+
+let activeRound = 1;
+function getActiveData() { return activeRound === 1 ? DATA1 : DATA2; }
+
+let mastery = {};
+let currentCategory = 'all';
+let unmasteredOnly = false;
+let searchIndex = {};
+
+function stripHtml(html) {
+  return html.replace(/<[^>]*>/g, ' ');
+}
+
+function buildSearchIndex() {
+  const idx = {};
+  getActiveData().forEach(section => {
+    section.questions.forEach(q => {
+      idx[q.id] = (q.q + ' ' + stripHtml(q.a)).toLowerCase();
+    });
+  });
+  return idx;
+}
+
+async function loadMastery() {
+  try {
+    const result = await window.storage.get(STORAGE_KEY);
+    if (result && result.value) {
+      mastery = JSON.parse(result.value);
+    }
+  } catch (e) {
+    mastery = {};
+  }
+}
+
+async function saveMastery() {
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(mastery));
+  } catch (e) {
+    console.error('Progress save failed', e);
+  }
+}
+
+function renderChips() {
+  const chipsContainer = document.getElementById('category-chips');
+  let html = '<button class="chip active" data-cat="all" type="button">ALL</button>';
+  getActiveData().forEach(s => {
+    html += `<button class="chip" data-cat="${s.id}" type="button" style="--chip-accent:${s.color}">${s.tag}</button>`;
+  });
+  chipsContainer.innerHTML = html;
+}
+
+function renderSections() {
+  const container = document.getElementById('sections-container');
+  let html = '';
+  getActiveData().forEach(section => {
+    html += `<section class="qa-section" id="section-${section.id}" style="--accent:${section.color}">`;
+    html += `<div class="section-head"><span class="section-tag">${section.tag}</span><h2>${section.title}</h2><span class="section-count">${section.questions.length} questions</span></div>`;
+    if (section.intro) html += `<p class="section-intro">${section.intro}</p>`;
+    html += '<div class="qa-list">';
+    section.questions.forEach((q, i) => {
+      const idxLabel = section.tag.slice(0,3) + '-' + String(i+1).padStart(2,'0');
+      const checked = mastery[q.id] ? 'checked' : '';
+      const masteredClass = mastery[q.id] ? ' mastered' : '';
+      const flagshipClass = q.flagship ? ' flagship' : '';
+      const flagshipBadge = q.flagship ? '<span class="flagship-badge">★ KEY QUESTION</span>' : '';
+      html += `<article class="qa-card${masteredClass}${flagshipClass}" data-id="${q.id}" data-section="${section.id}">`;
+      html += `<div class="qa-header"><input type="checkbox" class="mastery-check" data-id="${q.id}" aria-label="Mark as mastered" ${checked}><span class="qa-index">${idxLabel}</span><button class="qa-question" type="button">${q.q}${flagshipBadge}</button><span class="qa-chevron" aria-hidden="true">&#9662;</span></div>`;
+      html += `<div class="qa-body"><div class="qa-body-inner">${q.a}</div></div>`;
+      html += '</article>';
+    });
+    html += '</div></section>';
+  });
+  container.innerHTML = html;
+}
+
+function updateStats() {
+  const data = getActiveData();
+  const total = data.reduce((sum, s) => sum + s.questions.length, 0);
+  const idsInRound = new Set();
+  data.forEach(s => s.questions.forEach(q => idsInRound.add(q.id)));
+  const masteredCount = Object.keys(mastery).filter(id => idsInRound.has(id)).length;
+  const pct = total ? Math.round((masteredCount/total)*100) : 0;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-sections').textContent = data.length;
+  document.getElementById('stat-mastered').textContent = masteredCount + ' (' + pct + '%)';
+}
+
+function updateSectionVisibility() {
+  document.querySelectorAll('.qa-section').forEach(section => {
+    const anyVisible = section.querySelector('.qa-card:not(.hidden)');
+    section.classList.toggle('hidden', !anyVisible);
+  });
+}
+
+function applyFilters() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  document.querySelectorAll('.qa-card').forEach(card => {
+    const id = card.dataset.id;
+    const sectionId = card.dataset.section;
+    const inCategory = currentCategory === 'all' || sectionId === currentCategory;
+    const notMasteredOk = !unmasteredOnly || !mastery[id];
+    let matchesSearch = true;
+    let hitInAnswerOnly = false;
+    if (q) {
+      const text = searchIndex[id] || '';
+      matchesSearch = text.indexOf(q) !== -1;
+      const qText = (card.querySelector('.qa-question').textContent || '').toLowerCase();
+      hitInAnswerOnly = matchesSearch && qText.indexOf(q) === -1;
+    }
+    const visible = inCategory && notMasteredOk && matchesSearch;
+    card.classList.toggle('hidden', !visible);
+    if (visible && q && hitInAnswerOnly) {
+      card.classList.add('expanded');
+    }
+  });
+  updateSectionVisibility();
+}
+
+function attachListeners() {
+  document.getElementById('sections-container').addEventListener('click', e => {
+    const header = e.target.closest('.qa-header');
+    if (!header) return;
+    if (e.target.classList.contains('mastery-check')) return;
+    header.closest('.qa-card').classList.toggle('expanded');
+  });
+
+  document.getElementById('sections-container').addEventListener('change', e => {
+    if (!e.target.classList.contains('mastery-check')) return;
+    const id = e.target.dataset.id;
+    if (e.target.checked) { mastery[id] = true; } else { delete mastery[id]; }
+    saveMastery();
+    e.target.closest('.qa-card').classList.toggle('mastered', e.target.checked);
+    updateStats();
+  });
+
+  document.getElementById('category-chips').addEventListener('click', e => {
+    const btn = e.target.closest('.chip');
+    if (!btn) return;
+    currentCategory = btn.dataset.cat;
+    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === btn));
+    applyFilters();
+  });
+
+  document.getElementById('search-input').addEventListener('input', applyFilters);
+
+  document.getElementById('unmastered-toggle').addEventListener('change', e => {
+    unmasteredOnly = e.target.checked;
+    applyFilters();
+  });
+
+  document.getElementById('expand-all').addEventListener('click', () => {
+    document.querySelectorAll('.qa-card').forEach(c => c.classList.add('expanded'));
+  });
+  document.getElementById('collapse-all').addEventListener('click', () => {
+    document.querySelectorAll('.qa-card').forEach(c => c.classList.remove('expanded'));
+  });
+
+  document.getElementById('round-tabs').addEventListener('click', e => {
+    const btn = e.target.closest('.round-tab');
+    if (!btn) return;
+    const round = parseInt(btn.dataset.round, 10);
+    if (round === activeRound) return;
+    activeRound = round;
+    document.querySelectorAll('.round-tab').forEach(t => t.classList.toggle('active', t === btn));
+    currentCategory = 'all';
+    unmasteredOnly = false;
+    document.getElementById('search-input').value = '';
+    document.getElementById('unmastered-toggle').checked = false;
+    renderChips();
+    renderSections();
+    searchIndex = buildSearchIndex();
+    updateStats();
+    document.getElementById('sections-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+async function init() {
+  await loadMastery();
+  renderChips();
+  renderSections();
+  searchIndex = buildSearchIndex();
+  updateStats();
+  attachListeners();
+}
+
+init();
+</script>
+</body>
+</html>

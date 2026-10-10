@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eCommerce SRE (Bangalore) — Interview Guide</title>
+<style>
+:root{
+  --ink:#1b2430; --sub:#5a6472; --line:#e3e7ec; --bg:#f7f8fa; --card:#ffffff;
+  --accent:#a3441e; --accent-soft:#fbe9e0;
+  --scn:#0f6e5f; --scn-soft:#e4f3ef;
+  --qa:#2454a6; --qa-soft:#e9f0fc;
+  --gap:#7a5b12; --gap-soft:#faf1dc;
+  --gth:#5a3d8a; --gth-soft:#efe8fa;
+  --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+header{background:var(--ink);color:#fff;padding:22px 24px 18px;}
+header h1{margin:0 0 4px;font-size:22px;letter-spacing:.2px}
+header p{margin:0;color:#b9c2cd;font-size:13.5px}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px 60px}
+nav{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;margin-bottom:18px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;max-width:980px;margin:0 auto;padding:0 16px}
+.tab{border:1px solid var(--line);background:#fff;color:var(--sub);padding:8px 13px;border-radius:20px;font-size:13px;cursor:pointer;font-weight:600;white-space:nowrap}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.searchbar{max-width:980px;margin:12px auto 0;padding:0 16px}
+.searchbar input{width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--line);font-size:14px;background:#fff}
+section.pg{display:none}
+section.pg.active{display:block}
+.blk{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.blk h2{margin:0 0 12px;font-size:17px}
+.factrow{display:flex;gap:14px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.factrow:last-child{border-bottom:none}
+.factrow b{min-width:150px;flex:0 0 150px;color:var(--sub);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.3px;padding-top:2px}
+ul.plain{margin:6px 0 0;padding-left:20px;font-size:14.5px;line-height:1.55}
+ul.plain li{margin-bottom:7px}
+.gapbox{background:var(--gap-soft);border:1px solid #ecd9a5;border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.gapbox b{color:var(--gap);display:block;margin-bottom:4px;font-size:13.5px}
+.gapbox p{margin:0;font-size:14px;line-height:1.5;color:#3a3226}
+.gthbox{background:var(--gth-soft);border:1px solid #d5c3ee;border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.gthbox b{color:var(--gth);display:block;margin-bottom:4px;font-size:13.5px}
+.gthbox p{margin:0;font-size:14px;line-height:1.5;color:#332347}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.cbar{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;cursor:pointer}
+.badge{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.4px;padding:4px 8px;border-radius:6px;text-transform:uppercase;margin-top:2px}
+.b-scn{background:var(--scn-soft);color:var(--scn)}
+.b-qa{background:var(--qa-soft);color:var(--qa)}
+.mark{flex:0 0 20px;width:20px;height:20px;border:2px solid var(--line);border-radius:6px;margin-left:auto;margin-top:2px;cursor:pointer}
+.mark.done{background:var(--accent);border-color:var(--accent);position:relative}
+.mark.done:after{content:'✓';position:absolute;inset:0;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center}
+.cbody{flex:1;min-width:0}
+.ctitle{font-weight:700;font-size:15px;margin:0 0 3px}
+.cprev{color:var(--sub);font-size:13.5px;line-height:1.45}
+.cdetail{display:none;padding:0 16px 16px 16px;border-top:1px solid var(--line)}
+.card.open .cdetail{display:block}
+.card.open .cprev{display:none}
+.qprompt{background:#f2f4f6;border-radius:8px;padding:10px 13px;font-size:13.5px;color:var(--sub);margin:12px 0;font-style:italic}
+.seg{margin-bottom:11px}
+.seg h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--scn)}
+.seg p{margin:0;font-size:14.5px;line-height:1.58}
+.ansline{font-size:14.5px;line-height:1.6;margin:0}
+.groupname{font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.groupname:first-child{margin-top:0}
+.hint{background:var(--accent-soft);border:1px solid #ecc4ad;border-radius:10px;padding:12px 14px;font-size:13.5px;color:#5c2712;margin-bottom:16px;line-height:1.5}
+.progresswrap{max-width:980px;margin:0 auto;padding:14px 16px 0}
+.pbartrack{height:6px;background:var(--line);border-radius:4px;overflow:hidden}
+.pbarfill{height:100%;background:var(--accent);width:0%}
+.ptext{font-size:12px;color:var(--sub);margin-top:5px}
+.closingq{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:14.5px;line-height:1.5}
+.countdown{background:#2a1a10;color:#ffd7b8;border-radius:10px;padding:10px 16px;font-size:13px;margin:10px 16px 0;font-weight:600}
+@media(max-width:640px){.factrow{flex-direction:column;gap:2px}.factrow b{min-width:0}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>eCommerce SRE (Bangalore) — Interview Guide</h1>
+  <p>3-9 yr band · Azure/GCP · AKS/GKE · Terraform/Ansible · Splunk+Grafana · ServiceNow/ITIL · GitHub Actions</p>
+</header>
+<div class="countdown">Interview: day after tomorrow, 3:00 PM — prioritize the Scenario and Technical tabs first, Good-to-Have last.</div>
+
+<div class="progresswrap">
+  <div class="pbartrack"><div class="pbarfill" id="pbarfill"></div></div>
+  <div class="ptext" id="ptext">0 of 0 reviewed</div>
+</div>
+
+<nav><div class="tabs" id="tabs"></div></nav>
+<div class="searchbar"><input id="search" placeholder="Search all questions and answers…"></div>
+
+<div class="wrap" id="pages"></div>
+
+<script id="data" type="application/json">{"snapshot": {"role_facts": [["Role", "Site Reliability Engineer (SRE)"], ["Location", "Bangalore"], ["Experience band", "3-9 years - wide band, so expect the panel to calibrate questions to your actual seniority (11+ yrs) and probe for depth, not just coverage"], ["Domain", "eCommerce / cloud-based applications, cross-functional product teams"], ["Core cloud", "Azure and/or GCP, Kubernetes (AKS/GKE)"], ["IaC", "Terraform and/or Ansible"], ["Observability", "Splunk + Grafana"], ["ITSM", "ServiceNow, ITIL processes - new relative to your other prep docs, worth extra attention"], ["CI/CD", "GitHub Actions specifically named"], ["Coding bar", "Intermediate in Python, Java, Go, C#, or Ruby - breadth over depth in any one"]], "what_they_test": ["Can you operate reliability practice inside an eCommerce/microservices environment specifically - checkout, payments, catalog, cart are the systems where downtime has direct revenue impact.", "ITIL/ServiceNow fluency - incident, problem, and change management process literacy, not just technical firefighting. Explicitly listed, unlike most SRE JDs.", "GitHub Actions CI/CD depth specifically, since it's named rather than 'a CI/CD tool of your choice.'", "Whether you can read code/logs across a polyglot stack (API-based microservices, several possible languages) to find root cause, not just infra metrics.", "SLI/SLO/Error Budget fluency as a reporting practice - 'track/report' implies presenting to stakeholders, not just defining them.", "On-call willingness and composure - stated explicitly as a culture-fit filter."], "strengths_to_lean_on": ["Azure expertise is certified and deep (AZ-104, SC-300, SC-100) - direct match to 'Azure and/or GCP.'", "Kubernetes across EKS/AKS - AKS specifically named in this JD.", "Terraform + Ansible - both named, and you have hands-on with both.", "Grafana ownership plus Splunk, Dynatrace, New Relic, Prometheus - Splunk + Grafana are named exactly.", "GitHub Actions is already part of your CI/CD stack alongside Jenkins.", "Quantified reliability outcomes (40% alert-noise reduction, 45% recovery-time improvement, 35% MTTD reduction, 60% deployment automation, 99.9% uptime) map directly onto 'improve system reliability through automation and operational excellence.'", "Python/Bash automation background covers 'develop scripts, automate repetitive tasks' well."], "gaps_to_bridge": [["ServiceNow / ITIL process fluency", "If your incident/change management experience has been less formal or tool-specific, don't overclaim ServiceNow itself - bridge by describing the ITIL concepts you have practiced regardless of tool (incident vs. problem vs. change record, severity classification, postmortem-to-problem-record linkage) and say you'd ramp on ServiceNow's specific UI/workflow quickly since the underlying process is familiar."], ["GCP specifically (GKE)", "Your production depth is Azure/AWS-first. Bridge: name the GKE equivalent of what you'd do in AKS (node pools, workload identity vs. managed identity, Cloud Monitoring vs. Azure Monitor) rather than staying silent on GCP questions."], ["eCommerce-domain specifics (checkout/payment reliability patterns)", "If your production experience is hospitality/telecom rather than eCommerce, bridge through shared patterns: both have hard availability SLAs on a narrow critical path (booking vs. checkout), both deal with third-party payment/booking integrations as external dependencies, and both see sharp traffic spikes around specific events (holiday sales vs. resort peak season)."], ["Headless commerce / CommerceTools / Fabric / React stack", "Explicitly 'good to have' - don't spend interview time apologizing for this; if asked, note it's outside your core stack and pivot straight back to the SRE-side reliability concerns of any API-based storefront, which are the same regardless of the specific commerce platform."]], "closing_notes": "This band (3-9 years) plus your actual 11+ years means the panel may either treat you as a strong senior candidate or wonder why you're applying at this band - be ready for a version of 'why this role' that addresses scope/seniority head-on: point to genuinely broad ownership (architecture-level reliability decisions, cross-team automation) as your differentiator within this band rather than downplaying your experience."}, "technical": {"CI/CD (GitHub Actions)": [["Walk through how you'd structure a GitHub Actions workflow for a microservice going from commit to production.", "A typical pipeline: on push, run lint + unit tests as a required check; on merge to main, build and tag a container image, push to a registry, then trigger a deploy job gated by an environment protection rule for production. I'd use reusable workflows (workflow_call) for build/test steps shared across microservices, and environment-specific secrets scoped via GitHub Environments rather than repo-wide secrets, so a compromised staging credential can't touch production."], ["How do you handle secrets across many microservice repos in GitHub Actions without duplicating configuration?", "Organization-level secrets for values shared across repos, GitHub Environments for environment-scoped values (staging vs prod), and for anything cloud-native I'd prefer OIDC federation to Azure/GCP over long-lived static secrets entirely - the workflow requests a short-lived token at run time instead of storing a service principal key in GitHub."], ["A GitHub Actions deploy job is flaky - passes on retry with no code change. How do you debug it?", "First check if it's actually flaky or masking a race condition - look for a missing wait/health-check step after a deploy trigger, since 'deployed successfully' from the API often returns before rollout is actually complete. Also check resource contention on shared/self-hosted runners, and add explicit polling against a readiness endpoint instead of a fixed sleep."], ["How would you implement a canary or staged rollout using GitHub Actions with Kubernetes?", "GitHub Actions triggers a Helm/kubectl deploy with a reduced replica count or traffic-split via the ingress/service mesh, then a subsequent job step polls Prometheus/Grafana metrics (error rate, latency) for a defined bake period before a manual approval gate or automated promotion proceeds to full rollout."], ["What's your approach to keeping GitHub Actions workflows fast as the number of microservices grows?", "Path filters so a workflow only runs for the service that actually changed in a monorepo, aggressive dependency caching (actions/cache), and splitting long pipelines into parallel jobs rather than one long sequential job - CI speed directly affects how often people ship small, safe changes."], ["How do you enforce that infrastructure changes (Terraform) go through review before applying, using GitHub Actions?", "terraform plan runs automatically on PR and posts the plan as a PR comment for review; terraform apply is a separate workflow gated to run only on merge to main (or via manual approval/environment protection), never on the PR branch itself."]], "Azure / GCP": [["Compare Azure AKS and GCP GKE from a reliability-operations standpoint.", "Conceptually very similar - both are managed control planes with node pools, both integrate workload identity to avoid static credentials (Azure Workload Identity vs. GKE Workload Identity Federation), and both have a managed autoscaler. Practical differences show up in tooling: Azure Monitor + Log Analytics vs. GCP's Cloud Monitoring/Cloud Logging, and Azure Policy vs. GCP Organization Policy for guardrails."], ["How do you design for high availability across Azure regions?", "Availability Zones within a region for infra-level redundancy first (cheaper, lower latency than cross-region), then paired regions with Traffic Manager or Front Door for true regional failover if the SLA demands it - only reach for multi-region if single-region-with-AZs can't meet the actual availability target, since cross-region adds real complexity (data replication, consistency)."], ["Walk through diagnosing an Azure AKS node that's stuck NotReady.", "kubectl describe node for conditions and recent events first; if inconclusive, check the VMSS instance health in Azure portal/CLI (az vmss list-instances), then node-level diagnostics - kubelet logs via journalctl, disk pressure, or a stuck CNI plugin. A common root cause is the node's managed identity losing a role assignment, breaking image pulls or control-plane communication."], ["How would you use Azure Monitor / Log Analytics to build an SLO dashboard?", "Kusto Query Language (KQL) against AppInsights/Log Analytics to compute success rate and latency percentiles over a rolling window, surfaced in an Azure Monitor workbook or exported to Grafana via the Azure Monitor data source - I'd lean toward Grafana if the team already lives there, for consistency."], ["What's your approach to Azure cost control on a Kubernetes cluster?", "Right-size node pools against actual utilization (Azure Advisor / Cost Management + Grafana resource dashboards), use spot node pools for fault-tolerant/batch workloads, and set resource requests/limits accurately so the cluster autoscaler isn't over-provisioning nodes to satisfy inflated requests."], ["If asked directly about GCP/GKE production experience, how would you answer honestly?", "Say plainly that your deepest production experience is Azure/AWS, but that the underlying Kubernetes and SRE patterns transfer directly - then demonstrate it by mapping a GKE concept to its Azure equivalent live, rather than just asserting transferability."]], "Kubernetes (AKS/GKE)": [["A pod is CrashLoopBackOff - walk through your triage.", "kubectl describe pod for the last termination reason and events, kubectl logs --previous to see what the container printed right before it died, and check whether it's a config/secret mount issue, a failing liveness probe, or the app itself exiting on an unhandled error - in that order, cheapest checks first."], ["How do you size resource requests/limits for a new service?", "Start from observed usage under realistic load testing rather than guessing - set requests near the p50 steady-state usage (so scheduling is efficient) and limits above the p99 spike (so it's not throttled/OOM-killed under normal peak), then revisit once real production traffic data comes in."], ["Explain how the Horizontal Pod Autoscaler interacts with the Cluster Autoscaler during a traffic spike.", "HPA reacts first - it scales pod replicas based on the configured metric. If there isn't enough node capacity to schedule the new pods, they go Pending, which triggers the Cluster Autoscaler to provision new nodes. There's real lag between HPA deciding to scale and new nodes being ready, which matters for eCommerce flash-sale-style spikes - I'd pre-scale or use predictive scaling if the spike is known in advance."], ["How would you debug intermittent 502s from an ingress in front of a Kubernetes service during high traffic?", "Check if it's backend-side (pods failing readiness under load, getting pulled from the endpoint list mid-request) or ingress-side (controller running out of worker connections/upstream keepalive exhaustion) - ingress controller logs and metrics usually show which; also check if HPA is scaling reactively enough."], ["What's your process for a zero-downtime rolling update on a stateful-ish service (e.g. one with in-memory session state)?", "Ensure the service is actually stateless at the pod level (externalize session state to Redis/a shared store) before relying on rolling updates; if not possible short-term, use readiness gates plus PodDisruptionBudgets to guarantee minimum available replicas, and drain connections gracefully with a preStop hook rather than SIGKILL on rollout."], ["How do you approach multi-tenancy or workload isolation within a shared cluster for multiple microservices?", "Namespaces as the primary boundary, NetworkPolicies to restrict east-west traffic to only what's needed, ResourceQuotas per namespace so one noisy service can't starve others, and separate node pools with taints/tolerations for workloads with genuinely different resource profiles."]], "Terraform / Ansible": [["How do you structure Terraform for multiple environments (dev/staging/prod) without duplicating code?", "Shared modules for the actual resource definitions, environment-specific directories or Terraform workspaces holding only the variable values that differ, and remote state per environment (separate state files) so a mistake in staging can never touch prod state."], ["How do you handle a Terraform apply that partially failed midway through?", "State should already reflect what succeeded before the failure - re-running plan shows only the remaining delta, so the fix is usually just re-running apply after addressing the actual error, not manually reconciling state. If state itself got corrupted, terraform state list / import are the recovery tools, used carefully."], ["When would you reach for Ansible instead of Terraform, or use both together?", "Terraform owns infrastructure provisioning (what exists); Ansible is better for configuration management and orchestration on existing hosts (what's installed/configured on them) - a common pattern is Terraform provisioning the VM/cluster, then Ansible configuring it, especially for anything not fully cloud-native/containerized."], ["How do you prevent Terraform state drift caused by manual console changes?", "Restrict console write access via IAM/Azure RBAC for Terraform-managed resource groups where practical, run scheduled terraform plan in CI to surface drift automatically, and treat any detected drift as worth investigating - someone bypassing IaC is itself a signal, not just something to revert silently."], ["Describe how you'd write an idempotent Ansible playbook for a repetitive operational task.", "Use Ansible's built-in modules (idempotent by design) over raw shell/command tasks wherever possible, and when shell is unavoidable, add explicit changed_when/creates conditions so re-running the playbook doesn't report false changes or redo work that's already done."]], "Observability (Splunk + Grafana)": [["How do you split responsibilities between Splunk and Grafana in a stack that has both?", "Grafana + Prometheus-style metrics for real-time golden-signal dashboards and alerting (numeric time series); Splunk for log search, correlation across services during an incident, and longer-retention forensic/audit queries - avoid duplicating the same data in both just because both tools exist."], ["Describe a Splunk search approach to find the root cause of a spike in 500 errors across a microservices stack.", "Start broad: filter to prod, status=500, and chart the count over time by service to see which service the spike concentrates in, then narrow using a request/correlation ID field to follow a single failing request across service boundaries and find where it actually breaks."], ["How would you build an SLO dashboard in Grafana that reports error budget burn?", "A panel computing (1 - success_rate) against the SLO target over the rolling window, converted to a burn-rate multiple, with two alert thresholds - a fast-burn (page now) and a slow-burn (ticket, review later) - rather than a single static threshold."], ["How do you avoid Splunk indexing costs spiraling as services scale?", "Be deliberate about log level/verbosity in production (avoid DEBUG-level logging by default), use index-time field extraction sparingly vs. search-time where possible, and set retention policies per index based on actual need rather than keeping everything indefinitely at full fidelity."], ["A Grafana dashboard shows all-green but customers are reporting errors - what's your first move?", "Assume the dashboard's data source, not reality, is wrong before assuming customers are wrong - check the underlying metric's scrape/ingestion health first, then check if the dashboard is querying the right environment/service at all, since 'silently broken monitoring' is a common and easy-to-miss incident type."]], "ServiceNow / ITIL": [["Explain the difference between an Incident, a Problem, and a Change in ITIL terms, and how they connect.", "An Incident is the unplanned disruption itself - restore service fast, don't worry about root cause yet. A Problem is the underlying root cause behind one or more incidents, tracked separately so it gets proper root-cause analysis and a permanent fix. A Change is any planned modification to production, which should go through a Change record with risk assessment - and a Problem's fix is usually implemented via a Change record, linking the three together."], ["How would you use ServiceNow during a live P1 incident?", "Open/update the Incident record immediately with current status and impact so stakeholders can subscribe to updates in one place instead of pinging engineers directly, log major actions/timestamps in the work notes for the postmortem later, and link the eventual root cause to a Problem record once resolved so the fix has a paper trail beyond just fixing it live."], ["What's a Change Advisory Board (CAB) and when would a change need to go through one vs. a standard/pre-approved change?", "CAB reviews higher-risk changes that need cross-team sign-off before implementation - anything touching shared infrastructure or with unclear blast radius. Standard changes are low-risk, well-understood, pre-approved templates (e.g. a routine cert renewal) that don't need to go back through CAB every time, keeping low-risk work from being needlessly slowed down."], ["How do severity/priority levels typically work in an ITIL incident process, and why does the distinction matter?", "Severity reflects business impact (how bad is it); priority often factors in urgency alongside severity (how fast does it need attention) - a low-severity issue can still be high-priority if it's blocking a critical deadline. Getting this classification right drives SLA response times and who gets paged."], ["If you haven't used ServiceNow specifically, how would you speak to this in the interview?", "Say directly that your hands-on ITSM tooling has been different (name what you've used), but walk through the ITIL concepts you've actually practiced - incident/problem/change discipline, postmortems, severity classification - since the process discipline is what actually matters and the specific tool UI is a short ramp-up."]], "API / Microservices / Coding": [["How do you approach debugging a failure in a request that crosses 5+ microservices?", "Correlation/trace ID propagated through every service's logs from the entry point, so a single ID lets you pull the full path across services in Splunk; without that, I'd fall back to timestamp correlation across services' logs, which is slower and less reliable - exactly the kind of gap worth pushing to fix after the first incident that needed it."], ["What reliability patterns do you look for (or add) in API-based microservice architectures?", "Circuit breakers so one failing downstream dependency doesn't cascade, retries with backoff and jitter (not naive immediate retry, which amplifies load during an outage), timeouts set deliberately at every hop, and idempotency keys on write endpoints so a retried request doesn't double-charge a customer - that last one matters a lot in eCommerce specifically."], ["How would you read and reason about a service written in a language you're less familiar with (Java/Go/C#/Ruby), during an incident?", "Focus on the parts that matter for incident triage regardless of language - error handling paths, where exceptions/panics are caught vs. propagated, config/env var loading, and log statements - rather than trying to fully understand the codebase; pull in the owning team fast if it goes beyond surface-level triage, and say so honestly rather than guessing."], ["How do you validate an API's health beyond a basic /health endpoint returning 200?", "A shallow health check only proves the process is running - push for a deeper readiness check that verifies the service can actually reach its critical dependencies (DB, cache, downstream API) and only reports ready if those succeed too, since 'process alive but can't do its job' is a common false-positive failure mode."], ["Describe your comfort level with Python/Bash for SRE automation versus the other listed languages.", "Python and Bash are where you're strongest - for anything in Java/Go/C#/Ruby, be honest that you can read and debug at an intermediate level but wouldn't claim to write production feature code in them; that's an accurate answer to an 'intermediate in Python, Java, Go, C#, or Ruby' bar, which is a breadth requirement, not depth-in-all-five."]], "SLI / SLO / Error Budget (tracking & reporting)": [["How would you define SLIs for a checkout flow specifically?", "Success rate of checkout completion (non-error responses through the full flow, not just one API) and p95/p99 latency from 'place order' click to confirmation - measured end-to-end from the client side where possible, since a checkout API can look healthy in isolation while the flow as experienced by the user is broken."], ["How do you decide what SLO target is realistic versus aspirational?", "Look at historical performance over a representative window (including past peak events) before setting a target - an SLO tighter than what the system has ever actually achieved just guarantees constant, unactionable breach alerts and erodes trust in the metric."], ["How would you report SLO/error-budget status to non-technical stakeholders (e.g. product/business)?", "A simple visual: percentage of error budget remaining for the period, trending up or down, translated into business terms (e.g. 'at current burn rate we're on track / at risk of breaching our checkout availability commitment this month') rather than raw percentiles and error counts."], ["What do you do once an error budget is exhausted for the period?", "That's the trigger to shift team priority from feature work to reliability work until the budget recovers - it's meant to be a real forcing function, not just a dashboard number, so raise it explicitly in planning rather than letting it pass quietly."]], "Incident Response / RCA / On-call": [["Walk through your process from getting paged to resolving a P1 in an eCommerce checkout path.", "Acknowledge and declare immediately, check the golden-signal dashboard for the affected service first, form a fast hypothesis from what's abnormal (error rate spike vs. latency vs. total outage), check recent deploys/changes as the first and cheapest thing to rule in or out, and communicate status on a fixed cadence throughout rather than going quiet while investigating."], ["How do you decide between rolling back a recent deploy versus fixing forward during an incident?", "Default to rollback if a deploy correlates with the incident's start time and a fix isn't already obvious and fast - rollback is almost always faster and lower-risk than debugging under pressure, and you can re-attempt the fix properly once things are stable."], ["Describe how you write a postmortem you'd actually want other engineers to read.", "Timeline of what happened and when, blameless language focused on systems/process rather than individuals, a clearly separated root cause vs. contributing factors, and concrete action items with owners and dates - not just 'we'll be more careful,' which never actually happens."], ["How do you handle an incident where the root cause spans two teams who disagree about ownership?", "During the incident, ownership debates get tabled - whoever can act fastest on the immediate mitigation does, regardless of whose 'fault' it is. The ownership conversation happens in the postmortem, calmly, with the timeline as shared ground truth rather than opinions."]]}, "good_to_have": [["Headless Commerce platforms", "If asked, be upfront it's outside your core experience, then pivot to the reliability concerns that are platform-agnostic: any headless storefront is fundamentally an API consumer of a commerce backend, so the same patterns apply - timeouts, retries, circuit breakers, and monitoring the API contract between the two."], ["React.js / React Native / Node.js", "Frame as adjacent-but-not-core: you can read/debug at a basic level for incident triage (e.g. spotting a failed API call in browser dev tools or a Node process crash log) without claiming frontend development depth."], ["CommerceTools or Fabric", "Same honest-gap framing - these are specific commerce platforms; the reliability practices you'd apply (rate limiting awareness, webhook retry handling, catalog/inventory sync monitoring) transfer regardless of which platform is underneath."], ["Performance engineering and solution architecture", "This one you can claim more directly - capacity planning, load testing informing SLOs, and architecture-level reliability decisions are things you have real experience with; use a concrete example if asked."], ["Desktop/mobile application support", "Likely a minor nice-to-have; a brief honest yes/no on exposure is enough - don't over-invest prep time here."]], "behavioral": [["Tell me about a time you had to collaborate closely with a product team (not just infra/ops) to resolve or prevent a reliability issue.", "Use a real example where the fix required product-side tradeoffs (e.g. a feature causing load, or a business decision about acceptable risk) - the point being tested is whether you can influence outside pure infra, which this JD explicitly calls out via 'cross-functional product teams.'"], ["Describe your approach to automating a repetitive operational task - how do you decide what's worth automating?", "Anchor to a real pattern: second time you do a manual step, document it; second time you follow the documented step, automate it - cite a real example (a health-check script, a deploy verification script) with the time/toil saved, ideally with a number."], ["How do you stay calm and effective during a high-severity incident under time pressure, especially with customer/revenue impact (eCommerce checkout, payments)?", "Be concrete about mechanics, not just 'I stay calm': declare early, work from a checklist/runbook rather than improvising from memory under stress, and communicate on a fixed cadence so stakeholders aren't adding pressure by pinging for updates."], ["Tell me about a time your analytical/problem-solving approach found a root cause others had missed.", "Reuse a real root-cause story (e.g. a DB index / connection-pool style pattern) - the signal here is systematic elimination of hypotheses, not a lucky guess."], ["How do you handle being on-call for a system with a component you're less familiar with?", "Honest and practical: lean on runbooks and the team's documented escalation path, know exactly who to page for deep expertise in unfamiliar areas, and use every on-call incident as a chance to close a documentation/runbook gap afterward, not just resolve and move on."], ["Describe a situation where you had to communicate a reliability risk to a business/product stakeholder who wanted to prioritize a feature launch instead.", "Frame it as a tradeoff conversation, not a veto - quantify the risk in business terms (potential revenue impact of an outage vs. cost of delay), propose a middle path (scoped testing, phased launch) rather than a flat no."]], "scenarios": [{"id": "e1", "tag": "Scenario 1", "title": "Checkout latency spike during a flash sale", "prompt": "Traffic surges during a promotional sale event and checkout latency climbs sharply, with some orders timing out. Walk through how you'd handle it.", "answer": [["Immediate triage", "Check the golden-signal dashboard for the checkout service first - is it latency, error rate, or both, and is it isolated to checkout or system-wide. Check HPA/autoscaler status immediately - if pods are Pending and nodes are still provisioning, that's the fastest explanation and the fix is already in motion, just needs time or a manual node-pool scale-up to speed it along."], ["Narrowing further", "If autoscaling isn't the bottleneck, check the checkout path's downstream dependencies - payment gateway response time specifically, since that's the most common external dependency to degrade under load and checkout can't complete without it. Also check the database connection pool for the order service, since a flash sale is exactly the load pattern that exposes an undersized pool."], ["Mitigation", "If the payment gateway itself is the bottleneck and outside your control, consider a queue-based buffering pattern for order submission rather than letting requests pile up and time out synchronously - degrade gracefully (show the customer a 'processing' state) rather than a hard failure."], ["Prevention for next time", "This should have been pre-scaled ahead of a known promotional event rather than reactively autoscaled - push for a pre-scaling runbook/checklist tied to the marketing promo calendar, plus load testing at expected peak multiples before the event, not after the first incident."]]}, {"id": "e2", "tag": "Scenario 2", "title": "Payment gateway (third-party) partial outage", "prompt": "A third-party payment provider is intermittently failing - some transactions succeed, some time out, some return ambiguous responses. How do you respond?", "answer": [["Immediate response", "Confirm it's genuinely upstream (check the provider's status page, and your own logs for the specific error/timeout pattern coming back from their API) rather than a self-inflicted issue - this changes the whole response, since you can't fix a third party's outage, only mitigate around it."], ["Handling ambiguous responses specifically", "Ambiguous/timeout responses are the dangerous case in payments - you don't know if the charge actually went through. Never blindly retry a payment request without an idempotency key, to avoid double-charging a customer; if idempotency keys aren't already in place for this integration, that's a critical gap worth flagging even mid-incident."], ["Mitigation", "If a secondary payment provider or fallback path exists, this is the moment to fail over to it; if not, degrade to queuing orders as 'payment pending' rather than hard-failing the customer's checkout, and reconcile once the provider recovers."], ["Communication", "This is customer-revenue-visible, so status page updates and a clear internal comms cadence matter - and coordinate with the ServiceNow incident record so business stakeholders have one place to check status rather than pinging engineering directly."], ["Prevention", "Push for a documented fallback/circuit-breaker pattern specifically for the payment integration if one doesn't exist, since this is the single highest-consequence external dependency in an eCommerce checkout path."]]}, {"id": "e3", "tag": "Scenario 3", "title": "Root-causing a silent data issue (not an outage)", "prompt": "Inventory counts are showing as out-of-sync between the catalog service and the actual warehouse system, causing overselling - no alerts fired because nothing 'crashed.' How do you investigate?", "answer": [["Why this is a different kind of incident", "No alert fired because this isn't a resource-exhaustion or error-rate problem - it's a silent correctness issue, which existing golden-signal monitoring often can't catch. The first step is acknowledging the monitoring gap itself, not just fixing the immediate sync issue."], ["Investigation", "Trace the sync mechanism end to end - is it event-driven (webhook/queue) or polling-based, and check for dropped/failed messages in the queue (dead-letter queue depth is a good first signal), or a stalled polling job that's silently stopped running rather than erroring."], ["Likely root causes to check", "A consumer that's silently stuck (e.g. hit an unhandled exception on one malformed message and stopped processing the rest of the queue behind it), a timing/race condition between two systems both writing to the same inventory record, or a deployment that changed a message schema without updating both producer and consumer."], ["Fix and immediate mitigation", "Once the stuck point is found, reprocess the backlog and verify counts reconcile; in parallel, consider a temporary manual safety buffer (don't sell the last N units) while confidence in the sync is rebuilt."], ["Prevention", "Add a reconciliation job that periodically diff-checks the two systems and alerts on drift beyond a threshold - this is the observability gap that let the issue go silent, and it's a durable fix, not just resolving this one instance."]]}, {"id": "e4", "tag": "Scenario 4", "title": "Emergency change during a live incident, ITIL process vs. speed", "prompt": "You're in the middle of a P1 incident and the fix requires a production change that would normally go through a Change Advisory Board review. What do you do?", "answer": [["Approach", "Most mature ITIL processes have an emergency change path specifically for this - a lightweight, fast-tracked approval (often a single authorized approver rather than full CAB) for exactly this situation, so use that rather than either skipping process entirely or waiting for a full CAB cycle mid-outage."], ["If no emergency change path exists", "Make the judgment call to implement the fix given the active customer impact, but document the decision and reasoning in the incident record in real time, and get retroactive approval/review immediately after - the goal is never to silently bypass process, but process shouldn't block restoring a live P1 either."], ["Balancing speed and risk", "The riskier the change itself, the more you'd want at least a second engineer's eyes on it even under time pressure - a bad emergency fix can turn a P1 into a worse P1. A quick verbal sign-off from a senior engineer or the incident commander is usually enough friction to catch an obvious mistake without meaningfully slowing things down."], ["Follow-up", "Once resolved, formalize the change record retroactively and raise in the postmortem whether the emergency-change path itself worked well or needs adjustment."]]}, {"id": "e5", "tag": "Scenario 5", "title": "Cross-team ownership dispute during an active incident", "prompt": "During a checkout outage, the platform team says it's an application bug; the application team says it's an infrastructure issue. The clock is ticking. How do you handle it?", "answer": [["In the moment", "Table the ownership question entirely during the active incident - it doesn't matter whose code it is, it matters what's broken. Pull both teams into the same channel/bridge and drive toward a shared, evidence-based hypothesis rather than letting it become a debate: what does the data actually show, not who thinks what."], ["Getting to evidence fast", "Look at what changed most recently across both layers (deploys, config changes, infra changes) and check whether the symptom's onset time lines up with one side's change more precisely than the other - this usually resolves the disagreement with data rather than opinion."], ["If genuinely ambiguous", "Whoever can test their hypothesis fastest and cheapest goes first, since a fast, low-risk test (checking a log, reverting a recent config) beats a slower 'prove me right' investigation - speed of restoring service outranks being the one who's right."], ["After resolution", "The ownership disagreement itself is a postmortem topic, not an incident-time one - worth surfacing honestly afterward if it added time to resolution, since recurring ownership ambiguity between two teams is itself a reliability risk worth fixing structurally."]]}], "closing_questions": ["What does the on-call rotation look like for this team, and how many P1/P2 incidents does the checkout or payment path typically see in a given month?", "Which ITSM processes are most mature today (incident, problem, change) and which is the team actively trying to improve?", "Since GitHub Actions is called out specifically - is CI/CD centralized across all microservices or does each team own its own pipelines?", "How is the SLO/error-budget practice used today - is it just tracked, or does it actually drive prioritization decisions when a budget is burned?", "What does the split look like between Azure and GCP in practice - is it two genuinely separate environments, or a migration in progress?", "What's the biggest reliability pain point in the checkout/payment path specifically right now?"]}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const PAGES = [
+  {id:'snapshot', label:'0 · Role & Strategy'},
+  {id:'scenarios', label:'1 · Scenario Answers'},
+  {id:'technical', label:'2 · Technical Q&A'},
+  {id:'behavioral', label:'3 · Behavioral'},
+  {id:'goodtohave', label:'4 · Good-to-Have'},
+  {id:'closing', label:'5 · Ask Them'}
+];
+let doneMap = {};
+try{ doneMap = JSON.parse(localStorage.getItem('ecom_sre_done')||'{}'); }catch(e){ doneMap={}; }
+function saveDone(){ localStorage.setItem('ecom_sre_done', JSON.stringify(doneMap)); updateProgress(); }
+let allCardIds = [];
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function buildTabs(){
+  const tabWrap = document.getElementById('tabs');
+  PAGES.forEach((p,i)=>{
+    const b=document.createElement('button');
+    b.className='tab'+(i===0?' active':'');
+    b.textContent=p.label;
+    b.onclick=()=>showPage(p.id);
+    b.dataset.page=p.id;
+    tabWrap.appendChild(b);
+  });
+}
+function showPage(id){
+  document.querySelectorAll('section.pg').forEach(s=>s.classList.toggle('active', s.dataset.id===id));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.page===id));
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function makeCard(opts){
+  const card=document.createElement('div');
+  card.className='card'+(opts.alwaysOpen? ' open':'');
+  card.dataset.id=opts.id;
+  card.dataset.text=(opts.searchText||'').toLowerCase();
+  allCardIds.push(opts.id);
+  const bar=document.createElement('div');
+  bar.className='cbar';
+  const prevHTML = opts.noPreview ? '' : '<p class="cprev">'+esc(opts.preview)+'</p>';
+  bar.innerHTML =
+    '<span class="badge '+opts.badgeClass+'">'+esc(opts.badge)+'</span>'+
+    '<div class="cbody"><p class="ctitle">'+esc(opts.title)+'</p>'+
+    prevHTML+
+    '<div class="cdetail">'+opts.bodyHTML+'</div></div>'+
+    (opts.noCheck ? '' : '<div class="mark" tabindex="0" role="checkbox" aria-checked="false"></div>');
+  card.appendChild(bar);
+  if(!opts.alwaysOpen){
+    bar.addEventListener('click', (e)=>{
+      if(e.target.classList.contains('mark')) return;
+      card.classList.toggle('open');
+    });
+  } else {
+    bar.style.cursor='default';
+  }
+  if(!opts.noCheck){
+    const mark = bar.querySelector('.mark');
+    if(doneMap[opts.id]) mark.classList.add('done');
+    mark.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      doneMap[opts.id] = !doneMap[opts.id];
+      mark.classList.toggle('done', doneMap[opts.id]);
+      saveDone();
+    });
+  }
+  return card;
+}
+
+function segHTML(label, text){
+  return '<div class="seg"><h4>'+esc(label)+'</h4><p>'+esc(text)+'</p></div>';
+}
+
+function renderSnapshot(container){
+  const s = DATA.snapshot;
+  const b1=document.createElement('div'); b1.className='blk';
+  b1.innerHTML = '<h2>Role at a glance</h2>' + s.role_facts.map(f=>
+    '<div class="factrow"><b>'+esc(f[0])+'</b><span>'+esc(f[1])+'</span></div>').join('');
+  container.appendChild(b1);
+
+  const b2=document.createElement('div'); b2.className='blk';
+  b2.innerHTML = '<h2>What this interview is actually testing</h2><ul class="plain">'+
+    s.what_they_test.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  container.appendChild(b2);
+
+  const b3=document.createElement('div'); b3.className='blk';
+  b3.innerHTML = '<h2>Strengths to lean on</h2><ul class="plain">'+
+    s.strengths_to_lean_on.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  container.appendChild(b3);
+
+  const b4=document.createElement('div'); b4.className='blk';
+  let gapHtml = '<h2>Gaps — flag honestly, then bridge</h2>';
+  s.gaps_to_bridge.forEach(g=>{
+    gapHtml += '<div class="gapbox"><b>'+esc(g[0])+'</b><p>'+esc(g[1])+'</p></div>';
+  });
+  b4.innerHTML = gapHtml;
+  container.appendChild(b4);
+
+  const b5=document.createElement('div'); b5.className='blk';
+  b5.innerHTML = '<h2>Closing note</h2><p class="ansline">'+esc(s.closing_notes)+'</p>';
+  container.appendChild(b5);
+}
+
+function renderScenarios(container){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "Five likely eCommerce-SRE scenario questions with full answers, expanded below. Each follows: immediate triage → narrowing down → mitigation → prevention (or the ITIL/ownership equivalent). Say these out loud once before the interview — swap in your own real incident specifics wherever you have them.";
+  container.appendChild(hint);
+  DATA.scenarios.forEach(sc=>{
+    let body = '<div class="qprompt">'+esc(sc.prompt)+'</div>';
+    sc.answer.forEach(pair=> body += segHTML(pair[0], pair[1]));
+    const searchText = sc.title+' '+sc.prompt+' '+sc.answer.map(a=>a[0]+' '+a[1]).join(' ');
+    container.appendChild(makeCard({
+      id:sc.id, badge:sc.tag, badgeClass:'b-scn',
+      title: sc.title, bodyHTML: body, searchText: searchText,
+      alwaysOpen: true, noPreview: true
+    }));
+  });
+}
+
+function renderTechnical(container){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "Organized by the JD's required-skills list. Full question and full answer shown directly — detailed enough to speak for 30-60 seconds each on a follow-up.";
+  container.appendChild(hint);
+  let qi=0;
+  Object.keys(DATA.technical).forEach(group=>{
+    const gname=document.createElement('div'); gname.className='groupname'; gname.textContent=group;
+    container.appendChild(gname);
+    DATA.technical[group].forEach(pair=>{
+      qi++;
+      const id='tech_'+qi;
+      const body = '<p class="ansline">'+esc(pair[1])+'</p>';
+      container.appendChild(makeCard({
+        id:id, badge:'Q'+qi, badgeClass:'b-qa',
+        title: pair[0], bodyHTML: body, searchText: pair[0]+' '+pair[1],
+        alwaysOpen: true, noPreview: true
+      }));
+    });
+  });
+}
+
+function renderBehavioral(container){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "Maps to the JD's 'what we're looking for': analytical/problem-solving, automation mindset, communication, on-call willingness.";
+  container.appendChild(hint);
+  DATA.behavioral.forEach((pair,i)=>{
+    const id='beh_'+i;
+    const body = '<p class="ansline">'+esc(pair[1])+'</p>';
+    container.appendChild(makeCard({
+      id:id, badge:'Q'+(i+1), badgeClass:'b-qa',
+      title: pair[0], bodyHTML: body, searchText: pair[0]+' '+pair[1],
+      alwaysOpen: true, noPreview: true
+    }));
+  });
+}
+
+function renderGoodToHave(container){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "These are explicitly 'good to have,' not required. Spend the least prep time here — just enough to answer honestly if asked.";
+  container.appendChild(hint);
+  const b=document.createElement('div'); b.className='blk';
+  let html = '<h2>Good-to-have items</h2>';
+  DATA.good_to_have.forEach(g=>{
+    html += '<div class="gthbox"><b>'+esc(g[0])+'</b><p>'+esc(g[1])+'</p></div>';
+  });
+  b.innerHTML = html;
+  container.appendChild(b);
+}
+
+function renderClosing(container){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "Pick 2-3 of these — asking all of them reads as a checklist, not curiosity.";
+  container.appendChild(hint);
+  DATA.closing_questions.forEach(q=>{
+    const d=document.createElement('div'); d.className='closingq'; d.textContent=q;
+    container.appendChild(d);
+  });
+}
+
+function buildPages(){
+  const pagesWrap = document.getElementById('pages');
+  const renderers = {
+    snapshot: renderSnapshot,
+    scenarios: renderScenarios,
+    technical: renderTechnical,
+    behavioral: renderBehavioral,
+    goodtohave: renderGoodToHave,
+    closing: renderClosing
+  };
+  PAGES.forEach((p,i)=>{
+    const sec=document.createElement('section');
+    sec.className='pg'+(i===0?' active':'');
+    sec.dataset.id=p.id;
+    pagesWrap.appendChild(sec);
+    renderers[p.id](sec);
+  });
+}
+
+function updateProgress(){
+  const total = allCardIds.length;
+  const done = allCardIds.filter(id=>doneMap[id]).length;
+  document.getElementById('pbarfill').style.width = total? (done/total*100)+'%':'0%';
+  document.getElementById('ptext').textContent = done+' of '+total+' reviewed';
+}
+
+document.getElementById('search').addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('.card').forEach(card=>{
+    const match = !q || card.dataset.text.includes(q);
+    card.style.display = match? '' : 'none';
+  });
+});
+
+buildTabs();
+buildPages();
+updateProgress();
+</script>
+</body>
+</html>

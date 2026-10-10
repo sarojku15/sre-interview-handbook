@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Architect — Interview Handbook</title>
+<style>
+:root{
+  --bg:#0a0e14;
+  --bg-elev:#0f151f;
+  --bg-card:#141b26;
+  --bg-card-hover:#182131;
+  --border:#212b3a;
+  --border-soft:#1a2230;
+  --text:#e7edf5;
+  --text-dim:#9aa7b8;
+  --text-faint:#5b6675;
+  --c-arch:#ffb800;
+  --c-cicd:#fc6d26;
+  --c-sre:#00bcd4;
+  --c-java:#6db33f;
+  --c-infra:#326ce5;
+  --c-obs:#e6522c;
+  --c-sec:#e5484d;
+  --c-gov:#b569e8;
+  --c-bonus:#14b8a6;
+  --c-scenario:#f5a623;
+  --c-ownership:#d4af37;
+  --c-behavioral:#7c8797;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --radius: 10px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--sans); line-height:1.6; font-size:15px;
+  -webkit-font-smoothing:antialiased;
+}
+header.hero{
+  padding:44px 20px 26px; max-width:900px; margin:0 auto;
+  border-bottom:1px solid var(--border-soft);
+}
+.eyebrow{
+  font-family:var(--mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--text-faint); margin-bottom:10px;
+}
+h1{
+  font-size:clamp(26px,4vw,36px); margin:0 0 8px; font-weight:800; letter-spacing:-.01em;
+  color:#fff;
+}
+.subtitle{color:var(--text-dim); font-size:16px; margin:0 0 18px;}
+.meta-line{
+  font-family:var(--mono); font-size:12.5px; color:var(--text-faint);
+  display:flex; gap:18px; flex-wrap:wrap;
+}
+.briefing{
+  max-width:900px; margin:24px auto 0; padding:18px 20px;
+  background:var(--bg-elev); border:1px solid var(--border);
+  border-left:3px solid var(--c-ownership); border-radius:var(--radius);
+}
+.briefing h2{
+  font-size:12px; font-family:var(--mono); letter-spacing:.1em; text-transform:uppercase;
+  color:var(--c-ownership); margin:0 0 10px;
+}
+.briefing p{margin:0 0 10px; color:var(--text-dim); font-size:14.5px;}
+.briefing ul{margin:8px 0 0; padding-left:20px; color:var(--text-dim); font-size:14.5px;}
+.briefing li{margin-bottom:7px;}
+.briefing strong{color:var(--text);}
+
+.controls{
+  position:sticky; top:0; z-index:20; background:rgba(10,14,20,.94); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border-soft); padding:14px 20px;
+}
+.controls-inner{max-width:900px; margin:0 auto; display:flex; flex-direction:column; gap:12px;}
+.controls-row{display:flex; gap:12px; align-items:center; flex-wrap:wrap;}
+#search{
+  flex:1; min-width:180px; background:var(--bg-card); border:1px solid var(--border);
+  color:var(--text); padding:10px 14px; border-radius:8px; font-size:14px; font-family:var(--sans);
+  outline:none;
+}
+#search:focus{border-color:var(--text-faint);}
+#search::placeholder{color:var(--text-faint);}
+.toggle-label{
+  display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text-dim);
+  font-family:var(--mono); cursor:pointer; white-space:nowrap;
+}
+.toggle-label input{accent-color:var(--c-ownership); width:15px; height:15px; cursor:pointer;}
+.reset-btn{
+  background:transparent; border:1px solid var(--border); color:var(--text-faint);
+  font-family:var(--mono); font-size:12px; padding:8px 12px; border-radius:8px; cursor:pointer;
+  white-space:nowrap;
+}
+.reset-btn:hover{border-color:var(--c-sec); color:var(--c-sec);}
+.progress-readout{
+  font-family:var(--mono); font-size:12.5px; color:var(--text-dim); display:flex; align-items:center; gap:10px;
+}
+.progress-bar-track{
+  flex:1; height:6px; background:var(--bg-card); border-radius:4px; overflow:hidden; border:1px solid var(--border);
+}
+.progress-bar-fill{
+  height:100%; background:linear-gradient(90deg,var(--c-ownership),var(--c-sre));
+  transition:width .3s ease; border-radius:4px; width:0%;
+}
+.progress-count{white-space:nowrap; min-width:130px; text-align:right;}
+
+nav#pillnav{
+  position:sticky; top:97px; z-index:19; background:var(--bg);
+  border-bottom:1px solid var(--border-soft); overflow-x:auto; white-space:nowrap;
+  padding:10px 20px;
+}
+nav#pillnav::-webkit-scrollbar{height:5px;}
+nav#pillnav::-webkit-scrollbar-thumb{background:var(--border); border-radius:4px;}
+.pill{
+  display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:12px;
+  padding:7px 12px; margin-right:8px; border-radius:20px; border:1px solid var(--border);
+  color:var(--text-dim); cursor:pointer; background:var(--bg-elev); transition:.15s;
+}
+.pill:hover{color:var(--text);}
+.pill .ptag{color:var(--pill-color); font-weight:700;}
+.pill .pcount{color:var(--text-faint);}
+
+main{max-width:900px; margin:0 auto; padding:32px 20px 0;}
+section.sect{margin-bottom:46px; scroll-margin-top:150px;}
+.sect-header{display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap;}
+.sect-header .icon{
+  font-family:var(--mono); font-size:11px; padding:4px 8px; border:1px solid var(--sect-color);
+  border-radius:4px; color:var(--sect-color); letter-spacing:.05em; font-weight:700;
+}
+.sect-header h2{font-size:19px; margin:0; color:#fff; font-weight:700;}
+.sect-badge{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.05em; text-transform:uppercase;
+  padding:3px 9px; border-radius:12px; background:var(--bg-card); border:1px solid var(--sect-color);
+  color:var(--sect-color);
+}
+.sect-count{font-family:var(--mono); font-size:12px; color:var(--text-faint); margin-left:auto;}
+.sect-intro{
+  background:var(--bg-elev); border:1px solid var(--border); border-left:3px solid var(--sect-color);
+  border-radius:var(--radius); padding:16px 18px; margin:14px 0 20px; color:var(--text-dim); font-size:14.5px;
+}
+.item{
+  background:var(--bg-card); border:1px solid var(--border); border-left:3px solid var(--sect-color);
+  border-radius:var(--radius); padding:16px 18px; margin-bottom:10px; display:flex; gap:14px;
+  transition:background .15s, border-color .15s;
+}
+.item:hover{background:var(--bg-card-hover);}
+.item.mastered{opacity:.5;}
+.item input[type=checkbox]{
+  margin-top:3px; width:17px; height:17px; accent-color:var(--sect-color); cursor:pointer; flex-shrink:0;
+}
+.item-body{flex:1; min-width:0;}
+.item-q{font-weight:650; color:var(--text); margin-bottom:7px; font-size:14.5px;}
+.item.mastered .item-q{text-decoration:line-through; text-decoration-color:var(--text-faint);}
+.item-a{color:var(--text-dim); font-size:14px; line-height:1.65;}
+.no-results{text-align:center; padding:60px 20px; color:var(--text-faint); font-family:var(--mono); font-size:14px;}
+footer{
+  max-width:900px; margin:20px auto 0; padding:20px; text-align:center;
+  color:var(--text-faint); font-family:var(--mono); font-size:11.5px; border-top:1px solid var(--border-soft);
+}
+@media (max-width:600px){
+  header.hero{padding:32px 16px 22px;}
+  .controls{padding:12px 16px;}
+  main{padding:24px 16px 0;}
+  nav#pillnav{top:122px;}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="eyebrow">Interview Prep · Tomorrow</div>
+  <h1>Platform Architect</h1>
+  <p class="subtitle">Java Platform · DevOps &amp; CI/CD · Site Reliability Engineering</p>
+  <div class="meta-line">
+    <span>126 questions and scenarios</span>
+    <span>12 sections</span>
+    <span>3 new-territory areas flagged</span>
+  </div>
+</header>
+
+<div class="briefing">
+  <h2>Read this first</h2>
+  <p>This JD is the broadest one yet — a genuine <strong>Architect</strong> title spanning Java/Spring Boot platform ownership, GitLab-based DevOps, full SRE, environment/deployment architecture, observability, DevSecOps, and governance/mentoring. Three things worth knowing walking in:</p>
+  <ul>
+    <li><strong>GitLab is explicitly named.</strong> Most of your CI/CD depth has been Jenkins and GitHub Actions — Section 2 covers GitLab-specific vocabulary and features directly so the terminology doesn't trip you up.</li>
+    <li><strong>Java / Spring Boot is a required skill here</strong>, not adjacent infra work. Section 4 gives you the platform-architect's view of it — the standards and trade-offs you'd own — rather than deep framework internals.</li>
+    <li><strong>The word "Architect" raises the bar on ownership.</strong> Section 11 is short — read it first. It's built directly from what cost points in your last architecture-flavored round.</li>
+  </ul>
+</div>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="controls-row">
+      <input type="text" id="search" placeholder="Search all questions and answers…" autocomplete="off">
+      <label class="toggle-label"><input type="checkbox" id="unmastered-toggle"> unmastered only</label>
+      <button class="reset-btn" id="reset-btn" onclick="resetProgress()">reset progress</button>
+    </div>
+    <div class="progress-readout">
+      <span>[</span>
+      <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill"></div></div>
+      <span>]</span>
+      <span class="progress-count" id="progress-count">0 / 126 mastered</span>
+    </div>
+  </div>
+</div>
+
+<nav id="pillnav"></nav>
+
+<main id="content">
+  <div class="no-results">loading handbook…</div>
+</main>
+
+<footer>Built for your Platform Architect interview · progress saved automatically on this device</footer>
+
+<script>
+const SECTIONS = [
+{
+  id:`arch`, title:`1 · Platform Architecture and Technical Strategy`, icon:`ARCH`, color:`var(--c-arch)`, badge:null, intro:null,
+  items:[
+    {q:`How would you define the end-to-end architecture for a Java application platform from scratch?`,
+     a:`Start with the business and non-functional requirements — traffic patterns, SLAs, compliance, team topology — then work top-down: the application runtime pattern (microservices vs modular monolith vs hybrid), the platform capabilities every service will need (auth, config, logging, secrets, service discovery), the deployment/environment model, and the golden path a team follows to ship a new service. Document it as architecture decision records rather than one static diagram, so decisions are traceable and can evolve. Validate with a reference implementation — one real service built the golden-path way — before mandating it platform-wide.`},
+    {q:`What reusable platform capabilities would you prioritize building first, and why?`,
+     a:`Config and secrets management first — almost nothing else works safely without them, and retrofitting secrets handling after the fact is painful. Centralized logging and correlation IDs next, since that's the foundation for debugging everything built after. Auth/authz (a shared identity pattern like OAuth2/OIDC token propagation) and API gateway patterns come next since they're consumed by every service. Scheduling and advanced observability can follow once the fundamentals are stable.`},
+    {q:`How do you evaluate and recommend a new platform technology, such as choosing a service mesh or a new CI tool?`,
+     a:`Frame it as an architecture decision with explicit criteria: does it solve a real, currently-painful problem rather than a hypothetical one, what's the operational cost of running and patching it, does it fit the team's existing skill set, and what's the blast radius if it fails. I'd run a small time-boxed proof of concept against a real workload, capture the trade-offs in an ADR, and get sign-off from the teams who'll actually operate it — a platform architect shouldn't mandate tooling only they understand.`},
+    {q:`How do you keep platform architecture aligned with enterprise security and compliance standards without becoming a bottleneck?`,
+     a:`Bake compliance requirements into the golden path itself so following the standard path is also the compliant path. Use CI/CD gates and policy-as-code to enforce the non-negotiables automatically instead of manual review queues. Keep a lightweight exception process for legitimate edge cases so the architecture doesn't become "the reason we can't ship," and revisit standards on a cadence rather than freezing them.`},
+    {q:`A team wants to build a new service outside your platform standards because "our use case is different." How do you handle it?`,
+     a:`First, actually listen — sometimes the standard genuinely doesn't fit, which is useful signal to evolve it. I'd ask them to name the specific constraint the standard violates, then decide: a legitimate edge case gets a scoped, tracked exception; unfamiliarity or short-term convenience gets a conversation about the cost the platform absorbs when standards fragment, plus help finding a path that meets both their need and the guardrail.`},
+    {q:`What's your approach to a platform roadmap that balances new feature enablement against paying down technical debt?`,
+     a:`Treat reliability and tech-debt work as a first-class roadmap line with its own budget, framed against real incident data — "we spent X hours firefighting category Y last quarter" beats an abstract "we should refactor this." Sequence foundational capabilities before the features that need them, and revisit the roadmap quarterly against real usage and incident data rather than treating it as fixed.`},
+    {q:`How do you decide between microservices and a modular monolith for a new Java platform capability?`,
+     a:`I default to modular monolith unless there's a concrete reason for microservices — independent scaling needs, genuinely separate ownership boundaries, or different technology or release-cadence requirements per component. Microservices add real operational cost — network calls replacing method calls, distributed tracing, service discovery — that only pays off once a team is big enough or the scaling needs are real. Platforms that fragment too early pay for it in debugging complexity.`},
+    {q:`How do you make platform standards get adopted voluntarily rather than mandated?`,
+     a:`Make the paved road meaningfully easier than the alternative — good documentation, working templates and scaffolding, fast onboarding beat a mandate memo. I involve a few pilot teams early so the standard gets battle-tested and has internal champions before broad rollout, and keep a visible feedback loop so teams feel ownership rather than compliance.`},
+    {q:`What does operational readiness mean to you for a new platform capability before it goes live enterprise-wide?`,
+     a:`A checklist tied to the deploy gate: monitoring and alerting exist and have been validated, not just deployed; a runbook exists and has been tested by someone besides the author; a rollback path is proven, not theoretical; capacity and load testing has been done against realistic traffic; security review has passed; and there's a documented escalation path. "It works in a demo" and "it's operationally ready" are very different bars.`},
+    {q:`How do you handle architecture decisions when there's no clearly correct answer and stakeholders disagree?`,
+     a:`Write it up as a lightweight ADR — context, options considered, trade-offs of each, recommendation with reasoning — and get disagreeing stakeholders to react to the document rather than debate in the abstract. Disagreement often dissolves once trade-offs are explicit and it's clear people were optimizing for different, unstated priorities. If it's still contested, I make the call, document why, and set a revisit trigger rather than treating it as permanent.`}
+  ]
+},
+{
+  id:`cicd`, title:`2 · DevOps and CI/CD — GitLab-Focused`, icon:`CI/CD`, color:`var(--c-cicd)`, badge:`New territory`, intro:null,
+  items:[
+    {q:`How would you structure a GitLab branching strategy for a platform with multiple Java microservices and frequent releases?`,
+     a:`Trunk-based development with short-lived feature branches merged via MR into main, protected by required approvals and a passing pipeline — this keeps merge conflicts small and supports continuous deployment. For services needing longer release trains, such as regulated components with staged approvals, I'd use release branches cut from main at a tag, with hotfixes cherry-picked back. I avoid long-lived GitFlow-style develop branches on high-velocity services; they accumulate drift and make CI signal stale.`},
+    {q:`Walk me through how you'd design a GitLab CI/CD pipeline template that every Java service reuses.`,
+     a:`An include-based template — .gitlab-ci.yml using an include directive against a shared project — with standard stages: build with Maven, unit test, static analysis, dependency and container scanning, package, deploy to dev, integration test, deploy to staging with a manual gate, deploy to prod with approval. Each service's own file extends the template and supplies service-specific variables, so a platform-wide pipeline improvement rolls out everywhere without every team touching their file.`},
+    {q:`How do you enforce merge request quality gates in GitLab without slowing teams down too much?`,
+     a:`Required approvals scaled to risk — one approver for low-risk services, two for shared or critical components — branch protection requiring a green pipeline before merge, and automated quality gates like coverage thresholds and scan pass status that block rather than just warn. I keep gates objective and automated wherever possible; subjective "someone needs to feel good about this" reviews are where MRs get stuck.`},
+    {q:`What GitLab CI/CD features would you use to integrate security scanning into the pipeline?`,
+     a:`Built-in SAST and Dependency Scanning for code and library vulnerabilities, Container Scanning for the built image, Secret Detection to catch committed credentials before merge, and DAST against a running staging environment for dynamic checks. I'd set severity-based gates — block on critical and high, warn on medium — rather than all-or-nothing, since blocking every medium finding usually just trains teams to ignore the pipeline.`},
+    {q:`How do GitLab runners factor into your pipeline architecture, and how would you plan runner capacity for multiple teams?`,
+     a:`A mix of shared runners for lightweight, common jobs and dedicated project or group runners — often Kubernetes-executor runners for autoscaling — for build-heavy jobs, tagged so pipelines request the right runner class. I'd plan capacity around peak concurrent pipeline load, not average, since CI queuing right before a release is exactly when teams are least tolerant of delay, and I'd isolate runners handling production credentials from general-purpose shared runners.`},
+    {q:`How would you design rollback in a GitLab CI/CD pipeline?`,
+     a:`Rollback should be a pipeline job, not a manual scramble — either re-running the last known-good deployment job, or triggering a dedicated rollback stage that redeploys the previous release tag. Every deploy ties to an immutable, addressable artifact such as a container image digest rather than "latest," so rollback always means redeploying exactly what was running before, never a rebuild.`},
+    {q:`What's your view on manual approval gates in a pipeline — when do you use them versus full automation?`,
+     a:`Manual gates for production deploys to genuinely high-risk or regulated services, and for anything crossing an environment boundary with real business impact if wrong, such as a schema migration. Elsewhere I push toward automated promotion gated by objective signals — passing tests, canary health checks, SLO adherence — because manual gates that exist "just in case" tend to become rubber-stamp approvals that add latency without adding real safety.`},
+    {q:`How do you handle Maven dependency management and artifact versioning in a GitLab CI/CD pipeline for microservices?`,
+     a:`A private GitLab Package Registry, or Nexus/Artifactory, as the artifact source of truth, semantic versioning for shared internal libraries, and a policy against snapshot or floating dependencies reaching production builds. Dependency scanning as a pipeline gate catches vulnerable transitive dependencies before they're baked into an image, and I pin build-tool and base-image versions explicitly rather than "latest" to keep builds reproducible.`},
+    {q:`Compare GitLab CI/CD and Jenkins from an architecture standpoint — when would you recommend one over the other?`,
+     a:`GitLab CI/CD gives pipeline-as-code tightly integrated with source control, MRs, and built-in security scanning, with less plugin sprawl — I'd favor it for a platform being built fresh or consolidating tooling. Jenkins is more flexible and often deeply embedded in legacy pipelines with custom shared libraries; I'd keep it where migration cost outweighs benefit or a specific plugin ecosystem is load-bearing. For a Java/Spring Boot platform standardizing tooling, I'd lean GitLab unless there's a strong existing Jenkins investment.`},
+    {q:`How would you define release governance across dev, test, staging, pre-prod, and production in GitLab?`,
+     a:`Environments modeled explicitly in GitLab, each with its own protection rules — who can deploy, whether approval is required, which branches or tags may deploy there. Promotion between environments carries the same artifact forward, never rebuilt per environment, with environment-specific config injected at deploy time. Pre-prod and production gates require the full test and scan suite plus, for production, an explicit approval tied to a change record for auditability.`},
+    {q:`How do you prevent "pipeline as a bottleneck" complaints while still enforcing quality gates?`,
+     a:`Parallelize what can run in parallel — unit tests, linting, and scans don't need to be sequential — cache dependencies aggressively such as the Maven .m2 cache between runs, and fail fast by putting the cheapest, most likely-to-fail checks first. I also track pipeline duration as a metric with an owner, the same way I'd track an SLO, so degradation gets caught and fixed instead of silently tolerated.`},
+    {q:`How would you design GitLab CI/CD to support canary or blue-green deployments to Kubernetes?`,
+     a:`The pipeline builds one immutable image, then a deploy stage applies it via Helm or Argo Rollouts, or a GitLab-native Kubernetes Agent integration, with a canary or blue-green strategy defined declaratively — for example an Argo Rollouts canary step sequence with automated analysis on error rate and latency gating promotion. The pipeline triggers and monitors rollout status; automated rollback fires on a failed analysis step, with a manual override for the on-call engineer.`},
+    {q:`What quality gates would you consider non-negotiable for a Java/Spring Boot service pipeline, and which would you make configurable per team?`,
+     a:`Non-negotiable: passing unit tests, no critical or high vulnerabilities from dependency and container scanning, and secret detection. Configurable per team or risk tier: code coverage threshold, quality-gate strictness, and whether integration or contract tests are required pre-merge versus pre-deploy. I keep the configurable list small and documented so it doesn't become a quiet excuse to weaken the pipeline.`},
+    {q:`How do you handle secrets such as DB credentials or API keys in a GitLab CI/CD pipeline securely?`,
+     a:`Never in the repo or in plain pipeline variables — GitLab CI/CD variables marked protected and masked at minimum, but for anything production-facing I'd integrate an external secrets manager and have the pipeline and runtime fetch secrets dynamically via short-lived tokens. OIDC federation between GitLab and the cloud provider is ideal, since no long-lived cloud credentials are stored in GitLab at all. Secret detection scanning on every commit catches accidental leaks before they merge.`}
+  ]
+},
+{
+  id:`sre`, title:`3 · SRE and Operability`, icon:`SRE`, color:`var(--c-sre)`, badge:null, intro:null,
+  items:[
+    {q:`How do you define SLIs and SLOs for a new Java platform service?`,
+     a:`Start from the consumer's actual experience, not what's easy to measure — for an API that's usually availability and latency at p95/p99. I'd define the SLI as a precise measurable ratio of good events to valid events, set the SLO based on business tolerance for failure rather than what's technically achievable, and validate it against historical data before committing to it publicly, since an SLO nobody can realistically hit erodes trust in the metric.`},
+    {q:`What's an error budget, and how would you use it to make platform decisions?`,
+     a:`It's the allowed amount of unreliability implied by the SLO — a 99.9% SLO gives a 0.1% error budget — spent on releases, risky changes, or planned maintenance. When the budget's healthy, teams can ship more aggressively; when it's exhausted, policy shifts to a reliability-focused freeze on risky changes until it recovers. I'd use it to make release-velocity conversations objective and pre-agreed rather than a political argument in the moment.`},
+    {q:`How would you design operational readiness criteria for a new feature going to production?`,
+     a:`A short, enforced checklist tied to the deploy gate: monitoring and alerts exist and were tested, a runbook exists for the top two or three likely failure modes, load testing was done at expected peak plus headroom, rollback has been validated, and the on-call team has been briefed rather than just notified after the fact.`},
+    {q:`How do you drive down MTTR across a platform?`,
+     a:`Invest in fast detection first — alerting on symptoms users actually feel, not every internal metric — then fast diagnosis via correlation IDs and distributed tracing so engineers aren't grepping logs across a dozen services, then fast, low-risk mitigation via feature flags and easy rollback so restoring service doesn't require finding root cause under pressure. I'd track MTTR by incident category over time; a category that stays slow is a signal for a targeted runbook or tooling investment.`},
+    {q:`What does a blameless postmortem process actually look like in practice, and how do you keep it genuinely blameless?`,
+     a:`The write-up focuses on the timeline and contributing factors, explicitly avoids naming individuals as the cause, and frames findings as "the system allowed X to happen" rather than "person Y made a mistake." I set the tone in the review meeting itself, redirecting any "why did you" question toward "what made that seem like the right call, and what would have caught it earlier." Blamelessness has to be actively defended in the room, not just declared in a template.`},
+    {q:`How do you decide what deserves a runbook versus what's handled ad hoc during an incident?`,
+     a:`Anything that's happened more than once, anything with a non-obvious fix, and anything where a wrong first move makes things worse — failover procedures, data-affecting rollbacks — gets a runbook. I keep runbooks action-oriented rather than descriptive, and treat them as living documents updated as a required step after any incident where the runbook was wrong or missing.`},
+    {q:`A service is consistently missing its SLO but the business says it's fine because there haven't been complaints. How do you handle that?`,
+     a:`I'd treat it as a signal to check whether the SLI actually reflects what users experience rather than assume the business is wrong. If the SLO is validated as correct and it's genuinely being missed without visible impact yet, I'd surface the gap explicitly — this is silently eating error budget and risk is accumulating — so the business makes an informed choice rather than the gap staying invisible until it causes a real incident.`},
+    {q:`How would you set up production support so the right dashboards and escalation paths exist without overwhelming the on-call engineer?`,
+     a:`One primary "is the service healthy" dashboard per service covering the four golden signals that answers "do I need to act" in ten seconds, with drill-down dashboards linked from there. Escalation paths defined by clear time-boxed criteria — for example, page the secondary if not mitigated in fifteen minutes — rather than left to judgment under pressure, since judgment is exactly what's impaired during a 3am page.`},
+    {q:`How do you balance SRE reliability work against feature-team pressure to ship faster?`,
+     a:`The error-budget model is the mechanism — it converts reliability versus velocity from an opinion-based argument into a pre-agreed, data-driven policy both sides signed off on before the pressure hit. I'd also make reliability investment visible on the same roadmap teams see feature work on, with real incident cost data attached, so it competes for priority on the same terms.`},
+    {q:`What non-functional requirements would you insist on for a new Java platform service, beyond what the app team proposes?`,
+     a:`Explicit availability and latency targets rather than "as fast as possible," a defined scaling model with real horizontal-scaling behavior under load, a tested failure mode for critical dependencies — timeout and circuit-breaker behavior, not indefinite hangs — and a recovery time and point objective if it holds state. Teams often propose the happy path; the platform architect's job is to insist the failure path is designed too.`},
+    {q:`How do you introduce SRE practices to a team that's never had them — where do you start?`,
+     a:`Start with one thing they'll feel value from immediately, usually better alerting — cutting noisy alerts and adding the ones that actually predict incidents. Then introduce SLOs on their most business-critical service only, after establishing a baseline of real data. I resist rolling out the full toolkit — error budgets, formal postmortems, runbooks — simultaneously; adoption sticks better as a sequence of small wins than a mandate.`},
+    {q:`How would you design incident severity levels and what changes at each level?`,
+     a:`Severity tied to business impact, not technical severity — Sev1 is customer-facing outage or data risk with immediate war-room and exec visibility, Sev2 is degraded but functional with on-call handling it on a communication cadence, Sev3 is internal-only or low-impact through the normal ticket queue. What changes per level is who's paged, communication cadence and audience, and whether a formal postmortem is mandatory — I'd make that mandatory for Sev1 and Sev2, optional for Sev3.`}
+  ]
+},
+{
+  id:`java`, title:`4 · Java Platform, Spring Boot and Microservices`, icon:`JAVA`, color:`var(--c-java)`, badge:`New territory`, intro:null,
+  items:[
+    {q:`What platform-level standards would you define for how Java/Spring Boot services handle configuration?`,
+     a:`Externalized config — Spring Cloud Config, or Kubernetes ConfigMaps and Secrets with Spring's native support — never hardcoded or baked into the image, with environment-specific values injected at deploy time rather than build time so the same artifact is promoted unchanged across environments. I'd standardize config precedence and naming conventions so every service resolves config the same predictable way, and mandate secrets never flow through plain ConfigMaps.`},
+    {q:`How would you approach modernizing a legacy Java monolith without a risky big-bang rewrite?`,
+     a:`Strangler fig pattern — a routing layer in front of the monolith, then peeling off well-bounded capabilities into new services one at a time, routing traffic to the new service once it's proven while the monolith still handles everything else. I'd prioritize extracting the piece with the clearest boundary and highest pain first, since that's where the ROI is fastest and it builds organizational confidence in the pattern.`},
+    {q:`What integration patterns would you standardize for Java microservices talking to each other — synchronous versus asynchronous?`,
+     a:`Synchronous REST where the caller genuinely needs an immediate answer, with circuit breakers such as Resilience4j and sensible timeouts as a mandatory pattern, not optional. Asynchronous messaging via Kafka or RabbitMQ for anything that can tolerate eventual consistency — decoupling services, fan-out notifications, workflows that shouldn't block the caller. I push teams toward async by default for anything that isn't a true synchronous need, since it reduces cascading-failure risk.`},
+    {q:`How do you prevent one misbehaving downstream service from taking down others in a Spring Boot microservices platform?`,
+     a:`Circuit breakers and bulkheads via Resilience4j, isolating thread and connection pools per downstream dependency so one slow dependency can't exhaust resources needed for others, sensible timeouts on every outbound call, and rate limiting at the gateway layer. This is a platform-level standard I'd enforce via a shared starter library rather than leave to each team to remember.`},
+    {q:`What would you standardize around caching for Java platform services?`,
+     a:`A clear decision framework for cache placement — in-process such as Caffeine for hot, small, service-local data versus a shared cache like Redis for data needed across instances — explicit TTL and invalidation strategy per cache so stale-data risk is a conscious choice, and cache-aside as the default pattern with write-through only where staleness is truly unacceptable. Caching decisions should be documented, since silent caching is a common cause of "works locally, not in prod" bugs.`},
+    {q:`How would you design an API Gateway strategy for a Java microservices platform?`,
+     a:`Centralize cross-cutting concerns at the gateway — authentication and token validation, rate limiting, request routing, API versioning — so individual services don't reimplement them inconsistently. I'd standardize on one gateway technology, Spring Cloud Gateway for a Java-native fit or Apigee/Azure API Management if enterprise-wide API governance and external partner exposure is needed, rather than letting teams pick independently.`},
+    {q:`What's your view on database access patterns for Spring Boot services — one database per service, or shared databases?`,
+     a:`Database-per-service as the default for true microservices, since a shared database recreates monolith-style coupling with none of the benefits — schema changes become cross-team negotiations and failure isolation disappears. I'd make pragmatic exceptions for genuinely tightly-coupled bounded contexts where splitting costs more than it's worth, but document that as a deliberate trade-off, not a default.`},
+    {q:`How would you define connection pool standards, such as HikariCP, for Spring Boot services to prevent production incidents?`,
+     a:`Pool size sized to actual downstream capacity and expected concurrency, not a copy-pasted default — oversized pools can overwhelm the database under load, undersized pools cause request queuing under normal traffic. I'd mandate connection timeout, validation, and leak-detection settings are explicitly configured rather than left at framework defaults, and monitor pool utilization, since connection pool exhaustion is one of the most common mystery-latency-spike root causes in Java services.`},
+    {q:`How do you approach API versioning and backward compatibility across a Java microservices platform?`,
+     a:`Semantic versioning with a clear backward-compatibility contract — additive changes like new optional fields don't require a version bump, breaking changes do. I'd standardize on one versioning approach platform-wide, either URI or header-based, and mandate a deprecation window with monitoring on old-version traffic before removal, rather than allowing hard cutovers that break consumers without warning.`},
+    {q:`What logging and error-handling standards would you enforce across Java services?`,
+     a:`Structured JSON logging rather than free-text, with a mandatory correlation or trace ID propagated across every service boundary, consistent log levels used meaningfully, and a standardized exception-handling pattern such as a shared ControllerAdvice for predictable API error shapes. I'd enforce this via a shared starter library or parent POM rather than a documentation page, since documentation alone drifts.`},
+    {q:`How would you evaluate whether a new capability should be built as a shared library versus a shared service?`,
+     a:`A shared library, such as a Spring Boot starter, when the capability is stateless logic every service needs locally and version drift across teams is tolerable. A shared service when the capability needs centralized state or policy enforcement that must be consistent in real time, like auth or rate limiting, or independent scaling and ownership. Libraries are cheaper operationally but create a "who upgrades everyone" problem over time; services add operational overhead but stay consistent by construction.`},
+    {q:`How do you handle dependency management risk, such as CVEs in transitive Maven dependencies, across many Java services?`,
+     a:`Automated dependency scanning in every pipeline with severity-based gates, a platform-owned bill of materials or parent POM pinning known-good versions of common libraries so teams aren't each resolving version conflicts independently, and a defined SLA for patching critical CVEs — for example 48 to 72 hours — tracked centrally so it doesn't silently slip on individual team backlogs.`}
+  ]
+},
+{
+  id:`infra`, title:`5 · Environment, Infrastructure and Deployment Architecture`, icon:`INFRA`, color:`var(--c-infra)`, badge:null, intro:null,
+  items:[
+    {q:`How would you design an environment strategy across dev, test, staging, pre-prod, DR, and production?`,
+     a:`Each environment has an explicit purpose and gate — dev for fast iteration with relaxed gates, test/QA for functional validation, staging as a production-like environment for integration and performance testing, pre-prod as the last gate mirroring production config and scale, and DR as a standby tested on a real cadence, not just documented. Staging and pre-prod should actually mirror production topology; that's usually where "worked in staging, broke in prod" issues originate.`},
+    {q:`How do you choose between blue-green, canary, and rolling deployment strategies for different services?`,
+     a:`Rolling as the default for most stateless services — a good balance of safety and simplicity. Canary for higher-risk changes or services with strict SLOs, where automated analysis on a small traffic slice should gate full rollout. Blue-green where instant, zero-downtime rollback matters more than gradual exposure, such as a schema-coupled release, and running two full environments briefly is operationally affordable.`},
+    {q:`How would you design environment segregation and access control across the platform?`,
+     a:`Separate cloud accounts or subscriptions, or at minimum separate namespaces with network policy enforcement per environment, least-privilege IAM scoped per environment, and no shared credentials or direct human access to production data by default — access via approved, audited, time-boxed just-in-time mechanisms rather than standing permissions.`},
+    {q:`What's your approach to data masking across non-production environments?`,
+     a:`Never copy raw production data into lower environments — a masking or anonymization pipeline runs as part of the refresh process, replacing PII and sensitive fields with realistic but fake equivalents so lower environments stay useful for testing without carrying compliance risk. I'd treat this as a platform-owned, automated capability rather than a manual step teams remember when they have time.`},
+    {q:`How do you plan capacity for a Kubernetes-based Java platform to handle both steady-state and peak load?`,
+     a:`Baseline capacity from historical metrics — real CPU and memory per pod under real traffic, not guessed requests and limits — headroom sized for known peak multipliers plus a safety margin, and horizontal pod autoscaling tuned against a meaningful metric such as request rate, not just CPU if the workload isn't CPU-bound. I'd validate the plan with actual load testing against production-like infrastructure before trusting it.`},
+    {q:`How would you design a disaster recovery strategy and what RTO/RPO would you target?`,
+     a:`RTO and RPO targets come from the business impact of downtime or data loss for that specific service, not a platform-wide default — a payments-adjacent service needs a much tighter RPO than an internal reporting tool. I'd design the DR tier — active-active, active-passive, or backup-restore — to match the target cost-effectively, and critically, test the actual failover on a real cadence, since an untested DR plan is a documented guess, not a capability.`},
+    {q:`What's your view on Kubernetes versus Rancher for container orchestration at the platform level?`,
+     a:`Kubernetes is the orchestration engine either way — Rancher sits on top as a multi-cluster management layer with a unified UI and centralized RBAC and policy across clusters, easing day-2 operations for teams running many clusters, potentially across cloud and on-prem. I'd reach for Rancher once cluster count and team count grow enough that per-cluster manual management becomes the bottleneck, not on day one for a single cluster.`},
+    {q:`How would you handle configuration drift between staging and production?`,
+     a:`Infrastructure and config as code applied through the same pipeline to every environment, with environment differences expressed as parameters rather than manual divergence — staging and production generated from the same templates with different variable values. I'd add automated drift detection, such as a periodic terraform plan against live state, since manual "just this once, in prod" changes are how drift actually happens.`},
+    {q:`Walk me through your rollback strategy if a rolling deployment causes issues partway through.`,
+     a:`Because I always deploy immutable, versioned artifacts, rollback means redeploying the previous known-good version rather than fixing forward under pressure — a Kubernetes rollout undo to a previous revision, or the GitOps-equivalent manifest revert letting Argo CD or Flux reconcile. I'd pause the rollout automatically on failed readiness or liveness probes or failed canary analysis so a bad rollout doesn't fully complete before anyone notices.`},
+    {q:`How do you approach business continuity planning beyond just technical DR?`,
+     a:`Technical DR is necessary but not sufficient — BCP also covers who's authorized to declare a disaster and trigger failover, communication plans to stakeholders during an extended outage, and dependency mapping so you know what else breaks when a given system is down, including third-party dependencies you don't control. I'd make sure the plan is tested with the actual people who'd execute it, not just written and filed.`}
+  ]
+},
+{
+  id:`obs`, title:`6 · Observability, Logging and Monitoring`, icon:`OBS`, color:`var(--c-obs)`, badge:null, intro:null,
+  items:[
+    {q:`How would you design the observability architecture for a Java microservices platform end to end?`,
+     a:`Three pillars working together, not in isolation: structured logs centralized via ELK/OpenSearch or Splunk for forensic detail, metrics via Prometheus/Grafana or Datadog for aggregate health and alerting, and distributed tracing via OpenTelemetry tying a single request across every service it touched. The unifying thread is a correlation or trace ID generated at the edge and propagated through every hop — without that, the pillars stay disconnected and correlating an incident becomes guesswork.`},
+    {q:`How do you ensure consistent correlation IDs and tracing across services owned by different teams?`,
+     a:`Bake it into the platform's shared starter library — a Spring Boot starter that auto-instruments incoming and outgoing calls with OpenTelemetry and propagates trace context via standard headers like W3C traceparent — so teams get it for free rather than each implementing it inconsistently. I'd also make trace-ID presence in logs a pipeline-enforced standard, since it's easy for a team to quietly regress this when they add a new outbound call.`},
+    {q:`What would you monitor for a Java/Spring Boot service beyond basic uptime — what does healthy really mean?`,
+     a:`The four golden signals at minimum: latency at p50/p95/p99 rather than average, since averages hide tail-latency problems, traffic, error rate, and saturation including JVM heap and GC pressure and thread and connection pool utilization. For Java specifically I'd add GC pause time and frequency as a first-class metric, since GC behavior is a common hidden cause of latency issues that generic infra dashboards miss.`},
+    {q:`How would you decide which observability tool to standardize on — Prometheus/Grafana versus Datadog versus Splunk versus Dynatrace/AppDynamics?`,
+     a:`Rarely one-tool-fits-all in a real enterprise: Prometheus/Grafana is a strong default for Kubernetes-native metrics, cost-effective with a great ecosystem fit; Splunk/ELK for log-heavy compliance and forensic search; a commercial APM like Datadog, Dynatrace, AppDynamics, or New Relic when deep auto-instrumented tracing with less setup effort is worth paying for. I'd pick based on existing license and skill investment and standardize rather than let every team choose independently.`},
+    {q:`How do you avoid alert fatigue while still catching real production issues early?`,
+     a:`Alert on symptoms that indicate real user impact or an imminent SLO breach, not every internal metric crossing a threshold — a pod restarting once isn't an alert, an error rate breaching its SLO error-budget burn rate is. I'd use burn-rate alerting, fast burn pages now, slow burn becomes a business-hours ticket, and regularly audit alert-to-actionability ratio, retiring or tuning any alert frequently acknowledged without action.`},
+    {q:`What would you define as monitoring coverage requirements platform-wide — what must every service have before going to production?`,
+     a:`A standard dashboard covering the golden signals, alerting on SLO burn rate and on any dependency the service can't function without, log aggregation with correlation IDs flowing to the central pipeline, and at least basic tracing enabled. I'd enforce this as a deploy-gate checklist item rather than a best practice teams can skip under deadline pressure.`},
+    {q:`How would you design dashboards differently for an on-call engineer versus platform leadership?`,
+     a:`On-call dashboards answer "is something broken and where, right now" in seconds — golden signals, current alerts, recent deploys correlated on the same timeline, since deploys are the most common trigger for new incidents. Leadership dashboards answer trend questions — SLO attainment over time, error-budget burn trends, incident frequency and MTTR trends — aggregated across services. Mixing the two audiences on one dashboard usually serves neither well.`},
+    {q:`How do you monitor business-critical user journeys that span multiple services, not just individual service health?`,
+     a:`Synthetic transaction monitoring exercising the actual end-to-end journey on a schedule, independent of any single service's own metrics, because a journey can break from an integration issue even when every individual service reports healthy. I'd tie the journey's SLO to business impact directly, since that's often the metric leadership actually cares about, and alert on it as its own first-class signal.`},
+    {q:`What's your approach to log retention and cost management at platform scale?`,
+     a:`Tiered retention aligned to actual need and compliance requirement — hot, searchable storage for a short recent window where most debugging happens, cheaper cold storage for the longer compliance-mandated period, with a clear rehydration process if genuinely needed. I'd push structured logging and sampling for high-volume, low-value log lines so the platform isn't paying premium hot-storage cost for data nobody queries.`},
+    {q:`How would you instrument observability for a legacy Java application that wasn't built with any of this in mind?`,
+     a:`Start with the lowest-effort, highest-value layer — infrastructure and JVM-level metrics, often achievable with an agent and zero code change — and basic access and error log shipping to the central pipeline. Application-level tracing typically needs at least some code touch, though an auto-instrumentation OpenTelemetry Java agent can get meaningful tracing with minimal manual work — I'd pilot that on the legacy app's most incident-prone path first.`}
+  ]
+},
+{
+  id:`sec`, title:`7 · Security, DevSecOps and Compliance`, icon:`SEC`, color:`var(--c-sec)`, badge:null, intro:null,
+  items:[
+    {q:`How would you design a secrets management standard across the platform?`,
+     a:`A centralized secrets manager — Vault, AWS Secrets Manager, or Azure Key Vault — as the single source of truth, never secrets in source control, plaintext CI variables, or baked into images. Applications fetch secrets at runtime via short-lived, scoped credentials, ideally workload-identity federation rather than long-lived static keys, and secret rotation is automated rather than a manual calendar reminder.`},
+    {q:`How do you integrate security scanning into CI/CD without it becoming a rubber-stamp step everyone ignores?`,
+     a:`Make findings actionable and specific, linking straight to the vulnerable line or dependency rather than a lengthy report, gate on severity so teams aren't drowning in low-priority noise, and track time-to-remediate-critical per team visibly, the way you'd track any other engineering health metric. Scanning becomes theater when it's a checkbox with no consequence and no easy fix path — the gate needs real teeth and the fix needs to be easy, or it gets bypassed culturally even if enforced technically.`},
+    {q:`What's your approach to certificate management for TLS across a large service mesh or platform?`,
+     a:`Automated issuance and rotation — cert-manager in Kubernetes integrated with an internal or public CA — rather than manually tracked expiry dates, since expired-certificate outages are one of the most preventable, embarrassing incident categories and entirely solvable with automation. I'd still monitor certificate expiry as a proactive alert, at thirty, fourteen, and seven days out, as a backstop even with automated rotation in place.`},
+    {q:`How would you design least-privilege access for engineers to production systems and GitLab or deployment tooling?`,
+     a:`Role-based access scoped tightly to actual job requirements, standing production access minimized or eliminated in favor of time-boxed, logged, just-in-time elevated access for genuine incident response, and GitLab protected environments and branches so only authorized roles can trigger production deploys. I'd audit access grants on a regular cadence, since privilege accumulates if nobody actively prunes it.`},
+    {q:`How do you balance security requirements with engineering team autonomy — where do you draw the guardrail line?`,
+     a:`Guardrails on anything with platform-wide or irreversible blast radius — secrets handling, production access, network exposure, encryption standards — non-negotiable and enforced by automation, not policy documents. Autonomy on implementation choices within those guardrails, like internal code structure or which approved library to use. The platform architect's job is defining where the fence is, not micromanaging what happens inside it.`},
+    {q:`How would you respond to a penetration test finding a critical vulnerability in a production platform component?`,
+     a:`Triage severity and exploitability first — is this actually reachable in our configuration, or theoretical — then treat genuinely critical, exploitable findings with incident-level urgency, patching or mitigating with a stopgap like a WAF rule while a permanent fix is developed. I'd track it to closure with the same rigor as a postmortem: root cause, why existing scanning didn't already catch it, and what changes to prevent the same class of issue.`},
+    {q:`What DevSecOps practices would you consider mandatory versus nice-to-have for this platform?`,
+     a:`Mandatory: SAST, dependency, and container scanning plus secret detection in every pipeline, least-privilege IAM by default, encrypted data in transit and at rest, and centralized secrets management. Valuable to mature into: DAST against staging, policy-as-code enforcing Kubernetes security posture automatically, and automated compliance evidence generation. I'd sequence toward the mandatory list first as the non-negotiable floor.`},
+    {q:`How do you ensure auditability of changes and deployments for compliance purposes?`,
+     a:`Every production change traceable to a specific commit, MR with reviewer identity, pipeline run, and deploy — GitLab's audit log plus environment deployment history gives most of this natively if the pipeline is the only path to production, with no manual apply to prod ever. I'd tie deploys to change records where the compliance framework requires it, so evidence generation is a byproduct of the normal process, not a separate manual task.`},
+    {q:`How would you handle a scenario where a security requirement genuinely conflicts with a tight delivery deadline?`,
+     a:`Separate "genuinely can't ship without this" from "should fix soon" honestly rather than let deadline pressure quietly erode the non-negotiable list — critical vulnerabilities and missing encryption or access controls don't ship, and I'd say so plainly with business risk articulated in terms leadership understands. For genuinely lower-risk items, a documented, time-boxed exception with a committed remediation date is reasonable, but it has to be visible and tracked, not silently skipped.`},
+    {q:`What's your approach to API security across the platform — authentication, authorization, rate limiting?`,
+     a:`OAuth2/OIDC with short-lived tokens for authentication, fine-grained authorization enforced consistently, ideally centralized at the gateway plus defense-in-depth at the service level, and rate limiting or quota enforcement at the gateway to protect against both abuse and accidental self-inflicted overload. I'd standardize this at the platform level via the gateway and a shared auth library, since letting each team implement API auth independently reliably produces inconsistent, weaker-than-intended security.`}
+  ]
+},
+{
+  id:`gov`, title:`8 · Governance, Standards and Architect Leadership`, icon:`GOV`, color:`var(--c-gov)`, badge:null, intro:null,
+  items:[
+    {q:`How do you write an architecture decision record that's actually useful six months later?`,
+     a:`Context — what problem and constraints existed at the time, the part people forget to capture and need most later — the options seriously considered, not just the chosen one, the decision and reasoning, and consequences or trade-offs accepted. I keep them short, a page rather than a report, and version-controlled alongside the code they affect, so they're discoverable rather than buried in a wiki nobody searches.`},
+    {q:`How do you mentor DevOps/SRE engineers who are technically strong but not yet thinking at a platform or architecture level?`,
+     a:`Push them to articulate the why and the trade-off, not just the what — instead of accepting "I used Redis for caching," asking what would have happened with a different choice and what it costs if traffic grows tenfold. I also involve them in real ADR discussions early, as a contributor rather than just an implementer, since architectural thinking is best built on real decisions with real stakes.`},
+    {q:`How do you handle a solution design review where the proposed design doesn't meet platform standards, but the team is confident it's right for them?`,
+     a:`Ask them to walk through the trade-offs they considered and why they landed where they did — this often surfaces either a real gap in the standard worth updating, or an unconsidered risk worth raising. If the standard still applies after that discussion, I'd say so directly with specific reasoning rather than "because it's the standard," and offer to help find a path that meets both their constraint and the guardrail rather than just blocking.`},
+    {q:`What's a technical decision or standard you'd expect to revisit periodically rather than treat as permanent?`,
+     a:`Technology choices tied to a maturing ecosystem, such as a service mesh or observability tool selection, capacity and scaling thresholds since traffic patterns change, and any standard justified primarily by current team skill set rather than a technical property, since skills and headcount shift. I'd set an explicit revisit trigger or cadence in the ADR itself rather than letting it go stale silently until challenged under pressure.`},
+    {q:`How do you drive adoption of a new platform standard across teams that don't report to you?`,
+     a:`Influence over authority — a working reference implementation they can copy is worth more than a mandate memo, and involving a couple of respected teams as early adopters builds credibility faster than announcing top-down. I'd make the case in terms that matter to each team, such as velocity or fewer 3am pages, rather than a generic "because it's the standard."`},
+    {q:`How would you build and maintain reference architectures that stay useful rather than becoming stale documentation?`,
+     a:`Tie each reference architecture to a real, currently-running implementation rather than a diagram that was never actually built, and review it whenever a team building against it hits a gap — that's the signal it needs updating, keeping it accurate by construction rather than on an unhonored calendar. I'd also version them explicitly so teams know which revision they built against.`},
+    {q:`How do you balance defining strong platform guardrails with not becoming an ivory-tower architect disconnected from what teams actually need?`,
+     a:`Stay hands-on enough to feel the pain the standards are meant to prevent — reviewing real incidents, sitting in on planning sessions periodically, actually using the golden path myself occasionally rather than only ever designing it. Standards written by someone who hasn't shipped against their own platform in a while tend to optimize for theoretical purity over practical velocity, and teams can tell.`},
+    {q:`How would you measure whether the platform architecture is actually succeeding, beyond no major incidents?`,
+     a:`Leading indicators like time-to-first-deploy for a new service on the golden path, reduction in duplicated effort across teams, SLO attainment trends platform-wide, and voluntary adoption rate of platform standards — whether teams choose the paved road or work around it, which tells you if the platform is actually serving teams or just imposing on them.`}
+  ]
+},
+{
+  id:`bonus`, title:`9 · Preferred Tech — Kafka, Gateways, Databases, Mesh, Testing`, icon:`BONUS`, color:`var(--c-bonus)`, badge:null, intro:null,
+  items:[
+    {q:`When would you choose Kafka over RabbitMQ for a new event-driven use case?`,
+     a:`Kafka for high-throughput event streaming needing replay or retention — an event log multiple consumers read independently, or reprocessing history — and ordered, partitioned processing at scale. RabbitMQ for more traditional message-queue patterns, task distribution, request-reply, complex routing, where volume is lower and simpler operational overhead with built-in per-message acknowledgment and dead-lettering matters more than Kafka's added complexity.`},
+    {q:`What would lead you to introduce Temporal, or a workflow orchestration engine, into a platform?`,
+     a:`Long-running, multi-step business processes needing reliable state across failures — sagas spanning multiple services, human-in-the-loop waits, or workflows needing built-in retry and compensation logic that would otherwise be hand-rolled, usually badly, with a state machine and a cron job. I'd introduce it once teams are repeatedly reinventing fragile orchestration logic, not by default for simple two-step processes.`},
+    {q:`How would you decide between Apigee, Azure API Management, or a Spring Cloud Gateway for API gateway needs?`,
+     a:`Apigee or Azure APIM when there's a genuine external or partner-facing API program needing full lifecycle management — a developer portal, monetization, formal API products — a different problem from internal routing. Spring Cloud Gateway for internal platform routing and cross-cutting concerns where the full commercial feature set isn't needed and tighter Java-ecosystem integration and lower licensing cost matter more.`},
+    {q:`What factors drive your choice between PostgreSQL, MySQL, Oracle, and MongoDB for a new Java service?`,
+     a:`Relational — PostgreSQL as my default for its feature set and open-source economics, Oracle where it's already the enterprise standard — for data with real relationships and transactional integrity needs, which is most business data. MongoDB when the data is genuinely document-shaped with a flexible schema and the access pattern doesn't need multi-document transactions or complex joins. I push back on choosing MongoDB for flexibility alone when the data is actually relational.`},
+    {q:`When would you introduce a service mesh such as Istio or Linkerd versus handling service-to-service concerns in application code?`,
+     a:`Once the number of services and the cross-cutting concern — mTLS everywhere, consistent retry and timeout policy, fine-grained traffic shifting for canaries, uniform observability — becomes painful to maintain consistently in application code across many teams. A mesh moves that logic to infrastructure so it's consistent by construction. I wouldn't introduce it for a handful of services; the added operational complexity only pays off at real scale.`},
+    {q:`What's your view on zero-trust networking for this kind of platform, and how would you start implementing it?`,
+     a:`Start with mTLS between services, often near-free once a service mesh is adopted, and move away from perimeter-only trust toward verifying every request regardless of network location. I'd sequence it — identity-based service-to-service auth first, then finer-grained network policies restricting which services can even talk to which — since trying to do everything simultaneously usually stalls the whole initiative.`},
+    {q:`How would you design a contract-testing strategy for microservices to catch breaking changes before production?`,
+     a:`Consumer-driven contract testing, such as Pact, so a service's consumers define the contract they depend on, and the provider's pipeline runs those contract tests before any deploy — catching breaking changes at build time instead of discovering them in integration or production. I'd make this mandatory for any service with multiple internal consumers, since that's exactly where "I didn't know anyone depended on that field" incidents come from.`},
+    {q:`What would a healthy automated testing pyramid look like for a Java platform service, and how would you enforce it?`,
+     a:`Heavy on fast unit tests at the base, a meaningful but leaner layer of integration tests using real dependencies via Testcontainers where it matters, contract tests at service boundaries, and a small number of true end-to-end or performance tests for critical paths only. Inverted pyramids with heavy end-to-end and light unit testing are slow and flaky. I'd enforce shape via pipeline metrics, alerting if end-to-end test time starts dominating pipeline duration.`},
+    {q:`How would you approach performance and load testing as part of the release process rather than a one-off exercise?`,
+     a:`Automated performance tests against a production-like environment as a pipeline stage for services where regressions are a real risk, with pass/fail thresholds tied to the service's actual SLO rather than arbitrary numbers. I'd run full-scale load tests on a scheduled cadence rather than every pipeline run, but always before a known high-traffic event, with lighter smoke-level performance checks in the regular pipeline.`},
+    {q:`What's your approach to internal developer platforms — would you build one, and what would it include?`,
+     a:`Build toward one incrementally rather than as a big upfront initiative, starting with golden-path templates and scaffolding — a new-service generator wired to the standard pipeline, observability, and deployment pattern — since that's the highest-leverage piece. A self-service portal like Backstage comes later, once there are enough golden paths and services that discoverability itself becomes the bottleneck. Building the portal before there's anything worth discovering is a common mistake.`}
+  ]
+},
+{
+  id:`scenario`, title:`10 · Production Scenario Bank`, icon:`PROD`, color:`var(--c-scenario)`, badge:`Explicitly requested`, intro:null,
+  items:[
+    {q:`Scenario: A Spring Boot microservice's p99 latency jumps from 200ms to 4 seconds right after a routine deployment. Error rate looks normal, CPU and memory look fine at first glance. Walk me through your triage.`,
+     a:`First check whether it's isolated to the new pods or all pods — canary versus full rollout tells you if it's code-related. Check GC logs and JVM metrics, since a post-deploy latency spike is very often GC-related: a new allocation pattern, a cache miss, or a memory leak in the new build. Check downstream dependency latency for a slower query or a newly-introduced N+1 pattern, and check thread and connection pool saturation for blocked threads waiting on a connection. Correlate with a distributed trace to see exactly where the time is going. If it's isolated to the new version and can't be diagnosed quickly, roll back immediately and investigate offline — favor recoverability over root-causing under pressure. Prevention: pre-prod load testing and an APM baseline comparison as a deployment gate.`},
+    {q:`Scenario: Your GitLab CI/CD pipeline is blocking a critical hotfix from reaching production — a required scan job is failing, but the fix itself doesn't touch the flagged code. What do you do?`,
+     a:`First confirm the finding is genuinely unrelated — not a new transitive dependency pulled in by the fix, which happens more than expected. If it's a pre-existing, already-tracked, non-critical finding, I'd use a scoped, time-boxed, auditable override tied to a ticket and approved by whoever owns that gate, rather than disabling it — the override itself becomes audit evidence. If it's a critical or high finding, it blocks regardless of urgency, and I'd escalate for a parallel fix rather than bypass security to hit a deadline.`},
+    {q:`Scenario: You're running a canary deployment at 5% traffic and the canary's error rate ticks up slightly, not dramatically, but noticeably above baseline. Do you promote, hold, or roll back?`,
+     a:`Hold and dig in — "slightly elevated but not dramatic" is exactly the ambiguous zone canary analysis exists for. Check whether the increase is statistically significant given the small sample at 5% traffic, and whether it's concentrated on a specific error type or endpoint versus generally distributed. A real, attributable signal means roll back and investigate offline; promoting on "hoping it stabilizes" converts a contained 5%-traffic problem into a 100%-traffic incident. If it's noise, widen the canary slightly and re-evaluate rather than deciding on ambiguous data.`},
+    {q:`Scenario: Kubernetes pods for a critical service are crash-looping during peak traffic. What's your diagnosis sequence?`,
+     a:`kubectl describe pod and kubectl logs with the previous flag first, to see the actual crash reason and exit code — OOMKilled is extremely common under peak load and immediately tells you it's a resource-limit issue, not a code bug. If OOMKilled, immediate mitigation is raising memory limits or scaling out while root-causing why memory spiked. If it's a different crash, such as a startup dependency being unreachable, I also check readiness and liveness probe configuration, since an overly aggressive liveness probe can itself cause a crash loop under load by killing pods that are just slow, not actually broken — a subtle and common trap.`},
+    {q:`Scenario: Someone discovers that a database credential was accidentally committed to a GitLab repository three weeks ago. What's your incident response?`,
+     a:`Treat the credential as compromised immediately regardless of evidence of misuse — rotate it first, investigate second, because investigation takes time and the exposure window needs to close now. Then check GitLab's audit and access logs and the credential's own access logs for use during the exposure window, remove it from repo history through a proper history rewrite rather than delete-and-recommit, and run a retrospective on why secret-detection scanning didn't catch it so the same gap doesn't repeat elsewhere.`},
+    {q:`Scenario: Platform leadership tells you your flagship service has been silently burning its error budget for two months and is about to breach its quarterly SLO. How do you handle the conversation and the technical response?`,
+     a:`Bring the burn-rate data itself to the conversation, not just the conclusion — which error categories are driving the burn, and whether it's concentrated or diffuse, since that shapes both the fix and how I frame it. I'd be direct that the budget is nearly exhausted and what that means per the pre-agreed policy, typically a shift toward a reliability freeze on risky changes, rather than softening it, and bring a concrete remediation plan with an owner and timeline alongside the bad news.`},
+    {q:`Scenario: A DR failover drill reveals your actual RTO is 4 hours against a committed 30-minute target. What do you do next?`,
+     a:`Treat it as exactly the value a drill is supposed to deliver — better to find this in a drill than a real disaster — and don't let it get buried. Root-cause where the time actually went, usually not the technical failover itself but the human and process steps: who has to be paged, who has authority to declare a disaster, manual steps assumed to be automated. Report the real number and gap transparently to whoever owns that commitment, since it's a business risk decision-makers need to know about, then prioritize closing the biggest time sinks and re-drill on a defined cadence until the target is actually met.`},
+    {q:`Scenario: A partner integration goes down and it turns out your API Gateway's rate limiting was misconfigured, throttling a legitimate high-volume partner. How do you handle the immediate fix and the longer-term prevention?`,
+     a:`Immediate: raise or exempt that partner's rate limit to restore service, after a quick sanity check that this really is legitimate traffic and not a runaway retry loop on their end masquerading as normal volume. Prevention: rate limits tiered per partner based on actual contracted volume rather than one global default, documented and version-controlled like any other config, with alerting on rate-limit rejections so a misconfiguration surfaces proactively next time instead of via a partner-reported outage.`},
+    {q:`Scenario: QA confirms a feature works perfectly in staging. It fails immediately in production. What's your approach to finding the gap?`,
+     a:`Start with what's actually different between the environments, not what's supposed to be different — config values, environment variables, feature flags, external dependency versions, data volume and shape, network policies. This is very often a config or data-shape difference, such as a feature flag left off or a smaller staging dataset hiding an N+1 query, rather than a code difference, since a pure code issue would have failed in staging too. Long-term, this is itself the argument for staging genuinely mirroring production topology with masked, realistic data.`},
+    {q:`Scenario: Your on-call engineer is getting paged 15+ times a week, mostly for issues that resolve themselves within minutes. How do you fix this?`,
+     a:`Audit every alert by outcome over the last month — for each one, was human action actually required, or did it self-resolve with no intervention. Anything consistently self-resolving gets a longer evaluation window before paging, requiring sustained breach rather than a single data point, or converts to a non-paging notification. I'd also check for pages that are really the same underlying issue firing repeatedly rather than being deduplicated — alert fatigue is often an alerting-hygiene problem, not fifteen real issues a week.`},
+    {q:`Scenario: An application team wants to skip your platform's standard CI/CD pipeline and deploy directly to production "just this once" to hit a deadline. How do you respond?`,
+     a:`No to bypassing production entirely — that gate exists specifically for the moment someone's under deadline pressure, and "just this once" is exactly how standards erode team by team. I'd work with them on what's actually causing the time pressure — if it's the pipeline being genuinely too slow, that's real, fixable feedback for the platform team; if it's unrelated schedule pressure, I'd help expedite through a proper fast-track review rather than removing the safety net.`},
+    {q:`Scenario: A post-incident review starts to turn into people pointing fingers at the engineer who pushed the change that triggered the outage. How do you redirect it as the facilitator?`,
+     a:`Interrupt the framing directly but calmly — reframe "why did they push that" to "what in our process let that change reach production without catching this, and what would need to be true for a different engineer not to make the same mistake." I'd walk the facts myself from logs and deploy history rather than have the involved engineer narrate defensively, and explicitly name the blameless norm out loud if the room drifts, since it needs to be actively protected, not just assumed.`},
+    {q:`Scenario: You need to choose between Kafka, RabbitMQ, and Temporal for a new multi-step order-processing workflow that needs to survive service restarts and support retries with backoff. Walk me through your decision.`,
+     a:`"Survive restarts, retries with backoff, multi-step" is really describing durable workflow state, which is Temporal's core purpose — Kafka and RabbitMQ are message transports, not workflow-state engines, so using either means hand-building the state machine and step-tracking on top. I'd only reach for the Kafka or RabbitMQ route if the actual need were simpler than described, such as fire-and-forget events rather than genuinely stateful multi-step orchestration with compensation logic; as described, Temporal is the right first-principles fit.`},
+    {q:`Scenario: Under sudden traffic, a Spring Boot service starts throwing connection pool exhaustion errors against its database. Walk me through diagnosis and immediate mitigation.`,
+     a:`Check HikariCP metrics for active, idle, and pending connections first — climbing pending requests means the pool is genuinely undersized for current demand, or connections are held too long from a slow query or a leak. If it's genuinely traffic-driven undersizing and the database can handle more connections, raising the pool size is a fast fix; if it's a leak or a slow query pattern, raising the pool size just delays the same failure at higher traffic, so I'd check for a specific slow query or a code path not releasing connections, often visible in leak-detection logs if that's enabled as a platform-standard setting.`},
+    {q:`Scenario: You're leading modernization of a legacy Java monolith and the business asks for a timeline for "when the monolith will be fully replaced." How do you answer?`,
+     a:`I'd push back gently on the framing — a full-replacement date implies a big-bang cutover, the riskiest way to do this and not actually the plan, since strangler fig extracts pieces incrementally with the monolith and new services coexisting for a long transitional period, potentially permanently for stable low-change components. I'd give a timeline and value delivery per extracted capability instead, and be honest that "fully replaced" may not be the right goal at all if parts of the monolith are stable and low-risk to leave as-is.`},
+    {q:`Scenario: A rolling deployment to Kubernetes partially completes — half the pods are running the new version, half the old — when a critical bug is discovered in the new version. What do you do?`,
+     a:`kubectl rollout undo, or the GitOps-equivalent manifest revert, immediately to stop the rollout and return all pods to the previous known-good version — I don't wait to finish rolling out and then fix, since that extends the exposure window for no benefit. This is also exactly why I'd want automated rollout gating that pauses and analyzes between steps using error-rate and health signals, rather than a rollout that runs start-to-finish unattended, so this scenario ideally never reaches "half the pods" before something automated already paused it.`}
+  ]
+},
+{
+  id:`ownership`, title:`11 · Architecture Ownership Briefing — Read First`, icon:`KEY`, color:`var(--c-ownership)`, badge:`Highest leverage`,
+  intro:`This is the first handbook titled explicitly Architect, which raises the bar on one specific thing. A previous debrief showed a pattern of answering ownership questions with "the platform team designed that, I operated it" — a reasonable, honest answer for an operations-focused role, but a real liability for a role whose entire premise is producing architecture blueprints, ADRs, and reference architectures. The goal isn't to claim credit for things you didn't design — it's to show you can reason like a designer even when narrating past operational work: given a system you operated, articulate what you would have designed differently, or why the existing design made sense. Practice restating past experience in first-principles design language.`,
+  items:[
+    {q:`Think of a platform or system you operated but didn't originally design. How do you talk about it in an architect interview without either falsely claiming you designed it or sounding like a pure operator?`,
+     a:`Be accurate about your role, but narrate at the design level anyway: "I operated and evolved this system — here's the design as it stood, here's the specific trade-off I'd point to in why it was built that way, and here's a change I actually made or would make and why." The shift is from "I ran it" to "here's how I reason about why it was built this way and what I'd change" — that's the architect lens, and it's honest even without having written the original ADR, because evolving a system requires understanding its design intent, not just its runbook.`},
+    {q:`Interviewer asks: "Who designed the Terraform module structure, IAM architecture, or CI/CD pipeline at your last role?" How do you answer if the honest answer is "a platform team, before I joined or in parallel with me"?`,
+     a:`Don't stop at "the platform team did that" — that's the exact answer that reads as operator, not architect. Instead: "The platform team owned the initial design; my role was operating, troubleshooting, and evolving it — for example, [a specific change you made, or a specific trade-off you can explain about why it was structured that way]." If you genuinely can't speak to the design reasoning at all, prepare for that in advance by thinking through two or three systems you know well enough to reverse-engineer the design intent, even without having written the original ADR.`},
+    {q:`Give a first-principles design walkthrough for a request like: "How would you architect a highly available Java microservices platform on Kubernetes across two regions?"`,
+     a:`Use a 60-second structure rather than diving straight into tools. First, clarify the actual requirement — the RTO/RPO, whether this is active-active or active-passive, what's driving the two-region need. Second, state the simplest design that meets it, not the most impressive one — active-passive with async replication and DNS failover might be the right answer, not automatically active-active with a global database. Third, name the specific trade-off of your choice. Fourth, mention the escalation point — what condition would change your answer. This structure signals design thinking regardless of which specific answer you land on.`},
+    {q:`How do you avoid over-engineering an answer when asked a system-design question in this interview — a pattern that hurt in a previous round?`,
+     a:`Default to the simplest design that satisfies the stated requirement, and explicitly say why you're not reaching for the more complex option — "I'd start with X because it meets the requirement with less operational overhead; I'd only introduce the heavier option if this specific condition were also true." Naming the condition that would change your answer demonstrates judgment more convincingly than jumping straight to the most sophisticated-sounding tool.`},
+    {q:`The interviewer pushes on a design choice you gave: "Why not just do it the simpler way?" How do you respond without either caving instantly or getting defensive?`,
+     a:`Treat it as an invitation to show your reasoning, not a signal you were wrong — restate the simpler alternative back to confirm you understand it, then give the specific condition under which you'd actually choose it over your original answer. If, on reflection, the simpler option genuinely is better, say so directly — updating your answer when given good information reads as good engineering judgment, not weakness.`},
+    {q:`How would you demonstrate architecture-level thinking about governance and mentoring, not just technical design, in this interview?`,
+     a:`Bring a concrete example of driving a standard's adoption, not just defining one — the resistance you got, how you handled a team that pushed back, and how you measured whether it actually stuck. This role's deliverables explicitly include mentoring and engineering enablement alongside blueprints, so an answer that only covers technical design and never touches how you got other humans to actually adopt something will read as incomplete for an architect-level bar.`}
+  ]
+},
+{
+  id:`behavioral`, title:`12 · Behavioral, STAR and Closing Questions`, icon:`STAR`, color:`var(--c-behavioral)`, badge:null, intro:null,
+  items:[
+    {q:`"Tell me about a time you had to make an architecture decision under significant ambiguity or incomplete information." How would you structure this answer?`,
+     a:`STAR, kept tight: Situation is brief context on what platform and what was unclear, Task is the decision you owned, Action is how you gathered enough signal despite the ambiguity — a time-boxed spike, a small POC, talking to the teams who'd operate it — plus the actual decision and reasoning, Result is the outcome and ideally what you'd do differently in hindsight, which shows self-awareness rather than a purely victorious narrative. Keep it to about 90 seconds unless asked to go deeper.`},
+    {q:`"Describe a time you disagreed with a technical decision made by leadership or another architect. What did you do?"`,
+     a:`Show you raised it constructively with data and reasoning rather than either silently complying or being combative. The strongest version has you making your case once clearly, then either winning on the merits or, if overruled, committing fully and executing well anyway — ideally with a later moment where being right or wrong about it became clear, showing you track outcomes rather than just opinions.`},
+    {q:`"Tell me about a production incident you handled that taught you something you still apply today."`,
+     a:`Pick one with a genuine, specific lesson, not just "we fixed it and added monitoring." The strongest answers name a wrong assumption you had going in, what changed your mind mid-incident, and a concrete practice you adopted afterward — a specific runbook, a specific pipeline gate, a specific standard — that you can point to as still in use, showing the lesson actually stuck rather than being a nice story.`},
+    {q:`"How do you handle a situation where you're the technical authority but a very senior stakeholder disagrees with your architecture recommendation?"`,
+     a:`Lead with curiosity about their concern before defending your position — senior stakeholders are often reacting to a real constraint you didn't weight highly enough, such as cost or a past bad experience with a similar approach, rather than being technically wrong. State your reasoning clearly once, genuinely incorporate valid points, and be willing to escalate the trade-off explicitly for a business decision if it's genuinely a priorities disagreement rather than a technical one.`},
+    {q:`"Why are you looking to move into a Platform Architect role now, and why this platform — Java, GitLab, enterprise-scale?"`,
+     a:`Ground this in genuine trajectory — years of hands-on SRE, DevOps, and platform work across AWS, Kubernetes, and Terraform naturally leads toward owning the architecture decisions you've been operating within, not just executing them. If Java/Spring Boot specifically is newer territory relative to deep infra experience, be straightforward: the platform, DevOps, SRE, environment, observability, and security dimensions map directly to your background, and you'd expect to lean on the team's application-layer expertise while owning platform architecture end to end — honest and confident rather than overclaiming Java depth you'd need to defend under detailed questioning.`},
+    {q:`What should you ask the interviewer to demonstrate architect-level thinking, not just interest?`,
+     a:`Questions about how standards actually get adopted today — voluntary or mandated, and what resistance looks like — what the current biggest platform pain point is that this role is meant to solve, how the Java platform and DevOps/SRE sides of the org currently collaborate or don't, and what success looks like for this role at six and twelve months. These signal you're already thinking about influence, adoption, and outcomes, not just the technology list.`},
+    {q:`A good closing question about GitLab and CI/CD maturity specifically, given it's explicitly named in the JD?`,
+     a:`Something like: "Where is the platform today on the CI/CD maturity curve — are teams mostly on a shared pipeline template already, or is this role meant to build that consolidation from a more fragmented starting point?" This is genuinely useful for you, since it tells you whether you'd be building or maintaining, and signals you're thinking about the actual state of adoption, not just the tool.`},
+    {q:`How do you close the interview if asked "do you have any concerns about this role or about us?"`,
+     a:`Better to name one honest, low-stakes consideration than claim none — for example, asking how much of the role leans toward deep Java/Spring Boot application-level design versus platform, DevOps, and SRE architecture, since you'd want to calibrate ramp-up expectations honestly rather than overpromise. A thoughtful, specific question reads as self-aware and genuinely engaged, whereas "no concerns at all" often reads as not having thought carefully about the fit.`}
+  ]
+}
+];
+
+const STORAGE_KEY = 'platform-architect-java-devops-sre-handbook-progress-v1';
+let progress = {};
+let showUnmasteredOnly = false;
+let searchTerm = '';
+
+function itemId(sectionId, idx){ return sectionId + '-' + idx; }
+
+function totalItems(){
+  return SECTIONS.reduce((sum, s) => sum + s.items.length, 0);
+}
+function masteredCount(){
+  return Object.values(progress).filter(Boolean).length;
+}
+function sectionMasteredCount(section){
+  let c = 0;
+  section.items.forEach((it, idx) => { if (progress[itemId(section.id, idx)]) c++; });
+  return c;
+}
+
+async function loadProgress(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY);
+    progress = res ? JSON.parse(res.value) : {};
+  }catch(e){
+    progress = {};
+  }
+}
+
+async function toggleMastery(id){
+  progress[id] = !progress[id];
+  renderAll();
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(progress));
+  }catch(e){
+    console.error('save failed', e);
+  }
+}
+window.toggleMastery = toggleMastery;
+
+async function resetProgress(){
+  if(!confirm('Clear all mastery checkmarks? This cannot be undone.')) return;
+  progress = {};
+  renderAll();
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(progress));
+  }catch(e){
+    console.error('reset save failed', e);
+  }
+}
+window.resetProgress = resetProgress;
+
+function matchesSearch(item){
+  if(!searchTerm) return true;
+  const t = (item.q + ' ' + item.a).toLowerCase();
+  return t.includes(searchTerm.toLowerCase());
+}
+
+function buildNav(){
+  const nav = document.getElementById('pillnav');
+  nav.innerHTML = SECTIONS.map(s => {
+    return '<span class="pill" style="--pill-color:' + s.color + '" onclick="scrollToSection(\'' + s.id + '\')">' +
+      '<span class="ptag">' + s.icon + '</span>' +
+      '<span class="pcount" id="pillcount-' + s.id + '">' + sectionMasteredCount(s) + '/' + s.items.length + '</span>' +
+      '</span>';
+  }).join('');
+}
+function scrollToSection(id){
+  const el = document.getElementById('sect-' + id);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+window.scrollToSection = scrollToSection;
+
+function renderItem(section, item, idx){
+  const id = itemId(section.id, idx);
+  const isMastered = !!progress[id];
+  return '<div class="item' + (isMastered ? ' mastered' : '') + '" style="--sect-color:' + section.color + '">' +
+    '<input type="checkbox" ' + (isMastered ? 'checked' : '') + ' onchange="toggleMastery(\'' + id + '\')">' +
+    '<div class="item-body">' +
+      '<div class="item-q">' + item.q + '</div>' +
+      '<div class="item-a">' + item.a + '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function renderSection(section){
+  const visible = section.items
+    .map((item, idx) => ({item, idx}))
+    .filter(({item, idx}) => {
+      const id = itemId(section.id, idx);
+      if(showUnmasteredOnly && progress[id]) return false;
+      return matchesSearch(item);
+    });
+  if(visible.length === 0) return '';
+  const masteredN = sectionMasteredCount(section);
+  let html = '<section class="sect" id="sect-' + section.id + '" style="--sect-color:' + section.color + '">' +
+    '<div class="sect-header">' +
+      '<span class="icon">' + section.icon + '</span>' +
+      '<h2>' + section.title + '</h2>' +
+      (section.badge ? '<span class="sect-badge">' + section.badge + '</span>' : '') +
+      '<span class="sect-count">' + masteredN + '/' + section.items.length + ' mastered</span>' +
+    '</div>';
+  if(section.intro){
+    html += '<div class="sect-intro">' + section.intro + '</div>';
+  }
+  visible.forEach(({item, idx}) => { html += renderItem(section, item, idx); });
+  html += '</section>';
+  return html;
+}
+
+function renderAll(){
+  const total = totalItems();
+  const mastered = masteredCount();
+  const pct = total ? Math.round((mastered/total)*100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-count').textContent = mastered + ' / ' + total + ' mastered';
+
+  SECTIONS.forEach(s => {
+    const el = document.getElementById('pillcount-' + s.id);
+    if(el) el.textContent = sectionMasteredCount(s) + '/' + s.items.length;
+  });
+
+  const content = document.getElementById('content');
+  let html = SECTIONS.map(renderSection).join('');
+  if(html.trim() === ''){
+    html = '<div class="no-results">No questions match your search or filter.</div>';
+  }
+  content.innerHTML = html;
+}
+
+document.getElementById('search').addEventListener('input', (e) => {
+  searchTerm = e.target.value;
+  renderAll();
+});
+document.getElementById('unmastered-toggle').addEventListener('change', (e) => {
+  showUnmasteredOnly = e.target.checked;
+  renderAll();
+});
+
+(async function init(){
+  await loadProgress();
+  buildNav();
+  renderAll();
+})();
+</script>
+</body>
+</html>

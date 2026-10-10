@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Senior Unix Platform & SRE (R&D) — Interview Handbook</title>
+<style>
+:root {
+  --bg: #0a0e13;
+  --surface: #121822;
+  --surface-2: #1a212c;
+  --border: #26303c;
+  --text: #dde4ea;
+  --text-dim: #7d8894;
+  --accent: #5aa9e6;
+  --accent-dim: #3d6f94;
+  --good: #3fb950;
+  --warn: #d29922;
+  --crit: #f0654a;
+  --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'JetBrains Mono', Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin:0; background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+h1,h2,h3 { font-family: var(--mono); }
+
+.statusbar { position: sticky; top:0; z-index: 30; background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 20px; }
+.statusline { display:flex; align-items:center; gap: 10px; flex-wrap: wrap; font-family: var(--mono); font-size: 12.5px; color: var(--text-dim); max-width:1400px; margin:0 auto; }
+.dot { width:8px; height:8px; border-radius:50%; background: var(--good); display:inline-block; animation: pulse 2s infinite; flex-shrink:0; }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none; } html { scroll-behavior:auto; } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
+.statusline strong { color: var(--text); letter-spacing:0.3px; }
+.sep { color: var(--border); }
+.searchrow { display:flex; gap:12px; margin-top:10px; align-items:center; max-width:1400px; margin-left:auto; margin-right:auto; }
+#search { flex:1; background: var(--surface-2); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:6px; font-family: var(--sans); font-size:14px; }
+#search::placeholder { color: var(--text-dim); }
+#search:focus-visible { outline: 2px solid var(--accent); outline-offset:1px; }
+.focuslabel { display:flex; align-items:center; gap:6px; font-family: var(--mono); font-size:12.5px; color: var(--text-dim); white-space:nowrap; cursor:pointer; }
+.focuslabel input { accent-color: var(--accent); }
+
+.layout { display:flex; max-width: 1400px; margin: 0 auto; align-items:flex-start; }
+.sidebar { width: 300px; flex-shrink:0; position: sticky; top: 98px; align-self:flex-start; max-height: calc(100vh - 112px); overflow-y:auto; padding: 20px 16px; border-right: 1px solid var(--border); }
+.progresswrap { margin-bottom:18px; }
+.progressbar { height:6px; background: var(--surface-2); border-radius:3px; overflow:hidden; }
+.progressfill { height:100%; background: var(--accent); width:0%; transition: width .3s; }
+.progresslabel { font-family: var(--mono); font-size:11.5px; color: var(--text-dim); margin-top:7px; }
+.navlink { display:flex; justify-content:space-between; gap:8px; padding:8px 10px; border-radius:6px; color: var(--text-dim); text-decoration:none; font-size:12.5px; margin-bottom:2px; }
+.navlink:hover { background: var(--surface-2); color: var(--text); }
+.navlink:focus-visible { outline:2px solid var(--accent); }
+.navcount { font-family: var(--mono); font-size:11px; flex-shrink:0; }
+.navdivider { border:none; border-top:1px solid var(--border); margin:12px 0; }
+
+.content { flex:1; min-width:0; padding: 26px 30px 90px; max-width: 980px; }
+
+.category { margin-bottom: 38px; }
+.cat-head { display:flex; align-items:baseline; gap:10px; margin-bottom:16px; padding-bottom:9px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.cat-tag { font-family: var(--mono); font-size:10.5px; color: var(--accent); background: rgba(90,169,230,0.1); padding:3px 8px; border-radius:4px; letter-spacing:0.6px; }
+.category h2 { font-size:17px; margin:0; color: var(--text); font-weight:600; letter-spacing:0.2px; }
+
+.card { background: var(--surface); border:1px solid var(--border); border-left: 3px solid var(--border); border-radius:8px; margin-bottom:10px; overflow:hidden; }
+.card.mastered { border-left: 3px solid var(--good); }
+.card.behavioral { border-left: 3px solid var(--warn); }
+.card.behavioral.mastered { border-left: 3px solid var(--good); }
+.card-head { display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer; }
+.card-head:hover { background: var(--surface-2); }
+.card-head:focus-visible { outline: 2px solid var(--accent); outline-offset:-2px; }
+.qnum { font-family: var(--mono); font-size:11.5px; color: var(--accent); flex-shrink:0; }
+.chev { margin-left:auto; color: var(--text-dim); font-size:11px; transition: transform .15s; flex-shrink:0; }
+.card.open .chev { transform: rotate(90deg); }
+.qtext { flex:1; font-size:14.5px; font-weight:500; }
+.mastery { display:flex; align-items:center; gap:6px; font-size:11.5px; color: var(--text-dim); font-family: var(--mono); cursor:pointer; flex-shrink:0; white-space:nowrap; }
+.mastery input { accent-color: var(--good); }
+.card-body { display:none; padding: 2px 16px 18px 44px; }
+.card.open .card-body { display:block; }
+.behavioral .card-body { padding-left:16px; }
+.starbadge { display:inline-block; font-family: var(--mono); font-size:10px; color: var(--warn); background: rgba(210,153,34,0.1); padding:2px 7px; border-radius:4px; margin-bottom:8px; letter-spacing:0.5px; }
+.answer { font-size:14px; color: var(--text-dim); line-height:1.7; }
+.answer strong { color: var(--text); font-weight:600; }
+.answer ul { padding-left:20px; margin: 8px 0; }
+.answer li { margin-bottom:4px; }
+.answer code { background: var(--surface-2); padding:1px 6px; border-radius:4px; font-family: var(--mono); font-size:12.5px; color: var(--accent); }
+
+.ask-card { background: var(--surface); border:1px solid var(--border); border-radius:8px; padding:15px 16px; margin-bottom:10px; }
+.ask-q { font-weight:600; font-size:14.5px; margin-bottom:6px; }
+.ask-why { font-size:13px; color: var(--text-dim); line-height:1.6; }
+
+@media (max-width: 860px) {
+  .layout { flex-direction: column; }
+  .sidebar { width:100%; position:static; max-height:none; border-right:none; border-bottom:1px solid var(--border); }
+  .content { padding: 22px 18px 90px; }
+  .statusline { font-size:11.5px; }
+}
+</style>
+</head>
+<body>
+
+<header class="statusbar">
+  <div class="statusline">
+    <span class="dot" aria-hidden="true"></span>
+    <strong>SENIOR UNIX PLATFORM & SITE RELIABILITY — R&D</strong>
+    <span class="sep">|</span>
+    <span>SECTOR: Engineering R&D / Semiconductor-adjacent</span>
+    <span class="sep">|</span>
+    <span id="progressLabel">0 reviewed</span>
+  </div>
+  <div class="searchrow">
+    <input id="search" type="text" placeholder="Search questions and answers…" aria-label="Search questions and answers">
+    <label class="focuslabel"><input type="checkbox" id="focusToggle"> Unreviewed only</label>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" aria-label="Category navigation">
+    <div class="progresswrap">
+      <div class="progressbar"><div class="progressfill" id="progressFill"></div></div>
+      <div class="progresslabel" id="progressSideLabel">0 of 0 reviewed</div>
+    </div>
+    <div id="navlist"></div>
+  </nav>
+  <main class="content">
+    <div id="content"></div>
+    <section class="category" id="cat-ask">
+      <div id="askSection"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+const STORAGE_KEY = 'mastery-state-unix-platform-sre-rnd';
+const DATA = [
+{
+  id: 'linux-unix',
+  title: 'Linux/Unix Systems Engineering & OS Lifecycle',
+  tag: 'CORE OS',
+  items: [
+    { q: `Walk through your approach to hardening a new RHEL/Rocky Linux server before it goes into production.`,
+      a: `Start from a minimal install (reduce attack surface), apply a CIS Benchmark or DISA STIG baseline as the hardening standard, disable/remove unused services, enforce <strong>SELinux in enforcing mode</strong> (not permissive — a common shortcut that quietly defeats the control), configure <code>firewalld</code> with explicit allow rules rather than a blanket-open posture, centralize auth (LDAP/AD via SSSD) instead of local accounts, enable <code>auditd</code> for compliance logging, and bake all of this into a golden image / Ansible role / Kickstart profile so it's repeatable — not a manual checklist run once per box.` },
+    { q: `How do you approach OS patching across a large fleet of mission-critical R&D Linux servers without breaking things?`,
+      a: `Staged rollout, not a big-bang window: canary/test ring first, validate critical services and app compatibility, then roll through pre-defined rings with bake time between them. Maintain a patch/reboot maintenance calendar coordinated with R&D teams — patching an EDA compute farm mid-simulation is a very different conversation than patching an idle dev box. Automate via Ansible or Satellite/Foreman for RHEL fleets rather than manual per-host patching, and always have a rollback/snapshot plan for anything that can't tolerate a failed patch.` },
+    { q: `Explain systemd's role in modern Linux administration — what would you actually be troubleshooting with it day to day?`,
+      a: `systemd is the init system and service manager — units (service, socket, mount, timer) define how processes start, their dependencies, and restart behavior. Day to day: <code>systemctl status &lt;unit&gt;</code> for current state and a recent log tail, <code>journalctl -u &lt;unit&gt;</code> for full service logs, <code>systemctl list-dependencies</code> when a service won't start because something it depends on failed, and understanding target units when a box comes up in an unexpected state after reboot. Timers (systemd's cron-replacement) come up often for scheduled maintenance on modern RHEL/Ubuntu.` },
+    { q: `What's your troubleshooting process when a Linux server's disk I/O is degraded and an R&D team is complaining about slow builds?`,
+      a: `<code>iostat -x</code> for per-device utilization/await/queue depth to confirm it's actually I/O-bound and identify the hot device, <code>iotop</code> to find the driving process, check for swap thrashing (<code>vmstat</code>, <code>free</code>) since memory pressure often masquerades as I/O, check for near-full disks (behave differently than expected, especially on copy-on-write filesystems), and check underlying storage health (RAID rebuild, a failing disk, or a noisy-neighbor/throttling issue on virtualized storage). Also confirm it's actually I/O and not CPU/network (dependency fetches) — don't assume the reported symptom is the root cause.` },
+    { q: `How would you approach performance tuning for a Linux host running compute-intensive engineering workloads (builds, simulations)?`,
+      a: `Profile before tuning — <code>top</code>/<code>htop</code> for a quick read, <code>perf</code> for CPU-level profiling if genuinely compute-bound — and understand the actual bottleneck before reaching for kernel tunables.
+      <br><br>Common levers: CPU governor/frequency scaling (matters a lot for burst compute), <strong>NUMA awareness</strong> for multi-socket servers (a process pinned across NUMA nodes pays a real latency cost), transparent huge pages (can help or hurt — test, don't assume), <code>ulimits</code> (file descriptors, process counts — a classic silent failure for large parallel builds), and mount options (<code>noatime</code> for build trees).` },
+    { q: `What's SELinux actually doing, and how do you troubleshoot an SELinux-related access denial without just disabling it?`,
+      a: `SELinux enforces mandatory access control via security contexts/labels, independent of standard Unix permissions — even root can be denied by policy.
+      <br><br>Troubleshooting: <code>ausearch -m avc -ts recent</code> or <code>/var/log/audit/audit.log</code> for AVC denials, then <code>audit2allow</code> to see what a policy exception would look like (review before applying) — or more often, fix the actual mislabeled file with <code>restorecon</code>/<code>chcon</code>. "Just set it to permissive" is the instinct to resist in an interview answer — it's a real control, especially relevant given this role touches audit/compliance.` },
+    { q: `How would you design storage for a Linux server supporting high-throughput build/simulation workloads — LVM, filesystem choice, mount strategy?`,
+      a: `<strong>LVM</strong> for flexibility (resize without downtime, snapshot before risky changes) at a small overhead cost. Filesystem: <strong>XFS</strong> as a strong general default for large files/high throughput (common RHEL default), <strong>ext4</strong> for general-purpose simplicity. Separate mount points for volatile/high-churn data (build scratch, logs) from OS and app binaries so a runaway build filling disk doesn't take down the host. For shared engineering storage, NFS tuning (<code>rsize</code>/<code>wsize</code>, async vs sync) matters a lot — a naive NFS mount is often the real bottleneck people blame on "slow compute."` },
+    { q: `How do you handle virtualization in this kind of environment — when would you virtualize vs. go bare-metal for engineering compute?`,
+      a: `Virtualize for flexibility, isolation, and fast provisioning — most dev/build infrastructure, CI runners, and general engineering services are well-served by VMs (KVM/oVirt, VMware, or cloud instances), since the operational win (snapshot, clone, migrate, right-size) usually outweighs overhead.
+      <br><br>Bare-metal still wins where virtualization overhead genuinely matters — heavy HPC/simulation farms where every % of throughput counts, or specialized hardware-passthrough needs (GPU-heavy workloads, hardware-in-the-loop setups common in embedded/semiconductor R&D).` }
+  ]
+},
+{
+  id: 'networking',
+  title: 'Networking, Storage & Virtualization Fundamentals',
+  tag: 'NETWORK',
+  items: [
+    { q: `Walk through your troubleshooting process when a service is unreachable — where do you start?`,
+      a: `Work outward from the host: is the process actually running and listening on the expected port (<code>ss -tlnp</code>)? Is the local firewall blocking it? Reachable from localhost but not remotely points to the network path, not the service.
+      <br><br>Then the path: routing, security groups/NSGs if cloud-hosted, any intermediate load balancer/proxy, and <strong>DNS resolution</strong> (a huge share of "the service is down" tickets are actually DNS). <code>tcpdump</code> or <code>traceroute</code> when the simple checks don't explain it.` },
+    { q: `Explain how you'd troubleshoot intermittent DNS resolution failures affecting build servers.`,
+      a: `Confirm which resolver is actually in use (<code>/etc/resolv.conf</code>, or <code>resolvectl status</code> on modern distros) and whether it's consistent across the fleet — a common cause is resolver config drift after a config-management change. Check for resolver timeout/retry exhaustion under load (build farms doing lots of parallel lookups can genuinely overwhelm an under-provisioned internal DNS server). Rule out split-horizon DNS issues and a flaky upstream forwarder before assuming local misconfiguration.` },
+    { q: `How would you design load balancing for a set of internal engineering services (artifact repository, CI controllers)?`,
+      a: `<strong>Layer 7</strong> (HAProxy/NGINX/F5, or a cloud LB) when you need content-based routing, SSL termination, or health-check-driven traffic shifting — the common case for HTTP services like Artifactory or a Jenkins controller cluster. <strong>Layer 4</strong> when you just need fast TCP-level distribution.
+      <br><br>Health checks need to reflect actual service health, not just "port is open" — an Artifactory node that's up but can't reach its backend storage should fail its health check, or the LB keeps sending it traffic.` },
+    { q: `What storage systems have you worked with, and how would you choose between NFS, block storage, and object storage for different engineering use cases?`,
+      a: `<strong>NFS</strong> for shared, POSIX-compliant access engineering tools expect (home directories, shared build trees, tool installations). <strong>Block storage</strong> (SAN, or cloud EBS/managed disks) for database backends and anything needing low-latency, single-host-attached performance. <strong>Object storage</strong> (S3/Blob) for large, infrequently-modified artifacts — build outputs, container images, archived logs — where POSIX semantics aren't needed and cost/scale matter more than latency.` },
+    { q: `How do you approach capacity planning for network bandwidth on an engineering platform supporting large build/artifact transfers?`,
+      a: `Baseline current usage against peak (not average) build-farm-to-artifact-repository transfer volume, understand burst patterns (a full CI pipeline kicking off simultaneously looks very different from steady state), and plan headroom against the busiest realistic scenario. For hybrid/cloud-connected environments, egress cost and cross-region/cross-AZ bandwidth specifically need attention — shipping large build artifacts across regions gets expensive and slow fast.` },
+    { q: `What's your experience with virtualization platforms, and how does that intersect with the networking you'd be responsible for?`,
+      a: `Virtual networking (virtual switches/bridges, VLANs tied to port groups, overlay networks for container platforms) adds a layer pure physical-network troubleshooting doesn't prepare you for — a connectivity issue can be in the physical fabric, the hypervisor's virtual switch config, or the VM's own network stack. Diagnosing which layer requires working from both directions (<code>ip a</code>/<code>ip route</code> inside the guest, and the corresponding hypervisor/vSwitch view) — worth stating explicitly, since it's a common gap for people coming from a purely physical or purely cloud-networking background.` }
+  ]
+},
+{
+  id: 'sre-principles',
+  title: 'SRE Principles — SLO/SLI/Error Budgets',
+  tag: 'RELIABILITY',
+  items: [
+    { q: `How would you define an SLI and SLO for an internal engineering platform service like a CI/CD controller — these don't have "customers" in the traditional sense.`,
+      a: `The developers/engineering teams ARE the customers here. SLI: "build job start latency" (trigger to actually running, not just queued) or "CI controller availability." SLO: "95% of build jobs start within 60 seconds" or "CI platform available 99.5% during business hours."
+      <br><br>The framing shift for internal platforms: the SLO should reflect what actually blocks engineering productivity, not an arbitrary uptime number that doesn't map to a real pain point.` },
+    { q: `Explain error budgets and how you'd actually use one to make a real operational decision.`,
+      a: `The allowed amount of unreliability within an SLO window (a 99.5% monthly SLO gives roughly 3.6 hours of "budget"). The actual use: when the budget's exhausted or burning too fast, that's the trigger to pause risky changes and prioritize reliability work over new features — and conversely, a healthy unused budget is explicit permission for more operational risk (faster rollouts, more aggressive experimentation) without re-litigating the tradeoff every time, since the policy was agreed in advance.` },
+    { q: `How would you set up burn-rate alerting for an SLO, and why not just alert on the SLO threshold directly?`,
+      a: `A single "you've breached the SLO" alert fires too late — the SLO's already blown for that window by definition. <strong>Multi-window burn-rate alerting</strong> (fast-burn → page; slow-burn but sustained → ticket) catches problems while there's still budget left to react, and the two-window approach filters out short blips that would otherwise page unnecessarily.` },
+    { q: `What's the difference between a leading and a lagging reliability indicator, and can you give an example relevant to a build/CI platform?`,
+      a: `<strong>Lagging:</strong> measured after the fact, confirms a problem already happened (build failure rate, incident count). <strong>Leading:</strong> predicts a problem before it fully manifests (disk usage trending toward full, CI queue depth climbing, certificate expiry approaching).
+      <br><br>A mature practice on an engineering platform watches leading indicators so the ticket gets filed before it becomes an outage, not read as an RCA after one.` },
+    { q: `How do you balance reliability engineering work against the constant pressure to just keep tickets moving?`,
+      a: `This is exactly what error budgets and a defined "toil" tracking practice are for — if you're not measuring how much time goes to reactive ticket-handling vs. proactive engineering work, reactive work wins by default because it's loud and visible. Making toil visible, even with a rough weekly tally, is usually the first step to getting organizational air cover to spend real time on the automation that reduces it.` },
+    { q: `How would you introduce SRE practices (SLOs, error budgets) to a platform team that's currently running purely reactive, ticket-driven operations?`,
+      a: `Start small and concrete rather than a big-bang framework rollout — pick one or two services people already care about, define a simple SLI/SLO with the team (not handed down), and let the first real "should we freeze deployments" conversation demonstrate the value organically. Instrumenting everything with formal SLOs on day one usually stalls; a working example the team helped define spreads faster than a mandate.` }
+  ]
+}
+,
+{
+  id: 'toolchain',
+  title: 'R&D Engineering Toolchain — CI/CD, SCM & Code Quality',
+  tag: 'TOOLCHAIN',
+  items: [
+    { q: `How would you architect a Jenkins environment to support a large R&D organization reliably — controller/agent design?`,
+      a: `Controller does orchestration only — no heavy build execution on the controller itself, a classic scaling mistake. Agents (static, or dynamically provisioned — Kubernetes pod agents or cloud instances spun up per job) do the actual work, sized/labeled for different workload types.
+      <br><br>Controller HA/backup with <strong>JCasC</strong> (Jenkins Configuration as Code, so config is reproducible, not a hand-tuned snowflake) and plugin management discipline (pinned versions, a staging Jenkins to test upgrades) matter a lot at scale — an uncontrolled plugin update is a classic way to take down shared CI for an entire org.` },
+    { q: `GitHub vs. GitLab vs. Perforce — when would an engineering org use Perforce specifically, and what's operationally different about supporting it?`,
+      a: `Perforce (Helix Core) is still common where Git's model doesn't fit well — very large binary assets (hardware/chip design files, large datasets) where Git's full-history-on-every-clone model becomes impractical, and where centralized locking (checkout/lock semantics on binary files that can't be merged) is the right concurrency model rather than Git's distributed merge-everything approach.
+      <br><br>Operationally: depots/streams need their own backup/DR story (checkpoint/journal-based, different from Git replication), and access control is typically more centralized (protections table) than Git's per-repo model.` },
+    { q: `What's Artifactory's role in this toolchain, and what would you actually be supporting operationally?`,
+      a: `Central artifact repository — build outputs, container images, packages (npm/PyPI/Maven/etc.) — and often a proxy/cache for external package repositories, so the org isn't hitting the public npm registry directly for every build (a reliability and security concern).
+      <br><br>Operationally: storage capacity planning and <strong>retention/cleanup policies</strong> (without them, the repo grows unbounded), high availability for a shared dependency every build relies on, and repository-level access control aligned with which teams publish vs. consume which artifacts.` },
+    { q: `How would you support JIRA/Confluence at scale for an engineering organization — what actually breaks, and what do you own vs. what's an app-team concern?`,
+      a: `Infrastructure-level ownership: instance performance/scaling (data-center clustering, database performance as the instance grows), backup/DR, plugin/app management and upgrade compatibility (a huge source of outages — a marketplace app that doesn't support the new version), and integration health (JIRA-to-Jenkins, JIRA-to-GitHub webhooks failing silently is a common real-world issue).
+      <br><br>Workflow/scheme configuration is more often an app-team/business-analyst concern, though platform teams get pulled in when a workflow change has a performance implication at scale.` },
+    { q: `What's JAMA (Jama Connect) used for, and why would a platform team need to support it specifically in an R&D/engineering context?`,
+      a: `Requirements management and traceability — linking requirements through design, test cases, and verification/validation evidence — common in regulated or safety-relevant hardware/embedded development where you need to prove a requirement was actually tested and passed, not just implemented.
+      <br><br>Platform team's role has the same shape as other engineering tools here: uptime, integration health with adjacent tools (test management, CI results feeding back into traceability), backup/DR, and access control — you're not the requirements-process owner, but you keep the system the process runs on healthy.` },
+    { q: `What's Coverity actually checking, and how would you integrate it into a CI pipeline without it becoming a bottleneck teams route around?`,
+      a: `<strong>Static application security testing (SAST)</strong> — analyzes source code without executing it, flagging defects (null pointer dereferences, resource leaks, concurrency issues) and vulnerabilities by pattern-matching against known-bad structures, mapped to CWE categories.
+      <br><br>Integration that avoids becoming shelfware: gate CI on <em>new/high-severity findings introduced by the current change</em>, not the entire existing backlog (which would block every build on legacy debt), with a defined triage workflow so findings actually get dispositioned — an SAST tool nobody looks at is just CI runtime with no value.` },
+    { q: `How does Black Duck differ from Coverity, and why would an org run both?`,
+      a: `Coverity is SAST (your own code's defects/vulnerabilities). <strong>Black Duck is SCA</strong> (software composition analysis) — scanning your dependency tree for known CVEs and license compliance issues in open-source libraries you pull in.
+      <br><br>Complementary, not redundant: your code can be clean per Coverity while pulling in a dependency with a critical known CVE that only Black Duck would catch, or vice versa. Both need the same "gate on new issues, don't block on the whole backlog day one" rollout discipline to actually get adopted rather than bypassed.` },
+    { q: `How would you design a CI/CD pipeline to give developers fast feedback without sacrificing the quality gates (Coverity, Black Duck, tests) this org clearly cares about?`,
+      a: `Tier checks by speed and run them in parallel where possible: fast unit tests/lint fail fast first; slower checks (full Coverity/Black Duck scans, integration tests) run in parallel with each other, so total pipeline time is closer to the slowest single check rather than the sum of all of them.
+      <br><br>Consider running the heaviest security scans on a schedule or on merge-to-main rather than every feature-branch push, reserving the full gate for what actually ships — keeps the developer inner-loop fast while still enforcing the gate where it matters.` },
+    { q: `A developer complains that the CI pipeline is "too slow" and is routing around it (pushing directly, skipping checks). How do you handle this as the platform owner?`,
+      a: `Treat it as a real signal, not just a compliance problem to enforce harder — a pipeline slow enough that people route around it is a platform failure as much as a process failure. Actually measure where the time goes (often a surprising single slow stage, not evenly distributed), fix the real bottleneck (caching, parallelization, right-sized agents), and separately ensure there's a hard gate somewhere in the path to production that can't be bypassed.
+      <br><br>The fix is usually "make the fast path actually fast" <em>plus</em> "make the mandatory gate actually mandatory" — not one or the other alone.` }
+  ]
+},
+{
+  id: 'cloud',
+  title: 'Cloud Engineering — AWS/Azure Hybrid for R&D',
+  tag: 'CLOUD',
+  items: [
+    { q: `What does a hybrid on-prem + cloud architecture typically look like for an R&D engineering platform, and what's operationally hardest about it?`,
+      a: `Common pattern: core tools (Perforce, license servers for EDA/CAD tools, HPC compute) stay on-prem due to latency/licensing/data-gravity constraints, while burst compute, DR, and newer cloud-native services live in AWS/Azure, connected via ExpressRoute/Direct Connect or site-to-site VPN.
+      <br><br>Operationally hardest: consistent identity/access across both environments, network latency for anything chatty between on-prem and cloud (build processes constantly round-tripping to an on-prem license server from cloud-burst compute feel painfully slow), and unifying monitoring/logging instead of two separate panes of glass.` },
+    { q: `How would you approach "cloud bursting" compute-intensive R&D workloads (builds, simulations) to AWS/Azure when on-prem capacity is maxed?`,
+      a: `The workload needs to be burst-friendly first — stateless, able to fetch inputs (source, license) efficiently, tolerant of added latency to on-prem-only dependencies. Autoscaling cloud pools sized to spin up on queue depth and back down when idle to control cost.
+      <br><br><strong>License server access is the usual gating constraint</strong> in EDA-adjacent environments — cloud compute is often the easy part; getting tool licenses accessible to it is the actual bottleneck.` },
+    { q: `What's your experience with core cloud services (compute, storage, networking) on AWS and/or Azure relevant to supporting engineering infrastructure?`,
+      a: `<strong>Compute:</strong> right-sizing instance types for build/compute workloads, autoscaling groups/VMSS for CI agent pools. <strong>Storage:</strong> block (EBS/managed disk) for CI controller state vs. object (S3/Blob) for build artifacts, with lifecycle policies controlling cost. <strong>Networking:</strong> VPC/VNet design separating environments, security groups/NSGs as first-line access control, and VPN/ExpressRoute-Direct-Connect for hybrid connectivity.` },
+    { q: `How would you manage cost for a cloud-burst compute environment that engineering teams use unpredictably?`,
+      a: `Tagging discipline from day one (cost allocation by team/project — hard to retrofit cleanly later), autoscale-to-zero for burst pools so idle capacity isn't billing, spot/low-priority instances for interruptible batch/simulation work that can checkpoint or retry, and regular cost review <em>with</em> the teams driving the spend — top-down cost enforcement without the consuming teams understanding their own usage rarely sticks.` },
+    { q: `What monitoring/security considerations change when you extend an on-prem R&D platform into the cloud?`,
+      a: `Monitoring needs to unify both environments into one view — cloud alerts on a different dashboard than on-prem is a recipe for missed correlation during an incident spanning both. Security: cloud instances need the same hardening/patching discipline as on-prem — it's easy to treat them as more ephemeral/less-cared-for, but an instance with access to on-prem license servers or source code is exactly as sensitive as an on-prem host. IAM federation (cloud access using the same identity source as on-prem) is usually the first thing worth getting right.` }
+  ]
+},
+{
+  id: 'automation-iac',
+  title: 'Automation & Infrastructure as Code (Ansible-heavy)',
+  tag: 'AUTOMATION',
+  items: [
+    { q: `Why would a shop choose Ansible specifically for configuration management of a Linux fleet, versus Terraform or a competing CM tool?`,
+      a: `Ansible is <strong>agentless</strong> (SSH-based, no daemon to manage/patch on every target — a real win at fleet scale) and procedural-with-idempotency, which maps naturally onto "configure this Linux server to a desired state" — OS hardening, package management, service config.
+      <br><br>Terraform is the better tool for provisioning the infrastructure itself (the VM/network/storage resources existing in the first place). Common pattern: Terraform provisions the box, Ansible configures what's on it — complementary, not competing for the same job.` },
+    { q: `How do you structure Ansible playbooks/roles for a large environment so they stay maintainable, not a pile of one-off scripts?`,
+      a: `<strong>Roles</strong> as the unit of reuse (a <code>linux-hardening</code> role, a <code>jenkins-agent</code> role, each with its own defaults/vars/handlers/tasks), inventory organized by group so host- and group-specific variables aren't duplicated across playbooks, and <code>ansible-vault</code> for secrets rather than plaintext credentials in version control.
+      <br><br>Testing with <strong>Molecule</strong> (spins up a container/VM, applies the role, asserts the result) catches breakage before it hits real fleet hosts; an internal role registry keeps teams from reinventing the same role differently.` },
+    { q: `How would you use Ansible for OS patching/hardening specifically, tying back to the earlier hardening discussion?`,
+      a: `A hardening role applying the CIS/STIG baseline as idempotent tasks (safe to re-run, shows drift if someone's manually changed something), a separate patching playbook targeting a specific ring/group with <code>--limit</code>, and <code>ansible-lint</code> plus CI for the playbooks themselves — yes, the automation code deserves the same CI discipline as application code — so a bad playbook change gets caught in test, not by breaking production hosts.` },
+    { q: `What's GitOps, and how would you apply it specifically to infrastructure automation rather than just application deployment?`,
+      a: `Git as the single source of truth for desired infrastructure state, with an <strong>automated reconciliation loop</strong> (rather than someone running <code>ansible-playbook</code> manually from a laptop) continuously ensuring the real environment matches what's declared — drift gets corrected or flagged automatically.
+      <br><br>Applied to infra automation: Ansible playbooks/roles live in Git, changes go through the same PR/review process as application code, and a controller (a scheduled CI job re-running playbooks, or a dedicated GitOps tool) applies changes rather than relying on a local run.` },
+    { q: `How would you use Python for infrastructure automation tasks that Ansible doesn't fit well?`,
+      a: `Ansible is great for declarative, idempotent state management; Python fits better for things needing real logic — custom monitoring/alerting integrations, one-off migration/data-transformation scripts, internal tooling/APIs (a self-service portal for developers to request CI agents), or custom Ansible modules when a built-in module doesn't cover a need.
+      <br><br>Not competing — Python often builds the tooling/glue around an Ansible-driven core, or gets called from within Ansible via the <code>script</code>/custom-module mechanism.` },
+    { q: `What's your approach to testing infrastructure-as-code changes before they hit production?`,
+      a: `Same discipline as application code, adapted: lint (<code>ansible-lint</code>, <code>terraform validate</code>/<code>tflint</code>), a plan/dry-run step (<code>terraform plan</code>, Ansible <code>--check</code>) a human reviews before apply, a genuinely representative staging environment, and Molecule-style role testing for Ansible specifically.
+      <br><br>The habit that matters most: nobody applies untested IaC changes directly to production "because it's just a small change" — that's exactly the kind of change that causes the memorable outages.` },
+    { q: `How do you handle secrets management across Ansible, Terraform, and general automation scripts?`,
+      a: `Centralize in a real secrets manager (HashiCorp Vault, Azure Key Vault, AWS Secrets Manager) rather than scattering <code>ansible-vault</code> files, <code>.tfvars</code> with embedded secrets, and hardcoded script credentials across tools inconsistently.
+      <br><br>Where a tool-specific mechanism is still needed (ansible-vault for playbook-embedded secrets), the vault password itself should come from the central secrets manager — not be a shared file sitting in a team's home directory, a surprisingly common real-world anti-pattern worth explicitly naming.` }
+  ]
+}
+,
+{
+  id: 'containers',
+  title: 'Containers — Kubernetes & OpenShift',
+  tag: 'PLATFORM',
+  items: [
+    { q: `What's operationally different about OpenShift versus vanilla Kubernetes that you'd need to know coming in with a K8s background?`,
+      a: `OpenShift adds opinionated layers on top of K8s: <strong>Routes</strong> instead of (or alongside) Ingress for exposing services, <strong>Security Context Constraints (SCCs)</strong> instead of raw Pod Security Policies/Standards — considerably more restrictive by default (containers don't run as root by default, unlike vanilla K8s where that's often the path of least resistance), built-in image streams and an integrated registry, and the <code>oc</code> CLI as a superset of <code>kubectl</code>.
+      <br><br>Coming from pure K8s, the SCC model is usually the biggest adjustment — a lot of "works fine on vanilla K8s" images fail on OpenShift until built to not assume root.` },
+    { q: `How would you troubleshoot a pod stuck in CrashLoopBackOff on an OpenShift cluster supporting a build/CI workload?`,
+      a: `Same fundamentals as vanilla K8s — <code>oc logs</code> (including <code>--previous</code> for the crashed instance's logs), <code>oc describe pod</code> for events (OOMKilled, failed liveness probe, image pull failure), resource limits against actual usage.
+      <br><br>OpenShift-specific: check whether it's actually an <strong>SCC denial masquerading as a crash</strong> (the container trying to write somewhere it can't due to running as a non-root, arbitrarily-assigned UID — a very common OpenShift-specific gotcha) via <code>oc get events</code> and the SCC assigned to the project.` },
+    { q: `How would you size and manage a Kubernetes/OpenShift cluster running CI/build agents specifically — what's different from a typical application workload cluster?`,
+      a: `Build workloads are typically bursty and resource-heavy per-pod (a compile job might need significant CPU/memory for a short window, then nothing) — cluster autoscaling needs to react fast to <strong>queue depth</strong>, not just steady-state utilization, with node pools sized for build-agent profiles (often larger, sometimes local SSD for scratch space) separate from general application node pools. Ephemeral storage management matters more here — a build filling a node's local disk can affect other pods scheduled there if not properly limited.` },
+    { q: `What's your approach to image management — base images, scanning, registry — for containers running R&D build/CI workloads?`,
+      a: `Standardized, centrally-maintained base images (so many teams aren't each maintaining a slightly-different base with its own patch cadence) rebuilt on a schedule to pick up security patches, integrated with the same scanning discipline as Black Duck/Coverity — scan images in the registry too, since a clean codebase on a vulnerable base image is still a vulnerable deployment.
+      <br><br>Image streams (OpenShift) or a well-organized tagging/retention policy so old, unpatched images don't linger available to accidentally pull.` },
+    { q: `How would you handle persistent storage for a stateful engineering service (like Artifactory or a database backend) running on OpenShift/Kubernetes?`,
+      a: `PersistentVolumeClaims backed by a storage class matching the workload's actual I/O profile (block storage via CSI for database-like access, not a shared-filesystem class meant for read-many). Backup strategy needs to exist at the <strong>application level</strong> too — a PVC snapshot alone often isn't application-consistent for a database without coordinating a quiesce/flush first.
+      <br><br>For anything mission-critical, test the <em>restore</em> path, not just the backup — an untested backup is a hypothesis, not a plan.` },
+    { q: `A team wants to migrate an existing VM-based engineering service to run on OpenShift. What would you actually evaluate before agreeing?`,
+      a: `Whether the app is genuinely container-friendly (stateless-enough, no weird licensing tied to physical/VM hardware identifiers — a real recurring issue with EDA/engineering tool licensing specifically), what its actual resource profile looks like under real load, storage/networking requirements against what the cluster can provide, and — often the deciding factor — whether the operational win is worth the migration effort versus leaving a stable, low-churn VM-based service alone. Not everything needs to move just because the platform exists.` }
+  ]
+},
+{
+  id: 'monitoring',
+  title: 'Monitoring & Observability',
+  tag: 'OBSERVABILITY',
+  items: [
+    { q: `How would you design a monitoring strategy across a hybrid on-prem + cloud R&D platform so on-call has one coherent view, not five dashboards?`,
+      a: `A centralized metrics/log aggregation layer (Prometheus federation or a remote-write setup pulling from both on-prem and cloud exporters into one queryable store) feeding unified Grafana dashboards, rather than cloud-native monitoring siloed away from on-prem Prometheus with no correlation.
+      <br><br>The goal: an on-call engineer investigating a build-pipeline slowdown shouldn't need to know in advance whether the root cause is on-prem or cloud before knowing which dashboard to open.` },
+    { q: `What would you actually put on a dashboard for a shared engineering platform (Jenkins, Artifactory, GitLab) that on-call would use during an incident?`,
+      a: `Golden signals per service (request rate, error rate, latency, saturation) plus platform-specific leading indicators — Jenkins queue depth and agent availability, Artifactory storage trend and request latency, GitLab runner availability.
+      <br><br>Critically, also surface the "is this blocking engineering productivity right now" signal directly — number of stuck/queued build jobs — since that's closer to actual business impact than a generic infra metric, and it's what you'll be asked about first when someone escalates.` },
+    { q: `How would you set up alerting for a shared CI/CD platform without generating noise that trains engineers to ignore pages?`,
+      a: `Alert on symptoms that actually indicate developer-facing impact (queue depth sustained above threshold, agent pool exhausted) rather than every component blip that self-heals. Multi-window burn-rate style thresholds rather than static single-sample triggers, and a clear separation between "wake someone up" (platform-wide outage) versus "ticket for business hours" (one agent type degraded, others absorbing load fine).` },
+    { q: `What logging/telemetry would you want in place specifically to troubleshoot a "my build was slow" complaint after the fact?`,
+      a: `Structured, timestamped logs at each pipeline stage (queue time, agent-provisioning time, execution time, artifact-upload time) so you can pinpoint which segment was actually slow instead of guessing — "the build was slow" could mean 10 different things without stage-level timing.
+      <br><br><strong>Correlation IDs</strong> threading through the whole pipeline so logs from Jenkins, the agent, and Artifactory all tie back to the same build for one coherent investigation.` },
+    { q: `How do you decide what's worth instrumenting/monitoring versus what's overkill for an internal engineering platform?`,
+      a: `Start from what's actually caused pain before (past incidents, recurring complaints) rather than instrumenting everything uniformly — a build platform's failure modes are usually a fairly short, knowable list once it's been run for a while. Add instrumentation incrementally as new failure modes surface via RCA ("we didn't have visibility into X, that's now a dashboard panel and an action item"), rather than anticipating every possible metric upfront.` }
+  ]
+},
+{
+  id: 'security-iam',
+  title: 'Security, Compliance & IAM',
+  tag: 'SECURITY',
+  items: [
+    { q: `How would you integrate identity and access management across the diverse toolchain this role touches — Linux hosts, Jenkins, GitHub/GitLab, cloud, Kubernetes?`,
+      a: `Centralize on one identity source (AD/Entra ID or an equivalent IdP) and federate everything to it rather than maintaining separate local accounts per tool — SSSD/LDAP for Linux host login, SAML/OIDC SSO for Jenkins/GitHub/GitLab/Artifactory, the same IdP backing Kubernetes/OpenShift RBAC and cloud IAM.
+      <br><br>The payoff isn't just convenience — when someone leaves, one deprovisioning action should revoke access <em>everywhere</em>, not require remembering eight separate systems.` },
+    { q: `How would you approach vulnerability remediation when a scan (Black Duck, Coverity, or an infra scanner) surfaces a large backlog on legacy systems?`,
+      a: `Triage by actual risk, not just severity score in isolation — a critical CVE on an internet-facing service outranks a critical CVE on an air-gapped internal tool with no network exposure, even though a raw scanner report flags both identically. Agree a remediation SLA tied to risk tier with cybersecurity, track it visibly, and where a fix genuinely isn't feasible short-term, document a compensating control and a real target date — auditors specifically look for that documented exception process, not just a clean scan.` },
+    { q: `What does DevSecOps mean to you concretely, beyond "security shifted left"?`,
+      a: `Security checks integrated into the pipeline where developers already are (Coverity/Black Duck in CI) rather than a separate end-of-line gate. Also concretely: infrastructure itself defined as code and scanned the same way (<code>tfsec</code>/<code>checkov</code>-style IaC scanning), secrets never living in plaintext anywhere in the pipeline, and security as a shared responsibility with fast, actionable feedback — not a quarterly audit dropping a 200-item spreadsheet on engineering with no context.` },
+    { q: `How would you support an internal or external audit of this platform's security controls?`,
+      a: `Know what evidence should already exist before the audit asks: access reviews/attestations showing IAM is actually enforced, patch compliance reports, vulnerability scan history with remediation tracking, and change records showing production changes went through real review.
+      <br><br>If any of that is manual/undocumented today, that's worth flagging and fixing proactively rather than scrambling when the audit request lands.` },
+    { q: `How do you balance giving developers self-service access/automation capability against the principle of least privilege?`,
+      a: `Self-service through a controlled interface (a request workflow, a scoped automation tool, a CI pipeline with defined permissions) rather than broad standing access "so people don't have to file tickets." The goal: remove the platform team as a bottleneck for routine requests without removing the actual access control — a developer can self-service a CI agent of an approved type/size through a pipeline, without that same developer having broad production infrastructure access generally.` },
+    { q: `What's your experience with compliance frameworks/audit requirements in a prior role, and how does that translate to a semiconductor/hardware R&D environment specifically?`,
+      a: `Audit/compliance experience from banking — arguably a heavier formal audit burden than most industries — translates well: the underlying discipline (access control, change management, evidence retention, segregation of duties) is largely industry-agnostic even though the named frameworks differ (SOX/PCI-DSS/banking-regulatory vs. export control considerations relevant for semiconductor IP specifically, IP protection, and customer/contractual security requirements common in hardware R&D).
+      <br><br>Worth explicitly naming that transferable-discipline framing rather than assuming a banking background reads as irrelevant here.` }
+  ]
+}
+,
+{
+  id: 'hpc-semiconductor',
+  title: 'HPC & Semiconductor/Engineering Compute Environments',
+  tag: 'HPC',
+  items: [
+    { q: `What's your familiarity with HPC job schedulers (LSF, Slurm, SGE/UGE), and what would you actually be responsible for operationally?`,
+      a: `Even without hands-on scheduler-specific experience, the operational shape transfers directly from general platform/SRE work: queue health and job-throughput monitoring, scheduler/master-node high availability (a scheduler outage stalls the whole compute farm, not one job), resource pool/partition configuration matching how teams actually need to segment capacity (priority queues for time-critical work vs. best-effort batch), and <strong>license-server integration</strong> — since in EDA/chip-design environments, compute availability is frequently gated by tool license availability, not raw CPU capacity, a distinctive wrinkle worth naming explicitly.` },
+    { q: `How do license servers (for EDA/CAD or other engineering tools) typically factor into platform reliability in a semiconductor/hardware R&D environment?`,
+      a: `License servers (often FlexLM/FlexNet or vendor-specific equivalents) become a single point of failure for potentially the entire engineering org if jobs can't check out a license — worth the same HA/monitoring rigor as any other critical service, even if it's not obviously "SRE-owned" at first glance.
+      <br><br>Monitoring license utilization/contention (jobs queuing not because compute is unavailable, but because all licenses of a tool are checked out) is a distinctive signal worth explicitly building into observability, since it's easy to misdiagnose as a compute-capacity problem.` },
+    { q: `What's different about supporting compute infrastructure for hardware/chip design workloads (simulation, verification) versus typical software build/CI infrastructure?`,
+      a: `Job run-times and resource footprints are often far larger and more variable — a chip verification run can take hours to days and need substantial memory, versus a typical software build measured in minutes — so patch/maintenance windows need real coordination since interrupting a multi-day simulation is costly, not just inconvenient. Storage patterns differ too — large, long-lived working datasets rather than the more ephemeral build-scratch pattern typical of software CI.` },
+    { q: `How would you approach capacity planning for a shared engineering compute farm serving multiple project teams with competing priorities?`,
+      a: `Visibility into actual utilization and queue-wait patterns per team/project first (you can't plan capacity you can't see), a fair-share or priority-based scheduling policy agreed with engineering leadership rather than first-come-first-served chaos, and a forecasting conversation tied to the actual R&D roadmap (a known upcoming tape-out or major verification push needs capacity planned in advance, not discovered as a crisis).
+      <br><br>As much a stakeholder-management problem as a technical one — the scheduling policy only works if the priority rules behind it are actually agreed and durable.` },
+    { q: `What would "observability" mean specifically for a compute farm, beyond standard infrastructure monitoring?`,
+      a: `<strong>Job-level telemetry</strong>, not just node-level — job wait time in queue, job runtime versus historical baseline for similar jobs (a job taking 3x longer than its usual profile is meaningful even if the node it's running on looks healthy), and license-checkout wait time as its own tracked metric. This job-centric view is the layer that's genuinely different from typical infrastructure monitoring, which tends to stop at the node/cluster level.` },
+    { q: `This role sits in an R&D organization supporting engineering, not a typical customer-facing production environment — how does that change your operational mindset coming from banking, where you've supported customer-facing and regulatory workloads?`,
+      a: `The core discipline transfers directly — monitoring, incident response, RCA, change management, automation — but the "customer" and the failure cost shift: here it's engineering productivity and R&D timelines rather than direct customer/financial impact, and "downtime" often means delayed product/chip development rather than an immediate transaction failure.
+      <br><br>Worth stating explicitly in an interview — production-support discipline from a highly regulated, uptime-critical environment applies cleanly to a mission-critical R&D platform, even though the specific stakes and audiences differ.` }
+  ]
+},
+{
+  id: 'incident-rca',
+  title: 'Incident Management, Problem Management & RCA',
+  tag: 'OPERATIONS',
+  items: [
+    { q: `How would you run incident response for an R&D platform outage — say, the CI system goes down organization-wide — differently from a typical customer-facing incident?`,
+      a: `The fundamentals (declare, mitigate fast, communicate, RCA after) stay the same, but the audience and cadence differ — instead of a customer-facing status page, you're communicating to engineering leads/managers across many teams whose developers are blocked, and "business impact" is lost engineering hours/days rather than a customer-facing SLA breach.
+      <br><br>Prioritization also differs: with dozens of downstream teams blocked, you may need a rougher initial "fastest path to partial service" mitigation (get a subset of critical pipelines running) rather than waiting for a full fix.` },
+    { q: `Walk through your RCA process for an outage caused by a bad Ansible playbook run across the fleet.`,
+      a: `Timeline first — when did the playbook run, what exactly changed, when did the first symptom appear (often not simultaneous with the run). Root cause: the playbook logic itself, a bad variable/inventory scoping that hit more hosts than intended, or a missing test/staging step that should have caught it.
+      <br><br>Contributing factors: was a <code>--check</code>/dry-run step skipped under time pressure, was the blast radius larger than it should have been for that risk level. Action items specific and owned — e.g. "require --check output review before any fleet-wide playbook run touching more than N hosts," not "be more careful."` },
+    { q: `How would you classify severity for incidents on an engineering platform — what makes something a P1 here versus a lower severity?`,
+      a: `<strong>P1:</strong> platform-wide outage blocking most/all engineering teams (CI down org-wide, source control unreachable, a widely-used tool's license server down) — direct, broad productivity impact. <strong>P2:</strong> significant but contained (one CI agent pool down, others absorbing load). <strong>P3/P4:</strong> individual/isolated issues with workarounds, or non-urgent degradation.
+      <br><br>Worth asking explicitly in the interview how this org actually defines "critical" for an R&D platform — it's less standardized than customer-facing severity matrices and worth confirming rather than assuming.` },
+    { q: `How do you handle problem management for a recurring, low-grade issue (say, Jenkins agents periodically going offline) that never quite rises to a full incident?`,
+      a: `This is exactly what a problem record is for even without a triggering P1 — track the pattern (frequency, common factors) rather than treating each occurrence as an isolated, forgettable blip repeatedly closed and reopened. A recurring low-grade issue that never gets a proper RCA "because it's not that bad" is often costing real cumulative toil and developer trust in the platform — worth making that cumulative cost visible to get it prioritized.` },
+    { q: `What's your approach to post-incident reviews/RCAs being genuinely blameless in practice, not just in name?`,
+      a: `Focus the conversation and the written RCA on the system/process gap (what let this happen, what would have caught it sooner) — explicitly separate "what happened" from "who did it," since even well-intentioned blameless-in-name reviews can slide into blame if the narrative centers on an individual's actions rather than the conditions that made the mistake possible.
+      <br><br>Practical test: would this RCA read the same way if a different person had made the same change under the same conditions?` },
+    { q: `How would you drive adoption of a formal incident/problem management process on a team that's currently ad hoc about it?`,
+      a: `Start by making the informal process visible rather than mandating a heavy framework immediately — even lightweight, consistent incident logging (what happened, when, how resolved) builds the habit and starts surfacing patterns worth a proper RCA. Tie it to something the team already feels the pain of (repeat incidents nobody tracked well enough to notice the pattern) so the value is self-evident rather than process for its own sake.` }
+  ]
+},
+{
+  id: 'leadership',
+  title: 'Technical Leadership & Mentoring',
+  tag: 'LEADERSHIP',
+  items: [
+    { q: `What does "technical leadership" mean to you in an IC (not people-management) role like this one?`,
+      a: `Setting technical direction and standards that other engineers actually adopt — through good architecture decisions, clear documentation, and code/config reviews that teach rather than just gatekeep — rather than through positional authority you don't have as an IC. Influence earned by consistently being right about tradeoffs and being someone junior engineers actually want to ask for help, not by title.` },
+    { q: `How do you approach mentoring a junior engineer on a platform team, practically — what does that look like week to week?`,
+      a: `Pairing on real work rather than abstract lessons (walking through an actual incident triage together, reviewing their Ansible role changes with specific, actionable feedback rather than just approve/reject), giving increasing ownership of well-scoped pieces with a safety net, and being explicit about the "why" behind platform standards, not just the "what" — the goal is someone who can reason about new situations independently, not just follow a runbook.` },
+    { q: `How would you influence platform standards across teams that don't report to you and may have their own established (different) practices?`,
+      a: `Lead with the problem the standard solves, not the standard itself — a team resisting a proposed Ansible role structure is usually really objecting to "why should I change what already works for me," addressed by showing the actual cost of fragmentation (duplicated effort, inconsistent security posture) rather than asserting authority. Document decisions and reasoning (an ADR-style record) so the standard is legible and debatable on its merits later, not just "because platform team said so."` },
+    { q: `Tell me about how you'd participate in an architecture review for a new engineering tool/service being introduced to the platform.`,
+      a: `Come with specific questions grounded in operational reality, not just design aesthetics — how does this get monitored, what's the backup/DR story, who's on the hook when it breaks at 2am, what's the failure mode if its main dependency is unavailable, does it fit the existing identity/access model or need a bespoke exception.
+      <br><br>The goal of a good architecture review from a platform-support seat is surfacing the operational cost of a design decision while it's still cheap to change, not after it's already in production.` },
+    { q: `How do you handle a situation where you disagree with a technical roadmap decision made above your level?`,
+      a: `State the disagreement once, clearly, with the specific concern and its actual operational consequence — not just "I don't like this" — then commit to executing the decided direction well rather than relitigating it repeatedly or quietly under-investing in something you didn't agree with. A concrete example of doing this in a prior role is a strong answer; otherwise, describe the principle directly and be ready to discuss how you'd apply it.` }
+  ]
+}
+,
+{
+  id: 'behavioral',
+  title: 'Behavioral & Scenario Questions',
+  tag: 'STAR FRAMEWORK',
+  behavioral: true,
+  items: [
+    { q: `Tell me about a time you led a significant automation initiative that eliminated manual operational work.`,
+      a: `Maps well to any real automation win — Ansible-izing a manual patching process, building a self-service tool, automating a repetitive deployment step.
+      <br><br><strong>Structure:</strong> what was manual before (quantify the toil if you can — hours/week, error rate), what you built, and the measurable outcome. Numbers make this land — "reduced patch deployment time from X hours to Y minutes" beats "made things more efficient."` },
+    { q: `Describe a time you had to support a technology or toolchain you weren't deeply experienced with yet.`,
+      a: `Given some tools here (Perforce, JAMA, OpenShift specifically) may be genuinely new territory even with a strong platform background, a real story about ramping up on an unfamiliar tool under production pressure is directly relevant — how you learned fast (docs, vendor support, finding an internal expert), what safety net you kept in place while learning, and how you got to competent.
+      <br><br>Honesty about a real gap, paired with a credible ramp-up story, tends to land better than pretending deep expertise everywhere.` },
+    { q: `Tell me about a cross-team conflict — say, a development team wanting to bypass a security gate (Coverity/Black Duck) to hit a deadline.`,
+      a: `Shows how you balance platform/security ownership against being a blocker. <strong>Strong structure:</strong> understand their actual constraint first (is the deadline real and immovable, or negotiable), find the narrowest safe exception if one genuinely exists versus holding the line when it's a real risk, and how you communicated the reasoning rather than just saying no.
+      <br><br>The resolution mattering more than "I was right" is the underlying skill being tested here.` },
+    { q: `Describe how you'd approach your first 90 days in this role, given the breadth of this platform (Linux, CI/CD, cloud, IaC, containers, HPC).`,
+      a: `Can be answered directly as a plan rather than a past story. Early weeks: understand current state (what's actually running, what's fragile, what's undocumented tribal knowledge) before changing anything, shadow on-call/incidents to see real pain points firsthand, build relationships with the engineering teams who are the platform's actual customers.
+      <br><br>Avoid the trap of proposing big changes before understanding why things are the way they are — a common way new senior hires lose credibility early.` },
+    { q: `Tell me about a time you had to make a reliability-vs-speed tradeoff decision under time pressure.`,
+      a: `A concrete incident-response or deployment-decision story fits well — rolling back vs. pushing forward, accepting a riskier fast fix vs. a safer slow one. Emphasize the actual decision criteria you used in the moment, not just the outcome — interviewers are testing judgment process as much as the result.` },
+    { q: `How do you stay current with a genuinely broad and fast-moving technical scope like this role covers — Linux, cloud, containers, IaC, SRE practice?`,
+      a: `Concrete, specific habits land better than "I read a lot" — a particular community/mailing list/conference you follow, a habit of building small proof-of-concept setups for new tools before they're needed in production, or certifications pursued deliberately.
+      <br><br>Your AZ-104/SC-300 are worth mentioning here as evidence of this habit — frame it as "I invest in staying current" broadly, even though this role's cloud emphasis may skew more AWS.` },
+    { q: `Tell me about a time you had to explain a technical incident or decision to a non-technical engineering leader or stakeholder.`,
+      a: `Lead with impact (which teams/projects affected, for how long), avoid jargon, give a concrete next-update commitment. If you have a specific example from Barclays or Russell Investments briefing a manager/stakeholder during an incident, it transfers directly regardless of industry.` },
+    { q: `Why this role, and why the shift toward an R&D/engineering-platform focus specifically, coming from banking?`,
+      a: `The honest throughline: SRE/platform engineering fundamentals — Linux, automation, cloud, reliability practice, incident discipline — are largely industry-agnostic, and 14+ years building that depth in a demanding, mission-critical, audit-heavy environment (banking) is a strong foundation for supporting an equally mission-critical R&D platform, where the stakes (product timelines, IP, engineering productivity) are just as real, differently shaped.
+      <br><br>Avoid a generic "I want a change" framing — anchor it in what specifically pulls you toward supporting engineering/developer-facing infrastructure rather than customer-facing banking systems, and be ready to speak to genuine interest in the toolchain breadth (Jenkins/GitOps/IaC) this JD emphasizes.` }
+  ]
+}
+];
+
+const ASK_QUESTIONS = [
+  { q: `What does the current CI/CD and toolchain landscape actually look like day to day — mostly Jenkins-centric, or a mix — and how much of the fleet is on modern IaC (Ansible/Terraform) versus still manually managed?`,
+    why: `Practical — tells you what you'd actually inherit.` },
+  { q: `How is the boundary drawn between this platform/SRE team and the individual R&D/engineering teams — where does platform ownership end and team-specific tooling begin?`,
+    why: `Gets at a genuinely important, often under-defined operational question.` },
+  { q: `What's the current state of OpenShift/Kubernetes adoption here — the primary platform, or running alongside a lot of VM-based infrastructure still?`,
+    why: `Directly shapes what the day-to-day of this role actually looks like.` },
+  { q: `How does license management for engineering/EDA tools factor into how the platform team operates day to day?`,
+    why: `Signals you already understand a real operational wrinkle of this kind of domain, not just generic SRE.` },
+  { q: `What's the on-call rotation and escalation model for this team, and what's typically the most common category of page?`,
+    why: `Practical day-to-day question that also signals you think about sustainability, not just heroics.` },
+  { q: `How mature is the SRE practice here today — existing SLOs/error budgets in place, or would establishing that be part of this role?`,
+    why: `Probes governance/practice maturity — a strong signal either way about how the role will actually run.` },
+  { q: `What's been the biggest platform-related pain point for engineering teams recently, and is addressing it part of this role's early mandate?`,
+    why: `Reveals real priorities better than the job description alone.` },
+  { q: `What would success in this role look like at 6 and 12 months?`,
+    why: `Standard closer — gives you a concrete bar to reference in a follow-up note.` }
+];
+
+let masteryState = {};
+
+function toggleCard(id) {
+  const card = document.getElementById('card-' + id);
+  if (card) card.classList.toggle('open');
+}
+
+async function loadMastery() {
+  try {
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if (res && res.value) masteryState = JSON.parse(res.value);
+  } catch (e) {
+    masteryState = {};
+  }
+  Object.keys(masteryState).forEach(id => {
+    if (!masteryState[id]) return;
+    const cb = document.getElementById('cb-' + id);
+    const card = document.getElementById('card-' + id);
+    if (cb) cb.checked = true;
+    if (card) card.classList.add('mastered');
+  });
+  updateAllProgress();
+}
+
+async function saveMastery() {
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(masteryState), false);
+  } catch (e) { /* best effort */ }
+}
+
+function toggleMastery(id) {
+  masteryState[id] = !masteryState[id];
+  saveMastery();
+  const card = document.getElementById('card-' + id);
+  if (card) card.classList.toggle('mastered', !!masteryState[id]);
+  updateAllProgress();
+  applyFilters();
+}
+
+function updateAllProgress() {
+  let masteredTotal = 0, itemTotal = 0;
+  DATA.forEach(cat => {
+    let masteredCat = 0;
+    cat.items.forEach((item, i) => {
+      const id = cat.id + '-' + i;
+      itemTotal++;
+      if (masteryState[id]) { masteredCat++; masteredTotal++; }
+    });
+    const navCount = document.getElementById('navcount-' + cat.id);
+    if (navCount) navCount.textContent = masteredCat + '/' + cat.items.length;
+  });
+  const pct = itemTotal ? Math.round((masteredTotal/itemTotal)*100) : 0;
+  const fill = document.getElementById('progressFill');
+  if (fill) fill.style.width = pct + '%';
+  const label = document.getElementById('progressLabel');
+  if (label) label.textContent = masteredTotal + '/' + itemTotal + ' reviewed (' + pct + '%)';
+  const sideLabel = document.getElementById('progressSideLabel');
+  if (sideLabel) sideLabel.textContent = masteredTotal + ' of ' + itemTotal + ' reviewed';
+}
+
+function renderNav() {
+  const nav = document.getElementById('navlist');
+  let html = '';
+  DATA.forEach(cat => {
+    html += `<a href="#cat-${cat.id}" class="navlink" id="nav-${cat.id}">
+      <span class="navtitle">${cat.title}</span>
+      <span class="navcount" id="navcount-${cat.id}">0/${cat.items.length}</span>
+    </a>`;
+  });
+  html += `<hr class="navdivider"><a href="#cat-ask" class="navlink" id="nav-ask"><span class="navtitle">Questions to Ask</span></a>`;
+  nav.innerHTML = html;
+}
+
+function renderAll() {
+  const main = document.getElementById('content');
+  let html = '';
+  DATA.forEach(cat => {
+    html += `<section class="category" id="cat-${cat.id}">`;
+    html += `<div class="cat-head"><span class="cat-tag">${cat.tag}</span><h2>${cat.title}</h2></div>`;
+    cat.items.forEach((item, i) => {
+      const id = cat.id + '-' + i;
+      const behavioralClass = cat.behavioral ? ' behavioral' : '';
+      const starBadge = cat.behavioral ? '<div class="starbadge">STAR FRAMEWORK — ADAPT WITH YOUR OWN EXAMPLE</div>' : '';
+      html += `<div class="card${behavioralClass}" id="card-${id}">
+          <div class="card-head" onclick="toggleCard('${id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'){toggleCard('${id}')}">
+            <span class="qnum">Q${i+1}</span>
+            <span class="qtext">${item.q}</span>
+            <label class="mastery" onclick="event.stopPropagation()">
+              <input type="checkbox" id="cb-${id}" onchange="toggleMastery('${id}')"> Got it
+            </label>
+            <span class="chev">▶</span>
+          </div>
+          <div class="card-body" id="body-${id}">
+            ${starBadge}
+            <div class="answer">${item.a}</div>
+          </div>
+        </div>`;
+    });
+    html += `</section>`;
+  });
+  main.innerHTML = html;
+}
+
+function renderAsk() {
+  const el = document.getElementById('askSection');
+  let html = `<div class="cat-head"><span class="cat-tag">CLOSING</span><h2>Questions to Ask the Interviewer</h2></div>`;
+  ASK_QUESTIONS.forEach((item, i) => {
+    html += `<div class="ask-card">
+      <div class="ask-q">${i+1}. ${item.q}</div>
+      <div class="ask-why">${item.why}</div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function applyFilters() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const focusMode = document.getElementById('focusToggle').checked;
+  DATA.forEach(cat => {
+    let catVisibleCount = 0;
+    cat.items.forEach((item, i) => {
+      const id = cat.id + '-' + i;
+      const card = document.getElementById('card-' + id);
+      if (!card) return;
+      const text = (item.q + ' ' + item.a).toLowerCase();
+      const matchesSearch = !q || text.includes(q);
+      const matchesFocus = !focusMode || !masteryState[id];
+      const visible = matchesSearch && matchesFocus;
+      card.style.display = visible ? '' : 'none';
+      if (visible) catVisibleCount++;
+    });
+    const section = document.getElementById('cat-' + cat.id);
+    if (section) section.style.display = catVisibleCount > 0 ? '' : 'none';
+    const navLink = document.getElementById('nav-' + cat.id);
+    if (navLink) navLink.style.display = catVisibleCount > 0 ? '' : 'none';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderNav();
+  renderAll();
+  renderAsk();
+  loadMastery();
+  document.getElementById('search').addEventListener('input', applyFilters);
+  document.getElementById('focusToggle').addEventListener('change', applyFilters);
+});
+</script>
+</body>
+</html>

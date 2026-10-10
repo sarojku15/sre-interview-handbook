@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI/ML Production Support — Interview Handbook</title>
+<style>
+:root {
+  --bg: #0a0e13;
+  --surface: #121822;
+  --surface-2: #1a212c;
+  --border: #26303c;
+  --text: #dde4ea;
+  --text-dim: #7d8894;
+  --accent: #5aa9e6;
+  --accent-dim: #3d6f94;
+  --good: #3fb950;
+  --warn: #d29922;
+  --crit: #f0654a;
+  --mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'JetBrains Mono', Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin:0; background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+h1,h2,h3 { font-family: var(--mono); }
+
+.statusbar { position: sticky; top:0; z-index: 30; background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 20px; }
+.statusline { display:flex; align-items:center; gap: 10px; flex-wrap: wrap; font-family: var(--mono); font-size: 12.5px; color: var(--text-dim); max-width:1400px; margin:0 auto; }
+.dot { width:8px; height:8px; border-radius:50%; background: var(--good); display:inline-block; animation: pulse 2s infinite; flex-shrink:0; }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none; } html { scroll-behavior:auto; } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
+.statusline strong { color: var(--text); letter-spacing:0.3px; }
+.sep { color: var(--border); }
+.searchrow { display:flex; gap:12px; margin-top:10px; align-items:center; max-width:1400px; margin-left:auto; margin-right:auto; }
+#search { flex:1; background: var(--surface-2); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:6px; font-family: var(--sans); font-size:14px; }
+#search::placeholder { color: var(--text-dim); }
+#search:focus-visible { outline: 2px solid var(--accent); outline-offset:1px; }
+.focuslabel { display:flex; align-items:center; gap:6px; font-family: var(--mono); font-size:12.5px; color: var(--text-dim); white-space:nowrap; cursor:pointer; }
+.focuslabel input { accent-color: var(--accent); }
+
+.layout { display:flex; max-width: 1400px; margin: 0 auto; align-items:flex-start; }
+.sidebar { width: 300px; flex-shrink:0; position: sticky; top: 98px; align-self:flex-start; max-height: calc(100vh - 112px); overflow-y:auto; padding: 20px 16px; border-right: 1px solid var(--border); }
+.progresswrap { margin-bottom:18px; }
+.progressbar { height:6px; background: var(--surface-2); border-radius:3px; overflow:hidden; }
+.progressfill { height:100%; background: var(--accent); width:0%; transition: width .3s; }
+.progresslabel { font-family: var(--mono); font-size:11.5px; color: var(--text-dim); margin-top:7px; }
+.navlink { display:flex; justify-content:space-between; gap:8px; padding:8px 10px; border-radius:6px; color: var(--text-dim); text-decoration:none; font-size:12.5px; margin-bottom:2px; }
+.navlink:hover { background: var(--surface-2); color: var(--text); }
+.navlink:focus-visible { outline:2px solid var(--accent); }
+.navcount { font-family: var(--mono); font-size:11px; flex-shrink:0; }
+.navdivider { border:none; border-top:1px solid var(--border); margin:12px 0; }
+
+.content { flex:1; min-width:0; padding: 26px 30px 90px; max-width: 980px; }
+
+.category { margin-bottom: 38px; }
+.cat-head { display:flex; align-items:baseline; gap:10px; margin-bottom:16px; padding-bottom:9px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.cat-tag { font-family: var(--mono); font-size:10.5px; color: var(--accent); background: rgba(90,169,230,0.1); padding:3px 8px; border-radius:4px; letter-spacing:0.6px; }
+.category h2 { font-size:17px; margin:0; color: var(--text); font-weight:600; letter-spacing:0.2px; }
+
+.card { background: var(--surface); border:1px solid var(--border); border-left: 3px solid var(--border); border-radius:8px; margin-bottom:10px; overflow:hidden; }
+.card.mastered { border-left: 3px solid var(--good); }
+.card.behavioral { border-left: 3px solid var(--warn); }
+.card.behavioral.mastered { border-left: 3px solid var(--good); }
+.card-head { display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer; }
+.card-head:hover { background: var(--surface-2); }
+.card-head:focus-visible { outline: 2px solid var(--accent); outline-offset:-2px; }
+.qnum { font-family: var(--mono); font-size:11.5px; color: var(--accent); flex-shrink:0; }
+.chev { margin-left:auto; color: var(--text-dim); font-size:11px; transition: transform .15s; flex-shrink:0; }
+.card.open .chev { transform: rotate(90deg); }
+.qtext { flex:1; font-size:14.5px; font-weight:500; }
+.mastery { display:flex; align-items:center; gap:6px; font-size:11.5px; color: var(--text-dim); font-family: var(--mono); cursor:pointer; flex-shrink:0; white-space:nowrap; }
+.mastery input { accent-color: var(--good); }
+.card-body { display:none; padding: 2px 16px 18px 44px; }
+.card.open .card-body { display:block; }
+.behavioral .card-body { padding-left:16px; }
+.starbadge { display:inline-block; font-family: var(--mono); font-size:10px; color: var(--warn); background: rgba(210,153,34,0.1); padding:2px 7px; border-radius:4px; margin-bottom:8px; letter-spacing:0.5px; }
+.answer { font-size:14px; color: var(--text-dim); line-height:1.7; }
+.answer strong { color: var(--text); font-weight:600; }
+.answer ul { padding-left:20px; margin: 8px 0; }
+.answer li { margin-bottom:4px; }
+.answer code { background: var(--surface-2); padding:1px 6px; border-radius:4px; font-family: var(--mono); font-size:12.5px; color: var(--accent); }
+
+.ask-card { background: var(--surface); border:1px solid var(--border); border-radius:8px; padding:15px 16px; margin-bottom:10px; }
+.ask-q { font-weight:600; font-size:14.5px; margin-bottom:6px; }
+.ask-why { font-size:13px; color: var(--text-dim); line-height:1.6; }
+
+.empty-state { color: var(--text-dim); font-size:14px; padding: 30px 0; text-align:center; font-family: var(--mono); }
+
+@media (max-width: 860px) {
+  .layout { flex-direction: column; }
+  .sidebar { width:100%; position:static; max-height:none; border-right:none; border-bottom:1px solid var(--border); }
+  .content { padding: 22px 18px 90px; }
+  .statusline { font-size:11.5px; }
+}
+</style>
+</head>
+<body>
+
+<header class="statusbar">
+  <div class="statusline">
+    <span class="dot" aria-hidden="true"></span>
+    <strong>AI/ML PRODUCTION SUPPORT — SRE</strong>
+    <span class="sep">|</span>
+    <span>SECTOR: Banking / Regulated</span>
+    <span class="sep">|</span>
+    <span>INTERVIEW: 3:00 PM Today</span>
+    <span class="sep">|</span>
+    <span id="progressLabel">0 reviewed</span>
+  </div>
+  <div class="searchrow">
+    <input id="search" type="text" placeholder="Search questions and answers…" aria-label="Search questions and answers">
+    <label class="focuslabel"><input type="checkbox" id="focusToggle"> Unreviewed only</label>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" aria-label="Category navigation">
+    <div class="progresswrap">
+      <div class="progressbar"><div class="progressfill" id="progressFill"></div></div>
+      <div class="progresslabel" id="progressSideLabel">0 of 0 reviewed</div>
+    </div>
+    <div id="navlist"></div>
+  </nav>
+  <main class="content">
+    <div id="content"></div>
+    <section class="category" id="cat-ask">
+      <div id="askSection"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+const DATA = [
+{
+  id: 'mlops-fundamentals',
+  title: 'MLOps Fundamentals & AI/ML Lifecycle',
+  tag: 'FOUNDATIONS',
+  items: [
+    { q: `How is MLOps different from traditional DevOps, and why does that matter for a production support role?`,
+      a: `Traditional DevOps ships code; MLOps ships <strong>code + data + model artifacts</strong>, and all three drift independently.
+      <ul>
+      <li>Two extra pipeline concepts beyond CI/CD: <strong>CT (Continuous Training)</strong> and <strong>CM (Continuous Monitoring)</strong> for model quality, not just system health.</li>
+      <li>Testing includes data validation and model evaluation metrics, not just unit/integration tests.</li>
+      <li>Rollback can mean previous model version, previous feature set, or reverting to a rules-based fallback — not just "previous binary."</li>
+      </ul>
+      The core mental shift: the artifact that fails in production might be perfectly correct code serving a model that's simply stopped reflecting reality — that's an incident with zero code change involved.` },
+    { q: `Walk through the stages of the ML lifecycle from a production-support lens.`,
+      a: `Data ingestion & validation → feature engineering / feature store → training & experimentation (tracked) → model validation (offline metrics + bias/fairness checks) → registration in a model registry → staged deployment (shadow/canary) → production serving → continuous monitoring (performance, drift, data quality) → retraining trigger → back to training.
+      <br><br>Production support typically owns everything from <strong>registration onward</strong> — deployment, serving reliability, monitoring, and the operational side of retraining triggers — while Data Science owns training and validation. The handoff point (the model registry) is where SLAs and responsibilities should be made explicit.` },
+    { q: `What's a model registry, and why does governance matter here in a banking context?`,
+      a: `A central catalog of model versions with metadata: training data lineage, metrics, approver sign-off, and lifecycle stage (e.g. Staging / Production / Archived).
+      <br><br>In banking it's the control point auditors look at first — it answers <strong>"which model version made this decision, who approved it, and what data trained it"</strong> for any point in time. Promotion between stages should require sign-off (Data Science lead + Model Risk/Validation) and be logged immutably, not just a config flag flipped by whoever has access.` },
+    { q: `Explain champion/challenger, canary, and shadow deployment for models — when would you use each?`,
+      a: `<ul>
+      <li><strong>Shadow:</strong> challenger runs alongside the champion on live traffic, predictions logged but never served — zero customer risk, used to sanity-check a new model before it's trusted.</li>
+      <li><strong>Canary:</strong> challenger serves a small % of real traffic; results compared against champion — used once shadow passes, to catch issues under real routing/latency.</li>
+      <li><strong>Champion/challenger:</strong> ongoing controlled comparison (often on real business-metric outcomes) before fully promoting the challenger.</li>
+      </ul>
+      In banking, shadow-first is close to mandatory for anything touching credit/fraud decisions — even a small % of live canary traffic on a bad model is a real customer and compliance impact.` },
+    { q: `What does "continuous training" mean in practice, and what can go wrong if it's fully automated in a regulated environment?`,
+      a: `CT is a pipeline that automatically retrains a model — often on a schedule or triggered by drift — validates it against holdout data, and pushes it toward promotion.
+      <br><br>The risk in banking: fully automatic promotion to production removes the human sign-off step model risk frameworks require. Standard pattern: <strong>automate retraining and validation, but gate promotion-to-production behind explicit human approval</strong>, especially for models feeding credit, fraud, or AML decisions.` },
+    { q: `How would you explain feature stores to someone who's never used one, and why do they matter operationally?`,
+      a: `A shared, versioned repository of computed features that both training and serving pipelines read from — the point is that training and inference use <strong>identical</strong> feature computation logic.
+      <br><br>Operationally it prevents <strong>training-serving skew</strong> (the single most common silent cause of a model that scored well offline but performs badly in production), and gives production support one place to check feature freshness/staleness when predictions look wrong — instead of chasing duplicated logic across five services.` }
+  ]
+},
+{
+  id: 'drift-monitoring',
+  title: 'Model Monitoring, Drift & Data Quality',
+  tag: 'MONITORING',
+  items: [
+    { q: `What's the difference between data drift, concept drift, and label drift?`,
+      a: `<ul>
+      <li><strong>Data drift:</strong> input feature distribution changes (e.g. average transaction size shifts after a product launch) — the model is still "correct" but is now seeing different inputs.</li>
+      <li><strong>Concept drift:</strong> the relationship between inputs and target changes (e.g. what "fraud" looks like evolves as fraudsters adapt) — the model's learned mapping is now wrong even if inputs look the same.</li>
+      <li><strong>Label drift:</strong> the distribution of the target itself shifts (e.g. default rates rise in a recession).</li>
+      </ul>
+      The fix differs by type — data drift might just need a pipeline check, concept drift needs retraining, label drift might mean the model is accurately reflecting a real change and isn't "broken" at all.` },
+    { q: `How do you actually detect drift — what metrics/tests would you put on a dashboard?`,
+      a: `<strong>Population Stability Index (PSI)</strong> is the banking standard (borrowed from credit scorecard monitoring): PSI &lt; 0.1 = no significant shift, 0.1–0.25 = moderate (watch), &gt; 0.25 = significant (investigate/retrain).
+      <br><br>Also: <strong>Kolmogorov-Smirnov test</strong> and <strong>KL divergence</strong> for feature-level distribution comparisons; <strong>Chi-square</strong> for categoricals. For concept/label drift: track rolling accuracy/precision/recall/AUC against ground truth once available (with a lag — fraud/default labels often arrive weeks later), compared to the training-time baseline.` },
+    { q: `What data quality checks would you build into a pipeline feeding a production model?`,
+      a: `Schema validation (types, required fields present), null/missing-rate thresholds per feature, range/bounds checks (age can't be negative or 200), cardinality checks for categoricals (unseen category = flag), referential integrity against upstream systems, and freshness checks.
+      <br><br>Tools: <code>Great Expectations</code> or Azure ML data validation components, wired to <strong>fail or quarantine the batch</strong> rather than silently feeding bad data downstream.` },
+    { q: `A model's PSI just crossed 0.3 on a key feature. Walk me through your triage.`,
+      a: `First, confirm it's real and not a pipeline artifact — check for an upstream schema change, a new data source, or a recent deploy that changed how the feature is computed (the most common false alarm).
+      <br><br>If confirmed real: check whether it's isolated to that feature or system-wide (system-wide → ingestion issue; isolated → genuine behavior shift). Check downstream impact — has performance actually degraded, or is the input shifting while output quality holds? Loop in Data Science with the finding rather than unilaterally rolling back on drift alone — but escalate immediately for a fraud/credit model given regulatory sensitivity.` },
+    { q: `How do you monitor for bias/fairness drift, and why would production support even own that?`,
+      a: `Track fairness metrics (e.g. demographic parity, equal opportunity difference) across protected-attribute-adjacent segments over time, alongside standard performance — a model can hold steady on aggregate accuracy while its error rate diverges sharply across segments.
+      <br><br>Production support owns the <strong>monitoring and alerting</strong> even though Data Science/Model Risk own the definition and remediation — it's an operational signal like any other, and in a regulated bank a fairness-metric breach is as much an incident as a latency SLA breach.` },
+    { q: `What's your alerting philosophy for drift — page someone at 2am, or ticket it?`,
+      a: `Drift is almost never page-worthy on its own — it's a trend, not an outage. Paging is for availability/latency/error-rate breaches (something is actively broken <em>now</em>).
+      <br><br>Drift crossing a threshold should generate a <strong>ticket reviewed within a defined SLA</strong> by production support + Data Science jointly — unless paired with a simultaneous performance-metric breach on a high-materiality model (e.g. real-time fraud), in which case it escalates to an incident. Mixing the two erodes trust in paging and causes alert fatigue.` },
+    { q: `How do you avoid false-positive drift alerts flooding the team?`,
+      a: `Use rolling windows (not single-batch snapshots) to smooth noise, set thresholds <strong>per feature based on its historical volatility</strong> rather than one blanket number, and require the breach to persist for N consecutive windows before firing (debounce). Segment by known seasonality too — don't compare December transaction patterns to a June baseline without accounting for holiday effects.` }
+  ]
+},
+{
+  id: 'azure-cloud',
+  title: 'Azure & Cloud Platforms',
+  tag: 'CLOUD',
+  items: [
+    { q: `What are the core components of an Azure ML workspace, and how do they map to production support responsibilities?`,
+      a: `Compute (training clusters, inference clusters/AKS), Datastores/Datasets (versioned data references), Experiments/Runs (training history), Model Registry, Endpoints (managed online + batch), and Environments (containerized dependency definitions).
+      <br><br>Production support typically owns <strong>endpoints</strong> (scaling, health, rollback), <strong>compute</strong> (capacity, cost), and the <strong>environment/dependency layer</strong> (patching, vulnerability management) — Data Science owns experiments and model authoring.` },
+    { q: `Managed online endpoint vs. batch endpoint in Azure ML — when do you use which, and what's different operationally?`,
+      a: `<strong>Online endpoints:</strong> low-latency, synchronous, always-on/autoscaled REST endpoint for real-time scoring (e.g. fraud check at transaction time). You monitor latency SLOs and manage blue-green/traffic-split deployments.
+      <br><br><strong>Batch endpoints:</strong> asynchronous, scheduled or on-demand over large datasets (e.g. nightly credit risk re-scoring). You care about job completion, throughput, and compute cost per run rather than millisecond latency.` },
+    { q: `How would you secure an Azure ML endpoint serving a credit-decision model in a bank?`,
+      a: `<ul>
+      <li>Private endpoints / VNet integration — not reachable from the public internet</li>
+      <li><strong>Managed Identity</strong> (not stored service principal secrets) for Key Vault/storage access</li>
+      <li>Azure Key Vault for any API keys/connection strings</li>
+      <li>RBAC tightly scoped on the workspace — data scientists shouldn't have prod deploy rights</li>
+      <li>Azure Policy to enforce these controls tenant-wide</li>
+      <li>Diagnostic logging to Log Analytics/Splunk for every inference call, for the audit trail</li>
+      </ul>` },
+    { q: `Managed Identity vs Service Principal — which would you use for a model serving pipeline calling Key Vault, and why?`,
+      a: `<strong>Managed Identity</strong>, where available — tied to the Azure resource's lifecycle, no credential storage or rotation needed, removes an entire class of "leaked secret" risk.
+      <br><br>Service Principals are still needed for cross-tenant scenarios or callers outside Azure, but for an in-Azure pipeline (AKS pod, Azure ML compute, Function) calling Key Vault, Managed Identity is the default-secure choice — and what most banking security reviews expect to see.` },
+    { q: `How does Azure Monitor / Application Insights fit alongside Grafana/Prometheus in an ML observability stack?`,
+      a: `Azure Monitor/App Insights is usually the first layer for Azure-native resources (AKS control plane, App Service, built-in endpoint metrics) and integrates natively with Azure alerting/Action Groups.
+      <br><br>Many shops then forward those metrics — via a Prometheus-compatible endpoint or exporter — into a centralized Grafana/Prometheus stack, so ML-specific custom metrics (drift score, prediction distribution) sit on the <strong>same dashboards</strong> as infra metrics, giving one pane of glass instead of two.` },
+    { q: `What AZ-104-level concepts come up most in day-to-day AI platform support?`,
+      a: `Resource groups and tagging for cost allocation per model/team, RBAC role assignments and troubleshooting access-denied issues, storage account access tiers and lifecycle policies for training data/artifacts, VNet/subnet/NSG rules when an endpoint can't reach a dependency, and alert-rule configuration — the practical keep-the-lights-on layer underneath the ML-specific tooling.` }
+  ]
+}
+,
+{
+  id: 'containers-k8s',
+  title: 'Docker, Kubernetes & Microservices',
+  tag: 'PLATFORM',
+  items: [
+    { q: `Why containerize a model for serving instead of just running a Python process?`,
+      a: `<strong>Reproducibility</strong> (exact library/CUDA versions pinned — no "works on my machine" drift between training and serving), <strong>isolation</strong> (one model's dependency conflicts don't break another), and it's the unit Kubernetes/AKS orchestration expects — enabling rolling updates, autoscaling, and per-model resource limits rather than per-host.` },
+    { q: `How would you size resource requests/limits for a model-serving pod, and what happens if you get it wrong?`,
+      a: `Base it on the <strong>observed</strong> memory footprint of the loaded model plus request buffer — profile it, don't guess. Set requests close to steady-state usage and limits with headroom for spikes.
+      <br><br>Under-provisioning requests → scheduler over-packs the node → CPU throttling and latency spikes under load. Too-tight memory limits → <strong>OOMKills mid-inference</strong> — a nasty one, since it looks like a random pod restart with no obvious error unless you're watching container memory metrics.` },
+    { q: `What readiness/liveness probe would you configure for a model-serving container, and why does the distinction matter?`,
+      a: `<strong>Liveness:</strong> a lightweight check confirming the process hasn't deadlocked (basic HTTP 200) — failing it triggers a restart.
+      <br><br><strong>Readiness:</strong> should confirm the model is actually <em>loaded into memory and able to serve a prediction</em>, not just "process is up" — a container can be alive but still loading a multi-GB artifact, and routing traffic to it before it's ready causes failed requests on every rollout. Getting readiness wrong is one of the most common causes of rollout-time error spikes.` },
+    { q: `Rolling update vs. blue-green for a model deployment on Kubernetes — which fits a banking production model, and why?`,
+      a: `Rolling update is fine for stateless microservices where any-version-serves-any-request is safe. For models — especially anything with compliance implications — <strong>blue-green</strong> (or the AKS/Azure ML traffic-split equivalent) is usually preferred: instant clean cutover and rollback, zero mixed-version traffic window.
+      <br><br>Auditors and Model Risk generally want a crisp "version X served until 14:32, version Y from 14:32" story — not a 10-minute window where requests unpredictably hit v1 or v2.` },
+    { q: `How do you handle a model-serving microservice whose feature-lookup dependency is slow or down?`,
+      a: `Explicit timeout with a circuit breaker rather than letting requests queue indefinitely, plus a <strong>documented fallback</strong> per model — degrade to a simpler rules-based decision, serve a cached/last-known-good feature value, or fail the request cleanly.
+      <br><br>The fallback choice should be pre-agreed with Data Science/Risk, not improvised mid-incident — "what does the system do when it can't score" is itself a risk decision for anything customer-facing.` },
+    { q: `What's your approach to canary analysis in Kubernetes for a new model version — what signals do you actually watch?`,
+      a: `Standard infra golden signals (latency, error rate, resource usage), plus ML-specific ones: <strong>prediction distribution shift</strong> versus the current champion (a sudden skew toward one class is a red flag before you even have ground truth), and business-metric proxies where available (e.g. a credit model's approval rate shouldn't jump 10 points between versions without a documented reason).
+      <br><br>Automated rollback on infra-signal breach is standard; ML-signal breaches usually route to a human decision given the judgment involved.` }
+  ]
+},
+{
+  id: 'mlops-tools',
+  title: 'MLOps Tools — MLflow, Azure ML, SageMaker',
+  tag: 'TOOLING',
+  items: [
+    { q: `Walk through MLflow's four components and what production support actually touches.`,
+      a: `<strong>Tracking</strong> (logs params/metrics/artifacts per run — mostly Data Science's domain, but useful during an RCA to see "what changed"), <strong>Projects</strong> (packaging for reproducible runs), <strong>Models</strong> (a standard packaging "flavor" so a model serves consistently regardless of training framework), and <strong>Model Registry</strong> (versioning + stage transitions — Staging/Production/Archived).
+      <br><br>Production support lives mainly in the Registry (controlling promotion) and Models (how it's packaged for serving).` },
+    { q: `How would you govern promotion from Staging to Production in MLflow Model Registry for a regulated model?`,
+      a: `Disable direct stage transitions by individual data scientists via RBAC; require the transition to go through a pipeline step that checks a validation report exists, an approver has signed off (logged, not verbal), and — for higher-risk models — independent model validation has reviewed it.
+      <br><br>MLflow supports webhooks on stage transition — a natural hook for triggering that governance check automatically instead of relying on people remembering the process.` },
+    { q: `SageMaker Model Monitor — what does it actually check, and how would you act on its output?`,
+      a: `Baselines the training data's statistics/schema, then continuously compares live inference input/output against that baseline, flagging data quality violations and drift (related module <strong>Clarify</strong> covers bias and feature-attribution drift specifically).
+      <br><br>Output lands in CloudWatch as metrics, alerted on like any other operational metric — the key habit is treating a Model Monitor violation exactly like a data-quality pipeline failure: triage root cause before assuming the model itself is at fault.` },
+    { q: `When would a shop choose SageMaker Pipelines vs. Azure ML Pipelines vs. a general orchestrator like Airflow?`,
+      a: `SageMaker/Azure ML Pipelines make sense when you're committed to that cloud's ML platform end-to-end and want native registry/endpoint/monitoring integration without extra glue.
+      <br><br>Airflow (or similar) tends to show up when the ML workflow needs to sit inside a broader enterprise data-orchestration story spanning non-ML batch jobs, or when a shop deliberately avoids single-cloud ML lock-in. In banking it's common to see Airflow orchestrating data engineering and handing off to Azure ML/SageMaker only for training/serving.` },
+    { q: `ONNX vs. framework-native (pickle/PyTorch/joblib) model packaging — why would you care as production support?`,
+      a: `Framework-native formats are simplest for Data Science but couple serving to a specific runtime/library version — <strong>pickle</strong> in particular has known security concerns (arbitrary code execution on load) that a banking security review will flag.
+      <br><br><strong>ONNX</strong> gives a runtime-agnostic, generally faster-to-serve format and decouples serving from the exact training library version — real operational upside: you can patch the serving container's dependencies without needing Data Science to re-export the model. Tradeoff: not every custom architecture converts cleanly.` },
+    { q: `How do you handle model artifact storage and retention for audit purposes?`,
+      a: `Every promoted-to-production model version's artifact, training data snapshot reference (or hash), training code commit, and metrics report should be retained <strong>immutably</strong> for the regulatory retention period (commonly 5–7 years in banking — confirm against the specific institution's policy), not just "latest version" overwritten.
+      <br><br>Object storage with versioning enabled, plus a lifecycle policy moving old-but-required artifacts to cold storage rather than deleting, is the standard pattern.` }
+  ]
+},
+{
+  id: 'observability',
+  title: 'Observability & Monitoring Tools',
+  tag: 'OBSERVABILITY',
+  items: [
+    { q: `How would you adapt the "four golden signals" (latency, traffic, errors, saturation) for a model-serving service?`,
+      a: `Same four, plus a fifth unique to ML: <strong>prediction quality/drift</strong>.
+      <ul>
+      <li><strong>Latency:</strong> p50/p95/p99 inference time — watch p99 especially (cold-start, GPU contention)</li>
+      <li><strong>Traffic:</strong> requests/sec, plus prediction volume by class (a drift proxy)</li>
+      <li><strong>Errors:</strong> HTTP error rate, and "silent errors" — 200s with a null/default prediction because a feature lookup failed</li>
+      <li><strong>Saturation:</strong> GPU/CPU/memory on serving pods</li>
+      </ul>
+      The fifth signal — drift/accuracy — is what makes ML observability genuinely different from standard service observability.` },
+    { q: `You have Prometheus/Grafana for infra and need to add model-specific metrics — how do you actually wire that up?`,
+      a: `Instrument the serving code to expose a <code>/metrics</code> endpoint (Prometheus client library) with custom metrics — <code>prediction_latency_seconds</code> histogram, <code>predictions_total</code> counter labeled by class/outcome, <code>feature_null_rate</code> gauge, <code>drift_score</code> gauge updated by a periodic batch job — then a standard scrape config picks it up as just another target.
+      <br><br>Grafana dashboards then combine these with existing infra panels, so on-call has one dashboard, not "check Grafana for infra, then a separate notebook for model health."` },
+    { q: `What would you use Splunk for versus Grafana in this stack, and why not just pick one?`,
+      a: `<strong>Grafana/Prometheus:</strong> time-series metrics, dashboards, alerting — "is it healthy right now / over time."
+      <br><br><strong>Splunk:</strong> log aggregation and ad-hoc search across unstructured logs — "what exactly happened on this specific request/transaction," which is exactly the audit-trail question banking compliance and RCA both need answered (e.g. every prediction made for a given customer ID across the full request chain). Complementary, not redundant — metrics tell you something's wrong, logs tell you why.` },
+    { q: `How would you define an SLO for a real-time fraud-scoring model, and what error budget policy would you attach to it?`,
+      a: `Something like: <strong>99.9% of scoring requests complete within 200ms</strong>, endpoint available 99.95% monthly — tighter than a typical web service, since a scoring timeout often means the transaction defaults to "allow" or "block," both with real cost.
+      <br><br>Error budget policy: if the budget burns faster than a defined burn-rate threshold in a rolling window, that pages on-call and can trigger a deployment freeze on that service until it recovers — standard SRE error-budget mechanics applied to a model endpoint.` },
+    { q: `How do you avoid alert fatigue across a stack with Prometheus, Splunk, CloudWatch, and model-drift alerts all potentially firing?`,
+      a: `Route everything through a <strong>single alerting/paging layer</strong> so on-call has one inbox, not four channels; tier alerts by required response (page vs. ticket vs. dashboard-only); use multi-window burn-rate alerting instead of a single static threshold (cuts most noisy transient blips); and regularly retire alerts that haven't led to real action in months — an alert nobody's ever acted on trains people to ignore the next one.` },
+    { q: `What would a good on-call runbook entry look like for "model endpoint returning elevated 5xx errors"?`,
+      a: `A probability-ordered checklist (recent deploy? check rollback first → feature-store dependency down? check its status/health endpoint → pod OOMKilled? check memory metrics → upstream data delay causing missing features? check pipeline SLA dashboard), with direct links to the specific dashboard/log query for each check, explicit rollback-vs-forward-fix decision criteria, who to page beyond on-call and at what point, and the fallback behavior available if it isn't a quick fix.` }
+  ]
+}
+,
+{
+  id: 'data-pipelines',
+  title: 'Data Pipelines, APIs & Batch/Real-time Processing',
+  tag: 'DATA',
+  items: [
+    { q: `Batch vs. real-time inference — what drives that choice for a given use case in banking?`,
+      a: `<strong>Real-time/streaming:</strong> decision needed at the moment of the event and value decays fast — fraud check at transaction time, real-time credit-limit decisioning.
+      <br><br><strong>Batch:</strong> decision can tolerate latency and benefits from scale/lower cost — nightly portfolio risk re-scoring, monthly churn scoring. Operationally these are completely different: real-time needs an always-available low-latency endpoint with tight SLOs; batch needs job-completion monitoring and a missed window is the "incident," not a slow individual request.` },
+    { q: `How would you monitor a batch scoring pipeline for SLA/health?`,
+      a: `Job completion status and <strong>duration trend</strong> (a job that "succeeded" but took 3x longer than usual is often an early warning), <strong>row-count reconciliation</strong> (input rows in vs. scored rows out — silent data loss is a real failure mode), and output freshness (did today's batch actually run, or is a scheduler silently stuck).
+      <br><br>Alert on "didn't run" and "ran but produced something wrong," not just "job failed with an exception."` },
+    { q: `What does "data lineage" mean practically, and why do auditors care about it for AI models?`,
+      a: `The traceable path from raw source data through every transformation to the feature that fed a specific prediction, and from the prediction back to the model version and its training data.
+      <br><br>Auditors care because a regulator asking "why was this customer declined" months later needs a reproducible answer — which requires knowing exactly which data, which feature-logic version, and which model version produced that decision. Production support's job is making sure the chain is actually unbroken end-to-end, not just documented in theory.` },
+    { q: `How do you handle schema evolution in an upstream data source without breaking a production model pipeline?`,
+      a: `Schema validation at the pipeline boundary that <strong>fails loudly</strong> (quarantines the batch) rather than silently coercing/dropping fields; versioned schemas/contracts with upstream teams so a breaking change is negotiated and announced, not a surprise; backward-compatible defaults wherever the upstream team can accommodate (a new optional field, a renamed field aliased during a deprecation window).` },
+    { q: `REST vs. gRPC for a model-serving API — when would you push for one over the other?`,
+      a: `<strong>REST/JSON:</strong> simpler to debug, ubiquitous tooling, fine for most volumes and cross-team consumption where the caller might be anything.
+      <br><br><strong>gRPC:</strong> lower latency, smaller payloads via protobuf — matters for high-throughput, low-latency internal calls (e.g. a risk-scoring call embedded in a larger transaction chain with a tight overall latency budget). In banking, REST is still the more common default across team/system boundaries for debuggability and audit/logging tooling support.` },
+    { q: `How would you version a model-serving API so you can evolve the model without breaking consumers?`,
+      a: `Version in the URL/path or a header (e.g. <code>/v2/score</code>), keep the previous version running during a deprecation window, and treat the input/output contract (feature names, types, response schema) with the <strong>same change-control discipline as the model itself</strong> — a silent field rename or type change is functionally the same risk as a bad model deploy, since it can break a caller with zero code change on their side.` }
+  ]
+},
+{
+  id: 'incident-itil',
+  title: 'Incident Management, RCA & ITIL Practices',
+  tag: 'OPERATIONS',
+  items: [
+    { q: `ITIL incident vs. problem vs. change management — explain the distinction with an AI-ops example.`,
+      a: `<strong>Incident:</strong> restore service now — the fraud-scoring endpoint is returning 500s, page on-call, roll back or fail over, service restored.
+      <br><br><strong>Problem:</strong> find and fix the root cause so it doesn't recur — the RCA into why that deploy caused OOMKills, resulting in adjusted resource limits and a pre-deploy memory profiling gate.
+      <br><br><strong>Change:</strong> the controlled, approved process for making the actual fix — CAB if it touches a regulated model, rollback plan documented before the window. The discipline is not conflating them — closing an incident the moment service is restored without ever opening the problem record is how the same outage recurs in six weeks.` },
+    { q: `How would you classify severity (P1–P4) for AI/ML incidents specifically, since "model is wrong" doesn't fit a normal outage pattern?`,
+      a: `<strong>P1:</strong> customer-facing model unavailable, or actively producing harmful/incorrect decisions at scale with real financial/regulatory impact (e.g. approving transactions a fraud model should block).
+      <br><strong>P2:</strong> degraded but functioning — elevated latency, partial capacity loss, or confirmed significant drift/performance drop on a high-materiality model not yet causing visible harm.
+      <br><strong>P3:</strong> non-customer-facing pipeline issue with a workaround, or a lower-materiality model degraded.
+      <br><strong>P4:</strong> cosmetic/monitoring gaps.
+      <br><br>The key addition versus a normal severity matrix: "wrong but silently running" needs its own tier consideration, since a degraded model nobody's noticed doesn't announce itself with an error-rate spike.` },
+    { q: `Walk me through your RCA process — what does a good RCA document actually contain?`,
+      a: `A timeline reconstructed from logs/metrics/deploy history (not memory) — first anomaly, detection time, response actions, resolution time; the actual root cause (5 Whys or a fishbone diagram to get past the surface symptom); contributing factors (what made this possible or worse — a missing alert, a manual step skipped); quantified customer/business/regulatory impact; and concrete, <strong>owned, dated</strong> action items — not "improve monitoring" but "add a readiness-probe check for model-load-complete, owner: X, due: Y." Blameless in tone throughout.` },
+    { q: `A model deployment caused a P1. Walk me through the first 15 minutes.`,
+      a: `Acknowledge the page, declare the incident so status/comms start, and go straight for the fastest <strong>safe</strong> mitigation — almost always rollback to the last known-good model version rather than forward-fixing under pressure. Confirm the rollback actually restored healthy signals (watch the dashboards, don't just trust the command succeeded).
+      <br><br>Notify stakeholders per the incident comms plan (in a bank, likely including Risk/Compliance for a regulated model) — and only once stable do you start the RCA. Resist root-causing while still firefighting.` },
+    { q: `How would you run a Change Advisory Board (CAB) process for promoting a new model version to production in a regulated bank?`,
+      a: `Change request documents: what's changing (model version, training data window), validation evidence (offline metrics vs. current champion, bias/fairness results), rollback plan, deployment strategy (shadow/canary/blue-green), and required approvals — Data Science lead, Model Risk/Validation (independent of the model's authors), and platform/production support confirming operational readiness (monitoring in place, runbook updated).
+      <br><br>CAB for regulated models is less "is this a good model" (Model Validation's job) and more "is this safe to deploy operationally, and can we detect and roll back quickly if it isn't."` },
+    { q: `What's your approach to writing runbooks so they're actually useful during a 2am incident and not documentation theater?`,
+      a: `Symptom-first structure (what you're seeing → what to check, in probability order), copy-pasteable commands/queries rather than prose, explicit escalation criteria ("if not resolved in 20 minutes, page X" — not "escalate if needed"), and a review cadence tied to real incidents. Every RCA action item that says "update runbook" gets tracked to completion, and runbooks get spot-checked or rehearsed (game days), not written once and left to rot.` },
+    { q: `How do you handle an incident where Data Science and Production Support disagree about whether to roll back a model showing a metric anomaly?`,
+      a: `Default to the <strong>rollback criteria agreed at deployment time</strong> — exactly why those thresholds should be defined and signed off before go-live, not negotiated live during an incident. If the anomaly breaches that threshold, roll back — that's executing a plan, not a live debate.
+      <br><br>If genuinely ambiguous (no pre-set threshold covers it), production support's default bias in a regulated environment should lean toward the reversible, lower-risk action while the debate continues — you can always re-promote once there's agreement, but you can't undo decisions the model made in the meantime.` },
+    { q: `How would you structure a ServiceNow workflow for an AI-model-related incident end to end?`,
+      a: `Auto-created incident ticket from the paging alert with context pre-populated (metric, threshold, dashboard link) — not a blank ticket someone fills in mid-incident. Incident resolution triggers a linked <strong>problem record</strong> if root cause isn't yet understood. The problem's fix goes through a standard <strong>change request</strong> (linked back, full traceability), and the change, once implemented, closes the problem record with the RCA attached.
+      <br><br>That incident → problem → change chain, fully linked, is exactly what an auditor pulls when reviewing how a specific production issue was handled.` }
+  ]
+},
+{
+  id: 'mrm-regulatory',
+  title: 'Model Risk Management (MRM) & Regulatory / Audit',
+  tag: 'GOVERNANCE',
+  items: [
+    { q: `What is SR 11-7, and why does it come up so often in banking model risk conversations even outside the US?`,
+      a: `SR 11-7 is the US Federal Reserve/OCC's 2011 guidance on model risk management — not law outside the US, but it's become the de facto reference framework globally because it was comprehensive and early. Most banks' internal MRM policies worldwide are structured around its core ideas even if not formally bound by it.
+      <br><br>Core pillars: robust model development/validation, <strong>independent validation</strong> (the team that validates a model can't be the team that built it), ongoing monitoring, and a <strong>three lines of defense</strong> governance structure.` },
+    { q: `Explain the "three lines of defense" model as it applies to an AI/ML production support role.`,
+      a: `<strong>First line:</strong> teams that build and operate the model day-to-day — Data Science (builds) and Production Support/Platform Engineering (operates) both sit here.
+      <br><strong>Second line:</strong> independent Model Risk/Validation and Compliance — challenges and approves, sets policy, monitors aggregate risk, independent of the first line by design.
+      <br><strong>Third line:</strong> Internal Audit — independent assurance that the first two lines actually function as designed.
+      <br><br>Production support's operational logs, monitoring evidence, and incident records are frequently exactly what second- and third-line reviewers pull as evidence.` },
+    { q: `How would you explain model risk tiering, and how does a model's tier change what production support has to do?`,
+      a: `Models get tiered (often High/Medium/Low) by <strong>materiality</strong> (impact if wrong) and <strong>complexity</strong> (how opaque/hard-to-validate — deep learning typically tiers higher than a simple scorecard for the same use case).
+      <br><br>Higher-tier models get more frequent independent validation, tighter monitoring thresholds, stricter change control (full CAB), and often mandatory shadow-then-canary. Production support needs to know a model's tier before deciding how much process rigor a deployment or incident response requires — over-processing a low-tier model wastes time; under-processing a high-tier one is the actual risk.` },
+    { q: `What does GDPR's "right to explanation" mean practically for a model your team operates?`,
+      a: `For automated decisions with legal/significant effect on an individual (credit denial is the classic banking example), the subject has a right to meaningful information about the logic involved. Practically: the model needs an operational explainability capability (SHAP/LIME or an inherently interpretable model) retrievable for a <strong>specific past decision on demand</strong> — not just aggregate feature-importance from training time.
+      <br><br>Production support's role: make sure that per-decision explanation is actually logged and retrievable at decision time, since regenerating "why did we decide this in March" from a since-retrained model is often unreliable.` },
+    { q: `What's the RBI's FREE-AI framework, and why would you bring it up in an interview for a role like this?`,
+      a: `<strong>FREE-AI</strong> (Framework for Responsible and Ethical Enablement of AI) — released by RBI in August 2025 following a committee set up in December 2024 — is India's first comprehensive AI governance framework for financial services, applying to scheduled commercial banks, NBFCs, and payment system operators.
+      <br><br>Built around <strong>7 guiding principles ("Sutras")</strong> — safety, transparency, accountability, fairness, inclusivity, sustainability, explainability — across 6 strategic pillars, with 26 actionable recommendations. It keeps final authority with humans and requires customers be informed when interacting with AI.
+      <br><br>Worth raising because it signals current, India-specific regulatory awareness beyond the more commonly-cited SR 11-7/GDPR — and operationally it reinforces exactly the human-sign-off-on-promotion and explainability-logging points already covered above.` },
+    { q: `How do you make sure audit can reproduce a specific historical model decision months later?`,
+      a: `The full chain has to be retained and linkable: the exact model version (immutable artifact, not "latest"), the exact <strong>feature values as computed at decision time</strong> (not recomputed later from possibly-changed source data), the model's output plus any explanation artifact, and the serving pipeline's code/config version.
+      <br><br>"Just log the prediction" isn't sufficient — you need the inputs frozen at that moment too, since re-running today's pipeline against today's data won't reproduce March's decision if anything upstream has since changed.` },
+    { q: `What's the difference between model validation and model monitoring, and why can't production support do both?`,
+      a: `<strong>Validation</strong> is a point-in-time (and periodic) independent assessment of whether a model is conceptually sound and was built correctly — done by a function independent of the model's builders per SR-11-7-style governance.
+      <br><br><strong>Monitoring</strong> is continuous, automated, operational tracking of live behavior — squarely production support's job. Keeping them organizationally separate is the point: production support flags anomalies, but doesn't get to unilaterally declare "the model's logic is still fine" — that judgment routes to the independent validation function, preserving the independence the whole framework depends on.` },
+    { q: `How would you approach an audit request for "show us every control around this model's production deployment"?`,
+      a: `Map the request to the evidence trail you should already have, rather than scrambling to generate it retroactively: model registry entry with approval sign-off, CAB change record, deployment strategy used (shadow/canary results), monitoring/alert configuration for that model, incidents and their linked RCA/problem records, and access logs (who could deploy/modify it, via IAM/RBAC).
+      <br><br>If any of those is missing or manual/undocumented, that's the finding to flag internally <strong>before</strong> audit finds it — treat an audit ask as a preview of what real controls should already exist, not a one-off scramble.` }
+  ]
+}
+,
+{
+  id: 'security-iam',
+  title: 'Security, IAM & DevSecOps',
+  tag: 'SECURITY',
+  items: [
+    { q: `How would you design RBAC for an ML platform so data scientists, production support, and auditors each have appropriate access?`,
+      a: `<strong>Least-privilege, role-scoped:</strong> Data Scientists get read/write on experiments and dev/staging, but not direct production deploy rights. Production Support gets deploy/rollback/scaling rights on production endpoints and read access to the registry, but typically not rights to modify training code or promote a model without the governance workflow. Auditors/Model Risk get read-only across environments including logs and the audit trail, but no operational rights.
+      <br><br>Design principle: nobody should be able to both build a model and unilaterally push it to production — that separation is a control, not friction.` },
+    { q: `What's Privileged Identity Management (PIM), and where would you use it in this context?`,
+      a: `PIM (Azure AD/Entra) gives <strong>just-in-time, time-boxed elevation</strong> to privileged roles instead of standing admin access — someone needing production deploy rights requests activation, gets approval if required, and elevated access auto-expires.
+      <br><br>For a banking AI platform, this is the standard way to handle "break-glass" production access for on-call incident response — responders can get in fast during an incident without having standing 24/7 production-write access sitting unused (and unaudited) the rest of the time.` },
+    { q: `How would you secure secrets (API keys, DB connection strings, model registry credentials) across the pipeline?`,
+      a: `Centralize in <strong>Azure Key Vault</strong>, reference secrets by URI at runtime rather than baking them into code/config/images, and use Managed Identity for the retrieval itself wherever possible — so there's no "secret to fetch the secret." Rotate on a schedule and immediately on any suspected exposure, and scan CI/CD pipelines and repos for accidentally committed secrets (gitleaks/trufflehog-style) as a standard pre-merge gate, not an occasional audit.` },
+    { q: `What does "supply chain security" mean for an ML pipeline specifically, beyond generic container scanning?`,
+      a: `Everything generic DevSecOps already does (base image vulnerability scanning, dependency CVE scanning, signed/attested images) plus ML-specific concerns: verifying training-data provenance (data poisoning is a real attack vector for models that retrain on live data), pinning and scanning ML library versions (PyTorch/TensorFlow have had real CVEs), and being deliberate about <strong>pickle-based artifacts</strong> specifically — deserializing an untrusted pickle can execute arbitrary code, so prefer safer formats or at minimum verify artifact source/integrity before loading into a production serving process.` },
+    { q: `How would you approach network security for a model endpoint that needs to call an external data enrichment API?`,
+      a: `Route outbound calls through a controlled egress path (NAT gateway/firewall with an explicit allowlist) rather than unrestricted internet access — the endpoint should only reach the specific external hosts it needs. Authenticate with a credential stored in Key Vault, and monitor/alert on unexpected destinations or volume from that egress path as a security signal, not just a reliability one.` },
+    { q: `PII in ML pipelines — how do you handle it in non-production/dev environments specifically?`,
+      a: `Non-prod should never hold real customer PII by default — <strong>synthetic data generation or field-level masking/tokenization</strong> (preserving statistical properties useful for testing without exposing real identities) applied before data leaves production. Where masked/synthetic data genuinely can't substitute, that data needs the same access controls, encryption, and logging as production, plus a documented, time-boxed justification — "it's just for testing" isn't itself an exemption from data governance policy.` },
+    { q: `SC-300 territory: how would you use Conditional Access to protect a production ML environment?`,
+      a: `Policies requiring <strong>MFA and a compliant/managed device</strong> for any access to production ML resources (workspace, registry, deployment pipelines), blocking or requiring extra verification from unfamiliar locations/impossible-travel sign-ins, scoped specifically to the high-privilege roles/groups tied to production deploy rights rather than blanket-applied — tighter conditions exactly where the blast radius of a compromised account is highest.` }
+  ]
+},
+{
+  id: 'dr-bcp',
+  title: 'Disaster Recovery & Business Continuity',
+  tag: 'RESILIENCE',
+  items: [
+    { q: `How would you define RTO and RPO for a real-time fraud-scoring model versus a monthly batch risk model, and why would they differ?`,
+      a: `<strong>Real-time fraud scoring:</strong> tight RTO (minutes — every minute down means blocked legitimate transactions or unscored fraud risk), near-zero RPO for the serving path itself.
+      <br><br><strong>Monthly batch risk model:</strong> much looser RTO (hours — there's usually slack in the batch window), RPO measured in "since last successful run." The point: RTO/RPO should be set per-service based on actual business impact, not one blanket DR target applied to every AI workload regardless of criticality.` },
+    { q: `What's your multi-region failover strategy for a production model-serving endpoint?`,
+      a: `Model artifacts and container images replicated to a secondary region's registry, infrastructure-as-code so the serving environment can be stood up without manual rebuilding — and the part people skip: the <strong>feature store/data dependencies need a DR story too</strong>, since a perfectly failed-over endpoint that can't reach its features is still down.
+      <br><br>Active-passive is more common than active-active for these workloads given the complexity of keeping two live regions' feature stores in sync — the choice should match the RTO the business actually needs, not default to the more expensive option.` },
+    { q: `What needs to be backed up for an AI platform beyond "the model file"?`,
+      a: `Model artifacts (all retained versions, not just current), training data snapshots or reproducible references, the feature store's historical values (or the pipeline/config to regenerate them), the <strong>model registry's metadata</strong> — approval history, lineage — which is often what people forget and exactly what audit needs, and infrastructure/pipeline-as-code so the whole serving environment is reproducible, not just the artifacts sitting in it.` },
+    { q: `How would you run a DR test / game day for an AI production support team without risking real production impact?`,
+      a: `Fail over in a controlled window with stakeholders informed in advance, validate the secondary region actually serves <strong>correct</strong> predictions (replay known test requests with expected outputs — don't just check "the endpoint responds"), time the actual failover against the documented RTO target, and fail back afterward too — failback is often less rehearsed than failover and is where real incidents happen. Document gaps as owned action items, same as any RCA.` },
+    { q: `What's the fallback behavior if a model is genuinely unavailable and can't fail over fast enough?`,
+      a: `This needs to be decided and documented <strong>before</strong> it's needed, not improvised live: a simpler rules-based decision engine as a degraded-mode substitute, serving the last-known-good cached prediction where staleness is tolerable, or — for the highest-risk cases — failing safe by declining/holding the transaction for manual review. Which option is appropriate is a business/risk decision as much as a technical one; production support's job is making sure it's actually implemented and tested, not just written in a document nobody's run.` }
+  ]
+},
+{
+  id: 'automation-governance',
+  title: 'Automation, Cost Optimization & AI Governance',
+  tag: 'EFFICIENCY',
+  items: [
+    { q: `What would you automate first on a new AI platform to reduce manual production-support toil?`,
+      a: `Drift-detection-to-ticket pipelines (so nobody's manually eyeballing dashboards), automated rollback triggers tied to hard infra-signal thresholds (latency/error-rate — leave ML-signal rollback human-gated), and self-healing for the boring-but-frequent stuff (pod restarts on failed health checks, autoscaling on load) — so on-call time goes to genuinely novel problems instead of repetitive known-pattern noise.` },
+    { q: `How would you approach cost optimization for GPU-backed model-serving infrastructure without hurting reliability?`,
+      a: `Right-size first (profile actual utilization — over-provisioned GPU instances are extremely common and the highest-leverage fix), autoscale to traffic rather than running peak capacity 24/7, use spot/low-priority compute for training and batch workloads that tolerate interruption (<strong>never</strong> for real-time serving), and consider model-level optimization (quantization, distillation) where accuracy tradeoffs are acceptable — a smaller model on cheaper hardware often beats infrastructure tuning alone.` },
+    { q: `What explainability tooling would you expect to integrate operationally, and what's production support's actual role with it?`,
+      a: `SHAP and LIME are the common libraries for post-hoc explanation; Azure ML and SageMaker Clarify both have built-in interpretability/bias tooling. Production support's role isn't generating explanations (typically part of the serving pipeline itself) — it's making sure that capability is <strong>reliable and monitored like any other production dependency</strong> (it can fail or time out just like a feature lookup), and that explanation artifacts are captured and retrievable per-decision, not just available in theory.` },
+    { q: `What's a "model card," and would you ever be the one maintaining it?`,
+      a: `A structured, standardized summary of a model — intended use, training data characteristics, performance across key segments, known limitations, ethical considerations — originally a Google Research concept, now common across AI governance frameworks generally.
+      <br><br>Data Science usually authors the content, but production support is often the natural owner of keeping it <strong>current and linked to the live production model version</strong> — a model card describing a model retrained twice since is worse than useless — the same lifecycle-tracking discipline as the registry itself.` },
+    { q: `How do the RBI FREE-AI "Sutras" — things like transparency and accountability — translate into concrete platform requirements you'd actually build?`,
+      a: `<strong>Transparency/explainability</strong> → the per-decision explanation logging already discussed. <strong>Accountability</strong> → the model registry's approval trail and immutable versioning. <strong>Safety</strong> → the monitoring/drift/rollback machinery this whole conversation has covered.
+      <br><br>The framework's principles aren't abstract ethics statements from a production-support seat — each maps fairly directly onto a specific logging, access-control, or monitoring requirement the platform needs to implement, which is the useful way to read any AI-governance framework operationally rather than as a compliance-only document.` },
+    { q: `Where do you see the biggest automation opportunity specifically at the intersection of ITIL process and AI ops?`,
+      a: `Auto-populating incident tickets with actual diagnostic context (which alert fired, current dashboard state, recent deploy history, relevant runbook link) at ticket-creation time — rather than the on-call engineer manually gathering it under pressure. Fairly mechanical integration (paging tool → ServiceNow API), but outsized impact on mean-time-to-resolution — exactly the "boring automation" that's easy to deprioritize against flashier ML-platform work but pays for itself on the very first serious incident.` }
+  ]
+}
+,
+{
+  id: 'behavioral',
+  title: 'Behavioral & Scenario Questions',
+  tag: 'STAR FRAMEWORK',
+  behavioral: true,
+  items: [
+    { q: `Tell me about a time you handled a P1 production incident involving an AI/ML system.`,
+      a: `Use a real incident from Barclays or Russell Investments — even if it wasn't AI-specific, a production incident in a regulated environment maps directly (interviewers care about your incident-response discipline more than whether the system happened to be an ML model).
+      <br><br><strong>Structure:</strong> Situation (what broke, business/customer impact) → Task (your role — IC, or executing?) → Action (diagnosis steps, rollback-vs-forward-fix decision, who you looped in and when) → Result (time to resolution, and critically, what changed afterward).
+      <br><br>The follow-up action item is often what separates a strong answer from an average one. Emphasize calm prioritization under pressure and that you followed a process rather than improvised.` },
+    { q: `Describe a situation where you had to balance speed of deployment against compliance or audit requirements.`,
+      a: `A banking-specific tension interviewers expect you to have navigated. Strong answers show you didn't treat it as "compliance slows us down," but found the actual minimum viable control (a lightweight but real sign-off step) rather than either skipping governance under deadline pressure or blocking on a heavyweight process for a low-risk change.
+      <br><br>If you have a specific example of streamlining a CAB/approval process at Barclays, that's ideal material here.` },
+    { q: `Tell me about a time you disagreed with a Data Science team's assessment of a model issue.`,
+      a: `Shows you can hold a technical position with a data science counterpart without it becoming adversarial.
+      <br><br><strong>Strong structure:</strong> what the disagreement was actually about (usually: is this metric anomaly a real problem or noise), what evidence you brought, how it got resolved — ideally a shared framework/threshold you both then relied on going forward, not just "I was right." The growth angle matters more than the win.` },
+    { q: `Describe how you'd onboard a brand-new AI service into production support — what's your checklist?`,
+      a: `This one can be answered more directly since it's really "describe your approach" rather than a past-story question. Cover: understand the model's materiality/risk tier first (sets how much process applies), confirm monitoring/alerting and dashboards exist <strong>before</strong> go-live, runbook drafted and reviewed with Data Science, rollback procedure tested (not just documented), on-call briefed, and a defined owner for ongoing model-health review cadence.
+      <br><br>Good one to answer confidently — it's process knowledge, not a personal anecdote.` },
+    { q: `Tell me about a time you reduced alert noise or improved an on-call experience.`,
+      a: `If you have a specific example from Barclays/Russell Investments (tuning thresholds, consolidating alert channels, adding runbook links to pages), use it. If not directly AI-related, any monitoring/alerting improvement story transfers well — the interviewer is testing operational maturity and empathy for on-call sustainability, not AI-specificity here.` },
+    { q: `How do you communicate a technical incident to non-technical stakeholders like Risk or Compliance?`,
+      a: `Lead with <strong>business impact</strong> (what's affected, for whom, since when) before technical detail. Give a concrete next-update time even without full information yet — "I don't know, but I'll update you by X" beats silence or over-promising. Translate root cause into risk-relevant language ("the model was making decisions using stale data for 40 minutes," not "a feature-store cache TTL misconfiguration").
+      <br><br>If you have a specific Barclays example of briefing a non-technical stakeholder mid-incident, use it here.` },
+    { q: `Tell me about a cost optimization or efficiency initiative you led.`,
+      a: `Even a non-AI infra cost/efficiency story works well here (right-sizing, autoscaling, eliminating redundant tooling) — the interviewer is testing whether you think about cost as an ongoing responsibility, not just uptime.
+      <br><br><strong>Quantify the result if you can</strong> (cost reduction %, hours saved) — specific numbers are what make this answer memorable versus generic.` },
+    { q: `Why this role, and why now?`,
+      a: `Guaranteed to come up in some form — prepare a tight, genuine answer connecting your SRE/DevOps background (14+ years, Barclays + Russell Investments — both already in financial services) to the specific pull toward AI/ML operations, not a generic "I like AI" answer.
+      <br><br>What's the actual throughline — e.g. you've been doing production reliability in banking already, and the AI/ML layer is the next evolution of the same discipline, applied to a newer, less-mature class of workload where your SRE fundamentals are the differentiator versus someone ML-first but operationally junior.` }
+  ]
+}
+];
+
+const ASK_QUESTIONS = [
+  { q: `How is model risk tiering currently determined here, and how much does a model's tier change what production support is responsible for day to day?`,
+    why: `Shows you're already thinking in the MRM framework the role actually lives in, not just the tooling.` },
+  { q: `What does the current MLOps toolchain look like — fully Azure ML, or a mix with SageMaker/other tools — and how mature is the monitoring layer today?`,
+    why: `Practical: tells you what you'd actually be working with, and signals you're evaluating fit both ways.` },
+  { q: `How is the boundary drawn today between this production support function and the Data Science team — where does ownership hand off, especially mid-incident?`,
+    why: `Gets at a genuinely important, often under-defined operational question.` },
+  { q: `What does the on-call rotation and escalation path look like for AI services specifically, versus the rest of the platform?`,
+    why: `Practical day-to-day question that also signals you think about sustainability, not just heroics.` },
+  { q: `How does the team handle the retraining-to-production-promotion pipeline — is there a human sign-off gate, and who holds it?`,
+    why: `Directly probes governance maturity — a strong signal either way about how the role will actually run.` },
+  { q: `What's been the most significant AI-related production incident the team's dealt with, and what changed afterward?`,
+    why: `Reveals real operational maturity — or real gaps — better than almost any other question you could ask.` },
+  { q: `How is the team approaching the RBI FREE-AI framework's recommendations operationally — active work mapping controls to it, or still upstream in governance/compliance?`,
+    why: `Signals current, India-specific regulatory awareness without being showy about it.` },
+  { q: `What would success in this role look like at the 6-month mark?`,
+    why: `Standard closer — gives you a concrete bar to reference in a follow-up thank-you note.` }
+];
+
+let masteryState = {};
+
+function toggleCard(id) {
+  const card = document.getElementById('card-' + id);
+  if (card) card.classList.toggle('open');
+}
+
+async function loadMastery() {
+  try {
+    const res = await window.storage.get('mastery-state', false);
+    if (res && res.value) masteryState = JSON.parse(res.value);
+  } catch (e) {
+    masteryState = {};
+  }
+  Object.keys(masteryState).forEach(id => {
+    if (!masteryState[id]) return;
+    const cb = document.getElementById('cb-' + id);
+    const card = document.getElementById('card-' + id);
+    if (cb) cb.checked = true;
+    if (card) card.classList.add('mastered');
+  });
+  updateAllProgress();
+}
+
+async function saveMastery() {
+  try {
+    await window.storage.set('mastery-state', JSON.stringify(masteryState), false);
+  } catch (e) { /* best effort */ }
+}
+
+function toggleMastery(id) {
+  masteryState[id] = !masteryState[id];
+  saveMastery();
+  const card = document.getElementById('card-' + id);
+  if (card) card.classList.toggle('mastered', !!masteryState[id]);
+  updateAllProgress();
+  applyFilters();
+}
+
+function updateAllProgress() {
+  let masteredTotal = 0, itemTotal = 0;
+  DATA.forEach(cat => {
+    let masteredCat = 0;
+    cat.items.forEach((item, i) => {
+      const id = cat.id + '-' + i;
+      itemTotal++;
+      if (masteryState[id]) { masteredCat++; masteredTotal++; }
+    });
+    const navCount = document.getElementById('navcount-' + cat.id);
+    if (navCount) navCount.textContent = masteredCat + '/' + cat.items.length;
+  });
+  const pct = itemTotal ? Math.round((masteredTotal/itemTotal)*100) : 0;
+  const fill = document.getElementById('progressFill');
+  if (fill) fill.style.width = pct + '%';
+  const label = document.getElementById('progressLabel');
+  if (label) label.textContent = masteredTotal + '/' + itemTotal + ' reviewed (' + pct + '%)';
+  const sideLabel = document.getElementById('progressSideLabel');
+  if (sideLabel) sideLabel.textContent = masteredTotal + ' of ' + itemTotal + ' reviewed';
+}
+
+function renderNav() {
+  const nav = document.getElementById('navlist');
+  let html = '';
+  DATA.forEach(cat => {
+    html += `<a href="#cat-${cat.id}" class="navlink" id="nav-${cat.id}">
+      <span class="navtitle">${cat.title}</span>
+      <span class="navcount" id="navcount-${cat.id}">0/${cat.items.length}</span>
+    </a>`;
+  });
+  html += `<hr class="navdivider"><a href="#cat-ask" class="navlink" id="nav-ask"><span class="navtitle">Questions to Ask</span></a>`;
+  nav.innerHTML = html;
+}
+
+function renderAll() {
+  const main = document.getElementById('content');
+  let html = '';
+  DATA.forEach(cat => {
+    html += `<section class="category" id="cat-${cat.id}">`;
+    html += `<div class="cat-head"><span class="cat-tag">${cat.tag}</span><h2>${cat.title}</h2></div>`;
+    cat.items.forEach((item, i) => {
+      const id = cat.id + '-' + i;
+      const behavioralClass = cat.behavioral ? ' behavioral' : '';
+      const starBadge = cat.behavioral ? '<div class="starbadge">STAR FRAMEWORK — ADAPT WITH YOUR OWN EXAMPLE</div>' : '';
+      html += `<div class="card${behavioralClass}" id="card-${id}">
+          <div class="card-head" onclick="toggleCard('${id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'){toggleCard('${id}')}">
+            <span class="qnum">Q${i+1}</span>
+            <span class="qtext">${item.q}</span>
+            <label class="mastery" onclick="event.stopPropagation()">
+              <input type="checkbox" id="cb-${id}" onchange="toggleMastery('${id}')"> Got it
+            </label>
+            <span class="chev">▶</span>
+          </div>
+          <div class="card-body" id="body-${id}">
+            ${starBadge}
+            <div class="answer">${item.a}</div>
+          </div>
+        </div>`;
+    });
+    html += `</section>`;
+  });
+  main.innerHTML = html;
+}
+
+function renderAsk() {
+  const el = document.getElementById('askSection');
+  let html = `<div class="cat-head"><span class="cat-tag">CLOSING</span><h2>Questions to Ask the Interviewer</h2></div>`;
+  ASK_QUESTIONS.forEach((item, i) => {
+    html += `<div class="ask-card">
+      <div class="ask-q">${i+1}. ${item.q}</div>
+      <div class="ask-why">${item.why}</div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function applyFilters() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const focusMode = document.getElementById('focusToggle').checked;
+  DATA.forEach(cat => {
+    let catVisibleCount = 0;
+    cat.items.forEach((item, i) => {
+      const id = cat.id + '-' + i;
+      const card = document.getElementById('card-' + id);
+      if (!card) return;
+      const text = (item.q + ' ' + item.a).toLowerCase();
+      const matchesSearch = !q || text.includes(q);
+      const matchesFocus = !focusMode || !masteryState[id];
+      const visible = matchesSearch && matchesFocus;
+      card.style.display = visible ? '' : 'none';
+      if (visible) catVisibleCount++;
+    });
+    const section = document.getElementById('cat-' + cat.id);
+    if (section) section.style.display = catVisibleCount > 0 ? '' : 'none';
+    const navLink = document.getElementById('nav-' + cat.id);
+    if (navLink) navLink.style.display = catVisibleCount > 0 ? '' : 'none';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderNav();
+  renderAll();
+  renderAsk();
+  loadMastery();
+  document.getElementById('search').addEventListener('input', applyFilters);
+  document.getElementById('focusToggle').addEventListener('change', applyFilters);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitOps CI/CD Architecture — GitHub Actions / GitLab CI / ArgoCD / Kubernetes</title>
+<style>
+:root{
+  --ink:#1b2430; --sub:#5a6472; --line:#e3e7ec; --bg:#f7f8fa; --card:#ffffff;
+  --accent:#2454a6; --accent-soft:#e9f0fc;
+  --g1:#0f6e5f; --g1-soft:#e4f3ef;
+  --g2:#a3441e; --g2-soft:#fbe9e0;
+  --g3:#5a3d8a; --g3-soft:#efe8fa;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+header{background:var(--ink);color:#fff;padding:22px 24px 18px;}
+header h1{margin:0 0 4px;font-size:21px}
+header p{margin:0;color:#b9c2cd;font-size:13.5px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px 60px}
+nav{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;margin-bottom:18px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;max-width:1000px;margin:0 auto;padding:0 16px}
+.tab{border:1px solid var(--line);background:#fff;color:var(--sub);padding:8px 12px;border-radius:20px;font-size:12.5px;cursor:pointer;font-weight:600;white-space:nowrap}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+section.pg{display:none}
+section.pg.active{display:block}
+.blk{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.blk h2{margin:0 0 12px;font-size:17px}
+.lead{font-size:14.5px;line-height:1.6;color:var(--ink);margin:0 0 4px}
+.seg{margin-bottom:13px;padding-bottom:13px;border-bottom:1px dashed var(--line)}
+.seg:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.seg h4{margin:0 0 5px;font-size:13.5px;color:var(--accent)}
+.seg p{margin:0 0 6px;font-size:14.5px;line-height:1.58}
+.seg p:last-child{margin-bottom:0}
+.diagwrap{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:14px;overflow-x:auto}
+.stepcard{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;padding:16px 18px}
+.stepnum{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;margin-right:10px}
+.steptitle{font-size:15px;font-weight:700;display:inline-flex;align-items:center;vertical-align:middle}
+.stepbody{margin-top:10px;font-size:14.5px;line-height:1.6}
+.stepbody p{margin:0 0 8px}
+.stepbody p:last-child{margin-bottom:0}
+pre{background:#161b22;color:#c9d1d9;border-radius:10px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.55;margin:0 0 14px}
+.cs-table{width:100%;border-collapse:collapse;margin-bottom:6px}
+.cs-table td{padding:9px 10px;font-size:13.8px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+.cs-table td:first-child{font-weight:700;color:var(--accent);white-space:nowrap;width:230px}
+.gbox{border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.gbox b{display:block;margin-bottom:4px;font-size:13.5px}
+.gbox p{margin:0;font-size:14px;line-height:1.5}
+.g-soft1{background:var(--g1-soft);border:1px solid #bfe0d6}.g-soft1 b{color:var(--g1)}
+.g-soft2{background:var(--g2-soft);border:1px solid #ecc4ad}.g-soft2 b{color:var(--g2)}
+.groupname{font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin:20px 0 10px}
+.groupname:first-child{margin-top:0}
+.hint{background:var(--accent-soft);border:1px solid #c3d4f2;border-radius:10px;padding:12px 14px;font-size:13.5px;color:#1a3a68;margin-bottom:16px;line-height:1.5}
+.glossrow{display:flex;gap:14px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.glossrow b{min-width:180px;flex:0 0 180px;color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>GitOps CI/CD Architecture</h1>
+  <p>GitHub Actions / GitLab CI &rarr; Container Registry &rarr; GitOps Repo &rarr; ArgoCD &rarr; Kubernetes</p>
+</header>
+<nav><div class="tabs" id="tabs"></div></nav>
+<div class="wrap" id="pages"></div>
+
+<script id="data" type="application/json">{"overview": {"intro": "This document walks through the exact architecture you diagrammed: a push-based CI phase (code -> container image -> GitOps repo update) followed by a pull-based CD phase (ArgoCD reconciling the Kubernetes cluster to match Git). It's the standard modern GitOps pattern, and the split between the two phases is the single most important thing to understand about it.", "key_concepts": [["CI is push-based", "GitHub Actions / GitLab CI runs when you push code. It builds, tests, and produces an artifact (a container image), then pushes a change to a separate Git repo. CI's job ends the moment that Git commit lands — it never touches the Kubernetes cluster directly."], ["CD is pull-based", "ArgoCD runs inside the cluster and continuously (or on webhook) pulls the GitOps repo's desired state, compares it to the cluster's live state, and reconciles any difference. Nothing outside the cluster ever gets kubectl/API credentials — that's the core security win of GitOps."], ["Two repos, two purposes", "Repo A (application code) changes constantly, is owned by developers, and produces images. Repo B (GitOps/infra repo) changes only via automation or reviewed PRs, is owned by platform/SRE, and is the single source of truth for 'what should currently be running.' Never conflate the two."], ["Git is the API to production", "Under GitOps, the way you change what's running in prod is a Git commit to Repo B — not a kubectl apply from someone's laptop. This gives you audit trail, rollback (git revert), and review (PR approval) for free."], ["The image tag is the handoff", "The only thing that crosses from the CI phase to the CD phase is an image tag (here, a git SHA like sha-a1b2c3). That tag is written into values-prod.yaml in Repo B by the CI pipeline, and that write is the trigger for everything ArgoCD does next."]]}, "flow_steps": [{"step": "1", "title": "Developer pushes code to Repo A", "detail": "A developer commits and pushes to the application code repository (Repo A) — typically to a feature branch, merged via PR into main. The push (or the merge to main) is the event that triggers everything downstream.", "detail2": "Best practice: protect the main branch — require PR review and passing status checks before merge, so a broken commit can't reach main and trigger a bad build in the first place."}, {"step": "2", "title": "GitHub Actions / GitLab CI triggers automatically", "detail": "The push fires a workflow (GitHub Actions: on: push in .github/workflows/*.yml; GitLab CI: pipeline defined in .gitlab-ci.yml triggered by the same push). This is where the CI phase begins — everything from here through image push happens in a short-lived, ephemeral runner.", "detail2": "Typical stages before containerizing: checkout, install dependencies, lint, unit test, and (often) a security/dependency scan — all as required gates before a container is even built, so you're not wasting registry storage or cluster resources on code that fails basic checks."}, {"step": "3", "title": "Step 1 — Containerize the app, push to the registry (ECR)", "detail": "The pipeline builds a Docker image from the app code and tags it deterministically — the diagram uses the Git commit SHA (sha-a1b2c3), which is the correct practice: it's unique, traceable back to the exact commit, and immutable (never reuse or overwrite a tag). The image is pushed to a container registry — here, Amazon ECR.", "detail2": "Why SHA-based tags and not 'latest': 'latest' is mutable and gives you no way to know what's actually running, no reliable rollback target, and no audit trail. SHA tags make every deployed image traceable to an exact commit, which is essential when ArgoCD or a rollback needs to reference a precise, immutable version."}, {"step": "4", "title": "Step 2 — Update the GitOps repo (Repo B)", "detail": "In the same pipeline run (or a follow-up job), the pipeline updates Repo B's values-prod.yaml (or a Kustomize overlay, or a Helm values file) to point to the new image tag, and pushes that change — either as a direct commit (common for lower environments) or, better, as an automated PR that requires approval (common for production).", "detail2": "This is the moment the diagram's arrow from 'GitHub Actions / GitLab CI' to 'Repo B' represents. Tools that automate this step: yq/sed in a simple script, or a dedicated tool like Argo CD Image Updater or a Renovate/Flux-style automation for more complex setups."}, {"step": "5", "title": "ArgoCD detects the change", "detail": "ArgoCD watches Repo B — either via a webhook fired by GitHub/GitLab on push (near-instant) or by polling on an interval (default 3 minutes, if webhooks aren't configured) — this is the diagram's 'Monitors Real-Time via Webhook' arrow. ArgoCD's core job is a continuous reconciliation loop: compare the desired state in Git against the live state in the cluster.", "detail2": "This is the essence of GitOps: ArgoCD never trusts that a previous sync 'stuck' — it continuously re-diffs, so even if someone manually changes something in the cluster with kubectl, ArgoCD will detect the drift and (depending on sync policy) either flag it or automatically revert it back to match Git."}, {"step": "6", "title": "ArgoCD pulls the approved image and applies manifests via the Kubernetes API Server", "detail": "Once ArgoCD confirms a real diff (the image tag in Git no longer matches what's running), it renders the final manifests (via Helm/Kustomize/plain YAML, whichever Repo B uses) and applies them through the Kubernetes API server — the same mechanism kubectl apply uses, just done by ArgoCD's service account inside the cluster rather than by a person or external CI system.", "detail2": "This is why GitOps is more secure than a traditional CI-pushes-to-cluster model: no external system (GitHub Actions, GitLab CI, a laptop) ever holds a kubeconfig or cluster-admin credential. The only credential that can change the cluster lives inside the cluster itself, scoped to ArgoCD's service account."}, {"step": "7", "title": "Kubernetes performs a zero-downtime rollout across the Worker Node Fleet", "detail": "The Deployment's rolling update strategy takes over: new pods running the sha-a1b2c3 image are created gradually (controlled by maxSurge/maxUnavailable), each must pass its readiness probe before receiving traffic, and old pods are terminated only after enough new pods are healthy — so there's no window where zero pods are serving traffic.", "detail2": "This is the final arrow in the diagram: 'Worker Node Fleet - Pods running image: sha-a1b2c3.' At this point the loop is closed — Git (Repo B) and the live cluster agree, which ArgoCD will show as 'Synced' and 'Healthy.'"}], "gh_vs_gl": {"intro": "The diagram allows for either GitHub Actions or GitLab CI as the CI engine. Functionally they do the same job in this architecture (build, test, containerize, update Repo B) — the differences are in syntax, execution model, and native integrations.", "comparison": [["Trigger config location", "GitHub Actions: workflow YAML lives in .github/workflows/, one file per workflow. GitLab CI: single .gitlab-ci.yml at repo root (can include other files via `include:`)."], ["Execution unit", "GitHub Actions: 'jobs' made of 'steps', each step often an off-the-shelf 'Action' from the marketplace. GitLab CI: 'stages' made of 'jobs', each job runs shell commands directly (or a custom image) rather than a marketplace-action model."], ["Runners", "GitHub Actions: GitHub-hosted runners (ephemeral VMs) or self-hosted. GitLab CI: GitLab-hosted runners (shared/SaaS) or self-hosted GitLab Runner (often the choice for regulated/on-prem environments)."], ["Registry integration", "GitHub Actions: typically pushes to ECR/GHCR/Docker Hub via explicit login steps or the aws-actions/amazon-ecr-login action. GitLab CI: has a built-in Container Registry per-project, though pushing to an external ECR (as in this diagram) works the same way via an explicit login step."], ["Secrets/OIDC to AWS", "Both support OIDC federation to assume an AWS IAM role for ECR push, avoiding long-lived AWS credentials — GitHub via 'permissions: id-token: write' + configure-aws-credentials action, GitLab via its own OIDC/JWT-based id_tokens config."], ["Updating Repo B", "Both need an explicit step (or job) with write access to Repo B — usually a fine-grained PAT (GitHub) or a deploy token/project access token (GitLab) scoped only to that repo, never a broad admin credential."]]}, "gh_yaml": "name: build-and-release\non:\n  push:\n    branches: [main]\n\npermissions:\n  id-token: write   # for OIDC to AWS\n  contents: read\n\njobs:\n  build-and-push:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n\n      - name: Configure AWS credentials (OIDC)\n        uses: aws-actions/configure-aws-credentials@v4\n        with:\n          role-to-assume: arn:aws:iam::123456789012:role/github-actions-ecr-push\n          aws-region: ap-south-1\n\n      - name: Login to ECR\n        id: ecr-login\n        uses: aws-actions/amazon-ecr-login@v2\n\n      - name: Build and push image\n        env:\n          REGISTRY: ${{ steps.ecr-login.outputs.registry }}\n          REPO: checkout-service\n          TAG: sha-${{ github.sha }}\n        run: |\n          docker build -t $REGISTRY/$REPO:$TAG .\n          docker push $REGISTRY/$REPO:$TAG\n\n      - name: Update GitOps repo (Repo B)\n        env:\n          TAG: sha-${{ github.sha }}\n          GITOPS_PAT: ${{ secrets.GITOPS_REPO_PAT }}\n        run: |\n          git clone https://x-access-token:${GITOPS_PAT}@github.com/org/gitops-infra-repo.git\n          cd gitops-infra-repo\n          yq -i \".image.tag = \\\"$TAG\\\"\" apps/checkout-service/values-prod.yaml\n          git config user.email \"ci-bot@org.com\"\n          git config user.name \"ci-bot\"\n          git commit -am \"checkout-service: bump image to $TAG\"\n          git push\n", "gl_yaml": "stages:\n  - build\n  - update-gitops\n\nvariables:\n  IMAGE_TAG: \"sha-${CI_COMMIT_SHORT_SHA}\"\n\nbuild-and-push:\n  stage: build\n  image: docker:24\n  services: [docker:24-dind]\n  id_tokens:\n    AWS_ID_TOKEN:\n      aud: sts.amazonaws.com\n  script:\n    - aws sts assume-role-with-web-identity ...   # OIDC to assume ECR-push role\n    - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin $ECR_REGISTRY\n    - docker build -t $ECR_REGISTRY/checkout-service:$IMAGE_TAG .\n    - docker push $ECR_REGISTRY/checkout-service:$IMAGE_TAG\n  only:\n    - main\n\nupdate-gitops-repo:\n  stage: update-gitops\n  image: alpine/git\n  script:\n    - git clone https://oauth2:${GITOPS_PROJECT_TOKEN}@gitlab.com/org/gitops-infra-repo.git\n    - cd gitops-infra-repo\n    - yq -i \".image.tag = \\\"$IMAGE_TAG\\\"\" apps/checkout-service/values-prod.yaml\n    - git config user.email \"ci-bot@org.com\"\n    - git config user.name \"ci-bot\"\n    - git commit -am \"checkout-service: bump image to $IMAGE_TAG\"\n    - git push\n  only:\n    - main\n", "gitops_repo": {"intro": "Repo B is deliberately separate from the application code. It's the single source of truth ArgoCD reconciles against, and it should be structured so a human (or an automated diff PR) can read exactly what's running in each environment at a glance.", "structure": "gitops-infra-repo/\n├── apps/\n│   └── checkout-service/\n│       ├── base/\n│       │   ├── deployment.yaml\n│       │   ├── service.yaml\n│       │   └── kustomization.yaml\n│       ├── values-dev.yaml\n│       ├── values-staging.yaml\n│       └── values-prod.yaml        <-- CI updates this file's image.tag\n└── argocd/\n    └── checkout-service-app.yaml   <-- the ArgoCD Application manifest", "points": [["Why a separate repo (not a folder in Repo A)", "Clean separation of concerns and access control — developers get broad write access to Repo A, but Repo B (production truth) can require stricter review/CODEOWNERS rules, since a bad merge here directly changes production."], ["Helm vs Kustomize", "Both are common. Helm values-prod.yaml (as in your diagram) is a single file per environment holding overridable values like image.tag, replica count, resource limits. Kustomize achieves the same with base + overlay patches. Either way, the image tag is the one field CI is allowed to touch automatically — everything else changes via human-reviewed PR."], ["Environment promotion", "The same base manifests, different values files per environment, is what lets you promote a build from dev -> staging -> prod by changing which values file points at a given tag, rather than rebuilding the image per environment — the image built once from a given commit is the same binary that goes everywhere."]]}, "argocd": {"intro": "ArgoCD is the 'brain' the diagram calls out — it's the component that turns a Git commit into a running change in the cluster, with no external system ever touching the cluster directly.", "concepts": [["Application resource", "Every service ArgoCD manages is represented by an ArgoCD Application custom resource, which points at a Git repo/path (Repo B, apps/checkout-service) and a destination cluster/namespace. This is the object that ties 'this Git path' to 'this place in the cluster.'"], ["Reconciliation loop", "ArgoCD continuously computes a diff between the manifests rendered from Repo B (desired state) and the live objects in the cluster (actual state). Any difference — including manual kubectl changes by a human — shows up as 'OutOfSync.'"], ["Sync policy: manual vs automated", "Manual sync requires a person (or a pipeline) to click/trigger 'Sync' in the UI/CLI once ArgoCD shows a diff — common for production, as a deliberate approval gate. Automated sync applies the diff immediately once detected — common for dev/staging, where speed matters more than a manual gate."], ["Self-heal", "An optional setting where ArgoCD doesn't just detect drift from Git, it actively reverts it — if someone manually edits a Deployment with kubectl, self-heal will silently put it back to match Git on the next reconciliation. This is the strongest form of 'Git is the only way to change prod.'"], ["Sync waves / hooks", "For multi-resource applications where order matters (e.g. a ConfigMap must exist before the Deployment that mounts it), ArgoCD supports sync waves (ordering) and hooks (pre-sync/post-sync jobs, e.g. a DB migration job that must complete before the new pods roll out)."], ["Health checks", "Beyond 'Synced' (does live match Git), ArgoCD also reports 'Healthy' (is the resource actually working — e.g. a Deployment is Healthy only once its rollout completes and replicas are ready) — the two are different signals and both matter."]], "app_yaml": "apiVersion: argoproj.io/v1alpha1\nkind: Application\nmetadata:\n  name: checkout-service\n  namespace: argocd\nspec:\n  project: default\n  source:\n    repoURL: https://github.com/org/gitops-infra-repo.git\n    targetRevision: main\n    path: apps/checkout-service\n    helm:\n      valueFiles:\n        - values-prod.yaml\n  destination:\n    server: https://kubernetes.default.svc\n    namespace: checkout-prod\n  syncPolicy:\n    automated:\n      prune: true       # remove resources deleted from Git\n      selfHeal: true     # revert manual cluster drift back to Git\n    syncOptions:\n      - CreateNamespace=true"}, "k8s_rollout": {"intro": "The final step in the diagram — 'Handles Zero-Downtime Rollout' on the Worker Node Fleet — is standard Kubernetes Deployment behavior, but it's worth understanding exactly what makes it zero-downtime rather than assuming the platform handles it magically.", "points": [["RollingUpdate strategy", "The Deployment's strategy.type: RollingUpdate with maxSurge (how many extra pods can be created above the desired count during rollout) and maxUnavailable (how many pods can be down at once) control the pace — e.g. maxSurge: 1, maxUnavailable: 0 means Kubernetes always adds a new pod before removing an old one, guaranteeing full capacity throughout."], ["Readiness probes are what make it safe", "A new pod only starts receiving traffic (gets added to the Service's endpoint list) once its readinessProbe passes. Without a correctly configured readiness probe, Kubernetes will route traffic to a pod that's technically 'Running' but not actually ready to serve — the single most common cause of a 'rollout looked fine but errors spiked' incident."], ["PodDisruptionBudget", "For services where availability during voluntary disruptions (rollouts, node drains) is critical, a PodDisruptionBudget guarantees a minimum number/percentage of pods stay available even while Kubernetes is cycling pods — belt-and-suspenders on top of the rollout strategy itself."], ["preStop hook / graceful termination", "When an old pod is terminated, a preStop hook (e.g. a short sleep) combined with terminationGracePeriodSeconds gives in-flight requests time to complete and gives the load balancer time to notice the pod is going away, before SIGKILL — without this, a rollout can drop in-flight requests even though the overall rollout 'succeeds.'"], ["What ArgoCD's 'Healthy' status actually checks here", "For a Deployment, ArgoCD's health check waits for status.updatedReplicas, status.readyReplicas, and status.availableReplicas to all match the desired replica count — i.e. it's watching the same rollout mechanics described above, not just 'did the apply succeed.'"]]}, "troubleshooting": [["CI pipeline succeeds, but ArgoCD shows no new sync", "Check that the CI job's write to values-prod.yaml actually landed on the branch ArgoCD is watching (targetRevision) — a common mistake is the CI bot pushing to a branch that doesn't match the Application's configured branch. Also check ArgoCD's webhook delivery (Repo B's webhook settings) — if it's failing silently, ArgoCD falls back to its poll interval (default 3 min), which can look like 'nothing happened' if you're watching immediately after push."], ["ArgoCD shows 'OutOfSync' but won't auto-sync", "Automated sync must be explicitly enabled in the Application's syncPolicy — if it's unset, ArgoCD will correctly detect and display the diff but wait for a manual sync trigger. This is often intentional for production (a deliberate approval gate), so confirm it's not a policy decision before treating it as a bug."], ["ArgoCD shows 'Synced' but 'Degraded' or 'Progressing' forever", "The manifests match Git, but the resource itself isn't becoming healthy — almost always a rollout stuck on a failing readiness probe (new pods never become Ready) or insufficient node capacity for the Deployment's maxSurge to schedule new pods at all. Check kubectl describe pod and kubectl get events in the target namespace directly."], ["Someone ran kubectl edit directly on the Deployment and it 'didn't stick'", "That's self-heal working as designed — ArgoCD reverted the manual change back to match Git on its next reconciliation. If that surprised someone, it's a process/communication gap, not a bug — the whole point of GitOps is that Git, not kubectl, is the way to change things."], ["Image pull fails in the cluster despite the CI push succeeding", "Check IAM/permissions on the node's ability to pull from ECR (IRSA/node role needs ecr:GetAuthorizationToken and pull permissions on that repo), and confirm the tag referenced in values-prod.yaml exactly matches what CI actually pushed — a mismatched tag (e.g. a race between two pipeline runs) is a common cause."], ["Rollout completes, but errors spike right after", "Usually a readiness probe that's too shallow (returns 200 before the app can actually serve real dependencies — see the 'deep health check' pattern from your other prep docs) or a config/secret that wasn't updated in Repo B alongside the code change, causing the new pods to run against stale configuration."]], "security": [["No external system holds cluster credentials", "This is the core security property of the architecture: GitHub Actions/GitLab CI can push images and edit a Git repo, but has zero ability to touch the Kubernetes API directly. Only ArgoCD's in-cluster service account can — scope that service account tightly (RBAC) to only the namespaces/resources it needs to manage."], ["Immutable, traceable image tags", "SHA-based tags (never 'latest' in Repo B) mean every running workload is traceable to an exact commit — essential for both incident RCA and compliance/audit."], ["Scope Repo B write access narrowly", "The CI bot's credential (PAT/deploy token) that writes to Repo B should be scoped to only that repo, ideally only able to modify image.tag fields via a required PR + auto-merge rule, rather than broad write access to the whole file."], ["Image scanning before promotion", "Scan images for known CVEs (e.g. via ECR's built-in scanning or Trivy in the pipeline) as a gate before the image is even eligible to be referenced in values-prod.yaml — catching this in CI is far cheaper than catching it after production deploy."], ["Sign images / verify provenance", "For higher-assurance environments, sign images at build time (e.g. cosign) and have the cluster (via an admission controller) verify the signature before allowing a pod to run — prevents an unauthorized or tampered image from ever being scheduled, even if someone bypasses the normal pipeline."], ["CODEOWNERS + required review on Repo B", "Since Repo B is production truth, require review (CODEOWNERS scoped to the platform/SRE team) on any change that isn't the automated image-tag bump — a human should always be in the loop for anything beyond 'deploy this exact commit that already passed CI.'"]], "glossary": [["CI (Continuous Integration)", "The push-based phase: build, test, and produce an artifact (image) automatically on every code change."], ["CD (Continuous Delivery/Deployment)", "The pull-based phase in GitOps: a controller inside the cluster (ArgoCD) reconciles the cluster to match a Git repo's desired state."], ["GitOps", "An operating model where Git is the single source of truth for what should be running, and a controller — not a person or external pipeline — applies changes to the target environment."], ["Reconciliation loop", "ArgoCD's continuous process of diffing desired (Git) vs. actual (cluster) state and acting on any difference."], ["Sync", "The act of applying Git's desired state to the cluster to resolve a detected diff."], ["Self-heal", "An ArgoCD setting that automatically reverts manual, out-of-band changes to the cluster back to match Git."], ["Drift", "Any difference between what's in Git and what's actually running in the cluster."], ["Rolling update", "A Kubernetes Deployment strategy that replaces old pods with new ones gradually, keeping the service available throughout."], ["Readiness probe", "A per-pod health check that gates whether a pod receives traffic — critical to a truly zero-downtime rollout."], ["Sync wave", "ArgoCD's mechanism for controlling the order resources are applied within one Application (e.g. ConfigMap before Deployment)."]]}</script>
+<script id="svgdiagram" type="text/plain"><svg viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#5a6472"/></marker>
+</defs>
+<rect x="0" y="0" width="1000" height="620" fill="#f7f8fa"/>
+
+<rect x="10" y="10" width="980" height="270" rx="10" fill="#e9f0fc" stroke="#2454a6" stroke-width="1.5"/>
+<text x="30" y="34" font-size="13" font-weight="700" fill="#2454a6">CI PHASE — DEVELOPMENT REPOSITORY</text>
+
+<rect x="30" y="55" width="160" height="55" rx="8" fill="#fff" stroke="#2454a6"/>
+<text x="110" y="78" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="600">Developer</text>
+<text x="110" y="95" font-size="11" text-anchor="middle" fill="#5a6472">Machine</text>
+
+<rect x="230" y="55" width="190" height="55" rx="8" fill="#fff" stroke="#2454a6"/>
+<text x="325" y="78" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="600">Repo A</text>
+<text x="325" y="95" font-size="11" text-anchor="middle" fill="#5a6472">Application Code Repo</text>
+
+<line x1="190" y1="82" x2="228" y2="82" stroke="#5a6472" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="209" y="72" font-size="9" text-anchor="middle" fill="#5a6472">git push</text>
+
+<line x1="325" y1="110" x2="325" y2="145" stroke="#5a6472" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="400" y="132" font-size="9" fill="#5a6472">auto-triggers workflow</text>
+
+<rect x="200" y="150" width="250" height="55" rx="8" fill="#fff" stroke="#2454a6" stroke-width="2"/>
+<text x="325" y="173" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="700">GitHub Actions / GitLab CI</text>
+<text x="325" y="190" font-size="10.5" text-anchor="middle" fill="#5a6472">build · test · containerize</text>
+
+<line x1="270" y1="205" x2="150" y2="238" stroke="#5a6472" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="175" y="222" font-size="9" fill="#5a6472">Step 1: containerize</text>
+<line x1="400" y1="205" x2="620" y2="238" stroke="#5a6472" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="560" y="222" font-size="9" fill="#5a6472">Step 2: update tag</text>
+
+<rect x="40" y="240" width="220" height="35" rx="8" fill="#fbe9e0" stroke="#a3441e"/>
+<text x="150" y="262" font-size="11" text-anchor="middle" fill="#5c2712" font-weight="600">Container Registry (ECR) — sha-a1b2c3</text>
+
+<rect x="580" y="240" width="380" height="35" rx="8" fill="#e4f3ef" stroke="#0f6e5f"/>
+<text x="770" y="262" font-size="11" text-anchor="middle" fill="#0f4a3f" font-weight="600">Repo B: GitOps Infra Repo (values-prod.yaml tag changed)</text>
+
+<line x1="10" y1="290" x2="990" y2="290" stroke="#1b2430" stroke-width="1.5" stroke-dasharray="6,4"/>
+<text x="30" y="308" font-size="13" font-weight="700" fill="#1b2430">CD PHASE — KUBERNETES PRODUCTION CLUSTER</text>
+
+<line x1="150" y1="275" x2="150" y2="345" stroke="#5a6472" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="160" y="330" font-size="9" fill="#5a6472">pulls approved image</text>
+
+<line x1="770" y1="275" x2="770" y2="345" stroke="#5a6472" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="600" y="330" font-size="9" fill="#5a6472">monitors via webhook / poll</text>
+
+<rect x="380" y="350" width="240" height="60" rx="8" fill="#fff" stroke="#0f6e5f" stroke-width="2.5"/>
+<text x="500" y="374" font-size="12.5" text-anchor="middle" fill="#0f4a3f" font-weight="700">ArgoCD Controller</text>
+<text x="500" y="391" font-size="10" text-anchor="middle" fill="#5a6472">compares live vs. Git · reconciles</text>
+<line x1="150" y1="345" x2="380" y2="378" stroke="#5a6472" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="770" y1="345" x2="620" y2="378" stroke="#5a6472" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<line x1="500" y1="410" x2="500" y2="440" stroke="#5a6472" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="590" y="428" font-size="9" fill="#5a6472">REST API calls</text>
+
+<rect x="330" y="445" width="340" height="45" rx="8" fill="#fff" stroke="#2454a6"/>
+<text x="500" y="472" font-size="12" text-anchor="middle" fill="#1b2430" font-weight="600">Kubernetes API Server</text>
+
+<line x1="500" y1="490" x2="500" y2="520" stroke="#5a6472" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="600" y="509" font-size="9" fill="#5a6472">zero-downtime rollout</text>
+
+<rect x="230" y="525" width="540" height="70" rx="8" fill="#efe8fa" stroke="#5a3d8a"/>
+<text x="500" y="552" font-size="12.5" text-anchor="middle" fill="#332347" font-weight="700">Worker Node Fleet</text>
+<text x="500" y="570" font-size="11" text-anchor="middle" fill="#5a6472">pods running image: sha-a1b2c3</text>
+<text x="500" y="586" font-size="10" text-anchor="middle" fill="#7a6a8f">rolling update · readiness-gated · no downtime</text>
+</svg></script>
+<script>
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const SVG = document.getElementById('svgdiagram').textContent;
+const PAGES = [
+  {id:'overview', label:'0 · Overview'},
+  {id:'diagram', label:'1 · Diagram'},
+  {id:'flow', label:'2 · Step-by-Step Flow'},
+  {id:'ghgl', label:'3 · GitHub Actions vs GitLab CI'},
+  {id:'gitops', label:'4 · GitOps Repo & ArgoCD'},
+  {id:'rollout', label:'5 · Kubernetes Rollout'},
+  {id:'trouble', label:'6 · Troubleshooting'},
+  {id:'security', label:'7 · Security & Best Practices'},
+  {id:'glossary', label:'8 · Glossary'}
+];
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function buildTabs(){
+  const w=document.getElementById('tabs');
+  PAGES.forEach((p,i)=>{
+    const b=document.createElement('button');
+    b.className='tab'+(i===0?' active':'');
+    b.textContent=p.label;
+    b.onclick=()=>showPage(p.id);
+    b.dataset.page=p.id;
+    w.appendChild(b);
+  });
+}
+function showPage(id){
+  document.querySelectorAll('section.pg').forEach(s=>s.classList.toggle('active', s.dataset.id===id));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.page===id));
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function renderOverview(c){
+  const o = DATA.overview;
+  const b1=document.createElement('div'); b1.className='blk';
+  b1.innerHTML = '<h2>What this architecture is</h2><p class="lead">'+esc(o.intro)+'</p>';
+  c.appendChild(b1);
+  const b2=document.createElement('div'); b2.className='blk';
+  let html='<h2>Key concepts before the walkthrough</h2>';
+  o.key_concepts.forEach(k=>{ html += '<div class="seg"><h4>'+esc(k[0])+'</h4><p>'+esc(k[1])+'</p></div>'; });
+  b2.innerHTML = html;
+  c.appendChild(b2);
+}
+
+function renderDiagram(c){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "This is your ASCII diagram rendered as a labeled architecture diagram — same components, same flow, top (CI) to bottom (CD).";
+  c.appendChild(hint);
+  const d=document.createElement('div'); d.className='diagwrap';
+  d.innerHTML = SVG;
+  c.appendChild(d);
+}
+
+function renderFlow(c){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "Every arrow in the diagram, explained as a single numbered step — from a developer's git push to pods running the new image with zero downtime.";
+  c.appendChild(hint);
+  DATA.flow_steps.forEach(s=>{
+    const card=document.createElement('div'); card.className='stepcard';
+    card.innerHTML = '<span class="stepnum">'+esc(s.step)+'</span><span class="steptitle">'+esc(s.title)+'</span>'+
+      '<div class="stepbody"><p>'+esc(s.detail)+'</p><p>'+esc(s.detail2)+'</p></div>';
+    c.appendChild(card);
+  });
+}
+
+function renderGhGl(c){
+  const b1=document.createElement('div'); b1.className='blk';
+  b1.innerHTML = '<h2>GitHub Actions vs. GitLab CI in this architecture</h2><p class="lead">'+esc(DATA.gh_vs_gl.intro)+'</p>';
+  let t='<table class="cs-table">';
+  DATA.gh_vs_gl.comparison.forEach(r=>{ t+='<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>'; });
+  t+='</table>';
+  b1.innerHTML += t;
+  c.appendChild(b1);
+
+  const b2=document.createElement('div'); b2.className='blk';
+  b2.innerHTML = '<h2>Sample: GitHub Actions workflow</h2>';
+  const pre1=document.createElement('pre'); pre1.textContent = DATA.gh_yaml;
+  b2.appendChild(pre1);
+  c.appendChild(b2);
+
+  const b3=document.createElement('div'); b3.className='blk';
+  b3.innerHTML = '<h2>Sample: GitLab CI pipeline (equivalent)</h2>';
+  const pre2=document.createElement('pre'); pre2.textContent = DATA.gl_yaml;
+  b3.appendChild(pre2);
+  c.appendChild(b3);
+}
+
+function renderGitops(c){
+  const b1=document.createElement('div'); b1.className='blk';
+  b1.innerHTML = '<h2>Repo B — the GitOps infra repo</h2><p class="lead">'+esc(DATA.gitops_repo.intro)+'</p>';
+  const pre=document.createElement('pre'); pre.textContent = DATA.gitops_repo.structure;
+  b1.appendChild(pre);
+  DATA.gitops_repo.points.forEach(p=>{
+    const d=document.createElement('div'); d.className='seg';
+    d.innerHTML = '<h4>'+esc(p[0])+'</h4><p>'+esc(p[1])+'</p>';
+    b1.appendChild(d);
+  });
+  c.appendChild(b1);
+
+  const b2=document.createElement('div'); b2.className='blk';
+  b2.innerHTML = '<h2>ArgoCD — the reconciliation brain</h2><p class="lead">'+esc(DATA.argocd.intro)+'</p>';
+  DATA.argocd.concepts.forEach(k=>{
+    const d=document.createElement('div'); d.className='seg';
+    d.innerHTML = '<h4>'+esc(k[0])+'</h4><p>'+esc(k[1])+'</p>';
+    b2.appendChild(d);
+  });
+  c.appendChild(b2);
+
+  const b3=document.createElement('div'); b3.className='blk';
+  b3.innerHTML = '<h2>Sample: ArgoCD Application manifest</h2>';
+  const pre2=document.createElement('pre'); pre2.textContent = DATA.argocd.app_yaml;
+  b3.appendChild(pre2);
+  c.appendChild(b3);
+}
+
+function renderRollout(c){
+  const b1=document.createElement('div'); b1.className='blk';
+  b1.innerHTML = '<h2>How Kubernetes achieves zero-downtime rollout</h2><p class="lead">'+esc(DATA.k8s_rollout.intro)+'</p>';
+  DATA.k8s_rollout.points.forEach(p=>{
+    const d=document.createElement('div'); d.className='seg';
+    d.innerHTML = '<h4>'+esc(p[0])+'</h4><p>'+esc(p[1])+'</p>';
+    b1.appendChild(d);
+  });
+  c.appendChild(b1);
+}
+
+function renderTrouble(c){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "Common failure points, mapped to exactly where in the diagram they occur.";
+  c.appendChild(hint);
+  DATA.troubleshooting.forEach(t=>{
+    const b=document.createElement('div'); b.className='blk';
+    b.innerHTML = '<h2 style="font-size:14.5px">'+esc(t[0])+'</h2><p class="lead">'+esc(t[1])+'</p>';
+    c.appendChild(b);
+  });
+}
+
+function renderSecurity(c){
+  const b=document.createElement('div'); b.className='blk';
+  let html='<h2>Security & best practices</h2>';
+  DATA.security.forEach(s=>{ html += '<div class="gbox g-soft1"><b>'+esc(s[0])+'</b><p>'+esc(s[1])+'</p></div>'; });
+  b.innerHTML = html;
+  c.appendChild(b);
+}
+
+function renderGlossary(c){
+  const b=document.createElement('div'); b.className='blk';
+  let html='<h2>Quick glossary</h2>';
+  DATA.glossary.forEach(g=>{ html += '<div class="glossrow"><b>'+esc(g[0])+'</b><span>'+esc(g[1])+'</span></div>'; });
+  b.innerHTML = html;
+  c.appendChild(b);
+}
+
+function buildPages(){
+  const w=document.getElementById('pages');
+  const renderers = {overview:renderOverview, diagram:renderDiagram, flow:renderFlow, ghgl:renderGhGl, gitops:renderGitops, rollout:renderRollout, trouble:renderTrouble, security:renderSecurity, glossary:renderGlossary};
+  PAGES.forEach((p,i)=>{
+    const sec=document.createElement('section');
+    sec.className='pg'+(i===0?' active':'');
+    sec.dataset.id=p.id;
+    w.appendChild(sec);
+    renderers[p.id](sec);
+  });
+}
+buildTabs();
+buildPages();
+</script>
+</body>
+</html>

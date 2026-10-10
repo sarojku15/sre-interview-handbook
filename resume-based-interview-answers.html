@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interview Answers — Tailored to Your Resume</title>
+<style>
+:root{
+  --bg:#0a0d12;
+  --bg-elev:#0f141b;
+  --surface:#141a22;
+  --surface-2:#182029;
+  --border:#232c37;
+  --border-2:#2e3947;
+  --text:#e7edf4;
+  --text-dim:#93a1b0;
+  --text-faint:#5c6a79;
+  --accent:#39d98a;
+  --accent-dim:#279962;
+  --amber:#f0b429;
+  --red:#f0656a;
+  --blue:#5aa8f0;
+  --mono:ui-monospace,SFMono-Regular,'Cascadia Code',Consolas,'Liberation Mono',monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;font-size:15.5px;}
+.hidden{display:none !important;}
+a{color:inherit;}
+
+.sticky-wrap{position:sticky;top:0;z-index:50;background:rgba(10,13,18,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+header{padding:14px 24px 10px;}
+.header-inner{max-width:980px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;}
+.title-block h1{font-size:17px;margin:0 0 3px;font-weight:650;letter-spacing:.2px;font-family:var(--sans);}
+.title-block .subtitle{font-size:12.5px;color:var(--text-dim);margin:0;font-family:var(--mono);}
+.controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+#search{background:var(--surface);border:1px solid var(--border-2);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13.5px;width:230px;font-family:var(--sans);}
+#search:focus{outline:none;border-color:var(--accent-dim);box-shadow:0 0 0 3px rgba(57,217,138,.15);}
+.progress-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);font-family:var(--mono);}
+.progress-bar{width:100px;height:6px;background:var(--surface-2);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent-dim),var(--accent));transition:width .3s;}
+.reset-btn{background:none;border:1px solid var(--border-2);color:var(--text-faint);font-size:11px;padding:5px 9px;border-radius:6px;cursor:pointer;font-family:var(--mono);}
+.reset-btn:hover{color:var(--text-dim);border-color:var(--border-2);}
+.reset-btn:focus-visible{outline:2px solid var(--accent-dim);outline-offset:2px;}
+
+nav.toc{max-width:980px;margin:0 auto;padding:10px 24px 12px;display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--border-2) transparent;}
+nav.toc::-webkit-scrollbar{height:4px;}
+nav.toc::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px;}
+.toc-chip{flex-shrink:0;font-size:12.5px;font-family:var(--mono);color:var(--text-dim);border:1px solid var(--border);padding:6px 11px;border-radius:20px;text-decoration:none;transition:.15s;white-space:nowrap;}
+.toc-chip:hover{border-color:var(--accent-dim);color:var(--accent);}
+.toc-chip:focus-visible{outline:2px solid var(--accent-dim);outline-offset:2px;}
+.toc-chip.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600;}
+.toc-chip.active:hover{color:var(--bg);}
+
+main{max-width:980px;margin:0 auto;padding:30px 24px 100px;}
+
+.no-results{display:none;text-align:center;color:var(--text-faint);padding:50px 0;font-family:var(--mono);font-size:13px;}
+.no-results.show{display:block;}
+
+.intro-note{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent-dim);border-radius:8px;padding:16px 18px;margin-bottom:34px;font-size:13.8px;color:var(--text-dim);}
+.intro-note strong{color:var(--text);}
+
+.chapter{margin-bottom:52px;scroll-margin-top:150px;}
+.chapter-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:14px;}
+.chapter-head h2{font-size:18px;margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-weight:600;letter-spacing:.2px;}
+.chapter-num{color:var(--text-faint);font-size:14px;}
+.chapter-progress{font-family:var(--mono);font-size:12px;color:var(--text-faint);white-space:nowrap;}
+.badge{font-size:10.5px;font-family:var(--mono);padding:3px 8px;border-radius:5px;letter-spacing:.4px;font-weight:600;}
+.badge-r1{background:rgba(57,217,138,.13);color:var(--accent);border:1px solid rgba(57,217,138,.35);}
+.badge-r2{background:rgba(90,168,240,.13);color:var(--blue);border:1px solid rgba(90,168,240,.35);}
+.badge-r3{background:rgba(240,180,41,.13);color:var(--amber);border:1px solid rgba(240,180,41,.35);}
+.chapter-intro{color:var(--text-dim);font-size:14px;margin-bottom:20px;font-family:var(--sans);}
+.subhead{margin:30px 0 12px;font-size:12.5px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.6px;text-transform:uppercase;}
+
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px 20px;margin-bottom:14px;}
+.qa-head{display:flex;align-items:flex-start;gap:11px;margin-bottom:10px;}
+.mastery-check{margin-top:4px;width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+.mastery-check:focus-visible{outline:2px solid var(--accent-dim);outline-offset:2px;}
+.qa-q{font-weight:600;font-size:14.5px;color:var(--text);cursor:pointer;font-family:var(--sans);}
+.qa-a{margin-left:27px;color:var(--text-dim);font-size:14px;font-family:var(--sans);}
+.qa-a p{margin:0 0 10px;}
+.qa-a ul{margin:6px 0 12px;padding-left:20px;}
+.qa-a li{margin-bottom:4px;}
+.qa-a strong{color:var(--text);}
+.spoken{font-style:italic;color:var(--text);background:var(--bg-elev);border:1px solid var(--border-2);border-radius:8px;padding:12px 14px;margin:4px 0 12px;}
+
+code{font-family:var(--mono);font-size:12.8px;color:#a8e6c1;}
+.qa-a code:not(pre code){background:var(--bg-elev);padding:1px 5px;border-radius:4px;color:var(--accent);}
+pre{background:var(--bg-elev);border:1px solid var(--border-2);border-radius:8px;padding:12px 14px;overflow-x:auto;margin:10px 0 14px;}
+
+.followup{margin-top:12px;padding:11px 14px;background:rgba(240,180,41,.06);border-left:3px solid var(--amber);border-radius:6px;font-size:13.3px;}
+.followup strong{color:var(--amber);}
+.coach{margin-top:12px;padding:11px 14px;background:rgba(90,168,240,.07);border-left:3px solid var(--blue);border-radius:6px;font-size:13.3px;}
+.coach strong{color:var(--blue);}
+
+footer{max-width:980px;margin:0 auto;padding:0 24px 60px;color:var(--text-faint);font-size:12.5px;font-family:var(--mono);border-top:1px solid var(--border);padding-top:20px;}
+footer a{color:var(--text-dim);}
+
+@media(max-width:640px){
+  .header-inner{flex-direction:column;align-items:flex-start;}
+  #search{width:100%;}
+  .qa-a{margin-left:0;margin-top:8px;}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *{transition:none !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="sticky-wrap">
+<header>
+  <div class="header-inner">
+    <div class="title-block">
+      <h1>Interview Answers — Tailored to Your Resume</h1>
+      <p class="subtitle">3 rounds · answers written in first person, ready to rehearse</p>
+    </div>
+    <div class="controls">
+      <input id="search" type="text" placeholder="Search a question or topic…" oninput="filterCards(this.value)">
+      <div class="progress-wrap">
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+        <span id="progress-text">0 / 0 mastered</span>
+        <button class="reset-btn" onclick="resetProgress()" type="button">reset</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" id="toc">
+  <a href="#ch-r1" class="toc-chip">01 · Round 1 — Technical Screening</a>
+  <a href="#ch-r2" class="toc-chip">02 · Round 2 — In-Depth Technical</a>
+  <a href="#ch-r3" class="toc-chip">03 · Round 3 — Hiring Manager</a>
+</nav>
+</div>
+
+<main>
+<div class="no-results" id="no-results">No matches — try a different term.</div>
+
+<div class="intro-note">
+  <strong>How this is built:</strong> every answer below is written in first person, grounded in what's actually on your resume — Terawe/Microsoft (Azure Synapse), Unique Vacations/Sandals Resorts, Orange Business Services, and RSAB IT — so most of it should read close to how you'd naturally say it. Wherever a question reaches past what your resume actually documents (a couple of the AWS Lambda/ECS and signing questions), there's a blue <strong>coaching note</strong> instead of an invented answer — better to walk in with an honest, confident bridge than a claim that falls apart under one follow-up question. A few of the Round 3 behavioral questions need your own real memory plugged in; those are flagged the same way rather than guessed at.
+</div>
+
+<section class="chapter" id="ch-r1">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">01</span> Round 1 — Technical Screening <span class="badge badge-r1">12 questions</span></h2>
+    <span class="chapter-progress">0/12</span>
+  </div>
+  <p class="chapter-intro">CI/CD mechanics, Jenkins, Kubernetes basics, Docker, Helm. All squarely in your wheelhouse across every role on your resume.</p>
+
+  <div class="qa-card" data-search="cicd workflow jenkins pipeline define stages maven sonarqube jfrog helm rundeck">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r1-1" data-qid="r1-1" onchange="toggleMastery('r1-1', this.checked)">
+      <label for="cb-r1-1" class="qa-q">1. Walk through the CI/CD workflow you actually run and how you define pipelines in Jenkins.</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"I've built and run Jenkins pipelines across every role I've held, most recently helping cut deployment cycle time by 25% in my current work supporting Azure Synapse-adjacent services. My default is a declarative Jenkinsfile: checkout, build — Maven for the Java-based services — a SonarQube quality gate, Docker build, push to JFrog Artifactory, then deploy. The deploy stage's mechanics depend on the target: <code>helm upgrade --install</code> against EKS or AKS for containerized workloads, sometimes fronted by ArgoCD for GitOps; for the legacy Apache/WildFly/Lucee estate I supported for years at Sandals Resorts, deploy went through Rundeck, which we used specifically to standardize deployments and cut manual effort by about 60%."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="shared libraries jenkins vars groovy library annotation">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r1-2" data-qid="r1-2" onchange="toggleMastery('r1-2', this.checked)">
+      <label for="cb-r1-2" class="qa-q">2. What are shared libraries in Jenkins and how do you write and wire them?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"A shared library is what stops you copy-pasting the same 200 lines of Jenkinsfile across a dozen repos. You define it as its own Git repo, with a <code>vars/</code> directory holding custom pipeline steps as Groovy files — and a <code>src/</code> directory if the logic needs to be more than a simple step. You register it in Jenkins' global config, or reference it inline with <code>@Library('my-shared-lib') _</code> at the top of a Jenkinsfile, and from there every pipeline that needs it just calls the step by name — say, a <code>buildAndScan()</code> that wraps Maven build, SonarQube, and the JFrog push into one call. With as many services as I was standardizing CI/CD across during the Sandals containerization work, that's exactly what keeps pipeline maintenance from becoming its own job."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="which apps jenkins pipelines deployment tools pairing java lucee rundeck helm">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r1-3" data-qid="r1-3" onchange="toggleMastery('r1-3', this.checked)">
+      <label for="cb-r1-3" class="qa-q">3. Which apps do you push through Jenkins pipelines and which deployment tools do you pair them with?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"Two different worlds, and I paired the tooling to match rather than forcing one tool everywhere. The containerized Java and Lucee applications I migrated at Sandals Resorts went Docker build to Kubernetes deploy via Helm, with Jenkins and GitHub Actions driving the pipeline. The legacy application-server estate — Apache, Nginx, WildFly, GlassFish, ColdFusion and Lucee before they were containerized — deployed through Rundeck, which gave us a controlled, auditable deployment surface without needing everything containerized first. That combination is also exactly why the migration mattered — moving from Rundeck-driven VM deploys to Helm-driven Kubernetes deploys directly improved rollback capability, which is called out on my resume for a reason: rolling back a bad legacy VM deploy was a much slower, riskier process."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="build fails pipeline runs what usually breaks flaky test sonarqube gate credential expired">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r1-4" data-qid="r1-4" onchange="toggleMastery('r1-4', this.checked)">
+      <label for="cb-r1-4" class="qa-q">4. Build fails even though the pipeline runs — what usually breaks?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"'Pipeline runs' and 'build succeeds' aren't the same claim, and the gap is usually one of a few things: a flaky or environment-dependent test that passes locally but not in the CI runner's exact JDK/dependency version; a SonarQube quality gate configured to warn instead of actually fail the stage, so a real regression sails through looking green; a Maven dependency resolution issue where a snapshot got overwritten upstream between runs; or the one that costs the most time to catch — a credential or token that silently expired, registry push auth especially, so the pipeline 'completes' but the artifact never really landed where it should have. My instinct from the SRE side is the same as any incident — check the stage-level logs before assuming the code is at fault, because a surprising number of 'build failures' are actually pipeline plumbing failures."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="webhook what is it real pipelines github trigger">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r1-5" data-qid="r1-5" onchange="toggleMastery('r1-5', this.checked)">
+      <label for="cb-r1-5" class="qa-q">5. What's a webhook and how do you use it in real pipelines?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"A webhook is what lets GitHub push an event to Jenkins instead of Jenkins having to poll the repo on a timer. Push a commit or open a PR, GitHub fires an HTTP POST to Jenkins' webhook endpoint, and that triggers the corresponding job immediately rather than waiting for the next poll interval. That's what makes CI feel instant instead of laggy, and it's been standard in every pipeline I've built with GitHub Actions and Jenkins working together."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="spin up kubernetes cluster terraform master worker nodes control plane">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r1-6" data-qid="r1-6" onchange="toggleMastery('r1-6', this.checked)">
+      <label for="cb-r1-6" class="qa-q">6. How do you spin up Kubernetes clusters with Terraform and what do the master and worker nodes actually do?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"With Terraform I provision the managed control-plane resource — <code>aws_eks_cluster</code> on AWS, <code>azurerm_kubernetes_cluster</code> on Azure — plus the node group or node pool resource for the workers, wired together with the VPC/VNet, subnets, and IAM roles Terraform also manages. That's core to how I provisioned and managed cloud infrastructure at Sandals Resorts — infrastructure-as-code end to end, no manual console changes. On what each half does: the control plane — API server, etcd, scheduler, controller-manager — is what makes decisions, where pods go and what state the cluster should be in, and on EKS or AKS that whole layer is managed for you, which is a big part of why I lean on managed Kubernetes over self-hosting the control plane. The worker nodes are where kubelet, kube-proxy, and the container runtime actually run the pods the control plane decided on."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="crashloopbackoff imagepullerror kubernetes errors fixed how describe pod logs previous">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r1-7" data-qid="r1-7" onchange="toggleMastery('r1-7', this.checked)">
+      <label for="cb-r1-7" class="qa-q">7. CrashLoopBackOff, ImagePullError — name the Kubernetes errors you've fixed and how.</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"These come up constantly once you're running real production workloads on Kubernetes, which is exactly where I was after the Java and Lucee containerization at Sandals Resorts. For CrashLoopBackOff, my sequence is <code>kubectl describe pod</code> first — the Events section almost always tells you the category before you've read a single log line — then <code>kubectl logs --previous</code> specifically, since the current container instance may have no logs yet if it just restarted. Most of what I've hit falls into a few buckets: a missing or wrong environment variable causing the app to exit on startup, an overly aggressive liveness probe killing a slow-starting JVM app before it's actually ready, or OOMKilled from a memory limit that didn't account for real usage. For ImagePullBackOff, it's almost always a tag typo, a registry auth issue — we ran JFrog Artifactory, so an expired or misconfigured pull secret against it — or a network path problem reaching the registry from a private subnet."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="exec into pod right way define objects declarative yaml gitops">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r1-8" data-qid="r1-8" onchange="toggleMastery('r1-8', this.checked)">
+      <label for="cb-r1-8" class="qa-q">8. How do you exec into a pod and what's the right way to define objects?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"<code>kubectl exec -it &lt;pod&gt; -- sh</code> gets me a shell inside a running container for live debugging — useful in the moment, but not something I'd rely on for anything beyond investigation. The more important half of that question is the second part: everything should be declarative YAML committed to Git, not ad-hoc <code>kubectl create</code> or <code>kubectl edit</code> against a live cluster — imperative changes drift from source control and nobody remembers they happened. In practice that meant Helm charts for templated, versioned deploys, and where I've used ArgoCD, GitOps on top of that, so the cluster's actual state is continuously reconciled against what's declared in Git rather than whatever someone last typed by hand."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="helm chart folder structure commands chart.yaml values templates helpers ship">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r1-9" data-qid="r1-9" onchange="toggleMastery('r1-9', this.checked)">
+      <label for="cb-r1-9" class="qa-q">9. Break down a basic Helm chart folder and the commands you use to ship it.</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"Chart.yaml for metadata — name, chart version, appVersion; values.yaml holding the default config; a templates/ directory with the actual manifests, templated so the same chart deploys to dev, staging, and prod just by swapping values files; and a _helpers.tpl inside templates/ for shared snippets like standard labels so I'm not repeating them everywhere. To ship it: <code>helm lint</code> to validate before anything touches a cluster, <code>helm upgrade --install -f values-prod.yaml</code> for the target environment, and <code>helm rollback</code> sitting there as the fast path back if something goes wrong."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="docker build stages entrypoint cmd difference why matter layers cache">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r1-10" data-qid="r1-10" onchange="toggleMastery('r1-10', this.checked)">
+      <label for="cb-r1-10" class="qa-q">10. What happens in each stage of a Docker build and why do ENTRYPOINT and CMD matter?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"Each instruction in a Dockerfile is its own cached layer, which is why ordering matters — I put anything that changes rarely, base image, OS packages, dependency installation, before anything that changes on every commit, the actual application code, so a code-only change doesn't bust the whole cache and rebuild everything from scratch. On ENTRYPOINT versus CMD: ENTRYPOINT defines the executable that always runs, CMD supplies default arguments to it that can be overridden at <code>docker run</code> time. Get that backwards and you either can't override behavior at runtime when you need to, or you accidentally let someone replace the whole command when you meant to lock it down. For the JVM and Lucee apps I containerized, that distinction mattered specifically for reusing the same image across environments just by overriding CMD-level args instead of rebuilding per environment."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="wire databases ec2 eks ecs together command hit ecs rds iam security group">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r1-11" data-qid="r1-11" onchange="toggleMastery('r1-11', this.checked)">
+      <label for="cb-r1-11" class="qa-q">11. How do you wire DBs, EC2, EKS, and ECS together and what's the command to hit ECS?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"My production experience wires RDS, EC2, and EKS specifically — EKS has been the container orchestrator on every AWS environment I've run, so ECS hasn't been part of my day-to-day stack, and I'd rather say that plainly than overstate it. On the RDS/EC2/EKS side: workloads on EKS or EC2 connect to RDS via a connection string sourced from a secret, never hardcoded, with IAM controlling exactly what can reach the DB instance's security group — that IAM policy governance piece is directly part of my background. The concept transfers straight over to ECS if I needed it — a task also just needs the RDS endpoint and credentials injected the same way, and <code>aws ecs update-service --cluster &lt;name&gt; --service &lt;name&gt; --force-new-deployment</code> is the command to redeploy a service after a task definition change."</div>
+      <div class="coach"><strong>Coaching note:</strong> this is the most honest way to handle a question that reaches past your resume — name the real boundary of your experience confidently, then show you still know the concept. It reads as more credible than pretending ECS is a tool you use daily, and it closes off a follow-up question that could otherwise catch you out.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="container registry trust images jfrog artifactory">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r1-12" data-qid="r1-12" onchange="toggleMastery('r1-12', this.checked)">
+      <label for="cb-r1-12" class="qa-q">12. Which container registry do you trust for your images?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"JFrog Artifactory — it's been my registry across CI/CD pipelines, and pairing it with Xray for image and dependency scanning has been part of how I've approached the security-scanning side of the pipeline, especially coming from a PCI DSS compliance background where scanning isn't optional."</div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-r2">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">02</span> Round 2 — In-Depth Technical Screening <span class="badge badge-r2">9 questions</span></h2>
+    <span class="chapter-progress">0/9</span>
+  </div>
+  <p class="chapter-intro">Deeper on the same ground as Round 1, plus a couple of questions (Lambda, chart signing) that sit outside your day-to-day stack — handled honestly rather than stretched.</p>
+
+  <div class="qa-card" data-search="branching strategy release branch clean hotfix production main trunk">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r2-1" data-qid="r2-1" onchange="toggleMastery('r2-1', this.checked)">
+      <label for="cb-r2-1" class="qa-q">1. What branching strategy keeps your release branch clean and how do you hotfix production?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"The model I've worked within is a protected main branch, feature branches merged in through a PR with required review, so main is always deployable. For a hotfix, I branch directly off the release/production tag rather than off a main that might already be ahead of prod, fix forward with the minimum change needed, and cherry-pick that same commit back into main once it's out — so the fix doesn't quietly disappear the next time main gets released. With as much production incident response and SLA-bound support as I've done, keeping that hotfix path short and untangled from whatever unfinished feature work is sitting in main has mattered more to me than which specific branching model name is on the whiteboard."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="full deployment flow jenkinsfile exact stages">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r2-2" data-qid="r2-2" onchange="toggleMastery('r2-2', this.checked)">
+      <label for="cb-r2-2" class="qa-q">2. Walk me through your full deployment flow and the exact stages in your Jenkinsfile.</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"Checkout, build — Maven for the Java-based services — a SonarQube quality gate, Docker build, push to JFrog Artifactory, then deploy. The deploy stage's actual mechanics changed by target: <code>helm upgrade --install</code> against EKS or AKS for containerized services, or triggering a Rundeck job for the legacy application-server estate before it was fully containerized. Every stage after checkout was written to fail loudly and stop the pipeline rather than continue quietly — a SonarQube gate that only warns is a gate in name only, and I made sure that wasn't the case on anything I owned."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="shared libraries slot into jenkinsfiles reuse">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r2-3" data-qid="r2-3" onchange="toggleMastery('r2-3', this.checked)">
+      <label for="cb-r2-3" class="qa-q">3. How do shared libraries slot into your Jenkinsfiles?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"Same shared library as before — once it's registered globally in Jenkins or referenced with <code>@Library</code>, individual Jenkinsfiles shrink down to calling named steps instead of each repo maintaining its own copy of the same 150 lines of pipeline logic. The real payoff shows up when I need to change something across every pipeline at once — a new mandatory scan stage, a changed deploy target — I change it once in the library instead of touching a dozen Jenkinsfiles individually."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="security scanning tools images build registry time jfrog xray sonarqube pci dss">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r2-4" data-qid="r2-4" onchange="toggleMastery('r2-4', this.checked)">
+      <label for="cb-r2-4" class="qa-q">4. Which security scanning tools do you run on images at build and registry time?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"PCI DSS scanning and remediation is directly part of my background from a payment-processing environment at Sandals Resorts, so image and dependency scanning has never been an afterthought for me. With JFrog as the registry, Xray is the natural fit — it scans on push and can gate promotion between repositories based on severity. At the static-analysis layer, SonarQube is already in the pipeline for code quality, which is a natural place to also enforce security-relevant rules rather than treating code quality and security scanning as two separate pipelines."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="inject environment variables docker builds store images build args secrets">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r2-5" data-qid="r2-5" onchange="toggleMastery('r2-5', this.checked)">
+      <label for="cb-r2-5" class="qa-q">5. How do you inject environment variables during Docker builds and where do you store images?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"Build-time configuration that isn't sensitive goes in as Docker build ARGs, injected by Jenkins from the pipeline's own parameters. Anything sensitive never goes in as a build ARG or gets baked into a layer at all — layers are inspectable, so a 'secret' ARG is really just a secret sitting in plaintext in the image history. Sensitive values get injected at runtime instead, as Kubernetes Secrets mounted into the pod. Images themselves live in JFrog Artifactory, tagged with the commit SHA so every build traces back to an exact source commit rather than relying on a mutable tag like <code>latest</code>."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="connect databases infrastructure secrets security groups rds">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r2-6" data-qid="r2-6" onchange="toggleMastery('r2-6', this.checked)">
+      <label for="cb-r2-6" class="qa-q">6. How do you connect databases in your infrastructure?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"Connection details come from a secret, never a config file committed to Git — the app reads connection values injected as environment variables from a Kubernetes Secret, or for the legacy VM-hosted apps, from a secured config file managed outside the deploy artifact. Network-level access is controlled by security groups scoping exactly which compute can reach the RDS instance at all, which sits alongside the IAM policy governance work on my resume — the DB shouldn't be reachable from anything that doesn't specifically need it, regardless of whether the credential itself is correct."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="authenticate eks keep secrets safe update-kubeconfig iam rbac">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r2-7" data-qid="r2-7" onchange="toggleMastery('r2-7', this.checked)">
+      <label for="cb-r2-7" class="qa-q">7. How do you authenticate to EKS and keep secrets safe?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"<code>aws eks update-kubeconfig --region &lt;region&gt; --name &lt;cluster&gt;</code> to get cluster access locally, backed by IAM — the same IAM policy governance work on my resume extends directly to controlling who can actually authenticate to the cluster in the first place, not just what they can do once they're in via RBAC. For secrets inside the cluster, Kubernetes Secrets for anything that has to live as a native object, with the same principle as the database question — nothing sensitive committed to the Git repo the pipeline deploys from."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="create lambda functions push artifacts serverless">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r2-8" data-qid="r2-8" onchange="toggleMastery('r2-8', this.checked)">
+      <label for="cb-r2-8" class="qa-q">8. How do you create Lambda functions and push artifacts?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"I'll be straightforward — my AWS production hours have been EC2, EKS, and RDS-centric rather than Lambda; I haven't run serverless as a primary workload type. That said, the CI/CD mechanics transfer directly from what I do run: package the function code, zip it or build a container image for larger functions, and <code>aws lambda update-function-code --function-name &lt;name&gt; --zip-file fileb://function.zip</code> pushes a new version through a pipeline the same way I'd push a container image to EKS. If Terraform is already the IaC tool of record — which it has been on every environment I've provisioned — the Lambda function itself would just be another Terraform-managed resource rather than something created manually."</div>
+      <div class="coach"><strong>Coaching note:</strong> same approach as the ECS question — lead with the honest boundary, then immediately show the transferable knowledge. This is a stronger answer than either bluffing hands-on Lambda experience or going quiet.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="signing email helm charts tools gpg cosign provenance smime">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r2-9" data-qid="r2-9" onchange="toggleMastery('r2-9', this.checked)">
+      <label for="cb-r2-9" class="qa-q">9. What's signing for email and Helm charts and which tools do you use?</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"Helm chart signing isn't something I've had to implement day to day, but the mechanism is <code>helm package --sign --key &lt;key&gt; --keyring &lt;keyring&gt;</code>, which produces a provenance file alongside the packaged chart that <code>helm verify</code> checks before install — the same supply-chain-integrity idea as image signing, just at the chart layer. On the email side, that's typically S/MIME or PGP for signed or encrypted mail, which is more of a general security-hygiene practice than something I'd tie to a specific project."</div>
+      <div class="coach"><strong>Coaching note:</strong> this question is a bit of an outlier compared to the rest — if it comes up, a short, accurate answer like the one above is plenty. Don't over-invest prep time here relative to the Kubernetes/CI-CD material that's actually central to the role.</div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch-r3">
+  <div class="chapter-head">
+    <h2><span class="chapter-num">03</span> Round 3 — Hiring Manager Round <span class="badge badge-r3">4 areas, 11 likely questions</span></h2>
+    <span class="chapter-progress">0/11</span>
+  </div>
+  <p class="chapter-intro">The four topics you listed are areas, not single questions — broken out below into the specific questions most likely to come up under each, since "answer project history" isn't really answerable as one Q&amp;A.</p>
+
+  <h3 class="subhead">Project History</h3>
+
+  <div class="qa-card" data-search="most recent project walk through azure synapse grafana dashboards mttd">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r3-1" data-qid="r3-1" onchange="toggleMastery('r3-1', this.checked)">
+      <label for="cb-r3-1" class="qa-q">"Walk me through your most recent project."</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"I'm currently supporting Azure Synapse Analytics for enterprise-scale data analytics workloads, on Microsoft as the client through Terawe Technologies. The core of it has been defining SLI/SLO metrics and building out real-time observability in Prometheus and Grafana for distributed analytics services — that work reduced mean time to detect by 35% and cut alert noise by 40% through actual alert-fatigue remediation, not just adding more dashboards. I've also worked with the development teams to streamline the CI/CD pipelines, which brought deployment cycle time down by 25%, and I run regular platform health reviews and capacity planning to get ahead of peak load events rather than reacting to them."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="most technically challenging interesting project chaos engineering sandals spof">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r3-2" data-qid="r3-2" onchange="toggleMastery('r3-2', this.checked)">
+      <label for="cb-r3-2" class="qa-q">"Tell me about your most technically challenging or interesting project."</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"Probably the chaos engineering work I led on the Sandals Resorts production-equivalent environment. I designed and ran experiments — application server failure simulation, network partition testing, and database connection pool exhaustion — specifically to find failure modes before customers did. That work surfaced three critical single points of failure that weren't visible from normal monitoring, and after remediating them and validating the fix through repeated game days, we improved system recovery time by 45%. What made it stick rather than being a one-off exercise was setting up a recurring game day cadence, so resilience kept getting re-validated as the platform actually evolved instead of being tested once and assumed to hold forever."</div>
+      <div class="followup"><strong>Likely follow-up:</strong> "What were the three single points of failure?" — worth having a real, specific answer ready for this beyond what's on the resume; if you don't remember the exact details from the original engagement, it's fine to speak to the categories (a shared connection pool with no circuit breaker, a stateful app server with no failover, etc.) as long as you're clear about which parts are precise recall versus the general pattern.</div>
+    </div>
+  </div>
+
+  <h3 class="subhead">Day-to-Day Work</h3>
+
+  <div class="qa-card" data-search="typical day looks like sli slo incident response capacity planning">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r3-3" data-qid="r3-3" onchange="toggleMastery('r3-3', this.checked)">
+      <label for="cb-r3-3" class="qa-q">"What does a typical day look like for you?"</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"It splits fairly evenly between proactive and reactive work. On the proactive side: reviewing SLO dashboards and error budget burn, capacity planning ahead of known peak periods, and picking away at CI/CD or observability improvements — that's where the alert-noise reduction and deployment-time improvements have come from. On the reactive side: incident response when something's actually broken, which for me always means root cause analysis and a blameless post-mortem afterward, not just closing the ticket once the symptom clears. I also spend real time on runbooks and playbooks — I've authored a fair number of them — because the value of an incident isn't just fixing it once, it's making the next on-call engineer's version of that incident faster to resolve."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="reactive incident work proactive platform work balance error budget">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r3-4" data-qid="r3-4" onchange="toggleMastery('r3-4', this.checked)">
+      <label for="cb-r3-4" class="qa-q">"How do you split your time between reactive incident work and proactive platform work?"</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"That's exactly what an error budget is for, and it's been core to how I work — SLOs and error budgets aren't just a dashboard number, they're the thing that actually decides whether this week leans toward feature/platform velocity or toward reliability hardening. When the budget's healthy, I'm heads-down on proactive work — observability improvements, CI/CD streamlining, capacity planning. When it's burning fast, that work explicitly pauses and reliability becomes the priority until the budget recovers. It keeps the reactive-versus-proactive balance from being a gut feeling and makes it a number everyone on the team already agrees on."</div>
+    </div>
+  </div>
+
+  <h3 class="subhead">Basic Behavioral Questions</h3>
+
+  <div class="qa-card" data-search="production incident under pressure star method blameless postmortem">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r3-5" data-qid="r3-5" onchange="toggleMastery('r3-5', this.checked)">
+      <label for="cb-r3-5" class="qa-q">"Tell me about a time you handled a production incident under pressure."</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"I've managed production incidents end-to-end across multiple roles — detection, triage, resolution, and a blameless post-mortem afterward. The chaos engineering work is actually a good example of the mindset even outside a live incident: rather than waiting to find single points of failure during a real outage, I went looking for them deliberately, through simulated app server failures and network partition testing, and fixed three of them before they became a customer-facing incident at all. When something has genuinely broken in production, my instinct is the same discipline every time — stabilize first, understand second, and make sure the post-mortem produces a real action item, not just a summary of what happened."</div>
+      <div class="coach"><strong>Coaching note:</strong> this one works well pulling from the chaos engineering project since it's the most detailed, numbers-backed story on your resume. If the interviewer pushes for a genuine live-fire incident (not a planned chaos exercise), have one specific real memory ready from your 7 years at RSAB/Sandals or your Orange Business Services support role — the STAR shape is Situation → what broke and the blast radius, Task → what you personally owned, Action → the specific steps you took, Result → the outcome, ideally with a number attached.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="tell me about a failure what did you learn star framework">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r3-6" data-qid="r3-6" onchange="toggleMastery('r3-6', this.checked)">
+      <label for="cb-r3-6" class="qa-q">"Tell me about a time you failed, and what you learned from it."</label>
+    </div>
+    <div class="qa-a">
+      <div class="coach"><strong>Coaching note — this one needs your real memory, not mine:</strong> a resume only lists wins, so I can't responsibly script a specific failure for you without inventing one. Use the STAR shape — Situation, Task, Action, Result — and pick something real, ideally something that's genuinely instructive rather than a disguised humblebrag ("I worked too hard"). A few places on your own timeline that could plausibly hold real material, if anything like this actually happened: an early chaos engineering game day that revealed something you hadn't planned for; a deployment during the Rundeck-to-Kubernetes transition that needed a rollback before the CI/CD gates were tightened further; or an alert-tuning pass that initially suppressed something it shouldn't have before you got the thresholds right. Pick whichever is true, be specific about what you'd do differently, and keep the "what changed afterward" part concrete.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="disagreement teammate manager resolved conflict star">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r3-7" data-qid="r3-7" onchange="toggleMastery('r3-7', this.checked)">
+      <label for="cb-r3-7" class="qa-q">"Tell me about a disagreement with a teammate or manager and how you resolved it."</label>
+    </div>
+    <div class="qa-a">
+      <div class="coach"><strong>Coaching note — same as above, needs your real memory:</strong> a natural category to mine here, given your background, is a reliability-versus-velocity disagreement — a dev team wanting to ship before an SLO/error-budget concern was addressed, or a scope disagreement during one of the platform migrations. If something like that genuinely happened, structure it as: what each side wanted and why, how you made the reliability case with data rather than just asserting it, and what the actual resolution was. Interviewers are listening for whether you resolve disagreements with evidence and collaboration or by pulling rank/waiting it out — pick a real story that shows the former.</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="greatest strength weakness self assessment">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r3-8" data-qid="r3-8" onchange="toggleMastery('r3-8', this.checked)">
+      <label for="cb-r3-8" class="qa-q">"What's your greatest strength, and your greatest weakness?"</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"My strength is the combination on my resume that doesn't usually sit in one person — SLO discipline and chaos engineering on one side, and hands-on troubleshooting across Kubernetes, Terraform, and legacy application servers on the other. A lot of people are strong on the measurement/process side or the hands-on side; having both means I can define what reliability should look like and then actually go implement and defend it in production."</div>
+      <div class="coach"><strong>Coaching note — the weakness half needs your honest self-assessment:</strong> pick something real, ideally something adjacent to your strengths rather than disqualifying for this specific role (for an SRE, "I don't write code" would be a real problem to name; "I'm still building deeper depth in a newer area you're less central to day-to-day" reads as normal growth). Whatever you pick, pair it with one concrete thing you're actually doing about it — that's the part that makes this answer land instead of sounding like a script.</div>
+    </div>
+  </div>
+
+  <h3 class="subhead">Teamwork &amp; Culture Fit</h3>
+
+  <div class="qa-card" data-search="ideal team culture how work with others cross functional collaboration">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r3-9" data-qid="r3-9" onchange="toggleMastery('r3-9', this.checked)">
+      <label for="cb-r3-9" class="qa-q">"Describe your ideal team culture, or how you like to work with others."</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"I've collaborated cross-functionally with engineering and product teams throughout my career specifically to embed reliability practices into the SDLC rather than bolting them on afterward — that's most effective when reliability isn't 'the SRE's job' but a shared responsibility the whole team understands, with SLOs and error budgets as the shared language for it. I work best on a team that treats a post-mortem as a genuinely blameless learning exercise rather than a search for who to blame — that's the culture I've operated in and the one that actually gets people to report problems early instead of hiding them."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="on call handle paged inconsistent hours incident management runbooks">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r3-10" data-qid="r3-10" onchange="toggleMastery('r3-10', this.checked)">
+      <label for="cb-r3-10" class="qa-q">"How do you handle on-call and being paged at inconsistent hours?"</label>
+    </div>
+    <div class="qa-a">
+      <div class="spoken">"I treat runbooks as the actual answer to this rather than just personal resilience — I've authored incident playbooks and operational SOPs specifically to improve on-call response efficiency and make sure knowledge transfer doesn't depend on one person's memory at 2am. A good on-call rotation is one where the runbook gets you 80% of the way to resolution before you're even fully context-switched in, and every incident that didn't have a runbook becomes the reason the next one does."</div>
+    </div>
+  </div>
+
+  <div class="qa-card" data-search="why looking for new role change jobs career growth avp architect">
+    <div class="qa-head">
+      <input type="checkbox" class="mastery-check" id="cb-r3-11" data-qid="r3-11" onchange="toggleMastery('r3-11', this.checked)">
+      <label for="cb-r3-11" class="qa-q">"Why are you looking to make a move right now?"</label>
+    </div>
+    <div class="qa-a">
+      <div class="coach"><strong>Coaching note — the framing below is safe and resume-consistent, but the specific reason should be yours:</strong> a solid shape for this answer is growth-oriented and forward-looking rather than critical of your current employer — something like wanting broader platform ownership and scope at a more senior/architect level than your current position offers, which lines up naturally with 11+ years of experience and the SC-100/architect-track certification on your resume. Keep it specific to what you're moving <em>toward</em>, not what you're moving away from — even if the real reason includes frustrations with your current situation, an interviewer is listening for forward motion, not a complaint.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Built from your resume and the exact questions you brought back from today — 32 answers across 3 rounds. Spoken-style answers are ready to rehearse as-is; blue coaching notes mark anywhere the question reaches past what your resume documents, so you walk in knowing exactly which answers are scripted and which need your own specific memory. Progress saves automatically in this file.
+</footer>
+
+<script>
+let masteryState = {};
+const STORAGE_KEY = 'resume-interview-answers-mastery';
+const hasStorage = typeof window.storage !== 'undefined';
+
+async function loadProgress(){
+  if(hasStorage){
+    try{
+      const result = await window.storage.get(STORAGE_KEY);
+      if(result && result.value) masteryState = JSON.parse(result.value);
+    }catch(e){ /* nothing saved yet on first run */ }
+  }
+  applyProgressToCheckboxes();
+  updateProgressBar();
+}
+
+async function toggleMastery(id, checked){
+  if(checked) masteryState[id] = true; else delete masteryState[id];
+  updateProgressBar();
+  if(!hasStorage) return;
+  try{ await window.storage.set(STORAGE_KEY, JSON.stringify(masteryState)); }
+  catch(e){ console.error('save failed', e); }
+}
+
+function applyProgressToCheckboxes(){
+  document.querySelectorAll('.mastery-check').forEach(cb=>{
+    if(masteryState[cb.dataset.qid]) cb.checked = true;
+  });
+}
+
+function updateProgressBar(){
+  const all = document.querySelectorAll('.mastery-check');
+  const total = all.length;
+  const done = Object.keys(masteryState).length;
+  const textEl = document.getElementById('progress-text');
+  const fillEl = document.getElementById('progress-fill');
+  if(textEl) textEl.textContent = done + ' / ' + total + ' mastered';
+  if(fillEl) fillEl.style.width = (total ? (done/total*100) : 0) + '%';
+  document.querySelectorAll('.chapter').forEach(ch=>{
+    const boxes = ch.querySelectorAll('.mastery-check');
+    let d = 0;
+    boxes.forEach(b=>{ if(masteryState[b.dataset.qid]) d++; });
+    const label = ch.querySelector('.chapter-progress');
+    if(label) label.textContent = d + '/' + boxes.length;
+  });
+}
+
+function filterCards(term){
+  term = term.trim().toLowerCase();
+  let anyVisible = false;
+  document.querySelectorAll('.chapter').forEach(ch=>{
+    let chVisible = false;
+    ch.querySelectorAll('.qa-card').forEach(card=>{
+      const match = !term || (card.dataset.search || '').includes(term);
+      card.classList.toggle('hidden', !match);
+      if(match) chVisible = true;
+    });
+    ch.classList.toggle('hidden', !chVisible);
+    if(chVisible) anyVisible = true;
+  });
+  const noRes = document.getElementById('no-results');
+  if(noRes) noRes.classList.toggle('show', !anyVisible);
+}
+
+async function resetProgress(){
+  if(!confirm('Clear all mastery checkmarks?')) return;
+  masteryState = {};
+  document.querySelectorAll('.mastery-check').forEach(cb=> cb.checked = false);
+  updateProgressBar();
+  if(hasStorage){
+    try{ await window.storage.set(STORAGE_KEY, JSON.stringify({})); }catch(e){}
+  }
+}
+
+function setupActiveTocTracking(){
+  const chips = Array.from(document.querySelectorAll('.toc-chip'));
+  const chipByHref = {};
+  chips.forEach(c => { chipByHref[c.getAttribute('href')] = c; });
+  if(!('IntersectionObserver' in window)) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const chip = chipByHref['#' + entry.target.id];
+      if(!chip) return;
+      if(entry.isIntersecting){
+        chips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        chip.scrollIntoView({block:'nearest', inline:'nearest', behavior:'smooth'});
+      }
+    });
+  }, { rootMargin: '-140px 0px -70% 0px', threshold: 0 });
+  document.querySelectorAll('.chapter').forEach(ch => observer.observe(ch));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadProgress();
+  setupActiveTocTracking();
+});
+</script>
+</body>
+</html>

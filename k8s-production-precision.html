@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubernetes Production Deep-Dive — Precision Pass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0d12; --panel:#10151c; --panel-2:#141b24;
+    --border:#1f2937; --border-soft:rgba(255,255,255,.07);
+    --text:#e6edf3; --text-dim:#8b98a5; --text-faint:#4d5661;
+    --cyan:#4fd1e5; --violet:#a78bfa; --blue:#58a6ff; --amber:#d29922; --green:#3fb950; --rose:#f778ba; --orange:#f0883e;
+    --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased;
+    background-image:linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:28px 28px;}
+  :focus-visible{outline:2px solid var(--cyan); outline-offset:2px; border-radius:3px}
+  .wrap{max-width:760px; margin:0 auto; padding:0 16px 64px}
+
+  header{padding:26px 0 18px}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.08em; color:var(--text-faint); text-transform:uppercase; margin-bottom:12px}
+  h1{font-size:clamp(21px,6vw,27px); line-height:1.2; margin:0 0 12px; font-weight:800; letter-spacing:-.01em}
+  .meta-row{display:flex; flex-wrap:wrap; gap:8px 16px; font-family:var(--mono); font-size:12.5px; color:var(--text-dim); margin-bottom:20px}
+  .meta-row b{color:var(--text)}
+  .progress-wrap{margin-bottom:20px}
+  .progress-label{display:flex; justify-content:space-between; font-family:var(--mono); font-size:11.5px; color:var(--text-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:.06em}
+  #progressLabel{color:var(--cyan)}
+  .progress-track{height:6px; background:var(--panel-2); border-radius:4px; overflow:hidden; border:1px solid var(--border-soft)}
+  .progress-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--cyan),var(--green)); border-radius:4px; transition:width .35s ease}
+
+  .note{background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--amber); border-radius:8px; padding:14px 16px; font-size:14px; color:var(--text-dim); margin-bottom:26px}
+  .note b{color:var(--amber); font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; display:block; margin-bottom:6px}
+  .note strong{color:var(--text)}
+
+  .jd-heading{font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint); margin:0 0 10px}
+  .jd-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:26px}
+  @media(min-width:560px){.jd-grid{grid-template-columns:repeat(4,1fr)}}
+  .jd-tile{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 12px; cursor:pointer; text-align:left; font-family:var(--sans); transition:border-color .15s, background .15s}
+  .jd-tile:hover{background:var(--panel-2); border-color:#2d3948}
+  .jd-tile-top{display:flex; align-items:center; gap:6px; margin-bottom:5px}
+  .jd-dot{width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex-shrink:0}
+  .jd-dot.partial{background:var(--amber)}
+  .jd-dot.done{background:var(--green)}
+  .jd-label{font-size:12.5px; font-weight:600; color:var(--text)}
+  .jd-count{font-size:10.5px; color:var(--text-dim); font-family:var(--mono); margin-top:4px}
+
+  .controls{position:sticky; top:0; z-index:20; background:rgba(10,13,18,.92); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding:12px 0; border-bottom:1px solid var(--border); margin-bottom:24px}
+  .search-row{display:flex; gap:8px; margin-bottom:10px}
+  #searchInput{flex:1; background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-family:var(--sans); font-size:14px}
+  #searchInput::placeholder{color:var(--text-faint)}
+  #expandBtn{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text-dim); font-family:var(--mono); font-size:11.5px; cursor:pointer; white-space:nowrap}
+  #expandBtn:hover{color:var(--text); border-color:#2d3948}
+  .pills{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none}
+  .pills::-webkit-scrollbar{display:none}
+  .pill{flex-shrink:0; background:transparent; border:1px solid var(--border); color:var(--text-dim); font-family:var(--mono); font-size:11.5px; padding:6px 12px; border-radius:20px; cursor:pointer; white-space:nowrap; transition:all .15s}
+  .pill.active{background:var(--cyan); border-color:var(--cyan); color:#04222a; font-weight:600}
+  .pill:hover:not(.active){border-color:#2d3948; color:var(--text)}
+
+  .section{margin-bottom:36px}
+  .section.section-empty{display:none}
+  .section-head{display:flex; align-items:baseline; gap:10px; margin-bottom:6px; padding-bottom:10px; border-bottom:1px solid var(--border)}
+  .section-eyebrow{font-family:var(--mono); font-size:11px; color:var(--sec-accent); letter-spacing:.08em}
+  .section-title{font-size:17px; font-weight:700; margin:0}
+  .section-count{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--text-faint)}
+  .section-sub{font-size:13px; color:var(--text-faint); margin:0 0 14px}
+  .sec-strat{--sec-accent:var(--violet)}
+  .sec-net{--sec-accent:var(--blue)}
+  .sec-scale{--sec-accent:var(--green)}
+  .sec-helm{--sec-accent:var(--amber)}
+  .sec-docker{--sec-accent:var(--orange)}
+  .sec-sre{--sec-accent:var(--cyan)}
+  .sec-incident{--sec-accent:var(--rose)}
+
+  .qa-card{background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--sec-accent); border-radius:8px; margin-bottom:8px; overflow:hidden}
+  .qa-head{width:100%; display:flex; align-items:center; gap:10px; background:none; border:0; padding:13px 14px; text-align:left; cursor:pointer; color:var(--text); font-family:var(--sans)}
+  .qa-head:hover{background:var(--panel-2)}
+  .qa-num{font-family:var(--mono); font-size:11px; color:var(--sec-accent); flex-shrink:0; width:20px}
+  .qa-q{flex:1; font-size:14.5px; font-weight:600; line-height:1.4}
+  .qa-chev{font-size:16px; color:var(--text-faint); transition:transform .2s; flex-shrink:0}
+  .qa-card.open .qa-chev{transform:rotate(90deg); color:var(--sec-accent)}
+  .qa-body{max-height:0; overflow:hidden; transition:max-height .28s ease}
+  .qa-card.open .qa-body{max-height:900px}
+  .qa-body-inner{padding:0 14px 16px 44px}
+  .qa-answer{font-size:14px; color:var(--text-dim); margin:0 0 10px}
+  .qa-points{margin:0 0 12px; padding-left:18px; font-size:13px; color:var(--text-dim)}
+  .qa-points li{margin-bottom:5px}
+  .qa-mark{display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11px; color:var(--text-faint); cursor:pointer; text-transform:uppercase; letter-spacing:.05em}
+  .qa-mark input{accent-color:var(--green); width:14px; height:14px; cursor:pointer}
+  code{background:rgba(79,209,229,.1); color:var(--cyan); padding:1px 6px; border-radius:4px; font-family:var(--mono); font-size:.9em}
+  strong{color:var(--text); font-weight:600}
+
+  #noResults{display:none; text-align:center; padding:40px 20px; color:var(--text-faint); font-family:var(--mono); font-size:13px}
+  footer{text-align:center; color:var(--text-faint); font-family:var(--mono); font-size:11px; margin-top:40px; padding-top:20px; border-top:1px solid var(--border-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Built from your latest feedback · 7.8–8.3/10, moderate-good chance</div>
+    <h1>Kubernetes Production Deep-Dive</h1>
+    <div class="meta-row">
+      <span>🎯 <b>29 questions</b></span>
+      <span>7 sections</span>
+      <span>Precision, not breadth</span>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Reviewed</span><span id="progressLabel">0 / 29</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="note">
+      <b>Why this one's different from your other documents</b>
+      This isn't new topics — it's the same six things that got flagged, answered with the exact precision the interviewer was pushing for. The <strong>strategy vs. technique</strong> distinction on deployments is the single most important thing in here — he corrected it multiple times, and it's a specific, checkable fact you can nail every time once it's locked in, not a matter of experience.
+    </div>
+
+    <div class="jd-heading">Coverage — tap a tile to jump</div>
+    <div class="jd-grid" id="jdGrid"></div>
+  </header>
+
+  <div class="controls">
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="Search questions & answers…">
+      <button id="expandBtn" onclick="toggleExpandAll()">Expand all</button>
+    </div>
+    <div class="pills" id="pillsRow"></div>
+  </div>
+
+  <div id="sections"></div>
+  <div id="noResults">No matches. Try clearing the search.</div>
+
+  <footer>Precision pass · the same gap, closed for good</footer>
+</div>
+
+<script>
+const DATA = [
+  {id:"dt1",section:"strat",q:"What's the actual difference between a deployment STRATEGY and a rollout TECHNIQUE?",
+   a:"Blue-Green is a deployment strategy: you run two complete, independent environments (Blue = current, Green = new), fully test Green in isolation with zero customer traffic, then cut traffic over — either all at once or in one deliberate step — and Blue stays fully intact as an instant rollback target. Rolling and Canary are rollout techniques: they describe HOW you introduce the new version's traffic gradually within essentially one environment/mechanism, not a separate parallel environment. 'Strategy' answers 'do I have a full parallel environment to test in and cut over to.' 'Technique' answers 'how gradually do I expose the new version once I'm rolling it out.'",
+   points:["<strong>Say this distinction explicitly and early</strong> — it's exactly what got corrected multiple times","Blue-Green = two full separate environments, tested in isolation before any customer sees it","Rolling/Canary = gradual traffic introduction within one rollout mechanism, not a separate environment"]},
+  {id:"dt2",section:"strat",q:"Explain Blue-Green — why does it minimize downtime, and why do customers sometimes still see issues?",
+   a:"Downtime minimizes because the cutover — flipping a router/load-balancer/service selector from Blue to Green — is close to instantaneous, versus a slow rebuild-in-place. But 'minimizes' isn't 'eliminates': in-flight requests at the exact moment of cutover can drop if connection draining isn't handled properly, caching/CDN can serve stale content briefly, and if Green has a bug that only shows under real production traffic patterns, customers hit it immediately at 100% once cutover happens — there's no gradual exposure to catch it early, unlike canary.",
+   points:["Cutover is near-instant (router/selector flip) — that's WHY it minimizes downtime","'Minimizes' not 'eliminates' — connection draining, caching/CDN staleness, and a bug only visible under real traffic are the real gaps","A bug in Green hits 100% of traffic immediately with a hard cutover — no gradual exposure, unlike canary — name this tradeoff"]},
+  {id:"dt3",section:"strat",q:"How do you test before cutover in Blue-Green, and how does rollback actually work?",
+   a:"Before cutover: smoke tests and synthetic traffic against Green directly via its own internal endpoint, not the public route yet, plus health checks confirming all pods are Ready. Rollback is the mirror of cutover: flip the router/selector back to Blue, which is still fully running and untouched — this is why Blue-Green rollback is fast, seconds, not a redeploy, since nothing is being rebuilt, just repointed.",
+   points:["Test against Green's internal endpoint before it's public-facing — pre-cutover validation, not post-cutover discovery","Rollback = flip back to Blue, which never stopped running — that's WHY it's fast, not a redeploy","Keeping Blue alive (not torn down) until confident in Green is the whole point"]},
+  {id:"dt4",section:"strat",q:"Canary deployment — walk through traffic shifting from one pod to full rollout.",
+   a:"Start by routing a small percentage of real traffic, often literally one pod out of ten (roughly 10%), to the new version while the rest still serve the old one, watching real production metrics against that slice specifically, not aggregate. If healthy, increase in steps (10% → 25% → 50% → 100%), pausing to observe at each step; if unhealthy, abort and route back to 0%. Customer impact is bounded to whatever percentage was live at the point you caught and aborted it — fundamentally different from Blue-Green's all-or-nothing exposure.",
+   points:["One pod out of ten IS roughly 10% canary — connect the concrete mechanic to the percentage concept","Watch metrics on the canary slice specifically, not blended aggregate numbers that dilute a real problem","Bounded blast radius is the core value proposition versus Blue-Green's all-or-nothing"]},
+  {id:"dt5",section:"strat",q:"Blue-Green vs Canary — the sharpest possible direct comparison.",
+   a:"Blue-Green trades capacity (double the infrastructure temporarily) for a fast, clean, all-or-nothing cutover with instant, zero-rebuild rollback. Canary trades a slower, gradual rollout for a bounded blast radius — a bug only ever reaches a fraction of traffic before you catch and abort it, at the cost of running two versions simultaneously longer and needing good metrics to judge each step. Neither is strictly better; Blue-Green suits changes you're fairly confident about, canary suits changes where you want production traffic itself part of the validation.",
+   points:["Blue-Green: capacity cost, fast clean cutover, instant rollback, all-or-nothing exposure","Canary: time cost (gradual), bounded blast radius, needs good real-time metrics to judge each step","Framing it as a tradeoff rather than 'canary is just better' shows senior-level judgment"]},
+  {id:"dt6",section:"strat",q:"Rolling update — how is it different from both, and what does Kubernetes do natively?",
+   a:"A rolling update is Kubernetes' built-in default Deployment strategy: it replaces old pods with new ones incrementally, controlled by <code>maxSurge</code> (extra pods above desired count it can create) and <code>maxUnavailable</code> (how many can be down at once), with no separate parallel environment and no traffic-percentage control the way canary has. It's the default because it needs no extra infrastructure, but offers less control than canary and less safety than Blue-Green.",
+   points:["<code>maxSurge</code>/<code>maxUnavailable</code> are the two knobs — name them specifically, a concrete checkable detail","It replaces pods incrementally — different from canary's traffic-percentage control on otherwise-unchanged pod counts","It's the K8s default because it needs zero extra infrastructure — that's the actual reason, not that it's 'better'"]},
+  {id:"dt7",section:"strat",q:"kubectl rollout undo vs Helm rollback — when do you use each?",
+   a:"<code>kubectl rollout undo deployment/name</code> reverts to the previous ReplicaSet already recorded in the Deployment's revision history — fast, no extra tooling, but limited by <code>revisionHistoryLimit</code> and only rolls back the Deployment object itself. <code>helm rollback release-name revision-number</code> reverts the entire release — every resource Helm manages, not just one Deployment — which matters when a change touched a ConfigMap, Service, and Deployment together and they need to revert as a consistent set.",
+   points:["kubectl rollout undo = one Deployment object, from K8s's own revision history","helm rollback = the whole release (every resource the chart manages), from Helm's release history","If a change touched multiple resource types together, Helm rollback is the consistent, correct tool"]},
+
+  {id:"kn1",section:"net",q:"API A can't communicate with API B — TLS handshake failure. Full RCA process.",
+   a:"Start with <code>openssl s_client -connect service-b:443</code> from inside API A's pod to see the actual handshake failure and certificate presented. Then work through, in order: certificate expiry (check NotAfter — the single most common cause), CA chain trust (does A's trust store include the CA that signed B's cert), whether the Secret backing the cert is stale or was rotated but not reloaded by the pod, and time synchronization (a clock-skewed node rejects a genuinely valid cert). If cert-manager issues the cert, check its logs and the Certificate resource's status for a renewal that silently failed.",
+   points:["<code>openssl s_client</code> from inside the source pod is the direct diagnostic — start there, not with theory","Order: cert expiry → CA trust chain → stale Secret not reloaded → time sync → cert-manager renewal failure","This is close to verbatim what was asked — have this sequence ready cold"]},
+  {id:"kn2",section:"net",q:"What does cert-manager actually do, and how do you troubleshoot it?",
+   a:"cert-manager automates certificate issuance and renewal: you define a Certificate resource, it requests one from an Issuer/ClusterIssuer, and writes the result into a Kubernetes Secret your Ingress or pod mounts — then it watches expiry and renews before it, rewriting that same Secret. When something's wrong: <code>kubectl describe certificate</code> shows current status (a stuck 'False' Ready condition first), then <code>describe certificaterequest</code> and <code>order</code>/<code>challenge</code> (for ACME issuers) show exactly where issuance is stuck — often a failed HTTP-01 or DNS-01 challenge from a networking/DNS misconfiguration.",
+   points:["Certificate → Issuer/ClusterIssuer → Secret is the object chain — know it in that order","<code>describe certificate</code> first for overall status, then drill into certificaterequest/order/challenge","A failed ACME challenge due to networking is the most common real-world cert-manager failure"]},
+  {id:"kn3",section:"net",q:"How do Kubernetes Secrets relate to TLS, and what's a common failure mode?",
+   a:"A TLS Secret holds the cert and private key (<code>tls.crt</code>/<code>tls.key</code>) that an Ingress or pod mounts to terminate or present TLS. The common failure: cert-manager rotates the Secret's contents on renewal, but a pod that mounted it as a volume rather than reading it fresh doesn't automatically pick up the new cert — some apps need a restart or reload signal, so 'the Secret updated fine but the app is still presenting the expired cert' is a real, distinct failure mode.",
+   points:["TLS Secret = tls.crt + tls.key, mounted by Ingress or pod","Secret rotating does NOT guarantee the consuming pod picks up the change automatically — that's the trap","Distinguish 'Secret is wrong' from 'Secret is right but the app hasn't reloaded it'"]},
+  {id:"kn4",section:"net",q:"What's mTLS, and why use it over regular TLS between internal services?",
+   a:"Regular TLS authenticates the server to the client but not the reverse. Mutual TLS adds client authentication: both sides present and verify certificates, so API B also confirms API A is who it claims before accepting the connection. Inside a cluster, a compromised pod that gets network access to API B shouldn't be able to just talk to it — mTLS means it also needs a valid client certificate, which it won't have. A service mesh is the common way to get mTLS everywhere without hand-rolling certificate management per service.",
+   points:["Regular TLS = server proves identity to client. mTLS = both sides prove identity to each other","Inside a cluster, mTLS stops network-level access alone from being enough to reach a service","Naming a service mesh as the practical way to get mTLS everywhere is the senior-level follow-up"]},
+  {id:"kn5",section:"net",q:"What does a service mesh add specifically for TLS/networking?",
+   a:"A service mesh injects a sidecar proxy next to every pod that transparently handles mTLS between every service with zero application code changes — the app makes a plain HTTP call, the sidecar handles TLS underneath. It also gives fine-grained traffic policy (which services can talk to which), automatic cert rotation for the mesh's own internal certs, and consistent mTLS telemetry so a handshake failure shows up centrally rather than only in one app's logs.",
+   points:["Sidecar handles mTLS transparently — app code stays plain HTTP","Automatic cert rotation for internal service-to-service certs, separate from cert-manager's Ingress-facing certs","Mesh-level telemetry means a TLS failure is visible centrally, not buried in one app's logs"]},
+  {id:"kn6",section:"net",q:"How do internal DNS and ClusterIP factor into a service-to-service TLS scenario?",
+   a:"Before TLS happens, API A has to resolve API B's ClusterIP via CoreDNS, then connect to it — if either fails, you'd see a connection failure or timeout, not a TLS handshake failure specifically. That's a useful diagnostic shortcut: getting as far as a TLS failure (rather than a timeout) already confirms DNS and basic connectivity were fine, narrowing the problem to the certificate/trust layer.",
+   points:["DNS resolution and ClusterIP connectivity happen BEFORE TLS — a TLS-specific failure means those already succeeded","Use this as a diagnostic shortcut: reaching a TLS failure already rules out DNS/connectivity","Say this explicitly — it shows you understand the layering, not just each layer in isolation"]},
+
+  {id:"as1",section:"scale",q:"Explain how HPA actually works internally, not just 'it scales pods.'",
+   a:"HPA polls metrics (metrics-server for CPU/memory, or a custom/external adapter for anything else) on an interval, compares the current value against your target, and computes desired replicas as roughly <code>currentReplicas × (currentMetric / targetMetric)</code>, rounding up. It won't scale below <code>minReplicas</code> or above <code>maxReplicas</code>, and has stabilization windows to avoid thrashing — scale-up reacts fast by default, scale-down deliberately waits longer.",
+   points:["The actual formula: desiredReplicas ≈ currentReplicas × (currentMetric/targetMetric) — stating this is a concrete depth signal","metrics-server for CPU/memory; a custom/external adapter for anything else (queue depth, RPS)","Scale-up is fast, scale-down is deliberately slower — asymmetric on purpose, to avoid flapping"]},
+  {id:"as2",section:"scale",q:"Pods are Pending due to insufficient resources, and HPA wants to scale further.",
+   a:"HPA will happily create more pod objects even with no cluster capacity to schedule them — HPA decides desired replica count, not whether the cluster can host it, so you get a growing pile of Pending pods. Check <code>kubectl describe pod</code> for the exact scheduler reason, and check whether Cluster Autoscaler is enabled and has room to add nodes — a node group at its own max size can't add capacity no matter how badly needed.",
+   points:["HPA and cluster capacity are separate concerns — HPA doesn't know if the cluster can host what it asks for","<code>kubectl describe pod</code> Events gives the exact scheduler reason — don't guess","Cluster Autoscaler at its own max node count is a real, common reason autoscaling 'isn't working' when HPA is functioning correctly"]},
+  {id:"as3",section:"scale",q:"How does Cluster Autoscaler decide to add/remove nodes, and how does it interact with HPA?",
+   a:"Cluster Autoscaler watches for Pending pods that can't schedule due to insufficient node resources and adds nodes; it watches for underutilized nodes whose pods could be rescheduled elsewhere and removes them after a grace period, if that wouldn't violate a PodDisruptionBudget. HPA decides how many pods should exist; Cluster Autoscaler decides how many nodes are needed to host whatever pods currently exist or are Pending.",
+   points:["Clean division: HPA decides pod count, Cluster Autoscaler decides node count to host them","Node removal respects PodDisruptionBudgets — won't scale down in a way that violates one","Cluster Autoscaler is reactive to Pending pods, not predictive — real lag exists between demand and new node availability"]},
+  {id:"as4",section:"scale",q:"What resource requests/limits mistakes actually break autoscaling in production?",
+   a:"No requests set means HPA has nothing to calculate a percentage against, since the target is relative to the request — HPA silently can't function. Requests set far below real usage make the scheduler overpack nodes, causing throttling even while HPA thinks pod-level metrics look fine. Limits too close to requests cause throttling/OOMKill during a legitimate spike HPA hasn't caught up to scaling for yet.",
+   points:["No requests defined breaks HPA silently, not loudly — no baseline to compute a percentage against","Requests too low = node overpacking, throttling despite HPA reporting healthy pod-level metrics","Limits too tight against requests = a real spike causes throttling before HPA can react — a timing gap, not a config bug"]},
+
+  {id:"h1",section:"helm",q:"What are Helm templates actually doing, versus raw Kubernetes YAML?",
+   a:"Helm templates are Kubernetes YAML with Go templating layered in, letting one chart produce different rendered manifests per environment by substituting values from <code>values.yaml</code> — the same chart deploys dev, staging, and prod with different replica counts or image tags, instead of maintaining near-duplicate YAML by hand. <code>helm template</code> renders the final YAML locally without applying it — the right way to review exactly what will deploy before running install/upgrade for real.",
+   points:["One chart, many environments, via values substitution — the actual value proposition over raw YAML","<code>helm template</code> for a dry-run render to review — use before install/upgrade, not after something breaks","This also answers 'why Helm over Kustomize' if asked — templating/parameterization vs patch-based overlays"]},
+  {id:"h2",section:"helm",q:"A Helm upgrade fails partway through — what's your process?",
+   a:"Check <code>helm status release-name</code> and <code>helm history release-name</code> first to see current state and actual revision. If legitimately broken, <code>helm rollback release-name previous-revision-number</code> reverts the whole release cleanly. Helm 3's <code>--atomic</code> flag on install/upgrade automatically rolls back on failure rather than leaving a half-applied release — the preventive fix, not just the reactive one.",
+   points:["<code>helm status</code> + <code>helm history</code> before doing anything — confirm current state first","<code>helm rollback</code> to a specific prior revision number is the recovery action","<code>--atomic</code> is the preventive answer — auto-rollback on failure, worth naming unprompted"]},
+  {id:"h3",section:"helm",q:"How do you handle secrets in Helm charts without committing them to Git?",
+   a:"Never put real secret values in <code>values.yaml</code> committed to Git. Common patterns: reference an already-existing Secret created out-of-band via External Secrets Operator pulling from Vault/AWS Secrets Manager/Azure Key Vault, rather than having Helm create it from a plaintext value, or use Helm Secrets/SOPS to encrypt values files at rest and decrypt only at deploy time.",
+   points:["Never commit real secret values in values.yaml, even 'temporarily'","External Secrets Operator (pulling from Vault/cloud secret manager) is the GitOps-clean answer","Helm Secrets/SOPS is the alternative pattern if there's no external secrets operator in place"]},
+
+  {id:"d1",section:"docker",q:"Explain a multi-stage Dockerfile and why you'd use one — with real confidence this time.",
+   a:"A multi-stage build uses multiple <code>FROM</code> statements in one Dockerfile — an early stage has the full build toolchain to actually build the application, and a final stage starts fresh from a minimal base image and copies ONLY the compiled artifact via <code>COPY --from=build-stage</code>. The build tools themselves never reach the final image, making it dramatically smaller and reducing attack surface.",
+   points:["Multiple FROM statements; only the final stage's contents ship — build tools never reach production","<code>COPY --from=build-stage</code> is the specific mechanism — describe it precisely, not just conceptually","Smaller image + reduced attack surface are the two concrete benefits to state"]},
+  {id:"d2",section:"docker",q:"Walk through the full image lifecycle from build to running in production.",
+   a:"Build (ideally multi-stage) → tag with the Git SHA rather than <code>latest</code> so every deployed image maps to an exact commit → push to an authenticated private registry → optionally scan for vulnerabilities (Trivy/JFrog Xray) before it's allowed to deploy → Kubernetes pulls it by that exact tag → old images eventually get garbage-collected via a retention policy.",
+   points:["Build → SHA-tag → push to authenticated registry → scan → deploy → eventual GC — know the full chain","SHA-based tagging ties directly into rollback — the previous SHA is always redeployable directly","Mentioning image scanning as a stage, unprompted, is a maturity signal"]},
+  {id:"d3",section:"docker",q:"Private registry authentication in Kubernetes — how does a pod actually pull from one?",
+   a:"A Kubernetes Secret of type <code>docker-registry</code> holds the credentials, referenced by the pod's <code>imagePullSecrets</code>, or attached to the ServiceAccount so every pod inherits it without repeating it per-pod. Without it, or with a wrong credential, you get <code>ImagePullBackOff</code> with an auth-specific error in <code>kubectl describe pod</code> Events — distinct from a wrong-tag ImagePullBackOff.",
+   points:["Secret type docker-registry, referenced via imagePullSecrets on the pod or the ServiceAccount","ServiceAccount-level attachment avoids repeating the pull secret on every pod spec","Read the specific Events message — auth failure and wrong-tag failure both show as ImagePullBackOff but need different fixes"]},
+  {id:"d4",section:"docker",q:"How do you talk about a genuine skill gap honestly without undermining yourself?",
+   a:"If something is a 6-7 rather than a 9-10, say so plainly and immediately pair it with the concrete thing you DO know cold — 'I've built and debugged multi-stage Dockerfiles in production, tagged and pushed to a private registry, and handled ImagePullBackOff/OOMKilled troubleshooting; where I'm less sharp is BuildKit-level caching internals' is a confident 7, not an apologetic one. The interviewer explicitly said that's fine — the actual mistake is vagueness with nothing concrete attached, not the honest number.",
+   points:["Honest self-rating is fine — the interviewer said so directly — vagueness attached to it is the actual problem","Pair any 'I'm a 7 here' with one concrete thing you've actually done, immediately, same breath","This reframes 'confidence' as specificity, not as inflating the number"]},
+
+  {id:"sre1",section:"sre",q:"Full forms and precise definitions — SLI, SLO, SLA.",
+   a:"SLI (Service Level Indicator) is the actual measured metric — percentage of successful requests, or p99 latency. SLO (Service Level Objective) is your internal target for that SLI, usually tighter than any external promise, as a buffer. SLA (Service Level Agreement) is the external, often contractual commitment to a customer, typically with a defined penalty if missed — usually looser than the internal SLO so you have room to notice and fix a problem before the contract itself is breached.",
+   points:["SLI = the measurement. SLO = your internal target. SLA = the external contractual promise","SLA is deliberately looser than SLO — that gap is your safety margin before a real contractual breach","Getting the full forms exactly right is a basic correctness check — don't fumble it"]},
+  {id:"sre2",section:"sre",q:"What's an error budget, in concrete terms?",
+   a:"If your SLO is 99.9% success over 30 days, your error budget is the remaining 0.1% — the failure you're explicitly allowed without breaching the objective. For a service handling 10 million requests over that window, 0.1% is 10,000 allowed failed requests. It's a shared resource between reliability work and feature velocity: spending it fast means slowing releases to protect reliability; budget left over is explicit permission to ship faster.",
+   points:["Error budget = 100% − SLO, expressed as an actual allowance, not just an abstract percentage","Convert it to a concrete number (10,000 failed requests of 10 million) — this is what makes it land in an interview","It balances reliability against feature velocity — that's the point of having it at all"]},
+  {id:"sre3",section:"sre",q:"What's burn rate, and why does it matter more than the raw error budget number?",
+   a:"Burn rate is how FAST you're consuming the error budget relative to a sustainable pace — a burn rate of 1 exhausts the entire budget exactly at the end of the SLO window; a burn rate of 10 exhausts a month's budget in about 3 days. It's predictive, not just a snapshot: a fast burn rate is worth paging on immediately even with 95% of budget technically remaining, since at that rate it won't stay remaining for long. Multi-window burn-rate alerts (a short window for fast burns plus a longer window to avoid noise) are the standard pattern.",
+   points:["Burn rate 1 = exactly sustainable for the full window; burn rate 10 = the month's budget gone in ~3 days","It's predictive, not a snapshot — that's why it's pageable even when a lot of budget remains","Multi-window burn-rate alerting is the specific standard pattern — name it if asked how you'd alert on this"]},
+
+  {id:"pi1",section:"incident",q:"Deployment completed, error rate spikes, application is dying — what do you do, right now?",
+   a:"Mitigate first, diagnose after: if the timing correlates with the deploy, the fastest safe action is rolling back immediately (<code>kubectl rollout undo</code> or the Blue-Green/canary equivalent) rather than debugging live in a dying system. Once traffic is stable, pull logs and metrics from the failed window: a failed readiness probe blocking traffic to bad pods, a bad config/env var, a DB migration incompatible with still-running old pods, or a resource limit too tight for the new version's actual usage.",
+   points:["Rollback first, root-cause second — same 'roll back first, understand later' principle from your MTTR material, stay consistent","Correlating timing with the deploy is what justifies rolling back immediately rather than investigating first","Readiness probe failure, bad config, incompatible migration, undersized limits — the four usual suspects for 'broke right after deploy'"]},
+  {id:"pi2",section:"incident",q:"Readiness probe vs liveness probe — the actual difference, and how each affects a rollout.",
+   a:"Liveness answers 'is this container alive, or should it be killed and restarted' — failing it restarts the pod. Readiness answers 'is this container ready for traffic right now' — failing it removes the pod from the Service's Endpoints, no traffic routed, no restart. During a rolling update, readiness is what actually enforces zero-downtime: Kubernetes won't route traffic to a new pod, or consider it 'up' for the rollout, until readiness passes.",
+   points:["Liveness = restart if failing. Readiness = remove from traffic if failing, no restart","Readiness is what actually gates a rolling update's pace and zero-downtime property — direct link to the deployment-strategy section","A missing readiness probe means K8s considers a pod 'up' the instant the container starts, not when it's actually ready"]}
+];
+
+const SECTIONS = [
+  {key:"strat", label:"Deployment Strategies", sub:"The biggest gap — the exact strategy vs. technique taxonomy, hit precisely.", eyebrow:"§1 · CRITICAL"},
+  {key:"net", label:"K8s Networking — TLS", sub:"cert-manager, mTLS, service mesh, the exact API-A/API-B scenario.", eyebrow:"§2 · CRITICAL"},
+  {key:"scale", label:"Autoscaling", sub:"HPA and Cluster Autoscaler internals, not just the names.", eyebrow:"§3"},
+  {key:"helm", label:"Helm", sub:"Templates, upgrade failures, secrets handling.", eyebrow:"§4"},
+  {key:"docker", label:"Docker", sub:"Multi-stage builds and image lifecycle, stated with confidence.", eyebrow:"§5"},
+  {key:"sre", label:"SRE Concepts", sub:"SLI/SLO/SLA, error budget, and burn rate — precise, with real numbers.", eyebrow:"§6"},
+  {key:"incident", label:"Production Incident", sub:"Tying it together — the deploy-then-errors scenario, plus probes.", eyebrow:"§7"}
+];
+
+let reviewed = new Set();
+let state = {q:"", section:"all"};
+
+function escapeAttr(s){return s.replace(/"/g,"&quot;")}
+
+function renderPills(){
+  const row = document.getElementById("pillsRow");
+  let html = '<button class="pill active" data-sec="all" onclick="setSection(\'all\')">All</button>';
+  SECTIONS.forEach(s=>{
+    html += '<button class="pill" data-sec="'+s.key+'" onclick="setSection(\''+s.key+'\')">'+s.label+'</button>';
+  });
+  row.innerHTML = html;
+}
+
+function renderJDGrid(){
+  const grid = document.getElementById("jdGrid");
+  grid.innerHTML = SECTIONS.map(s=>{
+    return '<button class="jd-tile" onclick="setSection(\''+s.key+'\'); document.getElementById(\'sec-'+s.key+'\').scrollIntoView({behavior:\'smooth\'})">'
+      +'<div class="jd-tile-top"><span class="jd-dot" id="dot-'+s.key+'"></span><span class="jd-label">'+s.label+'</span></div>'
+      +'<div class="jd-count" id="count-'+s.key+'">0/0</div>'
+      +'</button>';
+  }).join("");
+}
+
+function renderSections(){
+  const container = document.getElementById("sections");
+  let html = "";
+  SECTIONS.forEach(sec=>{
+    const items = DATA.filter(d=>d.section===sec.key);
+    html += '<div class="section sec-'+sec.key+'" id="sec-'+sec.key+'">';
+    html += '<div class="section-head"><span class="section-eyebrow">'+sec.eyebrow+'</span><h2 class="section-title">'+sec.label+'</h2><span class="section-count">'+items.length+' Q&amp;A</span></div>';
+    html += '<p class="section-sub">'+sec.sub+'</p>';
+    items.forEach((item,idx)=>{
+      const searchBlob = (item.q+" "+item.a).toLowerCase().replace(/"/g,"'");
+      html += '<div class="qa-card" id="card-'+item.id+'" data-section="'+item.section+'" data-search="'+escapeAttr(searchBlob)+'">';
+      html += '<button class="qa-head" onclick="toggleCard(\''+item.id+'\')">';
+      html += '<span class="qa-num">'+String(idx+1).padStart(2,"0")+'</span>';
+      html += '<span class="qa-q">'+item.q+'</span>';
+      html += '<span class="qa-chev">›</span>';
+      html += '</button>';
+      html += '<div class="qa-body"><div class="qa-body-inner">';
+      html += '<p class="qa-answer">'+item.a+'</p>';
+      html += '<ul class="qa-points">'+item.points.map(p=>'<li>'+p+'</li>').join("")+'</ul>';
+      html += '<label class="qa-mark"><input type="checkbox" onchange="toggleReviewed(\''+item.id+'\', this.checked)"> Reviewed</label>';
+      html += '</div></div></div>';
+    });
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function toggleCard(id){
+  document.getElementById("card-"+id).classList.toggle("open");
+}
+
+function toggleExpandAll(){
+  const btn = document.getElementById("expandBtn");
+  const shouldOpen = btn.textContent.indexOf("Expand") === 0;
+  document.querySelectorAll(".qa-card").forEach(c=>c.classList.toggle("open", shouldOpen));
+  btn.textContent = shouldOpen ? "Collapse all" : "Expand all";
+}
+
+function toggleReviewed(id, checked){
+  if(checked){reviewed.add(id)}else{reviewed.delete(id)}
+  updateProgress();
+}
+
+function updateProgress(){
+  const total = DATA.length;
+  const done = reviewed.size;
+  document.getElementById("progressFill").style.width = (done/total*100)+"%";
+  document.getElementById("progressLabel").textContent = done+" / "+total;
+
+  SECTIONS.forEach(s=>{
+    const items = DATA.filter(d=>d.section===s.key);
+    const doneCount = items.filter(d=>reviewed.has(d.id)).length;
+    const dot = document.getElementById("dot-"+s.key);
+    dot.classList.remove("partial","done");
+    if(doneCount===items.length && items.length>0){dot.classList.add("done")}
+    else if(doneCount>0){dot.classList.add("partial")}
+    document.getElementById("count-"+s.key).textContent = doneCount+"/"+items.length;
+  });
+}
+
+function setSection(key){
+  state.section = key;
+  document.querySelectorAll(".pill").forEach(p=>p.classList.toggle("active", p.dataset.sec===key));
+  applyFilters();
+}
+
+function applyFilters(){
+  let anyVisible = false;
+  SECTIONS.forEach(sec=>{
+    let sectionHasVisible = false;
+    document.querySelectorAll('.qa-card[data-section="'+sec.key+'"]').forEach(card=>{
+      const secOk = state.section==="all" || card.dataset.section===state.section;
+      const qOk = !state.q || card.dataset.search.indexOf(state.q)!==-1;
+      const visible = secOk && qOk;
+      card.style.display = visible ? "" : "none";
+      if(visible){sectionHasVisible = true; anyVisible = true}
+    });
+    document.getElementById("sec-"+sec.key).classList.toggle("section-empty", !sectionHasVisible);
+  });
+  document.getElementById("noResults").style.display = anyVisible ? "none" : "block";
+}
+
+document.getElementById("searchInput").addEventListener("input", function(e){
+  state.q = e.target.value.toLowerCase();
+  applyFilters();
+});
+
+renderPills();
+renderJDGrid();
+renderSections();
+updateProgress();
+</script>
+</body>
+</html>

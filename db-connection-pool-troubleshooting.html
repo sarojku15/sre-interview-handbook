@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DB & Connection Pool Troubleshooting — SRE Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0d12; --panel:#10151c; --panel-2:#141b24;
+    --border:#1f2937; --border-soft:rgba(255,255,255,.07);
+    --text:#e6edf3; --text-dim:#8b98a5; --text-faint:#4d5661;
+    --cyan:#4fd1e5; --violet:#a78bfa; --blue:#58a6ff; --amber:#d29922; --green:#3fb950; --orange:#f0883e;
+    --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased;
+    background-image:linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:28px 28px;}
+  :focus-visible{outline:2px solid var(--cyan); outline-offset:2px}
+  .wrap{max-width:720px; margin:0 auto; padding:0 16px 56px}
+  header{padding:26px 0 20px}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.08em; color:var(--text-faint); text-transform:uppercase; margin-bottom:10px}
+  h1{font-size:clamp(21px,6vw,27px); line-height:1.25; margin:0 0 10px; font-weight:800; letter-spacing:-.01em}
+  .sub{color:var(--text-dim); font-size:14px; margin:0 0 22px; max-width:56ch}
+  .toc{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px}
+  .toc a{font-family:var(--mono); font-size:11.5px; color:var(--text-dim); text-decoration:none; border:1px solid var(--border); padding:6px 11px; border-radius:20px}
+  .toc a:hover{color:var(--text); border-color:#2d3948}
+
+  .section{margin-top:38px}
+  .section-head{display:flex; align-items:baseline; gap:10px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border)}
+  .section-eyebrow{font-family:var(--mono); font-size:11px; color:var(--accent); letter-spacing:.08em}
+  .section-title{font-size:18px; font-weight:700; margin:0}
+  .s1{--accent:var(--cyan)} .s2{--accent:var(--violet)} .s3{--accent:var(--green)}
+
+  .sub-label{display:flex; align-items:center; gap:8px; margin:22px 0 10px}
+  .badge{font-family:var(--mono); font-size:11px; padding:3px 9px; border-radius:5px; font-weight:600}
+  .badge-pg{background:rgba(88,166,255,.13); color:var(--blue)}
+  .badge-my{background:rgba(240,136,62,.13); color:var(--orange)}
+  .badge-proxy{background:rgba(167,139,250,.13); color:var(--violet)}
+  .sub-label span.txt{font-size:13px; color:var(--text-faint); font-family:var(--mono)}
+
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin-bottom:12px}
+  .card p{font-size:13.5px; color:var(--text-dim); margin:0 0 10px}
+  .card p:last-of-type{margin-bottom:0}
+  .card p.after{margin-top:10px}
+  .code-wrap{position:relative; margin-bottom:2px}
+  pre{background:var(--panel-2); border:1px solid var(--border-soft); border-radius:6px; padding:12px 14px; overflow-x:auto; margin:0}
+  code{font-family:var(--mono); font-size:12.5px; color:#c9f4fb; white-space:pre}
+  .copy-btn{position:absolute; top:8px; right:8px; background:var(--panel); border:1px solid var(--border); color:var(--text-faint); font-family:var(--mono); font-size:10.5px; padding:4px 9px; border-radius:5px; cursor:pointer}
+  .copy-btn:hover{color:var(--text); border-color:#2d3948}
+  .inline-code{background:rgba(79,209,229,.1); color:var(--cyan); padding:1px 6px; border-radius:4px; font-family:var(--mono); font-size:.9em}
+  strong{color:var(--text); font-weight:600}
+
+  table{width:100%; border-collapse:collapse; font-size:13px}
+  th,td{text-align:left; padding:8px; border-bottom:1px solid var(--border-soft); vertical-align:top}
+  th{color:var(--text-faint); font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.05em; font-weight:500}
+  td.metric{color:var(--text); font-weight:600; white-space:nowrap}
+  td{color:var(--text-dim)}
+  .sig-cyan{color:var(--cyan)} .sig-violet{color:var(--violet)} .sig-amber{color:var(--amber)} .sig-green{color:var(--green)}
+
+  .note{background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--amber); border-radius:8px; padding:13px 15px; font-size:13.5px; color:var(--text-dim); margin-top:14px}
+  .note b{color:var(--amber); font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; display:block; margin-bottom:5px}
+
+  footer{text-align:center; color:var(--text-faint); font-family:var(--mono); font-size:11px; margin-top:40px; padding-top:20px; border-top:1px solid var(--border-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">SRE Reference · tap any query to copy</div>
+    <h1>Database & Connection Pool Troubleshooting</h1>
+    <p class="sub">The queries and panels to actually check when something's slow at the data layer — Postgres and MySQL side by side, plus the proxy layer and what to put on a dashboard.</p>
+    <div class="toc">
+      <a href="#sec-slow">Slow queries</a>
+      <a href="#sec-pool">Connection pool</a>
+      <a href="#sec-dash">Dashboards</a>
+    </div>
+  </header>
+
+  <!-- ============ SLOW QUERIES ============ -->
+  <div class="section" id="sec-slow">
+    <div class="section-head s1"><span class="section-eyebrow">§1</span><h2 class="section-title">Slow query detection</h2></div>
+
+    <div class="sub-label"><span class="badge badge-pg">PostgreSQL</span></div>
+
+    <div class="card">
+      <p><strong>Top offenders by average execution time</strong> — needs the <span class="inline-code">pg_stat_statements</span> extension enabled. This is the first place to look, not individual EXPLAINs.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this,'q1')">Copy</button>
+        <pre><code id="q1">SELECT query, calls, mean_exec_time, total_exec_time, rows
+FROM pg_stat_statements
+ORDER BY mean_exec_time DESC
+LIMIT 15;</code></pre>
+      </div>
+      <p class="after">If the extension isn't enabled: <span class="inline-code">shared_preload_libraries = 'pg_stat_statements'</span> in postgresql.conf, then a restart — worth naming in an interview as something you'd turn on by default, not react to.</p>
+    </div>
+
+    <div class="card">
+      <p><strong>What's running right now</strong> — no extension needed, useful mid-incident.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this,'q2')">Copy</button>
+        <pre><code id="q2">SELECT pid, now() - query_start AS duration, state, query
+FROM pg_stat_activity
+WHERE state != 'idle'
+  AND now() - query_start > interval '5 minutes'
+ORDER BY duration DESC;</code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <p><strong>Why a specific query is slow</strong> — compare actual vs estimated rows; a big gap means stale statistics or a missing index.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this,'q3')">Copy</button>
+        <pre><code id="q3">EXPLAIN (ANALYZE, BUFFERS) SELECT ...;</code></pre>
+      </div>
+      <p class="after">Red flags in the output: <strong>Seq Scan</strong> on a large table you'd expect to be indexed, a high <strong>"Rows Removed by Filter"</strong>, or actual time far above the planner's estimate — that last one usually means <span class="inline-code">ANALYZE mytable;</span> hasn't run since a big data change.</p>
+    </div>
+
+    <div class="sub-label"><span class="badge badge-my">MySQL</span></div>
+
+    <div class="card">
+      <p><strong>Top offenders by average latency</strong> — via performance_schema, so no log parsing or restart required.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this,'q4')">Copy</button>
+        <pre><code id="q4">SELECT DIGEST_TEXT,
+       COUNT_STAR AS exec_count,
+       AVG_TIMER_WAIT/1000000000 AS avg_ms,
+       SUM_TIMER_WAIT/1000000000 AS total_ms
+FROM performance_schema.events_statements_summary_by_digest
+ORDER BY AVG_TIMER_WAIT DESC
+LIMIT 15;</code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <p><strong>What's running right now</strong> — the classic, still the fastest mid-incident check.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this,'q5')">Copy</button>
+        <pre><code id="q5">SHOW FULL PROCESSLIST;
+
+-- or, filterable:
+SELECT id, user, host, db, time, state, info
+FROM information_schema.processlist
+WHERE command != 'Sleep'
+ORDER BY time DESC;</code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <p><strong>Is the slow log even on?</strong> — check before you go looking for a log file that doesn't exist.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this,'q6')">Copy</button>
+        <pre><code id="q6">SHOW VARIABLES LIKE 'slow_query_log%';
+SHOW VARIABLES LIKE 'long_query_time';</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CONNECTION POOL ============ -->
+  <div class="section" id="sec-pool">
+    <div class="section-head s2"><span class="section-eyebrow">§2</span><h2 class="section-title">Connection pool saturation</h2></div>
+
+    <div class="sub-label"><span class="badge badge-pg">PostgreSQL</span></div>
+
+    <div class="card">
+      <p><strong>Current vs max connections</strong> — the headline number.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this,'q7')">Copy</button>
+        <pre><code id="q7">SELECT count(*) AS current_connections,
+       (SELECT setting FROM pg_settings WHERE name='max_connections') AS max_connections
+FROM pg_stat_activity;</code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <p><strong>Break it down by state</strong> — the count alone doesn't tell you why it's high.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this,'q8')">Copy</button>
+        <pre><code id="q8">SELECT state, count(*)
+FROM pg_stat_activity
+GROUP BY state
+ORDER BY count(*) DESC;</code></pre>
+      </div>
+      <p class="after"><strong>idle in transaction</strong> sitting for minutes is almost never the database's fault — it's an app holding a connection open after an error path that never committed, rolled back, or released it.</p>
+    </div>
+
+    <div class="card">
+      <p><strong>Find the actual leak</strong> — longest-held idle-in-transaction sessions, with the query that started them.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this,'q9')">Copy</button>
+        <pre><code id="q9">SELECT pid, usename, now() - state_change AS idle_duration, query
+FROM pg_stat_activity
+WHERE state = 'idle in transaction'
+ORDER BY idle_duration DESC
+LIMIT 10;</code></pre>
+      </div>
+    </div>
+
+    <div class="sub-label"><span class="badge badge-my">MySQL</span></div>
+
+    <div class="card">
+      <p><strong>Connection usage vs limit</strong></p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this,'q10')">Copy</button>
+        <pre><code id="q10">SHOW STATUS LIKE 'Threads_connected';
+SHOW VARIABLES LIKE 'max_connections';</code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <p><strong>The early-warning signals</strong> people miss — churn and failed connects matter more than the raw count once you're past 70–80%.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this,'q11')">Copy</button>
+        <pre><code id="q11">SHOW STATUS LIKE 'Threads_created';   -- high & climbing = pool not reusing connections
+SHOW STATUS LIKE 'Aborted_connects';  -- clients failing to even connect
+SHOW STATUS LIKE 'Aborted_clients';   -- clients disconnecting uncleanly (timeout, killed)</code></pre>
+      </div>
+    </div>
+
+    <div class="sub-label"><span class="badge badge-proxy">Proxy layer</span> <span class="txt">— PgBouncer / app-side pools</span></div>
+
+    <div class="card">
+      <p><strong>Architecture that actually prevents this</strong>: N microservices × a pool of 20 each × M replicas explodes fast against a single Postgres <span class="inline-code">max_connections</span>. Put PgBouncer in front in transaction mode so hundreds of app-side connections share a small real pool to Postgres.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" onclick="copyCode(this,'q12')">Copy</button>
+        <pre><code id="q12">[pgbouncer]
+pool_mode = transaction
+max_client_conn = 1000
+default_pool_size = 25</code></pre>
+      </div>
+      <p class="after">Check PgBouncer's own health via its admin console: <span class="inline-code">SHOW POOLS;</span> and <span class="inline-code">SHOW STATS;</span> — <span class="inline-code">cl_waiting</span> climbing in <span class="inline-code">SHOW POOLS</span> means clients are queueing for a backend connection right now.</p>
+    </div>
+
+    <div class="note">
+      <b>The root cause, regardless of engine</b>
+      Almost every real pool-exhaustion incident traces back to one code path: a connection is acquired, an exception is thrown, and the release never runs because it wasn't in a <strong>finally / using / context-manager</strong> block. Fix the leak first; resizing the pool just delays the same failure at a higher load.
+    </div>
+  </div>
+
+  <!-- ============ DASHBOARDS ============ -->
+  <div class="section" id="sec-dash">
+    <div class="section-head s3"><span class="section-eyebrow">§3</span><h2 class="section-title">Dashboards to actually keep up</h2></div>
+    <p style="font-size:13.5px;color:var(--text-dim);margin-top:-4px">Scrape with <span class="inline-code">postgres_exporter</span> / <span class="inline-code">mysqld_exporter</span> into Prometheus, visualize in Grafana — same stack, same golden-signals framing you already use for services.</p>
+
+    <table>
+      <tr><th>Signal</th><th>Panel</th><th>Why it matters</th></tr>
+      <tr><td class="metric sig-amber">Saturation</td><td>Connections used / max_connections</td><td>The pool-exhaustion leading indicator — alert well before 100%</td></tr>
+      <tr><td class="metric sig-amber">Saturation</td><td>Replication lag (seconds)</td><td>Stale reads on replicas; feeds read-your-writes bugs</td></tr>
+      <tr><td class="metric sig-amber">Saturation</td><td>Buffer/cache hit ratio</td><td>Dropping hit ratio means more disk I/O per query — early sign of undersized memory</td></tr>
+      <tr><td class="metric sig-amber">Saturation</td><td>Disk usage % + growth rate</td><td>WAL/binlog and table bloat both show up here first</td></tr>
+      <tr><td class="metric sig-cyan">Latency</td><td>Query duration p50 / p95 / p99</td><td>p99 catches the tail that averages hide</td></tr>
+      <tr><td class="metric sig-cyan">Latency</td><td>Lock wait time</td><td>The metric most people forget — high p99 with low CPU almost always means lock contention, not slow queries</td></tr>
+      <tr><td class="metric sig-violet">Errors</td><td>Aborted_connects / Aborted_clients (MySQL)</td><td>Clients failing to connect or dropping mid-session</td></tr>
+      <tr><td class="metric sig-violet">Errors</td><td>Deadlocks / rollbacks per minute</td><td>Sudden spike usually correlates with a specific deploy</td></tr>
+      <tr><td class="metric sig-green">Traffic</td><td>Queries/sec, Transactions/sec</td><td>Baseline for "is this actually more load, or the same load handled worse"</td></tr>
+    </table>
+
+    <div class="note">
+      <b>One habit that reads senior in an interview</b>
+      Don't just say "I'd check CPU and memory." Say you'd correlate the <strong>lock-wait</strong> and <strong>idle-in-transaction</strong> panels against a deploy-marker annotation on the same dashboard — CPU/memory look fine in most real DB incidents, because the database usually isn't the bottleneck, contention is.
+    </div>
+  </div>
+
+  <footer>SRE database reference · copy any query with the button top-right</footer>
+</div>
+
+<script>
+function copyCode(btn, id){
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(function(){
+    const orig = btn.textContent;
+    btn.textContent = "Copied";
+    setTimeout(function(){ btn.textContent = orig; }, 1400);
+  }).catch(function(){
+    btn.textContent = "Select & copy";
+  });
+}
+</script>
+</body>
+</html>

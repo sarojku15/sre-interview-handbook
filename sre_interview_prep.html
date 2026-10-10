@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SRE Interview Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e14;
+    --bg-elev:#10151d;
+    --card:#131922;
+    --card-hover:#171f2b;
+    --border:#1f2733;
+    --border-strong:#2c3645;
+    --text:#e6edf3;
+    --text-secondary:#8b96a5;
+    --text-muted:#5b6573;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px;}
+
+  /* header */
+  .console-bar{
+    background:var(--bg-elev);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:18px 20px;
+    margin-bottom:18px;
+  }
+  .console-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .console-title{display:flex;align-items:baseline;gap:10px;}
+  .console-title h1{font-size:18px;font-weight:600;margin:0;letter-spacing:-0.2px;}
+  .console-title .dot{width:8px;height:8px;border-radius:50%;background:#f5222d;display:inline-block;box-shadow:0 0 0 3px rgba(245,34,45,0.18);}
+  .console-sub{font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:2px;}
+
+  .query-bar{
+    margin-top:16px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--bg);
+    border:1px solid var(--border-strong);
+    border-radius:8px;
+    padding:10px 14px;
+  }
+  .query-bar svg{flex:none;opacity:0.5;}
+  .query-bar input{
+    flex:1;
+    background:none;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:13px;
+  }
+  .query-bar input::placeholder{color:var(--text-muted);}
+  .query-bar .kbd{
+    font-family:var(--mono);
+    font-size:10px;
+    color:var(--text-muted);
+    border:1px solid var(--border-strong);
+    border-radius:4px;
+    padding:2px 6px;
+  }
+
+  /* burn rate progress */
+  .burn{margin-top:14px;}
+  .burn-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .burn-label{font-family:var(--mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;}
+  .burn-val{font-family:var(--mono);font-size:12px;color:var(--text-secondary);}
+  .burn-track{height:6px;background:var(--bg);border:1px solid var(--border);border-radius:99px;overflow:hidden;}
+  .burn-fill{height:100%;width:0%;background:linear-gradient(90deg,#1890ff,#13c2c2);transition:width .3s ease;}
+
+  /* severity filter chips */
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+  .chip{
+    font-family:var(--mono);
+    font-size:11px;
+    padding:5px 10px;
+    border-radius:99px;
+    border:1px solid var(--border-strong);
+    color:var(--text-secondary);
+    background:var(--bg);
+    cursor:pointer;
+    user-select:none;
+    transition:all .12s ease;
+    white-space:nowrap;
+  }
+  .chip:hover{border-color:var(--text-muted);color:var(--text);}
+  .chip.active{color:#0a0e14;font-weight:700;}
+
+  /* category section */
+  .category{margin-bottom:14px;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--bg-elev);}
+  .cat-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 18px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .cat-head:hover{background:var(--card-hover);}
+  .cat-left{display:flex;align-items:center;gap:12px;}
+  .sev-badge{
+    font-family:var(--mono);
+    font-size:11px;
+    font-weight:700;
+    padding:3px 8px;
+    border-radius:5px;
+    min-width:34px;
+    text-align:center;
+  }
+  .cat-name{font-size:15px;font-weight:600;}
+  .cat-count{font-family:var(--mono);font-size:11px;color:var(--text-muted);}
+  .cat-right{display:flex;align-items:center;gap:10px;}
+  .cat-progress{font-family:var(--mono);font-size:11px;color:var(--text-secondary);}
+  .chevron{transition:transform .2s ease;color:var(--text-muted);}
+  .category.open .chevron{transform:rotate(180deg);}
+
+  .cat-body{display:none;border-top:1px solid var(--border);}
+  .category.open .cat-body{display:block;}
+
+  /* question card */
+  .qa{border-bottom:1px solid var(--border);}
+  .qa:last-child{border-bottom:none;}
+  .q-row{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:14px 18px;
+    cursor:pointer;
+  }
+  .q-row:hover{background:var(--card-hover);}
+  .q-check{
+    flex:none;
+    width:18px;height:18px;
+    border-radius:5px;
+    border:1.5px solid var(--border-strong);
+    margin-top:2px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+  }
+  .q-check.done{background:#13c2c2;border-color:#13c2c2;}
+  .q-check svg{display:none;width:11px;height:11px;}
+  .q-check.done svg{display:block;}
+  .q-text{flex:1;font-size:14px;font-weight:500;line-height:1.5;}
+  .qa.done .q-text{color:var(--text-muted);}
+  .q-arrow{flex:none;color:var(--text-muted);transition:transform .2s ease;margin-top:3px;}
+  .qa.open .q-arrow{transform:rotate(90deg);}
+  .a-body{display:none;padding:0 18px 16px 48px;}
+  .qa.open .a-body{display:block;}
+  .a-text{font-size:13.5px;line-height:1.7;color:var(--text-secondary);}
+  .a-text strong{color:var(--text);font-weight:600;}
+
+  .empty-state{padding:40px 20px;text-align:center;color:var(--text-muted);font-size:13px;}
+
+  ::selection{background:rgba(19,194,201,0.3);}
+
+  @media (max-width:600px){
+    .wrap{padding:18px 12px 60px;}
+    .console-title h1{font-size:16px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="console-bar">
+    <div class="console-top">
+      <div class="console-title">
+        <span class="dot"></span>
+        <h1>sre-interview-console</h1>
+      </div>
+      <div class="console-sub" id="meta-count">96 checks loaded</div>
+    </div>
+    <div class="console-sub">prepared for: Senior SRE / DevOps round &middot; priorities P1&ndash;P10 + behavioral</div>
+
+    <div class="query-bar">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b96a5" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input id="search" type="text" placeholder='query{category=~".*", text=~"etcd|quorum"}' autocomplete="off">
+      <span class="kbd">/</span>
+    </div>
+
+    <div class="chips" id="chips"></div>
+
+    <div class="burn">
+      <div class="burn-row">
+        <span class="burn-label">review coverage</span>
+        <span class="burn-val" id="burn-text">0 / 96 reviewed</span>
+      </div>
+      <div class="burn-track"><div class="burn-fill" id="burn-fill"></div></div>
+    </div>
+  </div>
+
+  <div id="categories"></div>
+  <div class="empty-state" id="empty" style="display:none;">no checks match that query</div>
+
+</div>
+
+<script>
+const CATS = [
+  {id:'k8s', label:'Kubernetes', sev:'P1', color:'#f5222d'},
+  {id:'sre', label:'Reliability engineering', sev:'P1', color:'#f5222d'},
+  {id:'incident', label:'Incident management', sev:'P1', color:'#f5222d'},
+  {id:'obs', label:'Observability', sev:'P1', color:'#f5222d'},
+  {id:'aws', label:'AWS', sev:'P2', color:'#fa8c16'},
+  {id:'azure', label:'Azure', sev:'P2', color:'#fa8c16'},
+  {id:'tf', label:'Terraform', sev:'P2', color:'#fa8c16'},
+  {id:'ansible', label:'Ansible', sev:'P2', color:'#fa8c16'},
+  {id:'net', label:'Networking', sev:'P3', color:'#faad14'},
+  {id:'gitops', label:'GitOps', sev:'P4', color:'#a0d911'},
+  {id:'cicd', label:'CI/CD', sev:'P5', color:'#13c2c2'},
+  {id:'linux', label:'Linux troubleshooting', sev:'P6', color:'#1890ff'},
+  {id:'python', label:'Python for automation', sev:'P7', color:'#2f54eb'},
+  {id:'security', label:'Security', sev:'P8', color:'#722ed1'},
+  {id:'sysdesign', label:'System design', sev:'P9', color:'#eb2f96'},
+  {id:'goodtohave', label:'Good to have', sev:'P10', color:'#595959'},
+  {id:'leadership', label:'Leadership & behavioral', sev:'BHV', color:'#52c41a'},
+];
+
+const QA = [
+// ---------------- KUBERNETES ----------------
+{cat:'k8s', q:'Explain how Kubernetes schedules a pod, end to end.', a:'You submit a pod spec via the API server, which authenticates, authorizes, and persists it to etcd with status Pending. The scheduler watches for unscheduled pods, filters nodes that meet resource and constraint requirements (predicates), then scores the remaining nodes (priorities) using factors like resource balance, affinity, and topology spread. It writes the chosen node back via a binding, then kubelet on that node picks it up, pulls images, and starts the containers through the container runtime.'},
+{cat:'k8s', q:'What actually happens internally after you run kubectl apply?', a:'kubectl diffs your manifest against the live object (or creates it), then sends a request to the API server, which validates it against admission controllers (mutating, then validating, including webhooks like OPA Gatekeeper). The object is persisted to etcd. Relevant controllers in the controller manager notice the change via watch and reconcile actual state toward desired state &mdash; for example, the Deployment controller creates a ReplicaSet, which creates Pods, which the scheduler then places.'},
+{cat:'k8s', q:'How does Kubernetes recover from a node failure?', a:'The kubelet on the node stops sending heartbeats to the API server. After <strong>node-monitor-grace-period</strong> (default 40s), the node is marked NotReady; after <strong>pod-eviction-timeout</strong> (default 5m), the node controller evicts the pods. ReplicaSets/Deployments notice missing replicas and recreate pods on healthy nodes via the scheduler. StatefulSets behave more cautiously since they need to confirm the old pod is truly gone before recreating, to avoid split-brain on attached storage.'},
+{cat:'k8s', q:'Why would you choose a StatefulSet over a Deployment?', a:'Use StatefulSet when pods need a stable, unique network identity (ordinal hostnames like pod-0, pod-1), stable persistent storage tied to that identity even across rescheduling, and ordered, predictable startup/shutdown (useful for clustered systems like Kafka, Cassandra, or databases that need leader election or ordered joins). Deployments are for stateless, interchangeable replicas where any pod can replace any other.'},
+{cat:'k8s', q:'Explain etcd quorum and why cluster size matters.', a:'etcd uses the Raft consensus algorithm, which requires a majority (quorum) of members to agree before a write is committed. With N members, quorum is floor(N/2)+1, so a 3-node cluster tolerates 1 failure and a 5-node cluster tolerates 2. Even-numbered clusters add no extra fault tolerance over the odd number below them while doubling network overhead &mdash; that is why 3 or 5 are standard, never 2 or 4.'},
+{cat:'k8s', q:'Differentiate HPA, VPA, and Cluster Autoscaler.', a:'HPA (Horizontal Pod Autoscaler) scales the <strong>number</strong> of pod replicas based on metrics like CPU, memory, or custom/external metrics. VPA (Vertical Pod Autoscaler) adjusts the CPU/memory <strong>requests and limits</strong> of existing pods, requiring a restart to apply. Cluster Autoscaler adds or removes <strong>nodes</strong> when pods are unschedulable due to resource pressure or when nodes are underutilized. They operate at three different layers and are often combined, though HPA and VPA together need care to avoid fighting each other.'},
+{cat:'k8s', q:'Difference between taints/tolerations and node affinity?', a:'Taints/tolerations are a repel mechanism applied on nodes: a tainted node rejects all pods unless they explicitly tolerate it (used for dedicated or specialized nodes, like GPU pools). Node affinity is an attract mechanism on pods: it expresses a preference or requirement to land on nodes with certain labels. They are complementary &mdash; affinity pulls pods toward nodes, taints push other pods away; production setups often use both together for guaranteed isolation.'},
+{cat:'k8s', q:'What is a PodDisruptionBudget and why does it matter during maintenance?', a:'A PDB defines the minimum available (or maximum unavailable) pods for an application during <strong>voluntary</strong> disruptions like node drains, cluster upgrades, or cluster-autoscaler scale-downs. Without it, a drain could evict every replica of a service simultaneously, causing an outage. It does not protect against involuntary disruptions like a node crashing or OOM kill.'},
+{cat:'k8s', q:'What problem do CRDs and Operators solve?', a:'CRDs let you extend the Kubernetes API with your own resource types so they are managed declaratively like native objects. Operators pair a CRD with a custom controller that encodes operational knowledge &mdash; backup, failover, scaling, upgrades &mdash; so complex stateful systems (databases, message queues) can be managed the same kubectl-driven way as built-in resources, instead of via manual runbooks.'},
+{cat:'k8s', q:'How do RBAC, Security Context, and Network Policy layer together for pod security?', a:'RBAC controls <strong>who can talk to the Kubernetes API</strong> (which users/service accounts can create, read, or modify which resources). Security Context controls <strong>what the container process can do on the node</strong> &mdash; run as non-root, drop capabilities, read-only root filesystem. Network Policy controls <strong>what the pod can talk to over the network</strong>, acting as a default-deny firewall at the pod level. Together they cover API access, host-level isolation, and network isolation &mdash; three independent layers, not substitutes for each other.'},
+
+// ---------------- RELIABILITY ENGINEERING ----------------
+{cat:'sre', q:'Define SLI, SLO, and SLA and how they relate.', a:'An SLI (Service Level Indicator) is the actual measured metric, like the percentage of requests under 300ms. An SLO (Service Level Objective) is the internal target for that SLI, like 99.9% of requests under 300ms over 30 days. An SLA (Service Level Agreement) is the externally communicated, contractual version of the SLO, usually with consequences (credits, penalties) if missed. SLOs should be tighter than SLAs to give you a buffer before breaching the contract.'},
+{cat:'sre', q:'What is an error budget and how do you actually use it day to day?', a:'If your SLO is 99.9% availability, your error budget is the remaining 0.1% &mdash; the amount of unreliability you are allowed before breaching the objective. While budget remains, teams can ship features and take risks; once it is exhausted, the team shifts focus to reliability work and may freeze risky releases. It reframes reliability from an emotional argument into a shared, objective number both SRE and product teams agree to.'},
+{cat:'sre', q:'What is burn rate and why use multi-window, multi-burn-rate alerting?', a:'Burn rate is how fast you are consuming your error budget relative to the rate that would exactly exhaust it over the SLO window &mdash; a burn rate of 1 means you will exhaust the budget exactly at window end. A single fast-burn alert (e.g. 14x burn over 1 hour) catches severe outages quickly but is noisy on blips, while a single slow-burn alert (e.g. 1x over 3 days) catches slow leaks but is too slow for real incidents. Combining short and long windows, each requiring a long-window AND short-window condition to both be true, gives fast detection with low false-positive rates &mdash; this is Google&rsquo;s recommended pattern.'},
+{cat:'sre', q:'What is the downtime budget at 99.9%, 99.99%, and 99.999% availability, and why does each extra nine matter?', a:'Per month roughly: 99.9% allows about 43 minutes of downtime, 99.99% allows about 4.3 minutes, and 99.999% allows about 26 seconds. Each additional nine cuts allowed downtime by roughly 10x, but the engineering cost to achieve it grows much faster than linearly &mdash; going from 99.9% to 99.99% often means eliminating entire classes of single points of failure (multi-AZ, automated failover), and 99.999% typically requires multi-region active-active architecture with near-zero manual intervention.'},
+{cat:'sre', q:'When would you use Golden Signals vs RED vs USE?', a:'Golden Signals (latency, traffic, errors, saturation) are Google&rsquo;s general-purpose framework for any service. RED (rate, errors, duration) is a simplified version tailored for request-driven services like APIs and microservices. USE (utilization, saturation, errors) is aimed at resources &mdash; CPU, disk, network, memory &mdash; and is more useful for infrastructure-level troubleshooting. In practice: RED for your service dashboards, USE for the hosts/nodes underneath them.'},
+{cat:'sre', q:'Differentiate MTTR, MTBF, RTO, and RPO.', a:'MTTR (Mean Time To Recover) is how long it takes to restore service after a failure is detected. MTBF (Mean Time Between Failures) is how often failures happen. RTO (Recovery Time Objective) is the maximum acceptable time to restore service after a disaster, a target you design for. RPO (Recovery Point Objective) is the maximum acceptable data loss measured in time, which drives your backup/replication frequency. MTTR/MTBF describe what you measure; RTO/RPO describe what you design to.'},
+{cat:'sre', q:'How do you approach capacity planning for a service?', a:'Start from historical traffic trends and seasonality, project forward using business growth assumptions, and load test to find the actual breaking point of the current architecture, not just theoretical limits. Build in headroom for traffic spikes and N-1 redundancy (so losing one AZ or one node pool does not cause cascading saturation), and tie capacity reviews to your SLOs &mdash; if latency SLOs are met but utilization is creeping past 70-80%, that is your trigger to scale before users feel it.'},
+
+// ---------------- INCIDENT MANAGEMENT ----------------
+{cat:'incident', q:'Walk through the full incident lifecycle.', a:'Detection (monitoring/alerting or user report flags an anomaly) &rarr; triage and severity classification &rarr; escalation to the right responders &rarr; mitigation (stop the bleeding, not necessarily fix the root cause) &rarr; ongoing communication to stakeholders throughout &rarr; resolution confirmation &rarr; root cause analysis &rarr; blameless postmortem &rarr; action items with owners and deadlines &rarr; preventive fixes tracked to closure. The lifecycle does not end at mitigation &mdash; it ends when the preventive work is actually done.'},
+{cat:'incident', q:'Production is down, the CEO is calling, and developers cannot identify the issue. Walk me through your response.', a:'First, separate communication from troubleshooting &mdash; assign or take an incident commander role so technical work is not interrupted by status requests; give the CEO/stakeholders a brief, factual update on a fixed cadence (e.g. every 15-20 minutes) even if the update is "still investigating." Second, focus on mitigation over diagnosis: check recent changes (deploys, config, infra) first since most incidents trace back to a recent change, and consider rollback as a fast mitigation even before root cause is known. Third, pull in the right specialists rather than everyone, and keep a running timeline for the postmortem. The goal in the first minutes is restoring service, not assigning blame or finding the perfect fix.'},
+{cat:'incident', q:'What is a blameless postmortem and why blameless specifically?', a:'A blameless postmortem analyzes an incident by focusing on systemic and process failures &mdash; what made it possible for a human error to cause an outage &mdash; rather than punishing the individual who made the mistake. The reasoning is practical, not just kind: if engineers fear blame, they hide details, hedge timelines, or avoid raising risky-but-necessary changes, which makes the system less observable and less safe over time. Blameless culture surfaces the real, fixable causes instead of a scapegoat.'},
+{cat:'incident', q:'How do you decide when to escalate an incident?', a:'Escalate based on impact and time-to-resolve, not ego &mdash; if customer-facing SLOs are breached or about to be, if the fix requires expertise or access outside the current responder, or if a clear path to mitigation has not emerged within an agreed time box (commonly 15-30 minutes for high severity). It is cheaper to over-escalate and stand someone down than to under-escalate and extend an outage.'},
+{cat:'incident', q:'What is the difference between mitigation and a root cause fix?', a:'Mitigation restores service quickly &mdash; rollback, failover, restart, traffic shift, feature flag off &mdash; without necessarily understanding why the problem happened. A root cause fix addresses the underlying defect so it cannot recur. Good incident response prioritizes mitigation first because customer impact is time-sensitive, then does root cause analysis afterward in the postmortem, with the urgency removed.'},
+{cat:'incident', q:'How do you ensure postmortem action items actually get done?', a:'Action items need a named owner, a due date, and a priority/severity just like any other work item, and they should be tracked in the same backlog the team already uses, not a separate document nobody revisits. Tie a regular review (weekly or biweekly) to check status, and treat repeatedly-deferred reliability action items as a signal to bring to leadership, since that is exactly the trade-off error budgets are meant to make visible.'},
+
+// ---------------- OBSERVABILITY ----------------
+{cat:'obs', q:'Explain the three pillars of observability and when each one actually helps you.', a:'Metrics are aggregated numeric time series &mdash; cheap to store, great for trends, alerting, and dashboards, but they tell you <strong>that</strong> something is wrong, not <strong>why</strong>. Logs are discrete, detailed event records &mdash; best for understanding exactly what happened on a specific request or host, but expensive to query at scale. Traces follow a single request across services &mdash; best for pinpointing which hop in a distributed call chain introduced latency or an error. In practice: metrics tell you something broke, traces tell you where, logs tell you why.'},
+{cat:'obs', q:'In PromQL, why use rate() instead of the raw counter value?', a:'Counters only increase and reset to zero on restart, so the raw value is meaningless on its own &mdash; rate() calculates the per-second average increase over a time window and correctly handles counter resets. irate() does the same but uses only the last two data points, making it more reactive to spikes but noisier; rate() is preferred for alerting and dashboards because it smooths out noise, while irate() suits high-resolution graphing of volatile metrics.'},
+{cat:'obs', q:'What are Prometheus recording rules and why use them?', a:'Recording rules pre-compute frequently used or expensive PromQL expressions on a schedule and save the result as a new time series. This speeds up dashboards that would otherwise recompute the same heavy aggregation on every load, and it keeps alerting rules fast and consistent since they can reference the precomputed series instead of recalculating complex queries under pressure during an incident.'},
+{cat:'obs', q:'How do you fight alert fatigue?', a:'Tie every alert to a symptom that affects users (SLO burn rate) rather than every possible cause-level anomaly; consolidate related alerts so one incident does not page ten times; set sane thresholds and use multi-window burn-rate alerting instead of static thresholds; route by severity so only truly actionable, time-sensitive alerts page a human, and route everything else to a ticket or dashboard; and regularly review and prune alerts that never lead to action.'},
+{cat:'obs', q:'Prometheus pull model vs CloudWatch/Azure Monitor push-style collection &mdash; what is the practical difference?', a:'Prometheus scrapes (pulls) metrics from targets on a defined interval, which makes service discovery and target health visible (a failed scrape is itself a signal) and keeps the collector in control of load. CloudWatch and Azure Monitor are largely push/agent-based, where the workload or an agent sends metrics to the platform; this scales well for managed cloud services where you cannot run a scraper, but you lose the "scrape failed" signal and pay more attention to agent health and ingestion delay instead.'},
+{cat:'obs', q:'How does distributed tracing help diagnose latency in a microservices call chain?', a:'Each request gets a trace ID propagated across service boundaries, and each hop records a span with start/end time and metadata. Visualizing the trace as a waterfall shows exactly which service or downstream call consumed the most time, exposing problems like a slow downstream dependency, serial calls that should be parallel, or retries silently inflating latency &mdash; none of which is visible from per-service metrics alone.'},
+{cat:'obs', q:'What would you put on a Grafana dashboard for a production service?', a:'Lead with the Golden Signals/RED metrics (request rate, error rate, latency percentiles &mdash; p50/p95/p99, not just average) tied visually to the SLO threshold so breaches are obvious at a glance. Below that, saturation signals (CPU, memory, queue depth, connection pool usage), then dependency health (downstream call latency/errors), and a recent-deploys annotation overlay so you can immediately correlate a regression with a release.'},
+
+// ---------------- AWS ----------------
+{cat:'aws', q:'ALB vs NLB &mdash; when do you choose each?', a:'ALB (Application Load Balancer) operates at Layer 7, understands HTTP/HTTPS, and supports path/host-based routing, WebSockets, and integrates with WAF &mdash; the default choice for web applications and microservices. NLB (Network Load Balancer) operates at Layer 4, handles millions of requests per second with ultra-low latency, preserves the client source IP natively, and supports static IPs &mdash; chosen for raw TCP/UDP workloads, extreme throughput needs, or when you need a fixed IP for allowlisting.'},
+{cat:'aws', q:'Walk through the core components of a VPC.', a:'A VPC is your isolated network space with a CIDR block; it is divided into subnets (public or private based on routing) across multiple AZs for redundancy. An Internet Gateway gives public subnets internet access; a NAT Gateway lets private subnets reach the internet outbound without being reachable inbound. Route tables control traffic flow per subnet, and Security Groups/NACLs provide stateful and stateless filtering respectively.'},
+{cat:'aws', q:'Security Group vs NACL &mdash; what is the actual difference?', a:'Security Groups operate at the instance/ENI level and are <strong>stateful</strong> &mdash; if you allow inbound traffic, the response is automatically allowed out, and you can only specify allow rules. NACLs operate at the subnet level and are <strong>stateless</strong> &mdash; you must explicitly allow both inbound and outbound, and you can write both allow and deny rules. Security Groups are your primary day-to-day control; NACLs are typically used as a coarse, secondary layer for explicit deny rules.'},
+{cat:'aws', q:'How do IAM roles, IAM policies, Secrets Manager, and SSM Parameter Store fit together?', a:'IAM policies are JSON documents defining permissions; IAM roles are identities that workloads (EC2, Lambda, EKS pods via IRSA) assume to get temporary, policy-governed credentials, which avoids hardcoding long-lived keys. Secrets Manager stores sensitive values like DB passwords with automatic rotation support, while SSM Parameter Store is better for configuration values and non-rotating secrets at lower cost. Access to both should still be gated by IAM, following least privilege.'},
+{cat:'aws', q:'Describe EKS architecture at a high level.', a:'AWS manages the Kubernetes control plane (API server, etcd, scheduler) across multiple AZs for you, exposed via an endpoint that can be public, private, or both. You bring the data plane &mdash; either self-managed/managed node groups (EC2 instances joined via bootstrap scripts and IAM roles) or Fargate (serverless, per-pod compute with no node management). Networking typically uses the AWS VPC CNI, which assigns pods real VPC IP addresses rather than an overlay network.'},
+{cat:'aws', q:'Transit Gateway vs PrivateLink vs Direct Connect &mdash; when do you use each?', a:'Transit Gateway is a hub-and-spoke network router connecting many VPCs and on-prem networks, simplifying full network-level connectivity at scale. PrivateLink exposes a specific service privately to consumers without full network peering &mdash; ideal for SaaS-style or service-to-service access where you do not want to expose the whole VPC. Direct Connect is a dedicated physical network link from on-prem to AWS for consistent bandwidth and lower latency than internet-based VPN, often paired with Transit Gateway for routing once it lands.'},
+{cat:'aws', q:'RDS Multi-AZ vs Read Replica &mdash; what problem does each solve?', a:'Multi-AZ maintains a synchronous standby in another AZ purely for <strong>high availability</strong> &mdash; on primary failure, AWS automatically fails over to the standby, but the standby is not used for reads. Read Replicas are asynchronous copies used purely for <strong>read scaling</strong>, offloading read traffic from the primary; they can be promoted to standalone in a disaster but that is a manual, slower process, not automatic failover.'},
+{cat:'aws', q:'What ASG scaling policy types exist and when would you pick each?', a:'Target tracking scales to maintain a metric at a target value (e.g. keep average CPU at 50%) and is the simplest, most common choice. Step scaling adjusts capacity by defined increments based on alarm breach magnitude, useful when you want finer control over response to severity. Scheduled scaling pre-provisions capacity for known traffic patterns, like a daily batch job or a marketing event, avoiding reactive scaling lag entirely.'},
+
+// ---------------- AZURE ----------------
+{cat:'azure', q:'AKS vs VMSS &mdash; when would you choose each?', a:'AKS (Azure Kubernetes Service) is for containerized workloads needing orchestration &mdash; scheduling, self-healing, declarative scaling at the pod and node level, with Azure managing the control plane. VMSS (Virtual Machine Scale Sets) is for traditional VM-based workloads that scale horizontally without containers, or as the underlying compute layer AKS itself uses for its node pools. If your app is already containerized, AKS gives you far more operational leverage; for legacy or VM-native apps, VMSS is simpler.'},
+{cat:'azure', q:'Azure RBAC vs Key Vault access policies &mdash; what is the distinction?', a:'Azure RBAC is the platform-wide authorization model controlling who can manage Azure resources generally, assigned at management group, subscription, resource group, or resource scope. Key Vault access policies are a legacy, Key-Vault-specific permission model for data-plane operations (read/write secrets, keys, certificates). Microsoft now recommends migrating to Key Vault RBAC so secret access uses the same unified Azure RBAC model instead of a separate policy system, simplifying audits.'},
+{cat:'azure', q:'Application Gateway vs Front Door vs Traffic Manager &mdash; how do they differ?', a:'Application Gateway is a regional Layer 7 load balancer with WAF, good for routing within one region. Azure Front Door is global, Layer 7, with CDN-like edge routing, SSL offload, and WAF, ideal for multi-region web apps needing the closest-edge entry point. Traffic Manager is global but DNS-based (Layer 3, not inspecting traffic), used for routing users to the nearest or healthiest regional endpoint when you do not need Front Door&rsquo;s deeper HTTP features.'},
+{cat:'azure', q:'Private Endpoint vs Service Endpoint &mdash; what is the real difference?', a:'A Service Endpoint extends your VNet identity to a service over the Microsoft backbone but the service still has a public IP, just with VNet-restricted access. A Private Endpoint actually injects a private IP from your VNet into the service, making it appear as a resource inside your network with no public exposure at all &mdash; the stronger isolation choice, and increasingly the default recommendation for production.'},
+{cat:'azure', q:'Describe the Azure Monitor + Log Analytics architecture.', a:'Azure Monitor is the umbrella platform collecting metrics and logs from Azure resources, agents, and applications (via Application Insights). Log Analytics is the query backend (using Kusto/KQL) where logs are stored and analyzed, and workspaces can aggregate data from multiple resources or subscriptions. Alerts, dashboards, and workbooks sit on top, querying Log Analytics or metrics directly, similar in spirit to Prometheus + Grafana but with KQL instead of PromQL.'},
+{cat:'azure', q:'ExpressRoute vs VPN Gateway vs Virtual WAN?', a:'VPN Gateway is an encrypted tunnel over the public internet &mdash; cheap and quick to set up but subject to internet variability. ExpressRoute is a private, dedicated connection bypassing the public internet entirely, giving predictable latency and higher bandwidth for production-grade hybrid connectivity. Virtual WAN is Azure&rsquo;s managed hub for orchestrating many VPN and ExpressRoute connections at scale across regions, similar in role to AWS Transit Gateway.'},
+{cat:'azure', q:'Azure Firewall vs NSG &mdash; where does each sit?', a:'NSG (Network Security Group) is a basic, stateful Layer 3/4 allow/deny filter applied at the subnet or NIC level &mdash; cheap and granular but with limited intelligence. Azure Firewall is a managed, stateful Layer 3-7 firewall with threat intelligence, FQDN filtering, and centralized policy across many VNets &mdash; used as a perimeter control point, often in a hub VNet, complementing rather than replacing NSGs at the subnet level.'},
+
+// ---------------- TERRAFORM ----------------
+{cat:'tf', q:'Why does Terraform state locking matter and how is it typically implemented?', a:'State locking prevents two people or pipelines from running apply concurrently and corrupting the state file or causing conflicting changes to real infrastructure. A common AWS pattern is an S3 backend for the state file paired with a DynamoDB table for the lock (using conditional writes) &mdash; whoever acquires the lock first proceeds, others wait or fail fast, depending on configuration.'},
+{cat:'tf', q:'How do modules and remote state work together to share data across stacks?', a:'Modules are reusable, parameterized configuration blocks &mdash; you call them with input variables and get outputs back, used within a single Terraform run. Remote state goes further: it lets a <strong>separate</strong> Terraform configuration read another configuration&rsquo;s outputs (via terraform_remote_state or, more cleanly, dedicated state-data lookups) so, for example, a networking stack&rsquo;s VPC ID can be consumed by an application stack without copy-pasting values.'},
+{cat:'tf', q:'count vs for_each &mdash; when do you use each?', a:'count creates N near-identical copies indexed numerically (0, 1, 2...), which is fragile if you remove an item from the middle of the list since Terraform reindexes and may destroy/recreate unrelated resources. for_each uses a map or set of strings, keying resources by a stable identifier instead of position, so adding or removing one item only affects that one resource &mdash; the safer default for anything beyond trivial, fixed-count replication.'},
+{cat:'tf', q:'Explain the lifecycle block options: prevent_destroy, ignore_changes, create_before_destroy.', a:'prevent_destroy blocks a resource from being destroyed by any plan, a safety rail for critical resources like production databases. ignore_changes tells Terraform to stop tracking drift on specific attributes, useful when something outside Terraform legitimately mutates a field (like autoscaling-adjusted desired_count). create_before_destroy flips the default replace order so the new resource is created and healthy before the old one is torn down, avoiding downtime on replacements that would otherwise cause an outage gap.'},
+{cat:'tf', q:'How do you manage Terraform across Development, QA, and Production?', a:'Use separate state files per environment &mdash; either via Terraform workspaces, or more robustly, separate directories/backends per environment so a mistake in dev cannot touch prod state. Share logic through versioned modules rather than copy-pasting, and parameterize differences (instance sizes, replica counts, domain names) via per-environment .tfvars files. Promote changes through environments via your CI/CD pipeline with mandatory plan review and approval gates before production apply, and pin module/provider versions so prod does not silently drift from what was tested in QA.'},
+{cat:'tf', q:'How do you detect and handle drift?', a:'Run terraform plan on a schedule (or use Terraform Cloud/Enterprise drift detection) to compare real infrastructure against state &mdash; any unexpected diff is drift, usually from manual console changes. Reconcile by either importing the manual change into Terraform if it should be kept, or running apply to revert infrastructure back to the declared state if it should not. The long-term fix is process: lock down console/CLI write access so Terraform is the only path to change.'},
+
+// ---------------- ANSIBLE ----------------
+{cat:'ansible', q:'Why is idempotency critical in Ansible, with an example?', a:'Idempotency means running a playbook multiple times produces the same end state without unintended side effects, which is essential since playbooks are re-run constantly for convergence and drift correction. For example, the file module checks if a file already has the desired permissions before changing anything, reporting "ok" instead of "changed" if nothing needed to happen &mdash; unlike a raw shell command like rm -f && touch which would always report changed and could be destructive if accidentally re-run.'},
+{cat:'ansible', q:'Playbooks vs Roles vs Collections &mdash; how do they relate?', a:'A playbook is a YAML file defining a sequence of plays/tasks against target hosts. A role packages related tasks, handlers, templates, variables, and defaults into a reusable, self-contained unit (e.g. an "nginx" role) that playbooks can include. A collection is a distributable package bundling multiple roles, modules, and plugins together, typically published to Ansible Galaxy, used for sharing reusable automation across teams or organizations.'},
+{cat:'ansible', q:'How does Ansible Vault handle secrets?', a:'Vault encrypts sensitive data (variable files, or individual variables within a file) using AES256, so secrets can be committed to version control safely. At runtime, Ansible decrypts the vaulted content using a password or key supplied via --ask-vault-pass, a vault password file, or an external vault ID/secret manager integration, keeping plaintext secrets out of the repo while still letting playbooks use them.'},
+{cat:'ansible', q:'Static vs Dynamic Inventory &mdash; when do you need dynamic?', a:'Static inventory is a fixed file (INI or YAML) listing hosts and groups manually &mdash; fine for small, stable environments. Dynamic inventory queries a live source (AWS EC2 API, Azure, GCP, or a CMDB) at runtime to build the host list automatically, which is necessary in cloud environments where instances are ephemeral and a hardcoded list would constantly go stale.'},
+{cat:'ansible', q:'When do handlers fire in Ansible?', a:'Handlers are tasks that only run when notified by another task that reported a "changed" status, and by default they run once, at the end of the play, even if notified multiple times &mdash; deduplicating restarts. A classic pattern is notifying a "restart nginx" handler from a config-file-update task, so the service only restarts when its config actually changed, not on every run.'},
+
+// ---------------- NETWORKING ----------------
+{cat:'net', q:'What is the difference between a Layer 4 and Layer 7 load balancer?', a:'A Layer 4 load balancer routes based on IP and TCP/UDP port information only, without inspecting the actual application payload &mdash; fast, protocol-agnostic, and able to preserve raw TCP connections. A Layer 7 load balancer inspects the application-layer content (HTTP headers, URL path, cookies) and can route based on it, terminate TLS, and do content-based decisions like path-based routing &mdash; more flexible but with more processing overhead.'},
+{cat:'net', q:'Explain a DNS lookup step by step.', a:'The client checks its local cache, then queries a configured recursive resolver. If not cached there, the resolver asks a root server, which refers it to the TLD server (e.g. .com), which refers it to the authoritative nameserver for the domain, which finally returns the actual record (A/AAAA/CNAME). The resolver caches the result per the record&rsquo;s TTL and returns it to the client &mdash; the whole chain typically completes in tens of milliseconds and is cached aggressively afterward.'},
+{cat:'net', q:'Describe the packet flow from a client request to a server response.', a:'For a typical HTTPS request: DNS resolves the hostname to an IP, then a TCP three-way handshake (SYN, SYN-ACK, ACK) establishes a connection, followed by a TLS handshake to negotiate encryption and verify the certificate. The HTTP request travels encrypted over that connection, routed hop by hop based on IP routing tables (and through any load balancers/proxies in between), the server processes it and sends a response back over the same connection, and the connection is eventually closed or kept alive for reuse.'},
+{cat:'net', q:'How does Kubernetes networking actually work under the hood?', a:'Every pod gets its own IP from the CNI plugin, and all pods can reach each other directly without NAT, satisfying the Kubernetes networking model. A Service gets a stable virtual IP and DNS name; kube-proxy (via iptables or IPVS rules) load-balances traffic to that virtual IP across the backing pod IPs, updating the rules as pods come and go. Ingress controllers sit at the edge, routing external HTTP(S) traffic to the right Service based on host/path rules.'},
+{cat:'net', q:'Walk through a TLS handshake briefly.', a:'The client sends a ClientHello with supported TLS versions and cipher suites; the server responds with ServerHello, its certificate, and chosen cipher suite. The client verifies the certificate against trusted CAs, then both sides derive a shared symmetric session key (via key exchange, commonly ECDHE for forward secrecy) without ever transmitting it directly. Once both sides confirm the handshake (Finished messages), all further communication is encrypted with the fast symmetric key rather than the slower asymmetric keys.'},
+{cat:'net', q:'Give a quick example of CIDR and subnetting.', a:'A CIDR block like 10.0.0.0/16 means the first 16 bits are the fixed network portion, leaving 16 bits (65,536 addresses) for hosts/subnets. Splitting it into /24 subnets (10.0.1.0/24, 10.0.2.0/24, ...) gives 256 subnets of 256 addresses each (254 usable after reserving network and broadcast addresses) &mdash; a typical pattern for separating public/private subnets across multiple AZs within one VPC.'},
+
+// ---------------- GITOPS ----------------
+{cat:'gitops', q:'How does ArgoCD&rsquo;s sync mechanism work?', a:'ArgoCD continuously compares the desired state defined in a Git repository against the live state in the cluster, reporting the application as Synced or OutOfSync. With automated sync enabled, it reconciles drift automatically by applying the manifests from Git; with manual sync, a human triggers the apply. This makes Git the single source of truth &mdash; any change applied directly to the cluster outside Git is detected as drift and can be auto-corrected or flagged.'},
+{cat:'gitops', q:'What are ArgoCD sync waves and why do they matter?', a:'Sync waves let you control the <strong>order</strong> resources are applied within a single sync, using an annotation to assign each resource a wave number &mdash; lower waves apply first, and ArgoCD waits for a wave to be healthy before moving to the next. This matters for dependent resources, like ensuring a CRD or a database migration Job completes before the application Deployment that depends on it is rolled out.'},
+{cat:'gitops', q:'Helm vs Kustomize &mdash; how do you choose?', a:'Helm uses templating with a packaging model (charts, versioned releases, values files) and is better for distributing reusable, configurable applications, especially third-party software. Kustomize uses patch-based overlays on plain YAML with no templating language, which keeps manifests more readable and is often preferred for environment-specific customization of your own apps (base + dev/staging/prod overlays) since you are not fighting a templating DSL. Many GitOps setups use both: Helm to render upstream charts, Kustomize to patch the output per environment.'},
+{cat:'gitops', q:'Blue-Green vs Canary deployment &mdash; what are the tradeoffs?', a:'Blue-Green runs two full environments and switches all traffic at once from old (blue) to new (green), giving instant rollback (switch back) but requiring double the infrastructure during the cutover and an all-or-nothing risk profile. Canary gradually shifts a small percentage of traffic to the new version, monitors real metrics, and ramps up if healthy &mdash; lower blast radius and earlier problem detection, but slower, more complex to automate, and requires good traffic-splitting and metric-based gating tooling.'},
+{cat:'gitops', q:'How does GitOps handle rollback and drift detection together?', a:'Rollback is just a Git revert &mdash; reverting the commit returns the desired state to the previous known-good manifests, and the GitOps controller reconciles the cluster back to match, giving you a full audit trail of who rolled back what and why. Drift detection is continuous: any manual or out-of-band change to the cluster is detected as a difference from Git on the next reconciliation loop, and depending on policy is either auto-healed or surfaced as an alert for a human to investigate.'},
+
+// ---------------- CI/CD ----------------
+{cat:'cicd', q:'What stages belong in a production-safe CI/CD pipeline?', a:'Build (compile/package), automated tests (unit, then integration), static analysis and security scanning (SonarQube for code quality, Trivy for container vulnerabilities), artifact publish to a registry, deploy to a lower environment with smoke tests, a manual or policy-based approval gate before production, then production deploy with progressive rollout (canary/blue-green) and automated rollback on failed health checks.'},
+{cat:'cicd', q:'Where do the artifact/Docker registry and image scanning fit in the pipeline?', a:'After a successful build, the image is pushed to a registry (ECR, ACR, Docker Hub, Harbor) tagged immutably, usually with the commit SHA rather than "latest", so every deployed version is traceable. Scanning (Trivy, or registry-native scanning) typically runs right after push, before the image is allowed to be referenced by any deploy manifest &mdash; failing the pipeline on critical CVEs enforces a shift-left security gate rather than catching vulnerabilities after they reach production.'},
+{cat:'cicd', q:'How do you optimize a slow CI/CD pipeline?', a:'Parallelize independent stages (unit tests, lint, security scan can usually run concurrently rather than serially), cache dependencies and build layers (Docker layer caching, package manager caches) so unchanged work is skipped, and split monorepos so only affected services rebuild rather than everything on every commit. Also profile the pipeline itself periodically &mdash; teams often optimize the build but never revisit it as the codebase grows.'},
+{cat:'cicd', q:'When does a manual approval gate make sense vs full automation?', a:'Manual gates make sense before production for high-blast-radius changes, regulated environments needing an audit trail of human sign-off, or when automated test coverage is not yet trustworthy enough to gate fully on its own. As confidence in automated testing, canary analysis, and rollback automation grows, teams typically remove the manual gate and replace it with policy-as-code checks (required scans passed, SLO not currently breached) so velocity increases without sacrificing safety.'},
+{cat:'cicd', q:'How should secrets be handled in a CI/CD pipeline?', a:'Secrets should never be hardcoded in pipeline YAML or committed to the repo &mdash; use the CI platform&rsquo;s native secret store (GitHub Actions secrets, Azure DevOps variable groups marked secret) or pull at runtime from a dedicated secrets manager (Vault, AWS Secrets Manager) with short-lived, scoped credentials. Mask secret values in logs, rotate them regularly, and scope pipeline service account permissions to only what that specific pipeline needs, not broad admin access.'},
+
+// ---------------- LINUX ----------------
+{cat:'linux', q:'How do you troubleshoot high load average on a Linux box?', a:'First check uptime/top to see the load numbers relative to CPU core count and whether it is trending up or already stable. Use top/htop to identify whether the bottleneck is CPU-bound (high %CPU processes) or I/O-bound (processes in D state, waiting on disk) &mdash; high load with low CPU usage usually points to I/O wait, which iostat or vmstat can confirm. From there, drill into the specific process with strace or lsof to see what it is actually blocked on.'},
+{cat:'linux', q:'How does the OOM killer decide what to kill, and how do you prevent unwanted kills?', a:'When the kernel cannot satisfy a memory allocation and reclaiming/swapping is not enough, the OOM killer scores processes (the oom_score, influenced by memory usage and oom_score_adj) and kills the highest-scoring one to free memory. To prevent critical processes from being killed, you can adjust oom_score_adj, but the more robust fix is setting proper memory requests/limits in Kubernetes (so the scheduler and kubelet manage pressure proactively) and right-sizing workloads so the node does not approach memory exhaustion in the first place.'},
+{cat:'linux', q:'When would you reach for strace, lsof, vmstat, and iostat respectively?', a:'strace traces system calls a process makes in real time &mdash; useful when a process hangs or errors and you need to see exactly what syscall it is stuck on (file open, network connect). lsof lists open files (including sockets and pipes) held by processes &mdash; useful for "device busy" errors or finding what is holding a deleted file&rsquo;s disk space. vmstat gives a quick snapshot of memory, swap, and CPU activity system-wide. iostat focuses specifically on disk I/O throughput and latency per device, useful when you suspect a slow disk is the bottleneck.'},
+{cat:'linux', q:'What causes inode exhaustion and how do you fix it?', a:'Every file and directory consumes one inode regardless of its size, so a filesystem can run out of inodes (df -i shows 100% inode usage) while still having free disk space, typically caused by huge numbers of tiny files (logs, session files, cache files). The fix is finding and cleaning up the directory generating excessive small files (find with file count per directory), and longer-term, rotating/cleaning logs properly or moving to object storage for high-cardinality file generation, since inode count is fixed at filesystem creation and cannot be increased without reformatting.'},
+{cat:'linux', q:'How do you debug a failed systemd service using journalctl?', a:'Start with systemctl status <service> for a quick summary and recent log lines, then journalctl -u <service> -n 100 --no-pager for a fuller history, or journalctl -u <service> -f to tail it live while reproducing the issue. journalctl -p err -u <service> filters to error-level entries only, and --since/--until narrows the time window around when the failure was reported, which is much faster than grepping flat log files.'},
+{cat:'linux', q:'What is sar used for that top/vmstat are not as good at?', a:'sar (from sysstat) collects and retains historical system performance data at regular intervals (CPU, memory, disk, network) rather than only showing a live snapshot like top. That makes it the tool for answering "what was happening at 3am when the alert fired" after the fact, and for spotting longer-term trends like gradual memory growth or a recurring nightly I/O spike that a point-in-time tool would miss entirely.'},
+
+// ---------------- PYTHON ----------------
+{cat:'python', q:'Why is subprocess preferred over os.system for running shell commands?', a:'subprocess gives you structured access to stdout, stderr, and the return code separately, supports timeouts, and avoids shell injection risks when you pass arguments as a list instead of a single interpolated string. os.system just returns an exit status and dumps output directly to the terminal, with no easy way to capture or process it programmatically, and it is more prone to shell injection if you build the command string from untrusted input.'},
+{cat:'python', q:'How would you write a script to parse and tail logs in Python?', a:'For tailing, open the file, seek to the end, and loop reading new lines as they are appended (or use a library like watchdog for filesystem events), which avoids re-reading the whole file repeatedly. For parsing, use the re module with a compiled pattern for performance on high-volume logs, and process line by line with a generator rather than loading the whole file into memory, which keeps memory flat even on multi-gigabyte log files.'},
+{cat:'python', q:'How do you implement retry with backoff for an API call using requests?', a:'requests.Session combined with urllib3&rsquo;s Retry adapter (or the tenacity library for more control) lets you configure retry count, backoff factor, and which status codes/exceptions trigger a retry, mounted onto the session so every call through it gets the policy automatically. Exponential backoff with jitter is the standard approach &mdash; it spaces out retries to avoid all clients hammering a recovering service at the exact same moment, which can itself cause a retry storm.'},
+{cat:'python', q:'YAML vs JSON for automation scripts &mdash; when do you pick which?', a:'YAML is more human-readable, supports comments, and is the de facto standard for configuration files in the DevOps ecosystem (Kubernetes manifests, Ansible playbooks, GitHub Actions), making it the natural choice for anything a human regularly edits. JSON is stricter, faster to parse, has no ambiguity around indentation, and is the standard for API payloads and data interchange between programs &mdash; pick YAML for human-edited config, JSON for machine-to-machine data.'},
+{cat:'python', q:'How do you set up structured logging for an SRE automation tool?', a:'Use Python&rsquo;s logging module with a JSON formatter (or python-json-logger) instead of plain text, so logs are directly queryable in your log aggregation platform (ELK, Splunk, CloudWatch Logs Insights) without brittle regex parsing. Include consistent fields across every log line &mdash; timestamp, log level, service name, and a correlation/request ID &mdash; and configure log level via environment variable so you can raise verbosity in production for debugging without a code change.'},
+
+// ---------------- SECURITY ----------------
+{cat:'security', q:'Give a practical example of least privilege in IAM/RBAC.', a:'Instead of granting an application a broad role like AmazonS3FullAccess, scope the IAM policy to exactly the actions (GetObject, PutObject) on exactly the bucket and prefix the app needs, nothing more. The same principle applies in Kubernetes RBAC &mdash; a CI service account that only needs to deploy to one namespace should get a Role bound in that namespace, not a ClusterRole with cluster-wide admin rights, so a compromised credential has the smallest possible blast radius.'},
+{cat:'security', q:'What is OPA and where does it fit in a Kubernetes pipeline?', a:'Open Policy Agent is a general-purpose policy engine using the Rego language to define rules as code, decoupled from the application enforcing them. In Kubernetes it is most commonly used via OPA Gatekeeper as a validating admission webhook, enforcing policies like "no privileged containers," "images must come from an approved registry," or "every deployment must have resource limits" before the object is ever persisted to etcd.'},
+{cat:'security', q:'How does image scanning with Trivy fit into a shift-left security approach?', a:'Trivy scans container images for known CVEs in OS packages and application dependencies, and can also scan IaC files (Terraform, Kubernetes manifests) for misconfigurations. Running it in CI, before an image is pushed to a registry or deployed, catches vulnerabilities at build time when they are cheap to fix, instead of relying solely on runtime detection after the vulnerable image is already running in production.'},
+{cat:'security', q:'What does Falco detect that image scanning cannot?', a:'Falco is a runtime security tool that monitors live kernel system calls and Kubernetes audit events to detect <strong>behavioral</strong> anomalies as they happen &mdash; a shell spawned unexpectedly inside a container, a sensitive file being read, an outbound connection to an unusual destination. Image scanning only catches known vulnerabilities baked into the image at build time; Falco catches active exploitation or misuse happening live, including zero-days that no scanner would have flagged.'},
+{cat:'security', q:'Pod Security Standards vs the old PodSecurityPolicy &mdash; what changed?', a:'PodSecurityPolicy was removed from Kubernetes (deprecated in 1.21, removed in 1.25) because it was complex, hard to reason about, and tightly coupled to RBAC in confusing ways. Pod Security Standards define three simple, built-in profiles (Privileged, Baseline, Restricted) enforced via the Pod Security Admission controller using a namespace label, which is far easier to adopt incrementally; for more complex or custom policy needs, OPA Gatekeeper or Kyverno fill the gap PSP used to.'},
+{cat:'security', q:'Vault vs cloud-native secrets managers (Secrets Manager, Key Vault) &mdash; how do you choose?', a:'HashiCorp Vault is cloud-agnostic, supports dynamic secrets (short-lived, auto-generated database credentials rather than static ones), and centralizes secrets management across multi-cloud or hybrid environments, but you own running and securing it. Cloud-native managers are fully managed, integrate natively with that cloud&rsquo;s IAM with minimal setup, and are the simpler choice when you are single-cloud and do not need Vault&rsquo;s dynamic secrets or cross-cloud consistency.'},
+
+// ---------------- SYSTEM DESIGN ----------------
+{cat:'sysdesign', q:'What should you cover when asked to design a highly available e-commerce platform?', a:'Walk through: multi-AZ compute behind an ALB with auto-scaling, a read-scaled database tier (primary + read replicas, or a managed multi-AZ database), caching (CDN for static assets, Redis for session/cart data) to reduce database load, async processing via queues for order fulfillment so checkout latency does not block on slow downstream systems, and idempotency keys on payment/order APIs to safely handle retries. Call out the failure modes explicitly: what happens if the payment provider is down, if the cache is cold, if a region fails &mdash; and how each is mitigated.'},
+{cat:'sysdesign', q:'What are the key challenges in a multi-region Kubernetes platform?', a:'Data is the hard part, not compute &mdash; stateless workloads replicate easily, but databases need a replication and failover strategy (active-passive with async replication, or active-active with conflict resolution, which is much harder). Traffic routing needs global load balancing (DNS-based or anycast) that detects regional health and fails over automatically, and you need to decide whether the control plane is per-region (simpler, but config drift risk) or federated. Latency between regions and split-brain risk during partial network partitions are the failure modes to call out explicitly.'},
+{cat:'sysdesign', q:'How would you design a global logging platform?', a:'Agents/sidecars (Fluent Bit, Vector) ship logs locally first to a regional buffer (Kafka or a managed queue) to decouple producers from the indexing backend and absorb spikes, then a regional or central indexing tier (Elasticsearch/OpenSearch, or a managed service) makes logs searchable. Design for retention tiers (hot for recent/searchable, cold/archived to object storage for compliance) and consider data residency requirements that may force certain logs to stay regional rather than centralizing globally.'},
+{cat:'sysdesign', q:'What is the case for a multi-cloud architecture (AWS + Azure), and what are the tradeoffs?', a:'Reasons include avoiding vendor lock-in, meeting a customer or regulatory requirement for a specific cloud, or leveraging best-of-breed services per provider (e.g. a specific AI/ML or data service). The tradeoff is real operational cost &mdash; you need an abstraction layer (Terraform/Kubernetes helps, but identity, networking, and observability still differ per cloud), duplicated tooling and expertise, and typically higher data egress costs moving data between clouds. Most teams should justify multi-cloud with a concrete business reason, not adopt it by default for "flexibility."'},
+{cat:'sysdesign', q:'How do RTO and RPO drive a disaster recovery architecture?', a:'A near-zero RTO/RPO requirement (seconds of downtime, no data loss) forces an active-active multi-region architecture with synchronous or near-synchronous replication, which is expensive and complex. A looser RTO/RPO (hours of downtime, minutes of data loss acceptable) allows a much cheaper pilot-light or warm-standby pattern &mdash; minimal or scaled-down standby infrastructure that is scaled up only when a disaster is declared. The DR design should be derived directly from the business-stated RTO/RPO, not chosen first and justified after.'},
+{cat:'sysdesign', q:'What replication strategies would you discuss for a multi-region database architecture?', a:'Synchronous replication guarantees zero data loss (RPO=0) but adds write latency proportional to inter-region distance and risks availability if the remote region is unreachable, since writes may block. Asynchronous replication keeps write latency local and low but accepts some potential data loss on failover (non-zero RPO). For multi-write scenarios, you need a conflict resolution strategy (last-write-wins, vector clocks, or application-level merge logic) since two regions can legitimately write to the same record concurrently &mdash; this is usually the hardest part to get right.'},
+
+// ---------------- GOOD TO HAVE ----------------
+{cat:'goodtohave', q:'What value does a service mesh (Istio/Linkerd/Consul) add beyond Kubernetes networking basics?', a:'A service mesh injects a sidecar proxy alongside every pod to handle traffic transparently, giving you mutual TLS between services without app code changes, fine-grained traffic control (canary splits, retries, circuit breaking) independent of application deployments, and rich service-to-service observability (latency, error rate, request volume per service pair) for free. The tradeoff is added operational complexity and latency overhead from the extra hop through the sidecar, which is why teams adopt it only once they have enough services that manual TLS and traffic management become unmanageable.'},
+{cat:'goodtohave', q:'What is the purpose of chaos engineering tools like Chaos Monkey and Gremlin?', a:'They deliberately inject controlled failures &mdash; killing instances, adding network latency, exhausting resources &mdash; into production or production-like environments to verify that the system actually behaves the way your architecture diagram claims it does under failure, rather than assuming resilience. The goal is finding weaknesses before a real, uncontrolled outage does, with a defined blast radius and rollback plan so the experiment itself does not become the incident.'},
+
+// ---------------- LEADERSHIP & BEHAVIORAL ----------------
+{cat:'leadership', q:'Tell me about the largest production incident you managed. (framework)', a:'Use STAR: set the Situation/Task with concrete scope (user impact, revenue/SLA exposure, duration), describe the Action you specifically took (not the team in general &mdash; what did you decide, escalate, or build), and close with the Result quantified (MTTR, error budget impact) plus the lasting change it caused (a new alert, a runbook, an architecture fix). Interviewers are listening for ownership language ("I decided," "I escalated") and for whether the story ends with a systemic fix, not just a save.'},
+{cat:'leadership', q:'Describe a time you disagreed with developers on an infrastructure decision. (framework)', a:'Show that you led with data, not authority &mdash; what evidence (latency numbers, incident history, cost) backed your position, and how you presented it to make the tradeoff visible rather than just asserting "my way." Be honest if you were the one who ended up wrong or compromised, since interviewers value calibration over a story where you are always right; end with how the disagreement was resolved and what relationship or process improved afterward.'},
+{cat:'leadership', q:'How do you define SLOs for a new service? (framework)', a:'Start from the user journey, not arbitrary numbers &mdash; what does "working" mean from the user&rsquo;s perspective, and pick SLIs that reflect that (request success rate, latency at a percentile that matches real user expectations). Set the initial SLO conservatively using current baseline performance plus a margin, not an aspirational number you cannot yet hit, and treat it as a living target revisited after a few weeks of real traffic data once you know the natural variance.'},
+{cat:'leadership', q:'How do you reduce operational toil? (framework)', a:'Define toil concretely first &mdash; manual, repetitive, automatable work with no enduring value &mdash; then track time spent on it so the problem is visible and prioritizable, not just a feeling. Attack it in order of frequency times effort: automate the most frequent manual runbook steps first, build self-service tooling so requests do not need a human at all, and treat eliminating toil as a tracked, resourced workstream, not something squeezed in around "real" project work.'},
+{cat:'leadership', q:'How do you mentor junior engineers? (framework)', a:'Favor pairing on real incidents and on-call shadowing over abstract lessons, since SRE judgment is built by seeing real ambiguity resolved, not by reading a doc. Give them ownership of a real, bounded piece (a dashboard, a small automation) with you available as a safety net rather than doing it for them, and make postmortems a teaching moment by walking through your own reasoning out loud, including mistakes you made early in your career.'},
+{cat:'leadership', q:'What reliability improvement had the biggest impact in your last role? (framework)', a:'Pick one story and quantify before/after &mdash; incident frequency, MTTR, on-call pages per week, or error budget consumption, comparing a concrete number before the change to after. Explain the diagnosis (how you identified this as the highest-leverage fix rather than a random improvement) and the rollout (how you got buy-in and migrated safely), since the "how" demonstrates the operating skill as much as the result does.'},
+{cat:'leadership', q:'How do you prioritize reliability work against new feature delivery? (framework)', a:'This is exactly what error budgets are designed to make objective rather than political &mdash; while the budget is healthy, feature work proceeds; once it is burned, reliability work takes priority by agreed policy, not by whoever argues loudest in a planning meeting. Make the tradeoff visible to product/leadership in the same dashboard they already look at, so it reads as a shared, data-backed decision rather than SRE blocking velocity.'},
+{cat:'leadership', q:'If your team has many recurring alerts, how would you reduce alert fatigue? (framework)', a:'Audit a few weeks of alert history first to find which alerts never led to action &mdash; those get deleted or downgraded to a non-paging channel. Convert remaining cause-level, noisy alerts to symptom-level, SLO-burn-rate alerts where possible, since they better reflect actual user impact, and explicitly track pages-per-week as a team health metric so the fix is sustained, not a one-time cleanup that silently regresses.'},
+{cat:'leadership', q:'How do you convince leadership to invest in reliability initiatives? (framework)', a:'Translate reliability into the language leadership already tracks &mdash; revenue at risk during outages, customer churn correlated with incidents, engineering hours lost to firefighting versus building &mdash; rather than technical metrics alone. Bring a specific, scoped ask with an expected return (e.g. "this investment reduces P1 incidents by an estimated X%, freeing Y engineer-hours per month") instead of a general appeal for "more reliability," since a concrete, costed proposal is far easier for leadership to approve than an abstract concern.'},
+{cat:'leadership', q:'What metrics would you present in an executive reliability review? (framework)', a:'Lead with business-relevant numbers: SLO attainment trend over the quarter, error budget consumption, customer-facing incident count and total downtime, and MTTR trend. Pair each with a one-line "so what" (what it cost the business or what risk it represents) and end with the top 2-3 reliability investments planned next quarter and their expected impact &mdash; executives want trend plus action, not a wall of dashboards.'},
+];
+
+// ---- render ----
+const catCount = {};
+QA.forEach(q=>{catCount[q.cat]=(catCount[q.cat]||0)+1;});
+document.getElementById('meta-count').textContent = QA.length + ' checks loaded';
+
+const chipsEl = document.getElementById('chips');
+let activeSev = 'ALL';
+const sevColors = {};
+CATS.forEach(c=>{sevColors[c.sev]=c.color;});
+const sevOrder = ['ALL','P1','P2','P3','P4','P5','P6','P7','P8','P9','P10','BHV'];
+sevOrder.forEach(sev=>{
+  const chip = document.createElement('div');
+  chip.className = 'chip' + (sev==='ALL'?' active':'');
+  chip.textContent = sev;
+  chip.dataset.sev = sev;
+  chip.style.background = sev==='ALL' ? 'var(--bg)' : (sev==='ALL'?'':'');
+  chipsEl.appendChild(chip);
+});
+function paintChips(){
+  document.querySelectorAll('.chip').forEach(c=>{
+    const sev = c.dataset.sev;
+    if(c.classList.contains('active')){
+      c.style.background = sev==='ALL' ? '#e6edf3' : (sevColors[sev]||'#e6edf3');
+      c.style.borderColor = sev==='ALL' ? '#e6edf3' : (sevColors[sev]||'#e6edf3');
+    } else {
+      c.style.background = 'var(--bg)';
+      c.style.borderColor = 'var(--border-strong)';
+    }
+  });
+}
+paintChips();
+chipsEl.addEventListener('click', e=>{
+  const chip = e.target.closest('.chip');
+  if(!chip) return;
+  activeSev = chip.dataset.sev;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active', c===chip));
+  paintChips();
+  render();
+});
+
+const doneSet = new Set();
+const openCats = new Set();
+const openQs = new Set();
+
+function checkSvg(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="#0a0e14" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+}
+function chevronSvg(){
+  return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>';
+}
+function arrowSvg(){
+  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>';
+}
+
+const catsEl = document.getElementById('categories');
+const emptyEl = document.getElementById('empty');
+const searchInput = document.getElementById('search');
+
+function render(){
+  const term = searchInput.value.trim().toLowerCase();
+  catsEl.innerHTML = '';
+  let anyVisible = false;
+
+  CATS.forEach(cat=>{
+    if(activeSev!=='ALL' && cat.sev!==activeSev) return;
+    let items = QA.filter(q=>q.cat===cat.id);
+    if(term){
+      items = items.filter(q => (q.q+' '+q.a).toLowerCase().includes(term));
+    }
+    if(items.length===0) return;
+    anyVisible = true;
+
+    const doneCount = items.filter(it=>doneSet.has(it.q)).length;
+    const isOpen = openCats.has(cat.id) || !!term;
+
+    const catEl = document.createElement('div');
+    catEl.className = 'category' + (isOpen?' open':'');
+
+    const head = document.createElement('div');
+    head.className = 'cat-head';
+    head.innerHTML = `
+      <div class="cat-left">
+        <span class="sev-badge" style="background:${cat.color}1f;color:${cat.color};border:1px solid ${cat.color}55;">${cat.sev}</span>
+        <span class="cat-name">${cat.label}</span>
+        <span class="cat-count">${items.length} checks</span>
+      </div>
+      <div class="cat-right">
+        <span class="cat-progress">${doneCount}/${items.length}</span>
+        <span class="chevron">${chevronSvg()}</span>
+      </div>`;
+    head.addEventListener('click', ()=>{
+      if(openCats.has(cat.id)) openCats.delete(cat.id); else openCats.add(cat.id);
+      render();
+    });
+
+    const body = document.createElement('div');
+    body.className = 'cat-body';
+
+    items.forEach(item=>{
+      const qaEl = document.createElement('div');
+      const isQOpen = openQs.has(item.q) || !!term;
+      const isDone = doneSet.has(item.q);
+      qaEl.className = 'qa' + (isQOpen?' open':'') + (isDone?' done':'');
+
+      const qRow = document.createElement('div');
+      qRow.className = 'q-row';
+      qRow.innerHTML = `
+        <span class="q-check ${isDone?'done':''}">${checkSvg()}</span>
+        <span class="q-text">${item.q}</span>
+        <span class="q-arrow">${arrowSvg()}</span>`;
+      const checkEl = qRow.querySelector('.q-check');
+      checkEl.addEventListener('click', ev=>{
+        ev.stopPropagation();
+        if(doneSet.has(item.q)) doneSet.delete(item.q); else doneSet.add(item.q);
+        render();
+      });
+      qRow.addEventListener('click', ()=>{
+        if(openQs.has(item.q)) openQs.delete(item.q); else openQs.add(item.q);
+        render();
+      });
+
+      const aBody = document.createElement('div');
+      aBody.className = 'a-body';
+      aBody.innerHTML = `<div class="a-text">${item.a}</div>`;
+
+      qaEl.appendChild(qRow);
+      qaEl.appendChild(aBody);
+      body.appendChild(qaEl);
+    });
+
+    catEl.appendChild(head);
+    catEl.appendChild(body);
+    catsEl.appendChild(catEl);
+  });
+
+  emptyEl.style.display = anyVisible ? 'none' : 'block';
+
+  const totalDone = doneSet.size;
+  document.getElementById('burn-text').textContent = totalDone + ' / ' + QA.length + ' reviewed';
+  document.getElementById('burn-fill').style.width = Math.round((totalDone/QA.length)*100) + '%';
+}
+
+searchInput.addEventListener('input', render);
+document.addEventListener('keydown', e=>{
+  if(e.key==='/' && document.activeElement!==searchInput){
+    e.preventDefault();
+    searchInput.focus();
+  }
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fubo SRE — One-Page Cheat Sheet</title>
+<style>
+:root{
+  --bg:#0a0f1a; --card:#111a2c; --border:#1f2c47; --text:#dfe6f0; --dim:#8b98b3;
+  --accent:#2dd4bf; --code:#7dd3fc; --head:#f5a524;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:13px;line-height:1.4}
+code,pre{font-family:"SF Mono",Menlo,Consolas,monospace}
+code{background:#0c1220;border:1px solid #24304a;border-radius:3px;padding:0 4px;color:var(--code);font-size:0.85em;white-space:pre-wrap;word-break:break-word}
+pre{background:#080c16;border:1px solid #24304a;border-radius:6px;padding:8px 10px;overflow-x:auto;font-size:11px;line-height:1.45;color:var(--code);margin:4px 0}
+pre code{background:none;border:none;padding:0;white-space:pre}
+b{color:#fff}
+header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+h1{font-size:1.05rem;margin:0}
+h1 span{color:var(--dim);font-weight:400;font-size:0.8rem}
+.print-btn{background:var(--accent);color:#03211d;border:none;border-radius:6px;padding:6px 14px;font-weight:700;font-size:0.78rem;cursor:pointer}
+main.sheet{column-count:3;column-gap:14px;padding:14px 18px 30px 18px}
+@media(max-width:1000px){main.sheet{column-count:2}}
+@media(max-width:640px){main.sheet{column-count:1}}
+.box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin:0 0 12px 0;break-inside:avoid;-webkit-column-break-inside:avoid}
+.box.wide{column-span:all}
+.box h2{margin:0 0 6px 0;font-size:0.82rem;color:var(--head);text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid var(--border);padding-bottom:5px}
+.box p.hint{margin:2px 0 8px 0;color:var(--dim);font-size:0.74rem}
+table{width:100%;border-collapse:collapse;font-size:0.76rem}
+td,th{padding:3px 4px;border-bottom:1px solid #1a2338;text-align:left;vertical-align:top}
+th{color:var(--dim);font-weight:600}
+.diagram{white-space:pre;font-size:10px;line-height:1.35;color:var(--code)}
+.mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:700px){.mod-grid{grid-template-columns:1fr}}
+.mod-grid .file-label{font-size:0.7rem;color:var(--dim);margin-bottom:2px;text-transform:uppercase;letter-spacing:.03em}
+footer{text-align:center;color:#48536e;font-size:0.7rem;padding:10px 0 24px 0}
+.no-print{}
+@media print{
+  @page{size:landscape;margin:10mm}
+  body{background:#fff;color:#111;font-size:11px}
+  .box{background:#fff;border:1px solid #999;break-inside:avoid}
+  .box h2{color:#111}
+  code,pre{background:#f4f4f4;color:#111;border-color:#ccc}
+  .no-print{display:none}
+  main.sheet{column-count:3}
+  header{border-color:#999}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📺 Fubo Senior SRE — One-Page Cheat Sheet <span>Unix · K8s · Terraform · AWS · CI/CD — pure quick-reference, no explanations</span></h1>
+  <button class="print-btn no-print" onclick="window.print()">Print / Save as PDF</button>
+</header>
+
+<main class="sheet">
+
+  <div class="box">
+    <h2>Unix — Process &amp; System</h2>
+    <code>ps aux</code> / <code>ps -ef</code><br>
+    <code>top</code> / <code>htop</code><br>
+    <code>kill -15 PID</code> graceful · <code>kill -9 PID</code> force<br>
+    <code>killall &lt;name&gt;</code><br>
+    <code>nohup ./x.sh &amp;</code><br>
+    <code>systemctl status/start/stop/restart &lt;svc&gt;</code><br>
+    <code>journalctl -u &lt;svc&gt; -f</code><br>
+    <code>df -hP</code> disk usage<br>
+    <code>du -h --max-depth=1 | sort -rh</code><br>
+    <code>free -h</code> · <code>uptime</code> · <code>vmstat 1</code> · <code>iostat -x 1</code><br>
+    <code>lsof -i :PORT</code> · <code>lsof -p PID</code>
+  </div>
+
+  <div class="box">
+    <h2>Unix — Networking</h2>
+    <code>ip a</code><br>
+    <code>ss -tulnp</code><br>
+    <code>curl -I &lt;url&gt;</code><br>
+    <code>curl -o /dev/null -s -w "%{http_code}" url</code><br>
+    <code>dig +short &lt;domain&gt;</code><br>
+    <code>traceroute host</code> / <code>mtr host</code><br>
+    <code>nc -zv host port</code> port check<br>
+    <code>tcpdump -i eth0 port 443</code><br>
+    <code>iptables -L -n</code><br>
+    <span class="hint">Key files: /etc/hosts, /etc/resolv.conf</span>
+  </div>
+
+  <div class="box">
+    <h2>Unix — Text &amp; Permissions</h2>
+    <code>grep -rniv "pat" path</code><br>
+    <code>awk -F: '{print $1}' f</code><br>
+    <code>sed -i 's/old/new/g' f</code><br>
+    <code>sort f | uniq -c | sort -rn</code> top freq<br>
+    <code>tail -f f</code> · <code>less +F f</code><br>
+    <code>cut -d',' -f2 f.csv</code><br>
+    <code>chmod 755</code> / <code>chown u:g f</code> / <code>umask</code>
+  </div>
+
+  <div class="box">
+    <h2>Docker</h2>
+    <code>docker ps -a</code><br>
+    <code>docker logs -f &lt;c&gt;</code><br>
+    <code>docker exec -it &lt;c&gt; sh</code><br>
+    <code>docker build -t name:tag .</code><br>
+    <code>docker run -d -p 8080:80 --name x img</code><br>
+    <code>docker stats</code><br>
+    <code>docker system prune -a</code><br>
+    <span class="hint">ENTRYPOINT = fixed exec · CMD = default args (overridable)</span>
+  </div>
+
+  <div class="box">
+    <h2>Kubernetes — Debug</h2>
+    <code>kubectl get pods -o wide -n ns</code><br>
+    <code>kubectl describe pod &lt;p&gt; -n ns</code><br>
+    <code>kubectl logs &lt;p&gt; [-c c] [--previous] [-f]</code><br>
+    <code>kubectl exec -it &lt;p&gt; -- sh</code><br>
+    <code>kubectl get events --sort-by=.metadata.creationTimestamp</code><br>
+    <code>kubectl top pod</code> / <code>top node</code><br>
+    <code>kubectl rollout status|history|undo deploy/n</code><br>
+    <code>kubectl scale deploy/n --replicas=N</code><br>
+    <code>kubectl port-forward pod/p 8080:80</code><br>
+    <code>kubectl get pods -A -o wide | grep -v Running</code><br>
+    <code>kubectl apply -f f.yaml --dry-run=client -o yaml</code><br>
+    <code>kubectl explain &lt;resource&gt;</code><br>
+    <code>kubectl auth can-i &lt;verb&gt; &lt;resource&gt;</code>
+  </div>
+
+  <div class="box">
+    <h2>Terraform — CLI</h2>
+    <code>terraform init / validate / fmt</code><br>
+    <code>terraform plan -out=tfplan</code><br>
+    <code>terraform apply tfplan</code><br>
+    <code>terraform destroy</code><br>
+    <code>terraform state list</code><br>
+    <code>terraform state show &lt;r&gt;</code><br>
+    <code>terraform state mv/rm &lt;r&gt;</code><br>
+    <code>terraform import &lt;r&gt; &lt;id&gt;</code><br>
+    <code>terraform apply -replace=&lt;r&gt;</code><br>
+    <code>terraform workspace list/new/select</code>
+  </div>
+
+  <div class="box">
+    <h2>Git</h2>
+    <code>git status / diff / log --oneline --graph</code><br>
+    <code>git switch -c &lt;b&gt;</code><br>
+    <code>git rebase -i HEAD~3</code><br>
+    <code>git reset --soft|--hard HEAD~1</code><br>
+    <code>git revert &lt;c&gt;</code> safe on shared history<br>
+    <code>git stash</code> / <code>git stash pop</code><br>
+    <code>git bisect start</code><br>
+    <span class="hint">merge = preserves history · rebase = linear, local only</span>
+  </div>
+
+  <div class="box">
+    <h2>AWS — Networking</h2>
+    <table>
+      <tr><td><b>VPC</b></td><td>isolated net, CIDR block</td></tr>
+      <tr><td><b>Public subnet</b></td><td>route → IGW</td></tr>
+      <tr><td><b>Private subnet</b></td><td>route → NAT GW</td></tr>
+      <tr><td><b>SG</b></td><td>stateful, allow-only, instance-level</td></tr>
+      <tr><td><b>NACL</b></td><td>stateless, allow+deny, subnet, ordered</td></tr>
+      <tr><td><b>Peering</b></td><td>non-transitive VPC↔VPC</td></tr>
+      <tr><td><b>Transit GW</b></td><td>transitive hub-and-spoke</td></tr>
+      <tr><td><b>VPC Endpoint</b></td><td>Gateway(S3/DynamoDB,free) / Interface(PrivateLink)</td></tr>
+      <tr><td><b>ALB / NLB</b></td><td>L7 HTTP routing / L4 raw+static IP</td></tr>
+    </table>
+  </div>
+
+  <div class="box">
+    <h2>AWS — Architecture Patterns</h2>
+    <div class="diagram">HA 3-tier (2 AZ):
+Route53 -> ALB (2 AZ)
+   AZ-a app  |  AZ-b app
+       \        /
+   ElastiCache (Redis)
+          |
+  RDS Aurora Multi-AZ
+  Primary(a) &lt;-&gt; Standby(b)
+
+EKS subnets:
+VPC 10.0.0.0/16
+ Public  (IGW,ALB,NAT/AZ)
+ Private (EKS nodes,RDS,
+          out via NAT only)</div>
+  </div>
+
+  <div class="box">
+    <h2>CI/CD — Steps in Order</h2>
+    <code>1</code> PR → lint/SAST<br>
+    <code>2</code> unit tests<br>
+    <code>3</code> build image<br>
+    <code>4</code> Trivy scan (fail on critical)<br>
+    <code>5</code> push registry, tag=SHA<br>
+    <code>6</code> update GitOps repo (Helm/Kustomize)<br>
+    <code>7</code> ArgoCD detects &amp; syncs<br>
+    <code>8</code> canary % traffic shift<br>
+    <code>9</code> Prometheus-backed analysis<br>
+    <code>10</code> promote 100% or auto-rollback<br>
+    <code>11</code> smoke tests<br>
+    <code>12</code> deploy annotation on dashboard
+  </div>
+
+  <div class="box wide">
+    <h2>Dockerfile — Multi-Stage Build</h2>
+    <pre><code># ---- Build stage ----
+FROM python:3.12-slim AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# ---- Final stage: no build tools, no root ----
+FROM python:3.12-slim
+WORKDIR /app
+
+RUN useradd --create-home --uid 1000 appuser
+COPY --from=builder /root/.local /home/appuser/.local
+COPY --chown=appuser:appuser . .
+
+ENV PATH=/home/appuser/.local/bin:$PATH \
+    PYTHONUNBUFFERED=1
+
+USER appuser
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD curl -f http://localhost:8080/health || exit 1
+
+ENTRYPOINT ["python", "-m", "app"]</code></pre>
+    <p class="hint">Why multi-stage: build tools (compilers, pip cache) never ship in the final image — smaller image, smaller attack surface. Non-root <code>USER appuser</code> + <code>--chown</code> on copy is the part interviewers listen for.<br>
+    For a <b>Go</b> service the same principle goes further: <code>FROM golang:1.22 AS builder</code> → compile a static binary → <code>COPY --from=builder /app/bin /bin/app</code> into <code>FROM scratch</code> or <code>gcr.io/distroless/static</code>. No shell, no package manager, often &lt;20MB final image.</p>
+  </div>
+
+  <div class="box wide">
+    <h2>CI/CD Pipeline — GitHub Actions + ArgoCD (GitOps)</h2>
+    <div class="diagram">git push main
+   |
+GitHub Actions:  test -> build -> Trivy scan -> push image (tag=SHA)
+   |
+bump image tag in GitOps repo  (git commit + push)
+   |
+ArgoCD detects the diff (polls or webhook)
+   |
+auto-sync: prune + selfHeal  -->  K8s cluster
+   |
+canary rollout  -->  deploy annotation added to dashboard</div>
+    <div class="mod-grid" style="margin-top:8px">
+      <div>
+        <div class="file-label">.github/workflows/deploy.yml</div>
+        <pre><code>name: build-and-deploy
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write   # OIDC, no static AWS keys
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests
+        run: pytest --maxfail=1
+
+      - name: Configure AWS creds (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/gh-actions-deploy
+          aws-region: us-east-1
+
+      - name: Build, scan, push image
+        run: |
+          aws ecr get-login-password | \
+            docker login --username AWS --password-stdin $ECR_REPO
+          docker build -t $ECR_REPO:$GITHUB_SHA .
+          trivy image --exit-code 1 \
+            --severity CRITICAL,HIGH $ECR_REPO:$GITHUB_SHA
+          docker push $ECR_REPO:$GITHUB_SHA
+
+      - name: Bump tag in GitOps repo
+        run: |
+          git clone https://x-access-token:${{ secrets.GITOPS_TOKEN }}@github.com/fubo/gitops-repo.git
+          cd gitops-repo
+          yq -i '.image.tag = strenv(GITHUB_SHA)' apps/adserver/values.yaml
+          git commit -am "deploy adserver@$GITHUB_SHA" && git push</code></pre>
+      </div>
+      <div>
+        <div class="file-label">argocd-app.yaml</div>
+        <pre><code>apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: adserver
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/fubo/gitops-repo.git
+    targetRevision: main
+    path: apps/adserver
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: adtech
+  syncPolicy:
+    automated:
+      prune: true       # remove what's no longer in git
+      selfHeal: true    # revert manual kubectl drift
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 10s
+        maxDuration: 3m</code></pre>
+        <p class="hint" style="margin-top:6px">CI (GitHub Actions) stops at "update the GitOps repo." CD (ArgoCD) takes over from there — that boundary is the whole point of GitOps: nothing ever pushes into the cluster directly.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="box wide">
+    <h2>Deployment.yaml — Production-Grade</h2>
+    <pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adserver
+  namespace: adtech
+  labels: { app: adserver }
+spec:
+  replicas: 6
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0     # never drop below desired capacity
+      maxSurge: 25%
+  selector:
+    matchLabels: { app: adserver }
+  template:
+    metadata:
+      labels: { app: adserver }
+    spec:
+      serviceAccountName: adserver-sa       # IRSA-bound for AWS access
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels: { app: adserver }
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: adserver
+          image: 123456789012.dkr.ecr.us-east-1.amazonaws.com/adserver:GITHUB_SHA
+          ports:
+            - containerPort: 8080
+          resources:
+            requests: { cpu: "500m", memory: "512Mi" }
+            limits:   { cpu: "500m", memory: "512Mi" }   # requests=limits -> Guaranteed QoS
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: adserver-pdb
+  namespace: adtech
+spec:
+  minAvailable: 80%
+  selector:
+    matchLabels: { app: adserver }</code></pre>
+    <p class="hint">Five things an interviewer scans this for: <b>maxUnavailable: 0</b> (zero-downtime), <b>requests=limits</b> (Guaranteed QoS), <b>topologySpreadConstraints</b> (real multi-AZ spread, not just replica count), <b>non-root + readOnlyRootFilesystem</b> (security posture), and the standalone <b>PodDisruptionBudget</b> — a Deployment alone doesn't protect you during a node drain, the PDB is what does.</p>
+  </div>
+
+  <div class="box">
+    <h2>SLI / SLO / Error Budget · Golden Signals</h2>
+    <b>SLI</b> = the measured indicator (e.g. success rate)<br>
+    <b>SLO</b> = the target (e.g. 99.9%)<br>
+    <b>Error budget</b> = 100% − SLO (0.1%) = allowed "badness"<br>
+    <b>Burn rate</b> = speed of budget consumption vs sustainable pace<br><br>
+    <b>Golden signals:</b> Latency (p95/p99) · Traffic · Errors · Saturation
+  </div>
+
+  <div class="box">
+    <h2>HTTP &amp; Exit Codes</h2>
+    <b>502</b> upstream down/bad response<br>
+    <b>503</b> overloaded / health check failing<br>
+    <b>504</b> upstream too slow / timeout<br>
+    <b>429</b> rate limited<br><br>
+    <b>Exit codes:</b> 0 ok · 1 general error · 126 not executable · 127 not found · 137 SIGKILL/OOM · 143 SIGTERM
+  </div>
+
+  <div class="box wide">
+    <h2>One Terraform Module — VPC with Public/Private Subnets (HA NAT per AZ)</h2>
+    <div class="mod-grid">
+      <div>
+        <div class="file-label">variables.tf</div>
+        <pre><code>variable "name"     { type = string }
+variable "vpc_cidr" { type = string
+  default = "10.0.0.0/16" }
+variable "azs" {
+  type = list(string)          # ["us-east-1a","us-east-1b"]
+}
+variable "public_subnet_cidrs"  { type = list(string) }
+variable "private_subnet_cidrs" { type = list(string) }</code></pre>
+        <div class="file-label">outputs.tf</div>
+        <pre><code>output "vpc_id"             { value = aws_vpc.this.id }
+output "public_subnet_ids"  {
+  value = [for s in aws_subnet.public  : s.id] }
+output "private_subnet_ids" {
+  value = [for s in aws_subnet.private : s.id] }</code></pre>
+        <div class="file-label">usage</div>
+        <pre><code>module "vpc" {
+  source  = "./modules/vpc"
+  name    = "fubo-adtech"
+  azs     = ["us-east-1a", "us-east-1b"]
+  public_subnet_cidrs  = ["10.0.1.0/24","10.0.2.0/24"]
+  private_subnet_cidrs = ["10.0.11.0/24","10.0.12.0/24"]
+}</code></pre>
+      </div>
+      <div>
+        <div class="file-label">main.tf</div>
+        <pre><code>resource "aws_vpc" "this" {
+  cidr_block = var.vpc_cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags = { Name = var.name }
+}
+
+resource "aws_internet_gateway" "this" {
+  vpc_id = aws_vpc.this.id
+}
+
+resource "aws_subnet" "public" {
+  for_each = { for i, az in var.azs :
+    az => var.public_subnet_cidrs[i] }
+  vpc_id = aws_vpc.this.id
+  availability_zone       = each.key
+  cidr_block               = each.value
+  map_public_ip_on_launch = true
+}
+
+resource "aws_subnet" "private" {
+  for_each = { for i, az in var.azs :
+    az => var.private_subnet_cidrs[i] }
+  vpc_id             = aws_vpc.this.id
+  availability_zone  = each.key
+  cidr_block         = each.value
+}
+
+# One EIP + NAT Gateway PER AZ = real HA
+# (an AZ never depends on another AZ's NAT)
+resource "aws_eip" "nat" {
+  for_each = aws_subnet.public
+  domain   = "vpc"
+}
+
+resource "aws_nat_gateway" "this" {
+  for_each      = aws_subnet.public
+  allocation_id = aws_eip.nat[each.key].id
+  subnet_id     = each.value.id
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.this.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.this.id
+  }
+}
+
+resource "aws_route_table" "private" {
+  for_each = aws_subnet.private
+  vpc_id   = aws_vpc.this.id
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.this[each.key].id
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  for_each       = aws_subnet.public
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "private" {
+  for_each       = aws_subnet.private
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.private[each.key].id
+}</code></pre>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:8px">Say out loud: "each AZ's private subnet routes through its own AZ's NAT Gateway — one AZ losing its NAT never affects another AZ."</p>
+  </div>
+
+</main>
+
+<footer>Fubo Senior SRE interview — one-page reference · pairs with the full interactive prep guide</footer>
+
+</body>
+</html>

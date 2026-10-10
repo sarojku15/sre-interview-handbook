@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Observability & Chaos Engineering Specialist — S&amp;P Global — Interview Handbook</title>
+<style>
+  :root{
+    --bg:#0a0e14; --bg2:#0d131c; --card:#111823; --card-hover:#141c28;
+    --border:#1f2937; --text:#e6edf3; --text-dim:#8b949e; --text-faint:#5c6773;
+    --accent:#3fb950; --accent-2:#22d3ee;
+    --k8s:#326CE5; --ecs:#FF9900; --cicd:#06B6D4; --py:#FFD43B; --obs:#7C3AED;
+    --elk:#00BFB3; --ai:#EC4899; --evt:#22C55E; --sec:#EF4444; --perf:#F97316;
+    --aws:#38BDF8; --scenario:#FB7185; --beh:#94A3B8;
+    --langfuse:#65A30D; --awsobs:#F59E0B; --chaos:#DC2626; --incident:#78716C; --migration:#0891B2;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Consolas,monospace;}
+  header{
+    position:sticky; top:0; z-index:20; background:rgba(10,14,20,0.96); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border); padding:16px 18px 14px;
+  }
+  .title-row{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  h1{font-size:1.25rem; margin:0 0 4px; letter-spacing:-0.01em;}
+  .subtitle{color:var(--text-dim); font-size:0.85rem; margin:0;}
+  .time-badge{
+    font-family:ui-monospace,"SF Mono",Consolas,monospace; background:rgba(63,185,80,0.12);
+    border:1px solid rgba(63,185,80,0.4); color:var(--accent); font-size:0.78rem;
+    padding:5px 10px; border-radius:6px; white-space:nowrap; font-weight:600;
+  }
+  .tab-bar{display:flex; gap:2px; margin-top:14px; border-bottom:1px solid var(--border); overflow-x:auto;}
+  .tab-btn{
+    background:none; border:none; color:var(--text-dim); font-family:ui-monospace,monospace;
+    font-size:0.82rem; padding:9px 16px; cursor:pointer; border-bottom:2px solid transparent;
+    margin-bottom:-1px; white-space:nowrap; transition:color .15s, border-color .15s;
+  }
+  .tab-btn:focus-visible{outline:2px solid var(--accent-2); outline-offset:-2px;}
+  .tab-btn.active{color:var(--text); border-bottom-color:var(--accent); font-weight:700;}
+  .tab-btn .count{color:var(--text-faint); font-size:0.74rem;}
+  .tab-btn.active .count{color:var(--accent);}
+  .tab-caption{
+    color:var(--text-dim); font-size:0.8rem; margin:16px 0 4px; padding:10px 12px;
+    background:var(--card); border:1px solid var(--border); border-left:3px solid var(--accent);
+    border-radius:6px;
+  }
+  .progress-wrap{margin-top:12px;}
+  .progress-bar{height:6px; background:var(--border); border-radius:99px; overflow:hidden;}
+  .progress-fill{height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-2)); width:0%; transition:width 0.3s ease;}
+  .progress-label{font-size:0.72rem; color:var(--text-faint); margin-top:5px; font-family:ui-monospace,monospace;}
+  .controls{margin-top:12px; display:flex; flex-direction:column; gap:8px;}
+  .search-input{
+    width:100%; background:var(--card); border:1px solid var(--border); color:var(--text);
+    padding:9px 12px; border-radius:8px; font-size:0.9rem; outline:none;
+  }
+  .search-input:focus-visible{border-color:var(--accent-2); box-shadow:0 0 0 3px rgba(34,211,238,0.15);}
+  .pills{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; -webkit-overflow-scrolling:touch;}
+  .pills::-webkit-scrollbar{height:4px;}
+  .pills::-webkit-scrollbar-thumb{background:var(--border); border-radius:99px;}
+  .pill{
+    flex:0 0 auto; font-size:0.72rem; padding:6px 10px; border-radius:99px; border:1px solid var(--border);
+    background:var(--card); color:var(--text-dim); cursor:pointer; white-space:nowrap; user-select:none;
+    font-family:ui-monospace,monospace; transition:border-color .15s, color .15s;
+  }
+  .pill:focus-visible{outline:2px solid var(--accent-2); outline-offset:1px;}
+  .pill.active{color:var(--bg); font-weight:700; border-color:transparent;}
+  .toggle-row{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .toggle-btn{
+    font-size:0.72rem; padding:6px 10px; border-radius:6px; border:1px solid var(--border);
+    background:var(--card); color:var(--text-dim); cursor:pointer; font-family:ui-monospace,monospace;
+  }
+  .toggle-btn.on{border-color:var(--accent); color:var(--accent);}
+  main{max-width:820px; margin:0 auto; padding:18px 16px 60px;}
+  .section-block{margin-bottom:6px;}
+  .section-title{
+    font-family:ui-monospace,monospace; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--text-faint); margin:26px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:8px;
+  }
+  .section-dot{width:8px; height:8px; border-radius:50%; flex:0 0 auto;}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-left-width:3px;
+    border-radius:8px; padding:14px 14px 12px; margin-bottom:10px; position:relative;
+  }
+  .card.mastered{opacity:0.55;}
+  .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:6px;}
+  .tag{
+    font-family:ui-monospace,monospace; font-size:0.64rem; text-transform:uppercase; letter-spacing:0.04em;
+    padding:2px 7px; border-radius:4px; font-weight:700;
+  }
+  .mastery{display:flex; align-items:center; gap:5px; cursor:pointer; flex:0 0 auto;}
+  .mastery input{width:15px; height:15px; accent-color:var(--accent); cursor:pointer;}
+  .mastery label{font-size:0.65rem; color:var(--text-faint); font-family:ui-monospace,monospace; cursor:pointer;}
+  .q{font-weight:600; font-size:0.95rem; margin:2px 0 8px; color:#f0f4f8;}
+  .a{font-size:0.87rem; color:var(--text-dim);}
+  .a p{margin:0 0 8px;}
+  .a p:last-child{margin-bottom:0;}
+  .a code{
+    background:rgba(255,255,255,0.06); padding:1px 5px; border-radius:4px;
+    font-family:ui-monospace,"SF Mono",Consolas,monospace; font-size:0.82em; color:#c9d1d9;
+  }
+  .a pre{
+    background:#080b10; border:1px solid var(--border); border-radius:6px; padding:10px 12px;
+    overflow-x:auto; margin:8px 0; font-size:0.78rem;
+  }
+  .a pre code{background:none; padding:0; color:#c9d1d9;}
+  .empty-state{text-align:center; color:var(--text-faint); padding:40px 20px; font-size:0.85rem;}
+  footer{max-width:820px; margin:0 auto; padding:10px 16px 40px; color:var(--text-faint); font-size:0.72rem; text-align:center;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+  ::selection{background:rgba(63,185,80,0.3);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-row">
+    <div>
+      <h1>Observability &amp; Chaos Engineering Specialist</h1>
+      <p class="subtitle">S&amp;P Global (via Techblocks) · Langfuse · AWS-Native Observability · Chaos/FIS · MCP Agents · Containers</p>
+    </div>
+    <span class="time-badge">TODAY · 4:00 PM</span>
+  </div>
+  <div class="tab-bar" id="tabBar"></div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0 / 0 mastered</div>
+  </div>
+  <div class="controls">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search questions and answers…">
+    <div class="pills" id="pillRow"></div>
+    <div class="toggle-row">
+      <button class="toggle-btn" id="unreviewedToggle">Show unreviewed only</button>
+      <button class="toggle-btn" id="resetProgress">Reset progress</button>
+    </div>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer>
+  Progress saves automatically on this device · Scoped to the full Observability &amp; Chaos Engineering Specialist JD (S&amp;P Global / Techblocks, req TB883).
+</footer>
+
+<script>
+const STORAGE_KEY = 'cpe-agentic-handbook-v1:mastered';
+
+const CATS = [
+  {key:'k8s', label:'Kubernetes & EKS', color:'var(--k8s)'},
+  {key:'ecs', label:'ECS & AWS Containers', color:'var(--ecs)'},
+  {key:'migration', label:'ECS→EKS Migration & Setup', color:'var(--migration)'},
+  {key:'cicd', label:'CI/CD & Infra Automation', color:'var(--cicd)'},
+  {key:'py', label:'Python & Scripting', color:'var(--py)'},
+  {key:'obs', label:'Observability: Prometheus/Grafana/OTel', color:'var(--obs)'},
+  {key:'langfuse', label:'Langfuse & AI/LLM Observability', color:'var(--langfuse)'},
+  {key:'awsobs', label:'AWS-Native: CloudWatch/X-Ray/CloudTrail', color:'var(--awsobs)'},
+  {key:'elk', label:'ELK / OpenSearch', color:'var(--elk)'},
+  {key:'ai', label:'AI/LLM Platforms & Agentic Arch', color:'var(--ai)'},
+  {key:'evt', label:'Event-Driven & Microservices', color:'var(--evt)'},
+  {key:'sec', label:'DevSecOps & Cloud Security', color:'var(--sec)'},
+  {key:'perf', label:'Performance Engineering', color:'var(--perf)'},
+  {key:'chaos', label:'Chaos Engineering & AWS FIS', color:'var(--chaos)'},
+  {key:'incident', label:'Incident Management & RCA', color:'var(--incident)'},
+  {key:'aws', label:'AWS Platform & Regulated Envs', color:'var(--aws)'},
+  {key:'scenario', label:'Scenario / Troubleshooting', color:'var(--scenario)'},
+  {key:'beh', label:'Behavioral & Closing', color:'var(--beh)'},
+];
+
+const Q = [
+// ---------------- KUBERNETES & EKS ----------------
+{c:'k8s', q:"Deployment vs StatefulSet — what's the actual difference and when do you reach for each?",
+a:`<p>A Deployment manages identical, interchangeable pod replicas — any pod can be killed and replaced with a fresh one, no identity attached. A StatefulSet gives each replica a stable identity: a fixed name (<code>pod-0</code>, <code>pod-1</code>...), stable network identity via a headless Service, and its own PersistentVolumeClaim that survives pod rescheduling.</p><p>Use StatefulSet for anything where identity or ordered startup/shutdown matters — databases, Kafka brokers, Elasticsearch/OpenSearch nodes. Use Deployment for stateless app/API pods, which is the vast majority of workloads on a platform team's plate.</p>`},
+
+{c:'k8s', q:"A pod is stuck in CrashLoopBackOff. Walk through your diagnostic steps.",
+a:`<p>First <code>kubectl describe pod</code> to check the last termination reason and exit code, then <code>kubectl logs &lt;pod&gt; --previous</code> to see what the container printed right before it died — that's usually the fastest signal.</p><p>Common causes in order of likelihood: application error on startup (bad config/env var, missing dependency), a failing liveness probe killing an otherwise-healthy but slow-starting container, OOMKilled (check exit code 137 and compare memory limits to actual usage), or a missing ConfigMap/Secret the pod can't mount. If logs are empty, the container is crashing before your app even logs anything — check the command/entrypoint and image itself with <code>kubectl run --rm -it --image=&lt;image&gt; -- sh</code>.</p>`},
+
+{c:'k8s', q:"Explain liveness, readiness, and startup probes — and a real misconfiguration to watch for.",
+a:`<p>Readiness controls whether a pod receives traffic (fails = pulled from the Service endpoints, pod stays running). Liveness controls whether the pod gets restarted (fails = kubelet kills and recreates the container). Startup probe delays the other two from running until a slow-starting app is actually up, so you don't kill a container that just needs 90 seconds to warm a cache.</p><p>The classic misconfiguration: setting liveness with too short a timeout/threshold on a JVM or ML-model-loading service. The app is fine but just slow to boot, liveness kills it before it's ready, it restarts, never gets there — a self-inflicted CrashLoopBackOff. Fix is a startup probe with generous <code>failureThreshold</code>, then tighter liveness/readiness once the app is actually serving.</p>`},
+
+{c:'k8s', q:"How does the Horizontal Pod Autoscaler work, and what can it scale on besides CPU/memory?",
+a:`<p>HPA polls the metrics API (via metrics-server for resource metrics) on an interval, compares current value to your target, and computes desired replicas: <code>desiredReplicas = ceil(currentReplicas × currentMetric / targetMetric)</code>, with a stabilization window to avoid flapping.</p><p>Beyond CPU/memory, it can scale on custom metrics (via the custom metrics API, commonly backed by Prometheus Adapter) — queue depth, requests-per-second, or a business metric like pending jobs. For event-driven workloads, KEDA is the common addition: it scales on external event sources (SQS depth, Kafka lag) down to zero, which vanilla HPA can't do.</p>`},
+
+{c:'k8s', q:"Explain Kubernetes Service types: ClusterIP, NodePort, LoadBalancer, and headless.",
+a:`<p><code>ClusterIP</code> (default) — internal-only virtual IP, routes to pod endpoints via kube-proxy. <code>NodePort</code> — opens the same port on every node, mostly used as a building block, rarely exposed directly to users. <code>LoadBalancer</code> — provisions a cloud load balancer (on EKS, an NLB/ALB via the AWS Load Balancer Controller) in front of a NodePort/ClusterIP. Headless (<code>clusterIP: None</code>) — no virtual IP at all; DNS returns the individual pod IPs directly, which is what StatefulSets use so each replica is individually addressable.</p>`},
+
+{c:'k8s', q:"How does Ingress work, and what's the role of an Ingress Controller like the AWS Load Balancer Controller?",
+a:`<p>Ingress is just a spec — routing rules (host/path → service). It does nothing on its own; an Ingress Controller watches Ingress objects and does the actual work of programming a proxy or provisioning infrastructure to match. On EKS, the AWS Load Balancer Controller reads Ingress objects and provisions/configures an ALB, wiring target groups to pod IPs (in IP mode) or node ports (instance mode), handling TLS via ACM certificate annotations and path-based routing rules.</p>`},
+
+{c:'k8s', q:"EKS specifically: what does AWS manage vs. what do you manage?",
+a:`<p>AWS runs and patches the control plane — API server, etcd, scheduler, controller-manager — across multiple AZs, and you don't get shell access to any of it. You own everything else: worker nodes (or Fargate profiles), the VPC CNI and networking, IAM integration (IRSA/Pod Identity), add-ons (CoreDNS, kube-proxy, EBS/EFS CSI drivers), node patching/AMI updates if self-managed, and all application workloads. This split matters for troubleshooting scope — if the API server itself is slow, that's an AWS-side health-dashboard question, not something you fix by restarting a pod.</p>`},
+
+{c:'k8s', q:"What is IRSA (IAM Roles for Service Accounts) and why is it preferred over node-level IAM roles?",
+a:`<p>IRSA lets you attach a specific IAM role to a Kubernetes ServiceAccount instead of the EC2 node's instance role. It works via an OIDC identity provider tied to the cluster — the pod gets a projected, short-lived web identity token, and <code>sts:AssumeRoleWithWebIdentity</code> exchanges it for temporary credentials scoped to exactly that role.</p><p>The reason it matters: node-level IAM roles are shared by every pod on that node — a compromised or over-permissioned pod inherits everything the node can do. IRSA scopes credentials per-workload, so a payments pod and a logging sidecar on the same node can have completely different, least-privilege permissions. Pod Identity (newer) does the same job with simpler setup — no per-cluster OIDC provider trust policy juggling.</p>`},
+
+{c:'k8s', q:"Explain the VPC CNI plugin on EKS and a common IP-exhaustion problem.",
+a:`<p>The AWS VPC CNI assigns each pod a real IP from the VPC's subnet CIDR (not an overlay network) by pre-allocating ENIs and secondary IPs to each node. That gives pods native VPC routing and security-group support, but it means pod density per node is capped by ENI/IP limits for the instance type, and IPs get consumed fast in small subnets.</p><p>The common failure: pods stuck in <code>ContainerCreating</code> with "failed to assign an IP address" once a subnet's free IPs run out — often hit first during a deploy that spins up new pods before terminating old ones. Fixes: prefix delegation (assign /28 prefixes instead of individual IPs, multiplying available IPs per ENI), larger/additional subnets, or custom networking to put pods in a separate CIDR from the nodes.</p>`},
+
+{c:'k8s', q:"How would you troubleshoot an EKS node stuck in NotReady?",
+a:`<p><code>kubectl describe node</code> first — check Conditions for the actual reason (MemoryPressure, DiskPressure, or kubelet just not reporting). If it's a connectivity issue, check whether the node can even reach the API server endpoint (security groups, NACLs, or a broken NAT gateway on a private subnet are common). SSM Session Manager or SSH into the node to check kubelet logs (<code>journalctl -u kubelet</code>) and confirm the kubelet process is actually running and its certificate hasn't expired. Disk pressure is often the real culprit — unpruned images filling the node's disk; <code>crictl images</code> and image GC settings are the fix.</p>`},
+
+{c:'k8s', q:"Kubernetes RBAC: Role vs ClusterRole, RoleBinding vs ClusterRoleBinding.",
+a:`<p>Role/RoleBinding are namespace-scoped — permissions and the grant only apply inside one namespace. ClusterRole/ClusterRoleBinding are cluster-wide by default, but a ClusterRole can also be reused namespace-scoped via a RoleBinding that references it (handy for a common "view" or "edit" role you don't want to redefine per namespace). Use case split: give a team's CI service account a Role scoped to their own namespace; reserve ClusterRole for things that are inherently cluster-wide, like a monitoring agent that needs to read pods across all namespaces.</p>`},
+
+{c:'k8s', q:"What are Network Policies, and does the default AWS VPC CNI enforce them?",
+a:`<p>Network Policies are namespace-scoped firewall rules for pod-to-pod traffic — default-deny plus explicit allow rules by label selector, namespace, or CIDR. They're the main tool for microsegmentation inside a cluster (e.g., only the API tier can talk to the DB tier).</p><p>Critically: Network Policies are just an API object — nothing enforces them without a CNI plugin that implements the enforcement. The stock AWS VPC CNI didn't support enforcement for a long time (you needed Calico alongside it); newer VPC CNI versions added native policy enforcement support, but it has to be explicitly enabled — it's easy to write policies that silently do nothing on a cluster where enforcement isn't on.</p>`},
+
+{c:'k8s', q:"How do you get zero-downtime rolling updates, and what do maxSurge/maxUnavailable actually control?",
+a:`<p><code>maxSurge</code> caps how many extra pods can be created above the desired count during a rollout; <code>maxUnavailable</code> caps how many can be down at once. Zero downtime isn't automatic from the rollout strategy alone — you also need a readiness probe that accurately reflects "can serve traffic," and a <code>preStop</code> hook with a short sleep so the pod keeps serving in-flight requests while it's being deregistered from the Service/target group (avoids the race where traffic still arrives after the pod starts terminating but before the endpoint is removed).</p>`},
+
+{c:'k8s', q:"DaemonSet vs Deployment — give an EKS-relevant use case.",
+a:`<p>DaemonSet runs exactly one pod per node (or per matching node), automatically added/removed as nodes join/leave — the right shape for anything that's fundamentally node-scoped: a log shipper (Fluent Bit), a node-level metrics exporter (node-exporter), or a CNI/CSI driver component. Deployment is for app workloads where replica count is a scaling decision, not tied to node count.</p>`},
+
+// ---------------- ECS & AWS CONTAINERS ----------------
+{c:'ecs', q:"ECS vs EKS — how do you decide which one for a new workload?",
+a:`<p>ECS is simpler and AWS-native — no control plane to reason about, tighter native integration with ALB/CloudWatch/Service Discovery, and a much smaller learning curve if the team isn't already deep in Kubernetes. EKS wins when you need portability (multi-cloud/on-prem story), the huge Kubernetes ecosystem (Helm charts, operators, GitOps tooling), or you're already running Kubernetes elsewhere and want one operating model. In practice: greenfield AWS-only shop with a small platform team → ECS/Fargate first for lower operational overhead; org with existing K8s investment or portability requirements → EKS.</p>`},
+
+{c:'ecs', q:"ECS on EC2 vs Fargate — what's the actual tradeoff?",
+a:`<p>EC2 launch type: you manage the underlying instances (patching, capacity, bin-packing), but you get more control — GPU instances, specific instance types, DaemonSet-like agents, and it's cheaper at high, steady utilization. Fargate: no instances to manage at all, you pay per task for exactly the vCPU/memory you request, and it isolates each task in its own micro-VM — better for spiky or unpredictable workloads and smaller platform teams, worse for cost at large steady-state scale or when you need host-level access.</p>`},
+
+{c:'ecs', q:"What is an ECS Task Definition, and what are its key components?",
+a:`<p>It's the blueprint for a task — the ECS equivalent of a pod spec. Key pieces: container definitions (image, CPU/memory, port mappings, environment/secrets, log configuration), task-level CPU/memory (for Fargate), the task role (IAM permissions the running containers assume) vs. the execution role (permissions ECS itself needs to pull the image and write logs — a common source of confusion), network mode (<code>awsvpc</code> gives each task its own ENI), and volume definitions.</p>`},
+
+{c:'ecs', q:"How does ECS service auto scaling differ from Kubernetes HPA?",
+a:`<p>Conceptually the same idea — Application Auto Scaling watches a CloudWatch metric (CPU/memory, ALB request count per target, or a custom metric) and adjusts desired task count via target-tracking or step-scaling policies. The practical difference is where it lives: it's a separate AWS service (Application Auto Scaling) wired to the ECS service via an API call, not a controller running inside the cluster, and it only ever changes the desiredCount — same category of tool as HPA, different implementation surface.</p>`},
+
+{c:'ecs', q:"How would you troubleshoot an ECS task that keeps stopping right after starting?",
+a:`<p><code>aws ecs describe-tasks</code> for the <code>stoppedReason</code> — that's the fastest signal (often "CannotPullContainerError" for image/permission issues, or an essential container exiting). Check CloudWatch Logs for the container's stdout/stderr right before it stopped. Common causes: missing execution-role permission for ECR pull or Secrets Manager, a health check failing before the app is actually ready, the container exiting 0 immediately (misconfigured entrypoint/command), or hitting the task's memory limit and getting OOM-killed.</p>`},
+
+{c:'ecs', q:"How does health checking work for ECS tasks behind an ALB?",
+a:`<p>Two layers, and they can disagree: the ALB target group has its own HTTP health check hitting a path on the task's port — if that fails, the ALB stops routing traffic to it but ECS doesn't necessarily know. Separately, the task definition can define a container-level <code>healthCheck</code> (a command run inside the container) that ECS itself uses to decide whether to replace the task. A frequent gotcha: only the ALB check is configured, so a task that's unhealthy-but-not-crashed sits there forever getting no traffic but never getting replaced — worth wiring both, or at minimum making sure ECS's own health check matches what the ALB considers "healthy."</p>`},
+
+{c:'ecs', q:"How do you handle secrets in ECS task definitions securely?",
+a:`<p>Never in plaintext environment variables in the task definition JSON. Reference them via the <code>secrets</code> block, pointing to a Secrets Manager ARN or SSM Parameter Store (SecureString) name — ECS resolves and injects them at container start, and the execution role needs explicit <code>secretsmanager:GetSecretValue</code>/<code>ssm:GetParameters</code> permission scoped to just that secret's ARN, not a wildcard. Task definitions themselves are versioned and visible to anyone with describe permissions, so anything hardcoded there is effectively not a secret.</p>`},
+
+// ---------------- CI/CD & INFRA AUTOMATION ----------------
+{c:'cicd', q:"Walk through a CI/CD pipeline you'd design for deploying to EKS/ECS from a git push to production.",
+a:`<p>Push → CI stage: lint, unit tests, build image, tag with commit SHA (never <code>:latest</code>), push to ECR, run a vulnerability scan gate. CD stage: deploy to a dev/staging environment automatically, run smoke/integration tests, then a gated promotion to production — either an approval step or automated if you trust your test suite and are running progressive delivery. For EKS, that's typically GitOps (Argo CD reconciling a manifest repo) rather than the pipeline pushing directly; for ECS, the pipeline itself usually calls <code>update-service</code> with the new task definition revision, ideally via CodeDeploy for a blue/green cutover with automatic rollback tied to CloudWatch alarms.</p>`},
+
+{c:'cicd', q:"Continuous delivery vs continuous deployment — how do you decide which to run?",
+a:`<p>Continuous delivery means every change is proven deployable and sits ready behind a manual trigger; continuous deployment means it ships automatically once it passes the pipeline, no human gate. The decision comes down to test-suite confidence and blast radius: a well-covered, well-observed service with fast rollback and good canary/error-budget signals can run full continuous deployment safely. A regulated, high-blast-radius, or under-tested service should keep a manual gate — the cost of a bad manual approval delay is much lower than the cost of an unreviewed change hitting a regulated production system.</p>`},
+
+{c:'cicd', q:"Explain GitOps and how it differs from a traditional push-based pipeline.",
+a:`<p>In push-based CI/CD, the pipeline has credentials to the cluster and actively pushes changes out. In GitOps, git is the single source of truth for desired state, and an in-cluster agent (Argo CD, Flux) continuously pulls and reconciles actual state to match it — the cluster has no inbound deploy credentials to protect, and drift gets auto-corrected instead of silently accumulating. It also gives you a full audit trail for free (every change is a git commit) and trivial rollback (revert the commit).</p>`},
+
+{c:'cicd', q:"How do you implement a canary or blue-green deployment for Kubernetes or ECS?",
+a:`<p>Kubernetes: Argo Rollouts or Flagger replace the native Deployment controller with a progressive-delivery one — shift a percentage of traffic (via a service mesh or an Ingress weight), watch a Prometheus metric (error rate, latency) against a threshold, auto-promote or auto-rollback. Plain vanilla Kubernetes can approximate blue-green with two Deployments and a Service selector flip, but you lose the automated analysis step. ECS: native support via CodeDeploy — it stands up a second target group, shifts traffic on a schedule (linear/canary), and rolls back automatically on a CloudWatch alarm breach.</p>`},
+
+{c:'cicd', q:"What's infrastructure drift, and how do you detect and remediate it?",
+a:`<p>Drift is when real infrastructure state diverges from what your IaC says it should be — someone made a manual console change, or an out-of-band process modified a resource. Detection: scheduled <code>terraform plan</code> runs (or drift-detection features in TFC/Terraform Cloud, or tools like driftctl) that diff actual vs. desired state and alert on any non-empty plan outside of a real deploy window. Remediation is a policy decision, not just a technical one — either re-apply Terraform to force state back (risky if the manual change was a legitimate emergency fix), or import the drifted state into Terraform and treat it as the new baseline. The real fix is process: lock down console write access so drift can't happen in the first place.</p>`},
+
+{c:'cicd', q:"How do you manage secrets in a CI/CD pipeline without hardcoding them?",
+a:`<p>OIDC federation is the modern answer — the CI runner (GitHub Actions, GitLab CI) presents a short-lived OIDC token, AWS's identity provider trust policy validates it against the specific repo/branch, and <code>sts:AssumeRoleWithWebIdentity</code> issues temporary credentials scoped to exactly what that pipeline needs. No long-lived AWS access keys stored anywhere. For app-level secrets (DB passwords, API keys), pull them at runtime from Secrets Manager/Parameter Store/Vault rather than injecting them as pipeline environment variables that end up in logs or artifact caches.</p>`},
+
+{c:'cicd', q:"How would you structure Terraform for multiple environments and accounts?",
+a:`<p>Directory-per-environment with shared modules is the pattern that scales best and avoids the classic Terraform workspace footgun (workspaces share the same backend config and are easy to <code>apply</code> against the wrong one by accident). Structure: a <code>modules/</code> directory with reusable, environment-agnostic building blocks, and a <code>envs/dev</code>, <code>envs/staging</code>, <code>envs/prod</code> directory each with its own state file, backend, and variable values, composing those modules. For multi-account, each environment's backend points at a distinct account, and cross-account access goes through assumed roles, never shared long-lived credentials. Terragrunt is a common layer on top to DRY up the repeated backend/provider boilerplate.</p>`},
+
+{c:'cicd', q:"What rollback strategy would you build into a pipeline, and when should it be automatic vs. human-gated?",
+a:`<p>Automatic rollback tied to a CloudWatch alarm or an Argo Rollouts analysis step (error rate/latency threshold breach during a canary) — machines are faster and more consistent than a human noticing a dashboard spike at 2am. Reserve human-gated rollback for changes with effects that a metric can't capture quickly enough — a data migration, a config change with a delayed blast radius, or anything in a regulated environment where a change-control process requires sign-off either way. The general principle: automate the reversible, fast-signal cases; keep humans in the loop for the ambiguous or slow-signal ones.</p>`},
+
+{c:'cicd', q:"How would you build a pipeline gate that blocks a deploy on a failed security scan?",
+a:`<p>Run the scan (Trivy/Grype for images, Snyk/Checkov for IaC, or a SAST tool for code) as a dedicated pipeline stage that runs before the deploy stage, fail the job on any finding above your severity threshold (typically Critical, sometimes High), and make that stage a required check the deploy stage depends on — not just an informational report. The nuance is having an explicit, auditable exception process for false positives or accepted risk (a suppression file with a ticket reference and expiry), otherwise teams route around the gate entirely the first time it blocks something they need to ship.</p>`},
+
+// ---------------- PYTHON & SCRIPTING ----------------
+{c:'py', q:"Show a Python snippet for auto-remediating pods that keep failing readiness.",
+a:`<p>The shape matters more than the exact code — read state, decide, act, log the action for audit:</p><pre><code>from kubernetes import client, config
+
+config.load_incluster_config()
+v1 = client.CoreV1Api()
+
+def restart_stuck_pods(namespace, max_restarts=5):
+    pods = v1.list_namespaced_pod(namespace)
+    for pod in pods.items:
+        for cs in pod.status.container_statuses or []:
+            if cs.restart_count &gt; max_restarts and not cs.ready:
+                print(f"Deleting stuck pod {pod.metadata.name} "
+                      f"(restarts={cs.restart_count})")
+                v1.delete_namespaced_pod(pod.metadata.name, namespace)
+                break</code></pre><p>In an interview, flag the guardrails you'd add: a dry-run mode, a max-actions-per-run cap so a bad rule can't wipe out a whole namespace, and an audit log/Slack notification for every action taken.</p>`},
+
+{c:'py', q:"How do you handle retries and backoff for a flaky external API call (e.g. AWS throttling)?",
+a:`<p>Exponential backoff with jitter, not a fixed delay — fixed delays cause thundering-herd retries that make throttling worse. For AWS specifically, boto3's built-in retry config (adaptive mode) already does this, so the honest answer is often "configure it, don't hand-roll it":</p><pre><code>import boto3
+from botocore.config import Config
+
+config = Config(retries={"max_attempts": 5, "mode": "adaptive"})
+client = boto3.client("ec2", config=config)</code></pre><p>When you do need custom retry logic (a non-AWS API), the pattern is: catch the specific transient exception (not a bare <code>except</code>), backoff = base * 2^attempt + random jitter, cap the max delay, and give up after N attempts with a clear error rather than retrying forever.</p>`},
+
+{c:'py', q:"multiprocessing vs threading vs asyncio in Python — when do you use each for an ops script?",
+a:`<p>CPU-bound work (parsing/transforming lots of data) → multiprocessing, because the GIL means threads don't actually parallelize CPU work. I/O-bound work with blocking libraries (most boto3/requests-based scripts) → threading is fine and simpler than async. I/O-bound work at high concurrency (hundreds of simultaneous API calls, e.g. querying every resource across 50 AWS accounts) → asyncio with an async HTTP client, since it avoids the memory/context-switch overhead of hundreds of OS threads. For a typical "check every EC2 instance across accounts" ops script, threading or a small asyncio + aioboto3 setup are both reasonable; multiprocessing would be overkill and slower to start up.</p>`},
+
+{c:'py', q:"Write a boto3 script to find unattached EBS volumes.",
+a:`<pre><code>import boto3
+
+ec2 = boto3.client("ec2")
+paginator = ec2.get_paginator("describe_volumes")
+
+orphaned = []
+for page in paginator.paginate(
+    Filters=[{"Name": "status", "Values": ["available"]}]
+):
+    for vol in page["Volumes"]:
+        orphaned.append({
+            "id": vol["VolumeId"],
+            "size_gb": vol["Size"],
+            "az": vol["AvailabilityZone"],
+        })
+
+print(f"Found {len(orphaned)} unattached volumes")
+for v in orphaned:
+    print(v)</code></pre><p>Talking point: "available" status means unattached, and pagination matters because <code>describe_volumes</code> silently truncates at 1000 results without it — a real bug source in cost-audit scripts.</p>`},
+
+{c:'py', q:"How do you make an automation script safe to run repeatedly (idempotency)?",
+a:`<p>Check current state before acting, and make the action a no-op if the desired state already holds — "create if not exists" rather than "create," "set replica count to 3" rather than "add a replica." For anything destructive, add a dry-run flag by default and require an explicit <code>--yes</code>/<code>--apply</code> to actually mutate state. Log every action taken with enough context to reconstruct what happened, and design so a script that crashes halfway through and gets re-run doesn't double-apply or corrupt state — this is the same discipline Terraform gives you for free, which is worth mentioning as the "why not just use Terraform for this" answer when it applies.</p>`},
+
+{c:'py', q:"What's actually worth unit testing in infrastructure automation code?",
+a:`<p>The decision logic, not the AWS calls — mock the boto3/kubernetes client and test that your script makes the right call given a given input state (e.g., "given these 3 pods with these restart counts, exactly pod-2 gets deleted"). Testing against real AWS in a unit test is slow, flaky, and costs money; that's what a separate, smaller integration test suite against a sandbox account is for. Also worth testing: edge cases like empty results, pagination boundaries, and partial failures (API call 2 of 5 throws — does your script handle that gracefully or leave things half-done?).</p>`},
+
+{c:'py', q:"Bash vs Python — how do you decide?",
+a:`<p>Bash for genuinely simple, linear command-chaining — a handful of CLI calls piped together, run once, throwaway. Python once there's any real logic: conditionals beyond a simple if, error handling you actually care about, data structures (parsing JSON/YAML output rather than grepping text), or anything a teammate will need to read and modify later. The practical tell: if you're about to write a bash script with more than ~30 lines or your third nested if, it should probably be Python.</p>`},
+
+{c:'py', q:"How would you structure a Python CLI tool multiple teammates will use?",
+a:`<p><code>argparse</code> or <code>click</code> for argument parsing with real <code>--help</code> text (click if you want subcommands, which most real ops tools grow into). Config via a layered approach — CLI flags override environment variables override a config file — so it works both interactively and in CI. Package it properly (a <code>pyproject.toml</code>, installable via pip/pipx) rather than "clone the repo and run the script," so version drift across teammates' laptops isn't a source of bugs. Structured logging (not just print statements) so output is greppable and can feed a pipeline log aggregator later.</p>`},
+
+// ---------------- OBSERVABILITY: PROMETHEUS / GRAFANA / OTEL ----------------
+{c:'obs', q:"Prometheus pull vs push — why pull, and when do you still need a push gateway?",
+a:`<p>Pull means Prometheus scrapes targets on its own schedule, which gives you a free up/down signal for free (a target that can't be scraped is visibly down) and keeps configuration centralized in Prometheus rather than scattered across every app. The pushgateway exists for the one case pull doesn't fit: short-lived batch jobs that finish before a scrape would ever catch them — a nightly cron job pushes its result metric before exiting, and Prometheus scrapes the pushgateway itself. It's explicitly not meant as a general push-metrics pattern; overusing it turns the pushgateway into a single point of failure and a metrics dumping ground.</p>`},
+
+{c:'obs', q:"Write a PromQL query to alert on error rate above 5% over 5 minutes.",
+a:`<pre><code>(
+  sum(rate(http_requests_total{status=~"5.."}[5m]))
+  /
+  sum(rate(http_requests_total[5m]))
+) &gt; 0.05</code></pre><p><code>rate()</code> needs a counter and a range vector — it computes per-second average increase over the window, which is why 5xx count alone isn't enough; you need it as a ratio of total requests so the threshold means the same thing at low and high traffic. Worth pairing with <code>for: 5m</code> in the alert rule itself so a single noisy minute doesn't page anyone.</p>`},
+
+{c:'obs', q:"Counter vs gauge vs histogram vs summary — what's each for?",
+a:`<p>Counter only goes up (requests served, errors) — always paired with <code>rate()</code>, never read raw. Gauge goes up and down (current memory usage, queue depth, active connections). Histogram buckets observations (request duration) into configurable buckets server-side, letting you compute quantiles later, aggregate across instances, and it's what powers <code>histogram_quantile()</code>. Summary computes quantiles client-side at scrape time — cheaper to query but can't be aggregated across instances (you can't average two different services' p99s meaningfully). Default to histogram for latency; it's the one that actually composes.</p>`},
+
+{c:'obs', q:"How does Prometheus service discovery work in Kubernetes?",
+a:`<p>Native Kubernetes SD watches the API server for pods/services/endpoints matching label selectors and auto-generates scrape targets — no static target list to maintain. In practice, most clusters run the Prometheus Operator, where you define <code>ServiceMonitor</code>/<code>PodMonitor</code> CRDs per workload (port, path, interval), and the operator translates those into Prometheus's scrape config automatically. <code>kube-state-metrics</code> is the separate piece that exposes cluster object state itself (deployment replica counts, pod phase) as metrics — distinct from node/cAdvisor metrics, which cover resource usage.</p>`},
+
+{c:'obs', q:"How would you design an on-call Grafana dashboard — what goes on it and why?",
+a:`<p>Lead with the RED method for request-driven services (Rate, Errors, Duration) or USE for resources (Utilization, Saturation, Errors) — whichever question the on-call engineer needs answered in the first 30 seconds: "is it serving traffic, is it erroring, is it slow." Top row: the 2-3 SLI panels tied directly to the service's SLO with the error-budget burn rate visible. Below that: dependency health (DB connections, downstream call latency) so you can tell "is it us or a dependency" fast. Deliberately exclude anything that isn't actionable during an incident — a dashboard with 40 panels is worse than one with 6 the on-call engineer has memorized.</p>`},
+
+{c:'obs', q:"How do you avoid alert fatigue when writing Grafana/Prometheus alerting rules?",
+a:`<p>Alert on symptoms (user-facing SLO burn) not causes (a single node's CPU) — causes generate noise, symptoms generate signal. Always pair a threshold with a <code>for</code> duration so single-sample blips don't page. Route by severity properly — page for things that need a human right now, route everything else to a ticket/Slack channel for daytime triage. And periodically audit: any alert that's been acknowledged-and-ignored more than a couple times without action is either mistuned or shouldn't page — that's the practical definition of noise.</p>`},
+
+{c:'obs', q:"What is OpenTelemetry, and what are its three core signal types?",
+a:`<p>A CNCF standard (graduated in 2026) for generating and exporting telemetry in a vendor-neutral way — instrument your code once with OTel SDKs/auto-instrumentation, and send data to whatever backend you want without re-instrumenting. The three signals: traces (a request's path across services, as a tree of spans), metrics (numeric measurements over time), and logs (the newest of the three to get first-class OTel treatment, with trace-context correlation baked in).</p>`},
+
+{c:'obs', q:"Explain the OpenTelemetry Collector — why run it as a separate component instead of exporting straight from your app?",
+a:`<p>The Collector sits between your instrumented apps and your backend(s), with three stages: receivers (accept data — OTLP, Prometheus scrape, etc.), processors (batch, filter, redact PII, add resource attributes, sample), and exporters (send to one or many backends — Prometheus, Tempo/Jaeger, an ELK/OpenSearch stack, a commercial vendor). Running it separately decouples apps from backend choice (swap backends by changing collector config, not redeploying every service), centralizes sampling and PII scrubbing in one place instead of duplicating that logic per-app, and buffers/retries so a backend outage doesn't back-pressure your application's request path.</p>`},
+
+{c:'obs', q:"What are OpenTelemetry's GenAI semantic conventions, and why do LLM calls need their own convention separate from standard HTTP conventions?",
+a:`<p>The GenAI SIG extended OTel with a <code>gen_ai.*</code> attribute namespace specifically because LLM calls don't fit the old APM assumptions: the same input can produce a different output (non-determinism breaks "reproduce the bug with the same request"), cost tracks token count rather than request count, and a single user request can fan out into a whole tree of nested spans — LLM calls, tool/function calls, retrieval steps — that needs to render as one coherent trace, not a flat list. The conventions standardize span/attribute names for model, token counts (input/output/reasoning), and now extend into agent orchestration and MCP tool-calling instrumentation, so telemetry stays portable across OpenAI/Anthropic/Bedrock and across observability backends instead of every team inventing its own attribute names.</p>`},
+
+{c:'obs', q:"How would you instrument an LLM or agent call so you can debug a slow, expensive request in production?",
+a:`<p>Each LLM invocation and each tool/function call becomes its own child span under the request's trace, carrying <code>gen_ai.*</code> attributes — model name, input/output token counts, and critically time-to-first-token (TTFT) as a separate measurement from total latency, since a slow TTFT points at model/provider queuing while a slow total-with-fast-TTFT points at a long generation or a chained tool call. One practical trap: don't put the raw prompt/completion text in span attributes — they're indexed, size-limited, and a PII/compliance risk; the convention puts that content in span events instead, which the Collector can filter or drop before export without touching application code. For multi-agent flows, the piece that actually breaks by default is trace context propagation across the agent-to-subagent boundary — most frameworks don't do it automatically, so you end up with disconnected trace fragments instead of one tree unless you wire it explicitly.</p>`},
+
+{c:'obs', q:"Trace vs span, and how does context propagation work across services?",
+a:`<p>A trace is the whole request's journey; a span is one unit of work within it (one HTTP call, one DB query, one function). Spans form a tree via parent-child relationships, and propagation is how that tree survives crossing a network boundary — the caller injects a trace context (trace ID + parent span ID, standardized as the W3C <code>traceparent</code> header) into the outgoing request headers, and the callee's instrumentation reads it back out to continue the same trace instead of starting a new, disconnected one. Message queues need the same treatment (context stuffed into message attributes) or async work loses trace continuity — a common gap in event-driven architectures.</p>`},
+
+{c:'obs', q:"How do you correlate logs, metrics, and traces for a single request?",
+a:`<p>Trace ID is the join key. Structured logging that includes the active trace ID/span ID on every log line (most OTel logging integrations inject this automatically) lets you jump from a trace in Tempo/Jaeger straight to the exact log lines for that request in your log backend, and exemplars link a metric data point (e.g. one slow bucket in a latency histogram) back to a specific trace that fell in it — that's the practical bridge from "the p99 spiked" to "here's the actual slow request that caused it."</p>`},
+
+{c:'obs', q:"What's cardinality explosion in a metrics system, and how do you prevent it?",
+a:`<p>Every unique combination of label values creates a new time series — putting something high-cardinality in a label (user ID, raw request path with IDs in it, a UUID) multiplies series count and can take down Prometheus's memory or blow up your metrics bill on a hosted backend. Prevention: never label with unbounded values, normalize paths (<code>/users/:id</code> not <code>/users/12345</code>) before they hit a metric label, keep high-cardinality data in traces/logs where it belongs instead, and set recording rules to pre-aggregate away dimensions you don't actually query on.</p>`},
+
+// ---------------- ELK / OPENSEARCH ----------------
+{c:'elk', q:"ELK vs OpenSearch — why does OpenSearch exist, and when do you pick one over the other?",
+a:`<p>OpenSearch is the AWS/Linux-Foundation-stewarded fork created after Elastic changed Elasticsearch and Kibana's license away from a fully open-source one — OpenSearch stayed on a permissive Apache-2.0 license. Functionally they started identical and have been diverging since, though the core (index/shard model, query DSL) remains close. Pick Elastic if you want the latest Elastic-only features and are fine with their license terms; pick OpenSearch if you're already AWS-centric (managed OpenSearch Service integrates cleanly with IAM/VPC), want the permissive license, or are avoiding vendor lock to Elastic's roadmap.</p>`},
+
+{c:'elk', q:"What does each component in the ELK stack actually do?",
+a:`<p>Elasticsearch — the distributed search/storage engine, indexes and serves queries. Logstash — a heavier-weight ingest pipeline that can parse, transform, and enrich data before indexing (grok patterns, field extraction). Kibana — the visualization/query UI on top. Beats (Filebeat, Metricbeat) — lightweight shippers that read logs/metrics at the source and forward them, typically to Logstash or directly to Elasticsearch. In a Kubernetes context, Logstash is often skipped entirely in favor of Fluent Bit doing lightweight parsing at the DaemonSet level, sending straight to Elasticsearch/OpenSearch to cut a hop.</p>`},
+
+{c:'elk', q:"How would you design log ingestion from EKS pods into ELK/OpenSearch at scale?",
+a:`<p>Fluent Bit as a DaemonSet (one per node, low resource footprint) tailing container log files from the node's filesystem, enriching each record with Kubernetes metadata (namespace, pod, labels) via the kubernetes filter, then shipping to an output — either straight to OpenSearch/Elasticsearch, or through a buffering layer (Kafka, or Fluent Bit's own backpressure handling) if ingestion volume spikes faster than the cluster can absorb. At real scale, also plan for multiline log handling (stack traces spanning multiple lines need to be stitched back into one event) and index-per-day-or-namespace so retention/deletion is a cheap index-drop instead of a slow document-level delete.</p>`},
+
+{c:'elk', q:"What's an index lifecycle policy, and why do you need one in production?",
+a:`<p>Without one, indices grow forever and eventually the cluster runs out of disk or query performance degrades on huge indices. ILM/ISM policies automate the lifecycle: hot (actively written, fast storage), warm (read-mostly, can move to cheaper nodes, force-merge segments down), cold (rarely queried, can even move to object storage), and delete (past your retention requirement — which in a regulated environment might be a compliance-driven minimum, not just a cost decision). Setting this up before you need it is the difference between a scheduled, boring rollover and a 2am "cluster is red because disk is full" incident.</p>`},
+
+{c:'elk', q:"How do you troubleshoot a slow or failing Elasticsearch/OpenSearch query?",
+a:`<p><code>_profile</code> API to see where time is actually going inside the query itself — often it's an unbounded wildcard/regex query, a deep pagination (<code>from</code>+<code>size</code> instead of <code>search_after</code>), or aggregating on a high-cardinality field without a filter narrowing the dataset first. At the cluster level, check for hot-spotting — one node handling disproportionate shard traffic because shard allocation isn't balanced — and check JVM heap/GC pressure, since a cluster spending most of its time in GC will make every query slow regardless of how well-written it is.</p>`},
+
+{c:'elk', q:"Shard vs replica — how does shard count affect performance?",
+a:`<p>A shard is a horizontal slice of an index's data — how the index is distributed across nodes for parallelism and to let it scale past a single node's capacity. A replica is a full copy of a shard for redundancy and read throughput, not a distinct partition of data. Too few shards for the data volume caps parallelism and eventually hits per-shard document/size limits; too many shards for the cluster size wastes overhead (every shard costs memory/file handles) and can actually slow queries down by fanning out to more nodes than necessary — right-sizing (a common rule of thumb is keeping individual shards in the tens-of-GB range) matters more than "more shards = faster."</p>`},
+
+{c:'elk', q:"How do you control storage costs and cardinality in a high-volume logging pipeline?",
+a:`<p>Sample or drop at the source for high-volume, low-value logs (debug-level in production, health-check request logs) rather than indexing everything and filtering later — you've already paid the ingestion cost by then. Use index templates that explicitly map field types instead of relying on dynamic mapping, which silently creates a new field (and mapping explosion risk) for every slightly different log shape. Tiered storage (hot/warm/cold, or even a cold tier backed by S3) moves cost down as data ages without deleting it outright, which matters when compliance requires longer retention than you'd want to keep on fast, expensive storage.</p>`},
+
+// ---------------- AI/LLM PLATFORMS & AGENTIC ARCHITECTURES ----------------
+{c:'ai', q:"From an infra/platform perspective, what's actually different about running an LLM-backed or agentic service in production vs. a normal microservice?",
+a:`<p>Three things break traditional APM assumptions. Non-determinism — the same input can produce a different output, so you can't reproduce a bug just by replaying the request; you need to have captured the exact prompt, model version, and parameters at call time. Cost model — latency and cost track token count, not request count, so a "slow" request and an "expensive" request are different signals that both need watching. And reliability itself is a different concept: for an agent, "reliable" isn't just up/fast, it includes decision quality, task-completion fidelity, and knowing when to stop and hand off to a human — none of which a standard uptime/latency SLO captures.</p>`},
+
+{c:'ai', q:"How would you think about SLOs for an AI agent versus a traditional API service?",
+a:`<p>Keep the infrastructure-layer SLOs you'd always have — availability, latency, error rate on the serving layer itself — but add agent-specific ones: task completion rate (did it actually finish what it was asked, correctly), cost-per-task or cost-per-successful-task (not just cost-per-request), and some proxy for output quality (an eval score, a human-review sample rate, or a downstream-correction rate). The error budget framing still works, it just burns on more than one axis at once, and the newest thinking treats a rising cost-per-task as a leading indicator worth its own budget — it tends to show degradation a day or two before completion-rate or quality metrics visibly move.</p>`},
+
+{c:'ai', q:"What's \"agentic SRE,\" and how is it different from just using AI tools to help with SRE work?",
+a:`<p>Worth being precise here because the term gets used both ways. "AI-assisted SRE" (AIOps evolving with LLMs) is using AI as a tool for existing SRE work — correlating alerts, drafting root-cause hypotheses, summarizing an incident timeline, with a human still deciding and acting. "Agentic SRE" goes further: an agent that's actually allowed to take remediation actions autonomously, closing the loop itself. The two production patterns for the latter are a state-machine approach (formalize your failure taxonomy into explicit states/transitions — strong safety guarantees, but only works where failure modes are well-understood) and a closed-loop approach (continuous observe-decide-act cycle, more flexible with ambiguity, but needs stronger runtime guardrails since it's less predictable). The honest, defensible answer in an interview is that governance — being able to explain after the fact what the agent did and why, and being able to stop it before it does the wrong thing — is what actually determines whether either pattern is safe to run, more than which pattern you pick.</p>`},
+
+{c:'ai', q:"What would you monitor for cost/token usage in an LLM-based service?",
+a:`<p>Input, output, and (for reasoning models) reasoning token counts per request, broken down by model/endpoint so you can see which call sites are expensive. Cost per task rather than cost per request — a task might legitimately take multiple LLM calls, and per-request cost alone hides a runaway multi-step loop. The genuinely useful signal is trend, not snapshot: a rising token-cost-per-task with stable completion rate is a real leading indicator — the current thinking is it tends to show up roughly a day or two before output quality visibly degrades, because the model or agent is "working harder" to get the same result. That's worth alerting on as its own thing, not just as a cost-control line item.</p>`},
+
+{c:'ai', q:"If an AI agent is allowed to take automated remediation actions in production, what guardrails would you put around it?",
+a:`<p>Hard action allowlist (only pre-approved, reversible actions — restart, scale, roll back a specific known-safe deploy — never "run arbitrary command"), a rate/blast-radius cap (max N actions per time window, max % of fleet touched at once), and a hard rule against stacking remediation on top of an already-unstable state — don't let the agent take a new action while an incident is actively in progress, since that's exactly when compounding a bad decision does the most damage. Every action needs to be logged with the reasoning behind it, not just the action itself, so a human can audit "why did it do that" after the fact — that auditability is what actually determines whether this is safe to run, more than the sophistication of the remediation logic itself.</p>`},
+
+{c:'ai', q:"What is MCP (Model Context Protocol), and where does it fit if you're running agent/tool-calling workloads?",
+a:`<p>MCP is a standardized protocol for connecting an LLM/agent to external tools and data sources — instead of every agent framework inventing its own bespoke way to expose "here are the tools/functions this agent can call," MCP gives a common interface so a tool server can be written once and used by any MCP-compatible agent client. From a platform standpoint, that turns "which tools can our internal agents use" into an integration/governance question rather than a one-off code problem per agent — you stand up MCP servers for the systems you want to expose (internal APIs, databases, ticketing) and control access/permissions at that layer. It's a genuinely current, still-evolving area — reasonable to be upfront in an interview that your depth here is conceptual/familiarity-level unless you've actually stood one up.</p>`},
+
+{c:'ai', q:"How would you architect observability for a multi-agent system where one agent calls another?",
+a:`<p>The goal is one coherent trace tree per top-level request, not a pile of disconnected spans per agent. That requires explicit trace-context propagation across the agent-to-subagent boundary — most agent frameworks don't do this automatically the way HTTP middleware does, so it has to be wired in deliberately wherever a task gets delegated. Within that, each agent hop, each tool call, and each underlying LLM invocation becomes its own child span with token/cost/latency attributes, so when something goes wrong you can see exactly which agent in the chain made the expensive or wrong call instead of only seeing the aggregate outcome.</p>`},
+
+{c:'ai', q:"What data governance/security concerns come with running LLM platforms in a regulated environment?",
+a:`<p>PII/sensitive data ending up in prompts (and therefore potentially in provider logs, telemetry, or training data depending on the provider's data policy) is the big one — same discipline as any other data-classification problem, but easy to miss because a prompt feels like ephemeral text rather than a data flow needing review. Prompt injection is the newer concern specific to this space — if an agent ingests untrusted content (a webpage, an email, a document) as part of its context, that content can contain instructions trying to hijack the agent's behavior, which is a real attack surface with no fully solved answer yet, only mitigations (sandboxing what actions an agent can take regardless of what it's told, treating tool outputs as untrusted input). Data residency and which region/provider actually processes the request matters the same way it does for any other third-party API call in a regulated environment.</p>`},
+
+{c:'ai', q:"If asked directly whether you've worked hands-on with agentic AI platforms in production, how do you frame that honestly?",
+a:`<p>Given the JD lists this as "familiarity," not a required, deep-hands-on bar, the strongest answer is calibrated honesty rather than overclaiming: name what you do have — solid observability/SRE fundamentals that transfer directly (SLOs, tracing, incident response), and genuine conceptual grounding in what's different about operating these systems — and be direct that deep production hands-on with an agentic platform specifically is the part you'd be ramping into. That's a much stronger answer than fumbling a follow-up question on something you claimed deeper experience with than you have — the same "here's exactly where my depth is and isn't" framing works better than pretending the gap doesn't exist.</p>`},
+
+// ---------------- EVENT-DRIVEN & MICROSERVICES ----------------
+{c:'evt', q:"Synchronous vs asynchronous communication between microservices — when do you pick each?",
+a:`<p>Synchronous (REST/gRPC) when the caller genuinely needs an immediate answer to proceed — a read, a validation check, anything in the user-facing request path where "try again later" isn't acceptable. Asynchronous (queue/event) when the caller doesn't need to wait for the work to finish, when you want to decouple the producer's uptime from the consumer's (producer can keep accepting work even if a consumer is temporarily down), or when one event needs to fan out to multiple independent consumers. The tradeoff is complexity: async buys resilience and decoupling but costs you eventual consistency and harder debugging (a request's effects are no longer traceable in one synchronous call stack).</p>`},
+
+{c:'evt', q:"Explain the outbox pattern — why is it needed for reliable event publishing?",
+a:`<p>The problem: if a service writes to its database and then separately publishes an event, those two operations aren't atomic — a crash between them either loses the event or double-processes it. The outbox pattern fixes this by writing the event into an "outbox" table in the same local database transaction as the business data change, so both succeed or fail together. A separate process (a polling job, or change-data-capture like Debezium reading the DB's write-ahead log) then reads the outbox table and actually publishes to Kafka/SNS/SQS, with at-least-once delivery — the atomicity guarantee you actually need moves to where a transaction can enforce it.</p>`},
+
+{c:'evt', q:"SQS vs Kafka/SNS/EventBridge — what's the actual difference?",
+a:`<p>SQS is a queue: a message is consumed once and gone, good for point-to-point work distribution (a pool of workers pulling jobs). Kafka is a durable, ordered log that multiple independent consumer groups can each read at their own pace, replaying from any offset — the right fit when multiple systems need the same event stream independently, or you need strict ordering per partition key. SNS/EventBridge are pub/sub fan-out — one event, many subscribers, each typically feeding its own SQS queue — good for "notify everyone who cares" without the producer knowing who's listening.</p>`},
+
+{c:'evt', q:"How do you handle poison messages in an event-driven pipeline?",
+a:`<p>A dead-letter queue (DLQ) is the baseline — after N failed processing attempts, the message moves off the main queue so it can't block or endlessly retry-loop the rest of the pipeline, and gets surfaced for investigation instead of silently dropped. The harder part is what happens next: alerting on DLQ depth (a growing DLQ is itself an incident signal), and having an actual runbook for reprocessing — is it safe to just replay the message once the bug's fixed, or did partial processing already happen and a replay would duplicate side effects (which loops back to needing idempotent consumers in the first place).</p>`},
+
+{c:'evt', q:"What's the saga pattern, and why do distributed transactions need it?",
+a:`<p>A normal ACID transaction can't span multiple services' independent databases — there's no single transaction coordinator across service boundaries in most architectures. A saga breaks a multi-step business transaction into a sequence of local transactions, each with a corresponding compensating action if a later step fails — e.g., "reserve inventory → charge payment → confirm order," and if payment fails, a compensating "release inventory" step runs instead of a rollback. Choreography (each service reacts to events and knows its own compensation) works for simple flows; orchestration (a central saga coordinator explicitly sequencing steps) is usually easier to reason about and debug once the flow has more than a few steps.</p>`},
+
+{c:'evt', q:"How do you debug a \"lost event\" where a downstream service never received something it should have?",
+a:`<p>Distributed tracing with context propagated into the message (trace ID as a message attribute, not just in the body) turns this from a guessing game into a lookup — find the producer's span, follow the trace, see exactly where it stops. Absent that, work backward through each hop: did the producer's write actually commit and publish (check the outbox/producer logs), did the message actually land in the queue/topic (broker-side metrics), did the consumer group have a lag spike or a rebalance that could've delayed or skipped it, and is there a DLQ entry that would explain a "processed but failed" case being mistaken for "never arrived." Most "lost" events turn out to be delayed, filtered by a routing rule, or sitting in a DLQ no one's watching.</p>`},
+
+// ---------------- DEVSECOPS & CLOUD SECURITY ----------------
+{c:'sec', q:"What does \"shifting security left\" mean concretely — name the specific pipeline gates.",
+a:`<p>Concretely, not as a slogan: pre-commit/IDE-level secret scanning, a SAST scan on every PR (not just before release), dependency/SCA scanning on every build (fails on known-CVE dependencies above your severity bar), IaC scanning (Checkov/tfsec) on every Terraform PR so a misconfigured security group is caught before merge, and a container image scan before the image is allowed to be pushed to a "deployable" registry tag. The "left" part is specifically about moving these from a pre-release audit (expensive, late, blocks a release) to every-commit feedback (cheap, immediate, blocks nothing but that one bad commit).</p>`},
+
+{c:'sec', q:"SAST vs DAST vs SCA — what's each and give a tool example.",
+a:`<p>SAST (static) analyzes source code without running it, catching things like injection-prone patterns or hardcoded secrets — e.g. Semgrep, SonarQube. DAST (dynamic) attacks a running application from the outside, the way a real attacker would — e.g. OWASP ZAP — catching runtime issues static analysis can't see (actual auth bypass, real injection through a live endpoint). SCA (software composition analysis) scans your dependency tree for known-vulnerable third-party libraries — e.g. Snyk, Trivy, Dependabot — which matters because most real-world vulnerabilities live in dependencies, not code you wrote yourself.</p>`},
+
+{c:'sec', q:"How do you scan container images for vulnerabilities, and what do you do when a base image has a critical CVE with no fix available?",
+a:`<p>Trivy or Grype in the pipeline, scanning both OS packages and application dependencies in the image layers, with the build failing above your severity threshold. When there's genuinely no patched version yet: check whether the vulnerable component is actually reachable/exploitable in your specific usage (not every CVE in an unused code path is a real risk), apply a compensating control if one exists (network policy blocking the exposed surface, WAF rule), and file an explicit, time-boxed exception with a ticket to re-scan once a fix ships — rather than either blocking every deploy indefinitely or silently suppressing the finding.</p>`},
+
+{c:'sec', q:"Least privilege for EKS workload IAM specifically — IRSA vs Pod Identity.",
+a:`<p>Both scope IAM permissions to a specific ServiceAccount instead of the whole node, which is the core least-privilege win over node-level roles. IRSA does this via an OIDC trust relationship per cluster that has to be explicitly configured and kept in sync; EKS Pod Identity (the newer mechanism) simplifies this with a cluster-level association managed through an EKS API instead of hand-wired OIDC trust policies, and doesn't require touching the IAM role's trust policy every time you add a new cluster. Either way, the actual least-privilege discipline is the same: one role per workload scoped to exactly the actions/resources it needs, never a shared "apps-can-do-everything" role reused across unrelated services.</p>`},
+
+{c:'sec', q:"How do you detect and respond to anomalous activity in a cloud account?",
+a:`<p>GuardDuty (AWS-native threat detection — unusual API call patterns, known-bad IPs, compromised credential usage signatures) feeding into Security Hub for a consolidated view across accounts, with high-severity findings routed to an alerting/paging path, not just a dashboard nobody watches. CloudTrail is the raw audit log underneath all of this — GuardDuty's ML-based detection is built on top of it, but CloudTrail itself is also directly queryable for "who did X" during an investigation. Response side needs a defined runbook per finding type — rotate credentials automatically for a confirmed key-compromise finding, isolate an instance's security group for a compromise-indicator finding — because during an actual incident is the worst time to be improvising the response steps.</p>`},
+
+{c:'sec', q:"Explain secrets scanning in a CI pipeline — what failure mode is it actually preventing?",
+a:`<p>It's catching the case where a developer accidentally commits a real credential (an AWS key, a DB password, an API token) into source, which — even if immediately reverted — remains in git history forever unless you rewrite history, and is often already scraped by bots within minutes on a public repo. Tools like gitleaks/truffleHog scan every commit (ideally pre-commit locally, and again as a CI gate as the backstop) against known credential patterns. The response runbook matters as much as the detection: a caught secret needs to be treated as compromised and rotated immediately, not just removed from the file — removing it from the current commit doesn't un-expose it from history.</p>`},
+
+{c:'sec', q:"What's your approach to container runtime security — detecting a compromised container after it's already running?",
+a:`<p>Static scanning (image vulnerabilities) only covers the "before it runs" risk; runtime security covers "it's running and now doing something it shouldn't." Tools like Falco watch system calls and flag anomalous behavior — a container spawning an unexpected shell, writing to a location it never writes to, making an outbound connection to an unusual destination — based on rules tied to expected behavior for that workload. The response side needs to be fast and automatable: isolate (network policy, or kill the pod) first, preserve evidence (don't just delete it — you lose the ability to investigate), then root-cause.</p>`},
+
+{c:'sec', q:"How do you handle compliance evidence collection in a regulated environment without it becoming pure toil?",
+a:`<p>Automate the evidence generation at the point the control is actually enforced, rather than manually assembling proof after the fact — CloudTrail/audit logs as the evidence for "who approved what," pipeline gate pass/fail records as evidence for "was the security scan actually required and did it run," and Terraform plan/apply logs tied to change tickets as evidence for change management. The anti-pattern to avoid is a separate manual "compliance spreadsheet" process bolted on after the real work happens — that's both pure toil and less trustworthy than evidence generated automatically by the systems doing the actual enforcement.</p>`},
+
+// ---------------- PERFORMANCE ENGINEERING ----------------
+{c:'perf', q:"Load, stress, soak, and spike testing — what's each actually checking?",
+a:`<p>Load testing: expected normal-to-peak traffic, checking the system meets its SLA at that level. Stress testing: push well past expected capacity to find the actual breaking point and how it fails (gracefully with backpressure, or catastrophically). Soak testing: sustained moderate load over a long duration (hours), catching problems that only show up over time — memory leaks, connection pool exhaustion, disk filling from logs/temp files. Spike testing: a sudden, sharp traffic jump (a flash sale, a viral moment) checking whether autoscaling and rate limiting react fast enough before the spike passes.</p>`},
+
+{c:'perf', q:"How would you design a load test for an API about to go into a regulated production environment for the first time?",
+a:`<p>Start from real (or realistically modeled) traffic patterns and volumes, not an arbitrary number — pull actual request-rate and payload-shape data from a comparable existing service if one exists. Test against a production-like environment (data volume, network topology, instance sizing) since testing against a tiny staging environment tells you little about real bottlenecks. In a regulated context specifically, also validate behavior under partial failure — a downstream dependency timing out, a database connection pool exhausted — since "does it work under load" matters less than "does it fail safely under load" when there's a compliance/audit expectation around the system's behavior, and document the test methodology and results as part of the change record, not just run it and move on.</p>`},
+
+{c:'perf', q:"Why do SREs care more about p99 latency than average latency?",
+a:`<p>Average hides the tail — a service can have a great average while 1% of requests take 10x longer, and that 1% is disproportionately real users having a bad experience (often the same users repeatedly, since tail latency correlates with specific conditions like cold caches or large payloads, not random chance). At scale, 1% of requests is a lot of actual people. p99 (or even p999 for high-traffic services) is what actually reflects "how bad does it get," which is what SLOs and user experience are built around — a p50 that looks fine can be masking a real, fixable problem.</p>`},
+
+{c:'perf', q:"A service's throughput plateaus under load but CPU/memory look fine. How do you find the bottleneck?",
+a:`<p>When compute resources look fine but throughput caps out anyway, the bottleneck is almost always somewhere with a hard concurrency limit that isn't a resource-utilization metric: a connection pool (DB, HTTP client) capped too low so requests queue behind it, a thread pool size limit, a downstream dependency's rate limit being hit, or lock contention on a shared resource. The diagnostic move is tracing — find where time is actually being spent in the request's critical path (queued waiting for a connection vs. actually executing) rather than staring at host-level metrics that were never going to show a concurrency-limit problem in the first place.</p>`},
+
+{c:'perf', q:"Explain connection pooling and how a misconfigured pool size masquerades as \"the database is slow.\"",
+a:`<p>A connection pool caps how many concurrent DB connections an app instance holds open, reusing them across requests instead of paying connection-setup cost every time. If the pool is too small for actual concurrent load, requests queue waiting for a free connection — and from the outside that looks exactly like slow database response time, when the database itself might be sitting nearly idle. The tell is checking pool wait-time/queue-depth metrics specifically (most DB client libraries expose these) rather than just DB-side query latency — if queries execute fast once they get a connection but requests are slow end-to-end, the pool is the bottleneck, not the database.</p>`},
+
+{c:'perf', q:"What load testing tools have you used or would you use, and how do you decide?",
+a:`<p>k6 for most modern use — scripts-as-code (JavaScript), good CI integration, reasonable resource footprint for the load it generates. JMeter is the older, GUI-heavy standard, still common in enterprises with existing JMeter test suites and plugins, but heavier to run at scale. Locust for Python-native teams that want load-test scenarios written in the same language as the rest of their tooling, with a distributed-workers model for generating high load from multiple machines. Gatling for JVM shops wanting strong reporting and a Scala/Java-based DSL. Decision mostly comes down to team language fit and existing CI tooling rather than any one being objectively "best."</p>`},
+
+// ---------------- AWS PLATFORM & REGULATED ENVIRONMENTS ----------------
+{c:'aws', q:"Your certifications are Azure-focused (AZ-104/SC-300/SC-100) but this role is AWS-heavy. How do you speak to your AWS depth?",
+a:`<p>The honest, direct framing works best: certifications reflect what you formally studied and validated, not the ceiling of your hands-on experience — and here it's worth naming the specific AWS services and years you've actually operated (EKS, ECS, IAM, the core primitives this JD is asking about) rather than leaning on the cert gap or over-apologizing for it. If asked directly, something like: "my certs happen to be Azure-side, but the bulk of my recent hands-on work has been AWS — EKS, ECS, IAM — and I'm planning to sit an AWS cert to formalize that" is a confident, honest answer that doesn't dodge the question or oversell it either.</p>`},
+
+{c:'aws', q:"SCP vs IAM policy — what's the difference and when do you need each?",
+a:`<p>An IAM policy grants or denies permissions to a specific principal (user/role) within one account. An SCP (Service Control Policy) is an AWS Organizations-level guardrail applied to entire accounts or OUs — it doesn't grant anything by itself, it sets the maximum possible permissions no IAM policy in that account can exceed, even if someone writes an overly permissive IAM policy locally. Use SCPs for org-wide non-negotiables (block leaving the organization, deny disabling CloudTrail, restrict regions) and IAM policies for the actual day-to-day least-privilege grants within that ceiling.</p>`},
+
+{c:'aws', q:"How would you design a landing zone / multi-account structure for a new enterprise customer?",
+a:`<p>Separate accounts by blast radius and lifecycle, not just by team — typically a management/org account, a shared services account (logging, networking hub), and per-environment accounts (dev/staging/prod) at minimum, often per-workload too at real enterprise scale so a compromised or misbehaving workload can't touch another's resources. Centralize what should be centralized — CloudTrail logs shipped to a dedicated, locked-down log-archive account nothing else can write to, networking via Transit Gateway or a hub-VPC pattern — and use SCPs plus AWS Control Tower/Landing Zone Accelerator to enforce baseline guardrails consistently as new accounts get vended rather than manually configuring each one.</p>`},
+
+{c:'aws', q:"What extra process do you expect in a highly regulated environment vs. a startup?",
+a:`<p>A formal Change Advisory Board (or equivalent) gate for production changes above a certain risk tier, segregation of duties (the person who wrote the change generally can't be the sole approver deploying it to production), mandatory audit trails tied to every change (who approved, when, why — not just what changed), and typically longer-lived compliance artifacts (SOX evidence, PCI-DSS scan records) that need to be retrievable on demand for an audit, not just "we could reconstruct it if asked." The practical shift for an engineer is planning lead time into changes rather than shipping the moment code is ready — the process cost is real, and estimating it accurately is part of the job in that environment.</p>`},
+
+{c:'aws', q:"How do you handle audit logging at scale across a multi-account AWS Organization?",
+a:`<p>Organization-level CloudTrail (a single trail configured at the management account applies to every member account automatically, including new ones as they're created) delivering to a centralized, dedicated log-archive account with a bucket policy that denies delete/modify even to admins in that account — the log has to be tamper-evident to be worth anything for an audit. From there, ship into your SIEM/log analytics (OpenSearch, or a commercial SIEM) for actual querying, since raw CloudTrail JSON in S3 isn't practically searchable at incident-response speed on its own.</p>`},
+
+{c:'aws', q:"What's your approach to cost governance/FinOps in a large AWS estate?",
+a:`<p>Tagging enforcement first — nothing else works without reliable cost attribution by team/project/environment, and it has to be enforced at creation (SCP or Config rule denying untagged resource creation) rather than hoped for after the fact. Budgets and anomaly detection alerts catch runaway spend early rather than at month-end bill shock. Beyond that, the recurring wins are usually the boring ones: right-sizing via Compute Optimizer recommendations, Savings Plans/Reserved Instances for predictable steady-state load, cleaning up orphaned resources (unattached EBS volumes, idle load balancers, old snapshots) on a schedule rather than a one-time audit.</p>`},
+
+{c:'aws', q:"Explain the shared responsibility model — where does the line actually sit for something like EKS?",
+a:`<p>AWS is responsible for security "of" the cloud — physical infrastructure, and for EKS specifically, the control plane's availability and patching. You're responsible for security "in" the cloud — everything you configure: IAM policies, network/security group rules, worker node OS patching (if self-managed nodes), what runs inside your containers, and your own application-layer security. The EKS-specific nuance worth naming: the line moves depending on your compute choice — Fargate shifts node-level patching responsibility to AWS, self-managed EC2 nodes keep it on you — so "shared responsibility" isn't one fixed line, it shifts with each service/configuration choice you make.</p>`},
+
+// ---------------- SCENARIO / TROUBLESHOOTING BANK ----------------
+{c:'scenario', q:"p99 latency on a checkout API spikes 5x during a traffic surge, but CPU/memory on all pods look normal. Walk through your triage.",
+a:`<p>Since compute resources rule out the obvious cause, go straight to concurrency limits and dependencies: check DB connection pool saturation/wait time first (classic cause of exactly this symptom pattern), then downstream dependency latency (payment gateway, inventory service) — a surge often exposes a downstream service that was fine at normal load but is now the bottleneck. Check HPA — is it actually scaling, or hitting a max-replica ceiling, or scaling but new pods aren't warm/ready fast enough to help before the surge passes. Pull a trace for one of the actual slow requests rather than reasoning from aggregate dashboards alone — it'll show exactly which hop is eating the time.</p>`},
+
+{c:'scenario', q:"A deployment to EKS goes out and 30% of pods immediately fail readiness checks. What's your rollback decision process?",
+a:`<p>30% failing immediately, consistently, is a strong signal of a bad deploy rather than environmental flakiness — that bar (a clear majority-healthy threshold, or any hard failure on a canary subset) should trigger an automatic rollback if you have progressive delivery wired up; if not, this is exactly the "don't debate, roll back now, investigate after" case since a partially-degraded production service is actively hurting users while you investigate. Roll back first via <code>kubectl rollout undo</code> or reverting the GitOps commit, confirm readiness recovers, then pull logs/events from the failed pods afterward to find root cause with the pressure off.</p>`},
+
+{c:'scenario', q:"Your ELK/OpenSearch cluster hits 85% disk usage and ingestion starts failing. Walk through mitigation and root cause.",
+a:`<p>Immediate: most clusters hit a hard read-only watermark around 90-95% disk — you're close to it, so buy headroom fast by force-deleting the oldest, least-valuable indices per your retention policy (or triggering ILM rollover/deletion manually if it's lagging), not by trying to add capacity first since that takes longer than the runway you have left. Once stable: find why disk grew faster than expected — a new high-volume log source that wasn't capacity-planned for, a missing/broken ILM policy that let old indices accumulate past intended retention, or a spike in log volume from an upstream bug (e.g., a service stuck in a tight error-logging loop). Fix the ILM policy gap or add capacity properly, don't just repeat the emergency cleanup next month.</p>`},
+
+{c:'scenario', q:"An on-call alert fires for \"error budget exhausted.\" Walk through what you do in the next 30 minutes.",
+a:`<p>Error budget exhaustion is a policy trigger, not just an alert — first confirm it's real (not a metric/query bug) by cross-checking against a second signal (actual user reports, a dashboard you trust). If real, the standard SRE response is a feature-freeze on further risky changes to that service until the budget recovers, prioritizing reliability work over new features for that team in the near term. In the moment: identify what's actually burning the budget right now (is it one ongoing incident, or death-by-a-thousand-cuts from many small errors) since those need different responses — one active incident gets normal incident response, chronic burn needs root-cause analysis of the pattern, not a page-and-fix.</p>`},
+
+{c:'scenario', q:"A Terraform apply in CI partially fails halfway through a multi-resource change. What do you do?",
+a:`<p>Don't panic-retry immediately — first run <code>terraform plan</code> to see the actual current state vs. desired state; Terraform's state file should accurately reflect what did and didn't get created even on a partial failure, so the plan tells you exactly what's left to reconcile. Read the actual error (rate limiting, a dependency ordering issue, a resource that already exists with a naming conflict) rather than assuming state corruption. If state and reality have genuinely diverged (a resource was created but Terraform's state doesn't know it), <code>terraform import</code> reconciles them before re-applying. Re-running <code>apply</code> is usually safe once you understand what failed and why — Terraform is designed to be idempotent — but understanding the cause first prevents repeating the same failure in a loop.</p>`},
+
+{c:'scenario', q:"Your AWS bill jumps 40% month-over-month with no obvious deploy correlated to it. How do you find the cause?",
+a:`<p>Cost Explorer grouped by service, then by linked account, then by tag/team — narrow from "the whole bill" to "which specific service/team" before digging into root cause. Common non-deploy causes worth checking first: a runaway process making excessive API calls (a bad retry loop hitting a paid API), data transfer costs from a new cross-AZ or cross-region traffic pattern, an autoscaling group that scaled up and never scaled back down (check for a broken scale-in policy), or a forgotten test/POC resource left running. Cross-reference the spike's start date against CloudTrail activity and any config changes around that date even if no application deploy happened — infrastructure-only changes cause cost surprises just as often as code deploys.</p>`},
+
+{c:'scenario', q:"A downstream team says your service's events \"sometimes just don't arrive.\" How do you debug it end to end?",
+a:`<p>Get specifics first — an actual example (approximate time, expected event, what they were looking for) rather than debugging "sometimes" in the abstract. Then walk the pipeline in order: did your service actually publish it (producer-side logs/metrics for that event type), did it land in the broker (topic/queue metrics — a lag spike or a partition issue can delay delivery long enough to look like loss), is the downstream team's consumer actually subscribed to the right topic/filter (a routing rule or filter policy silently excluding it is a very common "phantom loss" cause), and check the DLQ — a message that failed processing and got dead-lettered looks exactly like "never arrived" from the consumer's side unless someone's watching the DLQ.</p>`},
+
+{c:'scenario', q:"Security flags a critical CVE in a base image used by 40 running services. Walk through your response plan.",
+a:`<p>Triage before mass-patching: is the vulnerable component actually reachable in each service's real usage, or is exposure limited to services that hit that specific code path — that determines real urgency per-service rather than treating all 40 as equally critical. For genuinely exposed services, prioritize by external-facing/data-sensitivity first. Build the patched base image once, then roll it out via the normal CI/CD pipeline per service rather than manually — this is exactly the case for demonstrating why immutable, pipeline-driven deploys matter, since "rebuild and redeploy 40 services" should be a scripted, low-effort operation, not 40 manual interventions. Track it as an explicit remediation campaign with a deadline, not just "everyone patch when convenient."</p>`},
+
+{c:'scenario', q:"Your CI/CD pipeline suddenly can't authenticate to AWS via OIDC. Walk through your triage.",
+a:`<p>Check what actually changed first — OIDC breaks almost always from a config drift, not a random failure: did the IAM role's trust policy get modified (condition on repo/branch no longer matches), did the OIDC provider's thumbprint/cert rotate and the trust relationship wasn't updated, or did the workflow itself change (a renamed repo, a new branch that doesn't match the trust policy's condition). Read the actual STS error message carefully — it usually names exactly which condition failed, which narrows this from a broad investigation to a one-line trust-policy fix in most real cases.</p>`},
+
+{c:'scenario', q:"A new agentic AI feature starts making expensive, redundant tool calls in a loop. How do you detect and contain it?",
+a:`<p>Detection: this is exactly the "rising cost-per-task while completion rate looks stable" pattern — a per-task token/cost budget with alerting catches it faster than waiting for the monthly bill to reveal it, and a hard per-task max-tool-calls circuit breaker in the agent runtime itself is the actual containment, not just an alert. Containment in the moment: kill or rate-limit that specific agent/task type first (blast-radius control) rather than shutting down the whole platform, since most agentic incidents are one task pattern misbehaving, not a system-wide failure. Root cause is usually a missing termination condition or an ambiguous instruction the agent is retrying indefinitely trying to satisfy — the fix is tightening the task's stop condition, not just adding a bigger budget cap.</p>`},
+
+// ---------------- BEHAVIORAL & CLOSING ----------------
+{c:'beh', q:"Tell me about a time you found and fixed a problem before it caused an outage.",
+a:`<p>Structure as STAR using a real example from your own work — Situation (what you were looking at and why), Task (what needed to happen), Action (the specific steps you took to catch and fix it), Result (the outage that didn't happen, ideally with a number if you have one). Interviewers are listening for whether you were actively looking for problems (monitoring/reviewing proactively) versus stumbling onto it, and whether you fixed the root cause or just the symptom — lead with whichever of those is genuinely true for your example.</p>`},
+
+{c:'beh', q:"Tell me about a production incident you handled — walk me through it using STAR.",
+a:`<p>Keep the technical narrative tight and the process visible: how you triaged (what you checked first and why), how you communicated during the incident (who you kept updated, at what cadence), the actual fix, and — the part people often skip — what changed afterward (a blameless postmortem action item that actually got done, not just discussed). If your role in a given incident was more "operating/troubleshooting" than "architecting the fix," say that plainly rather than implying more ownership than you had — that framing holds up much better under a follow-up question than an answer that oversells your role.</p>`},
+
+{c:'beh', q:"Tell me about a time you disagreed with a technical decision made by a colleague or manager.",
+a:`<p>Show you raised it constructively and with evidence, not that you were right and they were wrong — the story that lands well is "I had a concern, here's how I brought it up, here's what we did to resolve it," whether that ended with them convincing you, you convincing them, or a compromise. Avoid a story where the resolution is "I was right and it blew up later" — that reads as vindication-seeking rather than collaborative, even when true.</p>`},
+
+{c:'beh', q:"How do you approach mentoring or bringing a junior engineer up to speed?",
+a:`<p>Concrete beats abstract — describe an actual mechanism you've used (pairing on real production tickets rather than toy exercises, a documented runbook they build alongside you, gradually increasing on-call responsibility with a safety net) rather than a generic "I believe in mentorship" answer. If you can point to a specific person's growth you contributed to, that's a stronger close than a general philosophy statement.</p>`},
+
+{c:'beh', q:"How do you decide what to automate vs. what to leave manual?",
+a:`<p>Frequency × risk-of-human-error is the practical lens — high-frequency, mechanical, error-prone-when-tired tasks (routine deploys, standard remediation) are the clear automation candidates. Rare, high-judgment, high-blast-radius actions often stay manual (or semi-automated with a human approval gate) longer, not because automation couldn't technically do it, but because the cost of a wrong automated action there is higher than the toil saved. Worth mentioning: automating something badly (a script that "fixes" things without understanding context) can be worse than not automating it at all — the goal isn't automation for its own sake.</p>`},
+
+{c:'beh', q:"Describe a time you had to learn a new technology quickly for a project.",
+a:`<p>This is a good spot to connect honestly to the AI/agentic-platforms gap this JD flags as "familiarity" rather than deep experience — describe your actual approach to ramping on unfamiliar territory (how you learn: build a small proof-of-concept first, read the actual docs/source rather than just tutorials, find the person who already knows it) using a real past example, then note that's the same approach you'd bring to the agentic/AI-platform pieces of this role. That turns an experience gap into a demonstrated, credible ramp-up process instead of a weakness to hide.</p>`},
+
+{c:'beh', q:"What questions should you ask them at the end?",
+a:`<p>A few genuinely useful ones given this specific JD: "How mature is the chaos engineering practice today — is FIS already running regular game days, or would I be building that muscle from scratch?" "What does the MCP/multi-agent setup actually look like in production right now — how many agents, what are they doing?" "How is Langfuse deployed — self-hosted or cloud, and who owns the eval/scoring pipeline?" And on the regulated side: "What does change-management look like for a chaos experiment that touches production — is there a formal approval gate?" These signal genuine engagement with the role's specific specialization rather than generic SRE questions.</p>`},
+
+// ---------------- LANGFUSE & AI/LLM OBSERVABILITY ----------------
+{c:'langfuse', q:"What is Langfuse, and how is it different from pointing a general-purpose APM tool like Datadog at an LLM application?",
+a:`<p>A general APM tool sees an LLM call as just another opaque HTTP request — duration and status code, nothing more. Langfuse is purpose-built for LLM applications: it natively understands token usage, model parameters, prompt/completion pairs, and evaluation scores as first-class concepts, not something you'd have to bolt on with custom attributes. It bundles four things a generic APM tool doesn't: tracing built around LLM/agent call structure, prompt management with versioning, an evaluation layer (LLM-as-a-judge, human annotation, datasets), and cost/quality dashboards — open source, and it can be self-hosted, which matters a lot in a regulated environment like this one.</p>`},
+
+{c:'langfuse', q:"Walk through Langfuse's tracing hierarchy — traces, observations, generations, sessions.",
+a:`<p>A trace is one end-to-end run of your application (e.g., one user request). Inside a trace, individual units of work are observations — Langfuse distinguishes generations (an actual LLM call: model, prompt, completion, token counts, cost, latency) from plain spans (everything else: retrieval, embedding, a tool/API call), so you can see a trace as a full tree of nested LLM and non-LLM steps with causal relationships preserved. Sessions group multiple traces together for a multi-turn conversation, and user tracking lets you attribute traces/cost back to a specific end user — useful for both debugging ("show me everything this user's session did") and cost attribution.</p>`},
+
+{c:'langfuse', q:"How does Langfuse relate to OpenTelemetry — do you have to choose one or the other?",
+a:`<p>No — Langfuse is actually built on OpenTelemetry under the hood, so it's complementary rather than competing. You can capture traces via Langfuse's native Python/JS SDKs, via 100+ framework integrations, directly via OTel, or via an LLM gateway like LiteLLM — all of it lands in the same tracing model. In practice that means you can run a standard OTel Collector pipeline for your general infrastructure telemetry and have it also export GenAI-specific spans into Langfuse for the LLM-specific analysis (evals, prompt versioning, cost dashboards) that a generic OTel backend like Tempo or an OTel-only Grafana setup won't give you out of the box.</p>`},
+
+{c:'langfuse', q:"How would you use Langfuse for prompt management in a production system?",
+a:`<p>Prompts get versioned and managed centrally in Langfuse rather than hardcoded in application code — you fetch the current (or a specific labeled) version at runtime, which decouples prompt iteration from a full code deploy. That gives you a few practical wins: a rollback path if a new prompt version regresses in production, A/B comparison between versions using the experiments feature, and a playground to test prompt changes against real historical trace data before shipping. For a platform/observability role specifically, the operational angle matters most: prompt changes become an auditable, versioned event you can correlate against a quality or cost regression in the dashboards, the same discipline as tracking any other config change.</p>`},
+
+{c:'langfuse', q:"What is LLM-as-a-Judge evaluation in Langfuse, and when would you use it vs. human annotation?",
+a:`<p>LLM-as-a-Judge uses a separate LLM call to score a trace's output against a rubric (accuracy, relevance, safety, format compliance) automatically, at scale — practical for continuous, high-volume monitoring where human review of every output isn't feasible. Human annotation queues are for the cases judge models are worse at — genuinely subjective quality judgments, or validating that the judge model itself is scoring correctly (you spot-check a sample of judge scores against human ones to catch judge drift). The realistic production pattern is layered: automated judge scoring on everything for continuous signal, human annotation on a sampled subset both for quality assurance on subjective cases and as an ongoing calibration check on the judge.</p>`},
+
+{c:'langfuse', q:"How would you set up alerting on Langfuse data for a production quality regression?",
+a:`<p>Langfuse alerts evaluate a metric over a time window against a threshold and can notify Slack, trigger a GitHub Actions workflow, or call a webhook. The detail worth knowing: alerts support boolean scores directly — the average of a boolean score over a window is just the share of "true" results, so you can alert when, say, a hallucination-detection judge's failure rate crosses a limit, the same way you'd alert on an error rate in Prometheus. That closes the loop end to end: evaluators/judges score every output, dashboards show the trend, and alerts turn a slow quality drift into an actionable page before it's a user-facing incident.</p>`},
+
+{c:'langfuse', q:"Self-hosted Langfuse vs. Langfuse Cloud — what would push you toward self-hosting, especially here?",
+a:`<p>Self-hosting (open source, MIT license, deployed via Docker Compose across a few backing services) gives you full data ownership and control over where prompt/completion data physically lives — the deciding factor in a regulated, enterprise-scale environment like this one, where sending prompts (which can contain customer or internal financial data) to a third-party SaaS may not clear a data-residency or compliance bar. The tradeoff is operational: self-hosting is genuinely more setup and ongoing maintenance than a managed cloud offering, so it's a real ownership cost, not just a checkbox — worth being upfront in an interview that you understand it's a tradeoff, not a free win.</p>`},
+
+{c:'langfuse', q:"How does the Langfuse MCP Server fit into an agent/IDE workflow, and how does that connect to this role's MCP requirement?",
+a:`<p>Langfuse ships its own MCP server, which exposes traces, evals, and prompts as tools an agent (or an IDE-based coding agent) can query and act on via natural language — instead of a human opening the Langfuse UI to check "why did this fail," an agent can pull the relevant trace directly through MCP as part of its own diagnostic loop. That's a concrete, current example of exactly what this role's MCP requirement is pointing at: MCP isn't just about agents calling arbitrary internal APIs in the abstract, it's specifically becoming the standard way observability tooling itself gets exposed to agentic systems — worth naming directly if asked how Langfuse and MCP intersect in this role.</p>`},
+
+// ---------------- AWS-NATIVE OBSERVABILITY: CLOUDWATCH / X-RAY / CLOUDTRAIL ----------------
+{c:'awsobs', q:"CloudWatch Logs, Metrics, and Alarms — how do the three pieces actually fit together?",
+a:`<p>Logs is the raw event store — application/service log lines shipped in via agents, Lambda's automatic integration, or the CloudWatch agent on EC2. Metrics are numeric time series — either published directly by AWS services automatically, or derived from log data via metric filters (a pattern match on log lines that increments a metric, e.g., counting ERROR lines). Alarms watch a metric against a threshold over an evaluation period and change state (OK/ALARM/INSUFFICIENT_DATA), triggering an action — an SNS notification, an Auto Scaling action, or, relevantly for this role, an FIS stop condition. The chain that actually matters operationally: logs generate metrics, metrics drive alarms, alarms drive automated response.</p>`},
+
+{c:'awsobs', q:"What's CloudWatch Logs Insights, and how do you use it to debug across many log groups at once?",
+a:`<p>It's a purpose-built query language for CloudWatch Logs — you write a query (parse, filter, stats/aggregate, sort) against one or more log groups without needing to export data anywhere first, and it's genuinely fast even against large volumes because it only scans the time range you specify. Practical use: query across every service's log group filtered to a specific request ID or user ID during an incident, or aggregate error counts by error type across a whole fleet of Lambda functions in one query — the alternative of grepping through the console log-group-by-log-group doesn't scale past a handful of services.</p>`},
+
+{c:'awsobs', q:"What's a composite alarm in CloudWatch, and why use one instead of just more single-metric alarms?",
+a:`<p>A composite alarm combines the state of multiple other alarms with AND/OR logic into one higher-level alarm — e.g., only page if both "high latency" AND "high error rate" are simultaneously in ALARM, suppressing the page if just one is noisy on its own. This is a direct tool for the same alert-fatigue problem you'd solve with routing rules elsewhere: instead of getting three separate pages for three related symptoms of the same underlying issue, you get one alarm that actually represents "this is a real problem," with the individual alarms still available for the detailed diagnosis once someone's paged.</p>`},
+
+{c:'awsobs', q:"What's Container Insights, and what does it add over vanilla CloudWatch metrics for ECS/EKS?",
+a:`<p>Vanilla CloudWatch gives you the basics AWS publishes automatically (ECS service CPU/memory at the aggregate level). Container Insights adds container- and pod-level granularity — per-task/per-pod resource usage, cluster-level dashboards, and for EKS specifically, integration with the Kubernetes API to surface node/pod/namespace metrics natively in CloudWatch rather than requiring a separate Prometheus stack just to see that level of detail. It costs extra (it's an opt-in, additional-charge feature) and adds some agent overhead, so the real tradeoff in an interview answer is "when is this worth it over just running kube-state-metrics + Prometheus" — usually when you want everything in one AWS-native pane rather than maintaining a separate OSS observability stack.</p>`},
+
+{c:'awsobs', q:"Explain AWS X-Ray — how does it capture a trace, and what's a segment vs. a subsegment?",
+a:`<p>A segment is the top-level unit of work for one service in a trace — typically one request's full handling within that service, including start/end time and metadata. A subsegment is a nested breakdown within that segment — a specific downstream call (a DynamoDB query, an outbound HTTP call) — giving you a mini-waterfall within the service's own segment, not just a single opaque block. Capture happens via the X-Ray SDK instrumenting your code (or auto-instrumentation for supported AWS services like Lambda/API Gateway), which sends trace data to the X-Ray daemon (a local UDP listener that batches and forwards to the X-Ray API), then X-Ray stitches segments from different services together into one trace using a shared trace ID, and renders the service map showing how everything connects.</p>`},
+
+{c:'awsobs', q:"How does X-Ray sampling work, and why can't you trace 100% of requests at real scale?",
+a:`<p>Tracing every single request adds real overhead (every trace is data you're generating, storing, and paying for) and most requests are "boring" — identical to a thousand others, so full tracing gives diminishing diagnostic value past a certain volume. X-Ray's default sampling rule captures the first request each second plus 5% of any additional requests, but you can define custom sampling rules — e.g., always trace requests with an error status or above a latency threshold (the interesting ones), while sampling routine successful requests much more sparsely. The general principle, same as with metrics cardinality: sample the boring traffic, always capture the anomalous traffic.</p>`},
+
+{c:'awsobs', q:"X-Ray vs. OpenTelemetry — when would you pick native X-Ray vs. an OTel-based approach on AWS?",
+a:`<p>X-Ray is deeply integrated with AWS-native services (Lambda, API Gateway, and others get automatic instrumentation with almost no setup) and is the simplest path if your stack is AWS-native end to end and you don't need portability. OTel is the better choice when you want backend portability (not locked into X-Ray specifically), you're running a genuinely multi-cloud or hybrid environment, or you want one consistent instrumentation approach across services that don't all live on AWS. In practice a lot of AWS shops run both — X-Ray for the AWS-native pieces where it's nearly free to set up, OTel Collector configured with an AWS X-Ray exporter so OTel-instrumented services still land in the same X-Ray service map and traces stay unified rather than split across two disconnected systems.</p>`},
+
+{c:'awsobs', q:"What is CloudTrail, and how is it different from CloudWatch — people often conflate them?",
+a:`<p>CloudTrail answers "who did what, when, from where" — it's an audit log of API calls made against your AWS account (console, CLI, SDK, or another service acting on your behalf), recording the identity, the action, the resource, and the source IP/time, whether or not that action succeeded. CloudWatch answers "what is the system doing right now/over time" — operational metrics, logs, and alarms about resource behavior and performance. The distinction that matters: CloudTrail is fundamentally about accountability and compliance (who changed this security group, who deleted this bucket), CloudWatch is fundamentally about operational health — and GuardDuty's threat detection is actually built on top of CloudTrail data, which is worth naming as the bridge between the two.</p>`},
+
+{c:'awsobs', q:"How would you use CloudTrail with CloudWatch Alarms/EventBridge to react to a risky API call in near-real-time?",
+a:`<p>CloudTrail alone is a log, not an alert — the pattern is to ship CloudTrail events into CloudWatch Logs, define a metric filter matching the specific risky API call (e.g., <code>DeleteTrail</code>, a root account login, a security group ingress rule opened to <code>0.0.0.0/0</code>), and put a CloudWatch Alarm on that metric that fires the moment the pattern occurs — not on a schedule. EventBridge is the more modern, more flexible alternative for the same job: it can match CloudTrail events directly by rule (no metric-filter indirection needed) and fan out to multiple targets — a Lambda for automated remediation, an SNS topic for paging, a Step Functions workflow for a multi-step response — which is generally the better fit when the response needs to be more than "just send a notification."</p>`},
+
+// ---------------- CHAOS ENGINEERING & AWS FIS ----------------
+{c:'chaos', q:"What are the core principles of chaos engineering — steady-state hypothesis, blast radius, and why eventually run in production?",
+a:`<p>You start by defining a steady-state hypothesis — a measurable definition of "normal" (e.g., p99 latency under 300ms, error rate under 0.1%) — then inject a real-world failure and check whether that steady state holds. Blast radius is the deliberate scoping of an experiment's potential damage: start with the smallest possible scope (one instance, a small percentage of a fleet, off-peak hours, non-prod first) and expand only once you have confidence, never start wide. The reason production eventually matters, not just staging: staging rarely has production's real traffic patterns, real data volume, or real inter-service dependencies — some failure modes genuinely only surface under real production conditions, so a mature chaos practice graduates from staging to controlled, blast-radius-limited production experiments rather than stopping at staging forever.</p>`},
+
+{c:'chaos', q:"Walk through the structure of an AWS FIS experiment template.",
+a:`<p>Five core pieces, defined as JSON/YAML: <code>targets</code> (which AWS resources — selected by ID, tag, or filter, with a selection mode like a specific count or percentage), <code>actions</code> (what fault to inject — run in a specified order or simultaneously), <code>stopConditions</code> (CloudWatch alarms that auto-halt the experiment), an experiment <code>roleArn</code> (the IAM role FIS assumes to actually perform the actions on your behalf), and optional experiment report configuration/tags. The template itself doesn't run anything — you create it once, then start an experiment from it, and FIS executes actions against the resolved targets while continuously watching the stop conditions.</p>`},
+
+{c:'chaos', q:"How does FIS actually inject a fault into an EC2 instance for CPU stress or network latency, given FIS itself doesn't run on the instance?",
+a:`<p>For instance-level faults like CPU stress or network latency, FIS doesn't reach into the instance directly — it uses AWS Systems Manager as the execution mechanism: the target instance needs the SSM Agent installed and an IAM instance profile permitting SSM to run commands, and the FIS action is effectively an <code>aws:ssm:send-command</code> action running an SSM document (e.g., a script using <code>stress-ng</code> for CPU/IO load, or a network-impairment tool for latency/packet loss) on the target. For faults that are pure AWS-API-level actions instead — stopping/terminating/rebooting an instance, modifying a security group — FIS calls the relevant AWS API directly and doesn't need SSM at all. Knowing which category a given fault falls into (API-level vs. needs-an-agent-inside-the-instance) is a good signal of real hands-on FIS experience.</p>`},
+
+{c:'chaos', q:"What are stop conditions in FIS, and why are they the single most important safety feature?",
+a:`<p>A stop condition is a CloudWatch alarm wired into the experiment template — if that alarm enters ALARM state while the experiment is running, FIS automatically halts it immediately, before it runs to completion. This is what makes it safe to run chaos experiments against production at all: without it, you're trusting a human to notice things are going badly wrong and manually cancel in time, which doesn't scale and isn't reliable at 2am. The practical setup: point the stop condition at the same steady-state-hypothesis metric you defined upfront (error rate, latency) so the experiment's own safety net is measuring the exact thing you're trying to protect, not a proxy metric that might lag the real damage.</p>`},
+
+{c:'chaos', q:"How would you use FIS to test EKS node failure specifically?",
+a:`<p>FIS has a purpose-built EKS action, <code>aws:eks:terminate-nodegroup-instances</code>, targeting a nodegroup resource and taking an <code>instanceTerminationPercentage</code> parameter — so instead of a blunt "kill one node" test, you can precisely control how much of the nodegroup gets terminated simultaneously (e.g., 30% for a partial, realistic degradation test vs. testing a full nodegroup wipeout). The point of running this isn't just "does Kubernetes reschedule the pods" — it's validating the whole chain: does the cluster autoscaler/Karpenter actually provision replacement capacity fast enough, do pod disruption budgets and readiness probes prevent a thundering-herd reschedule from causing its own outage, and does the service actually stay within its steady-state hypothesis (latency/error rate) throughout, not just eventually recover.</p>`},
+
+{c:'chaos', q:"What's the FIS Scenario Library, and what's an example of a pre-built AWS scenario?",
+a:`<p>AWS ships a library of pre-built, AWS-owned experiment templates for common, realistic failure patterns, so you don't have to hand-build every experiment from scratch — it covers both severe disruptions and partial/"gray failure" scenarios that are actually harder to detect than a clean outage. Examples: "AZ: Power Interruption" simulates a full power loss in one Availability Zone, "Cross-Region: Connectivity" blocks network traffic between regions, and gray-failure scenarios like "AZ: Application Slowdown" or "Cross-AZ: Traffic Slowdown" test whether your monitoring can even detect a degraded-but-not-down AZ — which is often the harder and more realistic case, since a clean AZ failure is exactly what multi-AZ architecture is designed to handle cleanly, while a slow, half-broken AZ is what actually causes confusing incidents.</p>`},
+
+{c:'chaos', q:"Walk through running a full chaos game day end to end.",
+a:`<p>Before the day: define the steady-state hypothesis and the specific failure scenario, get stakeholder sign-off (especially if it touches production), announce a time window to on-call so a real page isn't mistaken for a false alarm, and prepare the FIS experiment template with a stop condition matched to the hypothesis. During: start the experiment, actively watch dashboards in real time rather than treating it as fire-and-forget, and have a manual abort path ready even though the stop condition should catch a real problem automatically. After: compare actual behavior against the hypothesis (did it hold, and if not, exactly where did it break), write up findings the same way you'd write an incident postmortem — specific, blameless, and turned into concrete follow-up tickets — and schedule the next game day rather than treating this as a one-off exercise; the value compounds with regular cadence.</p>`},
+
+{c:'chaos', q:"What IAM permissions does FIS need, and what's the least-privilege way to set that up?",
+a:`<p>FIS needs an experiment IAM role (referenced as <code>roleArn</code> in the template) that it assumes to perform the actions on your behalf — scoped to exactly the actions and resources that specific template uses, not a broad "FIS can do anything" role. For SSM-based actions, that role also needs SSM send-command permissions, and separately the target instances need their own IAM instance profile allowing SSM to execute on them — two different roles serving two different parts of the chain. The least-privilege discipline that matters most in an interview answer: one experiment role per experiment template (or per team/blast-radius scope), not one shared role reused across every chaos experiment in the account, since that shared role becoming compromised or misconfigured would then be able to disrupt anything any experiment ever touched.</p>`},
+
+{c:'chaos', q:"How would you integrate FIS experiments into a CI/CD pipeline for continuous resilience testing?",
+a:`<p>FIS is explicitly designed to support this — the same experiment template you'd run manually can be triggered via API/CLI as a pipeline stage, typically post-deploy against a staging environment (or a canary slice of production) as an automated resilience regression check, not just a manual periodic exercise. The pattern: deploy → run a defined, low-blast-radius FIS experiment (e.g., terminate one instance in the new deployment, inject brief latency to a dependency) → assert the service stayed within its steady-state hypothesis throughout (query the same CloudWatch metrics the stop condition watches) → fail the pipeline if it didn't. This turns "did we regress our resilience" into the same kind of automated gate as a functional test suite, instead of something only checked in an occasional manual game day.</p>`},
+
+{c:'chaos', q:"How do you decide blast radius — what percentage of a fleet to target in an experiment?",
+a:`<p>Start as small as the experiment can meaningfully be and still produce a real signal — one instance or a small percentage (10-20%) of a fleet behind a load balancer, in a low-traffic window, is the standard first step; expand scope and move toward peak-traffic/production only after you've built confidence the system handles the smaller version cleanly. The FIS selection mode (a specific count vs. a percentage) is the mechanical lever, but the judgment call is business-context-driven: a payments or trading-adjacent system (relevant given this JD's "regulated/enterprise-scale" framing) warrants much more conservative blast-radius escalation and more sign-off than an internal tool would, even if the technical experiment is identical.</p>`},
+
+{c:'chaos', q:"How is AWS FIS different from third-party chaos tools like Gremlin or Chaos Mesh, and when would you still want one of those alongside FIS?",
+a:`<p>FIS is fully managed (no chaos-tooling infrastructure to run yourself), deeply integrated with AWS-native stop conditions/IAM/CloudWatch, and has purpose-built actions for AWS resources (EC2, ECS, EKS nodegroups, RDS) — the natural default if you're AWS-native end to end. Chaos Mesh is Kubernetes-native and gives finer-grained, K8s-object-level fault injection (pod kill, network partition between specific pods, I/O faults inside a container) that's more precise than FIS's coarser EKS nodegroup-level actions when the fault you care about is really about Kubernetes scheduling/networking behavior specifically rather than the underlying AWS infrastructure. Gremlin adds a curated experiment library and cross-cloud/on-prem consistency if your environment isn't AWS-only. Realistic answer for an AWS-centric, FIS-focused role like this one: FIS as the primary tool since it's what's explicitly required, with awareness that Chaos Mesh is the natural complement specifically for pod/network-level Kubernetes fault injection FIS doesn't cover as precisely.</p>`},
+
+// ---------------- INCIDENT MANAGEMENT, RCA & RELIABILITY ENGINEERING ----------------
+{c:'incident', q:"Walk through a blameless postmortem — what makes it \"blameless\" in practice, not just in name?",
+a:`<p>In practice, not just in name, means the write-up focuses on system and process conditions that allowed a mistake to happen — missing safeguards, unclear runbooks, alert gaps, ambiguous ownership — rather than framing it as "person X made an error." The concrete test: could this document be read aloud with the person who made the triggering action in the room, without it feeling like an accusation? If the timeline reads "the engineer incorrectly ran command Y" instead of "the deploy process allowed command Y to run against production without a confirmation step," it's not actually blameless yet, regardless of the label on the document. The reason this matters practically, not just culturally: blame-focused postmortems make people hide mistakes and slow-walk incident reporting, which is strictly worse for reliability than the occasional honest mistake.</p>`},
+
+{c:'incident', q:"What's the Five Whys technique, and what's its actual failure mode when used badly?",
+a:`<p>You ask "why did this happen" repeatedly, each answer prompting the next "why," until you reach a root cause rather than stopping at the first, most-visible symptom. The common failure mode: it's easy to stop too early (three whys instead of five, landing on a comfortable-sounding but still-surface-level cause) or to follow a single linear chain when the real cause is actually several contributing factors intersecting at once — a Five Whys done as a strict single chain can produce a confident-sounding but incomplete or even wrong root cause. Treating it as a starting structure for the investigation rather than a rigid algorithm you must complete exactly five times is the practical fix.</p>`},
+
+{c:'incident', q:"What's the role of an incident commander, and why separate that from \"the person fixing it\"?",
+a:`<p>The incident commander owns coordination — keeping the timeline, deciding on the response strategy, managing communication to stakeholders, and deciding when to pull in more people — deliberately not the same person doing the hands-on technical fix. The reason to separate the roles: someone deep in debugging a hard technical problem is the worst-positioned person to also be tracking who's been notified, whether the customer-facing status page needs updating, or whether this needs to escalate — task-switching between "deep technical focus" and "coordination and communication" degrades both. At smaller scale one person sometimes does both, but the moment an incident runs long or involves multiple teams, splitting the roles is what keeps the response from falling apart.</p>`},
+
+{c:'incident', q:"How do you decide severity/priority for an incident, and who gets paged for what?",
+a:`<p>Severity should map to actual user/business impact, not to how technically interesting or scary the underlying problem looks — a fully-down payment flow is a higher severity than an internal admin dashboard being slow, even if the admin-dashboard bug is the more technically novel one. Practical tiers: Sev1 (full outage or major customer-facing impact, page immediately, incident commander engaged), Sev2 (degraded but not down, page the owning team, no IC needed by default), Sev3 (minor/internal-only impact, ticket during business hours, no page). The design goal for the paging policy itself is the same alert-fatigue principle as anywhere else — only Sev1/Sev2 should ever page a human at 2am, or the on-call rotation burns out and starts ignoring real pages.</p>`},
+
+{c:'incident', q:"What's the difference between a root cause and a contributing factor, and why does that distinction matter for the fix you ship?",
+a:`<p>A root cause is the underlying condition that, if it hadn't been true, the incident wouldn't have happened at all — the necessary trigger. A contributing factor made the incident worse, harder to detect, or slower to resolve, but wasn't itself the reason it started — e.g., a bad deploy is the root cause of an outage, but a missing alert on the affected metric is a contributing factor that made it take 40 minutes to notice instead of 2. It matters because a postmortem that only fixes the root cause (add a canary check before the deploy stage) but ignores contributing factors (still no alert on that metric) leaves the system just as slow to detect the next, different root cause — real reliability improvement usually means fixing both categories, not just the one that directly triggered this specific incident.</p>`},
+
+{c:'incident', q:"How do you turn a postmortem into an actual reliability improvement rather than a document that sits in a wiki?",
+a:`<p>Every postmortem should produce concrete, owned, tracked action items — not a vague "improve monitoring" bullet, but a specific ticket with an owner and a deadline ("add a CloudWatch alarm on X metric, owner: Y, due: Z"). The mechanism that actually makes this stick: review open postmortem action items in a recurring forum (a weekly reliability/ops review) so they don't silently rot in a backlog behind feature work, and track a metric like "% of postmortem action items closed within N weeks" as a team health signal in its own right. Without that follow-through loop, blameless postmortems become a ritual that generates paperwork but doesn't actually reduce the recurrence rate of similar incidents.</p>`},
+
+// ---------------- MCP & MULTI-AGENT DEPTH (expanding AI/LLM section) ----------------
+{c:'ai', q:"Walk through MCP's architecture — host, client, server, and the transport options.",
+a:`<p>Three roles: the host is the application the user actually interacts with (an IDE, an agent runtime); the client lives inside the host and manages a 1:1 connection to a specific server; the server exposes tools, resources, and prompts over that connection, implemented independently of any particular host. A host can run multiple clients simultaneously, each talking to a different server, which is what lets one agent draw on several independent tool providers at once. Transport-wise, stdio is the standard choice for a server running locally on the same machine as the host (simple, no network exposure), while HTTP-based transports (Streamable HTTP, and the older HTTP+SSE) are for a server running remotely — which is the shape that matters for a platform role, since exposing an internal service (Langfuse, CloudWatch) as an MCP server to shared agents means running it as a proper remote, authenticated service, not a local process.</p>`},
+
+{c:'ai', q:"How would you design and secure an MCP server that exposes internal observability data to an agent?",
+a:`<p>Same platform-engineering instincts as exposing any internal API, applied to a new interface shape: authenticate the connection (don't run an unauthenticated remote MCP server), scope what tools it exposes tightly to read-only observability queries rather than a broad "run any query" capability, and rate-limit/log every tool invocation the same way you'd log any other API call — since from an audit perspective, "an agent queried production CloudWatch data" is exactly as auditable an event as "a person did." The specific new risk MCP introduces versus a normal internal API: tool descriptions and outputs become part of the agent's context, so a compromised or badly-designed server could try to inject instructions into that context — treat what a tool returns as untrusted input to the agent, the same way you'd treat any other external, potentially-adversarial data source.</p>`},
+
+{c:'ai', q:"Compare multi-agent orchestration frameworks — LangGraph, CrewAI, AutoGen/Semantic Kernel — at a conceptual level.",
+a:`<p>The core difference is how much structure they impose on coordination. LangGraph models the whole multi-agent flow as an explicit state graph — nodes and edges you define, with full control over routing, conditionals, and loops — the most control, the most upfront design work. CrewAI leans toward a role-based abstraction (define agents with roles/goals/tools, assign them tasks, let a process type like sequential or hierarchical handle coordination) — faster to stand something up, less fine-grained control. AutoGen and Semantic Kernel lean toward conversational, message-passing coordination between agents, closer to how a human team might hand work back and forth. None of these is objectively best — it's a real fit question, and the honest answer given this JD's "familiarity" bar is naming the tradeoff correctly rather than claiming deep production experience with all of them.</p>`},
+
+{c:'ai', q:"What's a supervisor/orchestrator pattern in multi-agent systems, and why do most production designs end up needing one?",
+a:`<p>Instead of peer agents freely deciding amongst themselves who does what next, a supervisor agent owns the routing decision — it receives the task, decides which specialist agent (or tool) handles the next step, and evaluates whether the result is good enough to move on or needs another pass. Fully decentralized peer-to-peer agent coordination sounds appealing but tends to break down in practice — no clear point of accountability when something goes wrong, harder to bound cost/scope (nothing is centrally deciding "we've done enough"), and much harder to observe/trace cleanly. A supervisor pattern gives you a natural place to enforce the same guardrails discussed elsewhere in this JD — budget caps, action allowlists, a single point where a human-in-the-loop check can be inserted — which is exactly why most production multi-agent systems converge on some version of it even when the initial design was fully decentralized.</p>`},
+
+{c:'ai', q:"If an MCP tool call returns malicious or misleading content, what's actually at risk, and how do you defend against it?",
+a:`<p>What's at risk isn't the tool call itself — it's that the tool's output becomes part of the agent's context for its next decision, so misleading or injected content in a tool result can steer the agent's subsequent actions (a classic indirect prompt-injection path, just via a tool response instead of a webpage or document). Defense is layered, not a single fix: treat every tool output as untrusted data rather than trusted instructions (don't let content returned by a tool silently expand what the agent is willing to do next), constrain what actions are actually reachable regardless of what the agent is told to do (the allowlist/guardrail pattern again), and log tool inputs/outputs so a compromised or misbehaving tool is something you can actually detect and trace after the fact rather than something invisible.</p>`},
+
+// ---------------- TERRAFORM & EKS MODULE DESIGN (panel-specific additions) ----------------
+{src:'gaurav', c:'cicd', q:"Walk through your Terraform experience — were you mainly creating modules, or consuming/extending built-in and community ones?",
+a:`<p>Answer this precisely rather than defensively — both are legitimate, real Terraform experience, and a panel asking this is usually gauging depth, not trying to catch you out. If your real experience is mostly consuming and configuring existing modules (community modules like <code>terraform-aws-modules/eks/aws</code>, or an internal org module), say that plainly and go one level deeper: which inputs you were actually tuning, what you had to debug when a module's defaults didn't fit your case, any time you forked or patched a module to add missing functionality — that's genuine depth even without having authored a module from a blank file. If you have authored modules from scratch, walk through one concretely: what it provisioned, why it needed to be a module rather than inline resources, and how you versioned and tested it. The weak answer either way is a vague "yes I've used Terraform a lot" with no specifics.</p>`},
+
+{src:'gaurav', c:'cicd', q:"How would you design a Terraform EKS module from scratch — what would you implement, step by step?",
+a:`<p>Break it into the resources an EKS cluster actually needs, roughly in dependency order: the control plane itself (<code>aws_eks_cluster</code>, pointing at VPC/subnet inputs and an IAM role with the cluster policy attached); an OIDC identity provider (<code>aws_iam_openid_connect_provider</code>) tied to the cluster's own OIDC issuer — this is what makes IRSA possible for every workload that comes after; node compute, either managed node groups (<code>aws_eks_node_group</code>) or Fargate profiles, each with their own IAM role and worker policies; cluster security group rules controlling control-plane-to-node traffic; and the core add-ons — VPC CNI, CoreDNS, kube-proxy, typically the EBS/EFS CSI driver — as <code>aws_eks_addon</code> resources. The module should accept VPC/subnet IDs as inputs rather than creating networking itself (that's a separate module's job), and must expose the cluster endpoint, CA data, and OIDC provider ARN as outputs, since every downstream IRSA role a consuming team creates needs that exact OIDC ARN.</p>`},
+
+{src:'gaurav', c:'cicd', q:"How would you structure the actual Terraform code/file layout for an EKS module to keep it clean and reusable?",
+a:`<p>Standard module layout: <code>main.tf</code> for the core resources, <code>variables.tf</code> for inputs with sensible defaults and validation blocks where it matters (e.g., validating the Kubernetes version against a supported list), <code>outputs.tf</code> for what downstream consumers need, <code>versions.tf</code> pinning Terraform and AWS provider version constraints. Split node groups into their own file if you're supporting multiple node group definitions via a <code>for_each</code> over a variable — the pattern that scales best when different teams need different instance types or scaling configs from the same module. Keep add-ons in their own file so core cluster-provisioning logic isn't tangled with what's really cluster configuration. A README with a real usage example belongs in the module too — reviewers and future consumers use it as the actual reference more than they read variable descriptions.</p>`},
+
+{src:'gaurav', c:'cicd', q:"Once the EKS module is defined, how would you actually use it to create a cluster?",
+a:`<pre><code>module "eks" {
+  source          = "./modules/eks"
+  cluster_name    = "prod-platform"
+  cluster_version = "1.31"
+  vpc_id          = module.networking.vpc_id
+  subnet_ids      = module.networking.private_subnet_ids
+  node_groups = {
+    general = { instance_types = ["m6i.large"], min_size = 2, max_size = 6 }
+  }
+}</code></pre><p>The point worth making out loud: the EKS module shouldn't know or care how the VPC was created — it just takes subnet IDs as input — which is exactly what makes it reusable across environments where networking might be provisioned completely differently (a shared VPC in one account, a per-environment VPC in another).</p>`},
+
+{src:'gaurav', c:'cicd', q:"What inputs/variables would you expose to make an EKS module genuinely reusable across environments, not parameterized in name only?",
+a:`<p>The test for "genuinely reusable" is whether dev/staging/prod can all consume the exact same module with just different variable values, no forking. At minimum: cluster name and Kubernetes version, VPC/subnet IDs (never created inside the module), a map/list for node groups so the number and shape of node groups isn't hardcoded, tags as a map for consistent-but-environment-specific cost/ownership tagging, and toggles for optional add-ons. The anti-pattern to avoid: a module with forty rarely-changed inputs because everything was made "configurable" defensively — that's actually harder to consume safely than a smaller set of genuinely-necessary inputs with good defaults for the rest.</p>`},
+
+{src:'gaurav', c:'cicd', q:"What outputs does an EKS module need to expose, and why do downstream consumers actually need them?",
+a:`<p>Cluster endpoint and certificate authority data — needed by anything configuring a Kubernetes/Helm provider against the cluster, including a separate Terraform stack managing in-cluster resources. The OIDC provider ARN and issuer URL — the one people forget, and then can't create IRSA roles for workloads without circling back to add it, since every "assume role from this specific service account" trust policy needs that exact ARN. Cluster security group ID — needed if other Terraform-managed resources (an RDS instance, a Lambda in the same VPC) need a rule allowing traffic from the cluster. General principle: output anything a different Terraform stack would otherwise have to re-derive with a data source or, worse, hardcode.</p>`},
+
+{src:'gaurav', c:'cicd', q:"How would you test or validate a Terraform module before it's trusted to provision a real cluster?",
+a:`<p><code>terraform validate</code> plus a linter (tflint with the AWS ruleset) catch syntax and obvious misconfigurations for free in CI on every PR. Beyond that, a real <code>terraform plan</code>/<code>apply</code> cycle against a disposable test environment is the validation that actually matters — apply it, confirm the cluster comes up and nodes join, tear it down, ideally automated so it runs on every module change rather than being a manual step someone forgets. Terratest or the native Terraform test framework (<code>.tftest.hcl</code>) let you assert specific outcomes programmatically rather than just "did apply succeed." For a module other teams will consume, a working example directory that's itself part of the CI test matrix is worth more in practice than most unit-test-style assertions, since it's testing the thing people will actually copy from.</p>`},
+
+{src:'gaurav', c:'cicd', q:"terraform-aws-modules/eks/aws vs. building your own EKS module from scratch — how do you decide?",
+a:`<p>The community module is battle-tested across a huge number of real deployments, handles AWS API edge cases you'd otherwise discover the hard way, and gets updated quickly when EKS itself changes — genuinely hard to justify not starting there for most teams. The case for building your own: you need behavior the community module doesn't support well, you want a much smaller surface area than a general-purpose module carries (easier to audit for a regulated environment), or you want the module's defaults to encode your org's specific security baseline rather than generic ones. A common, worth-naming middle ground: wrap the community module inside a thin internal module that pins specific defaults and exposes a smaller, opinionated interface — the battle-tested internals without every team having to independently get all forty of its inputs right.</p>`},
+
+// ---------------- ECS→EKS MIGRATION & OBSERVABILITY SETUP (panel-specific additions) ----------------
+{src:'gaurav', c:'migration', q:"You need to migrate observability — logs, metrics, and traces — from ECS to EKS, where all three are currently working. What's your strategy?",
+a:`<p>Map each signal's ECS mechanism to its EKS equivalent before touching anything, since the collection model changes even when the destination doesn't have to: ECS logs typically flow via the <code>awslogs</code> driver straight to CloudWatch per task — on EKS that becomes a Fluent Bit DaemonSet reading container log files off each node, since there's no equivalent built-in driver at the pod level. ECS Container Insights maps to Container Insights for EKS or a Prometheus stack — a materially different collection model since EKS metrics are typically scraped rather than pushed. An X-Ray daemon sidecar-per-task on ECS becomes a DaemonSet or an ADOT Collector on EKS. The safe rollout: stand up the EKS-side pipeline and run it in parallel with the still-live ECS pipeline, validate dashboard/alert parity against real production traffic for a defined window, then cut over and decommission the ECS-side collection — never migrate the workload and the observability pipeline in the same step, or you're flying blind exactly when visibility matters most.</p>`},
+
+{src:'gaurav', c:'migration', q:"The EKS cluster is ready and you're logged in. What's the first step to set up observability from scratch, and what order do you build it in?",
+a:`<p>Metrics-server first, even before anything else — it's what <code>kubectl top</code> and the HPA depend on, and it's a five-minute install that unblocks basic visibility immediately. Next, the metrics pipeline proper: Container Insights if staying AWS-native, or kube-prometheus-stack if you want the Prometheus/Grafana ecosystem — the foundation everything else layers on. Then logging: a Fluent Bit DaemonSet, since without it you can't debug anything that's about to go wrong in the next steps. Then tracing, if the workload needs it: an OTel/ADOT DaemonSet. Dashboards come after the data sources exist, not before — a dashboard built against a metric that isn't flowing yet just produces a blank panel and false confidence. Alerting comes deliberately last: you need to trust the signal before you start paging anyone off it, or the first week of a new stack is mostly false pages teaching people to ignore it.</p>`},
+
+{src:'gaurav', c:'migration', q:"You open the dashboard — Grafana, Splunk, Datadog — and it's blank, no data. How do you troubleshoot this from the EKS side?",
+a:`<p>Work from the source outward rather than assuming the whole pipeline is broken. First: is the collector/agent actually running — <code>kubectl get pods</code> in the observability namespace; a CrashLoopBackOff or zero pods scheduled (a node selector/taint mismatch) explains a fully blank dashboard immediately. If pods are running, check the collector's own logs next — the step people skip, jumping straight to "is the query wrong" — permission-denied or connection-refused errors there tell you exactly where it's stuck: an RBAC/ServiceAccount gap, or a NetworkPolicy/security group blocking egress to the destination. If the collector's logs look clean, verify at the actual source next — is the app even emitting the metric/log line, checked directly with <code>kubectl logs</code> on the app pod, bypassing the pipeline entirely. Only once emission, collection, and transport are all confirmed working do you look at the dashboard/query itself — a metric name that changed, a label filter that no longer matches, or simply the wrong time range.</p>`},
+
+{src:'gaurav', c:'migration', q:"How is validating observability parity during a migration different from just building it fresh?",
+a:`<p>Building fresh, you're only checking "does data show up." Validating parity during a migration means checking the new pipeline produces the same operational picture the old one did, under real traffic — the same alert thresholds firing under the same conditions, dashboards showing consistent numbers for the same time windows, accounting for genuinely different units/aggregation between the two systems (a real trap — ECS Container Insights and a Prometheus-based EKS setup can report memory slightly differently depending on what's counted). Run both pipelines in parallel long enough to see a real incident-shaped spike, not just steady state — a pipeline that looks fine at idle can still miss data or lag during exactly the traffic pattern where observability matters most. Only decommission the old pipeline once an actual alert or incident has been compared side by side across both systems, not just eyeballed that both dashboards have numbers on them.</p>`},
+
+{src:'gaurav', c:'migration', q:"Have you handled a migration project end to end — on-prem to cloud, ECS to EKS, Azure to AWS? What responsibilities did you actually own?",
+a:`<p>This is a scope-and-ownership question as much as a technical one, so answer precisely about what you actually owned versus what you were part of. If you led migration planning, be specific about sequencing (what moved first and why — usually stateless/lower-risk services before stateful/critical ones), how the cutover itself worked (a hard cutover vs. a parallel-run-then-switch, and why), and what broke that wasn't anticipated — a real migration story always has at least one genuine surprise, and naming it convincingly separates a real account from a rehearsed one. If your role was more focused — you owned the observability piece of a larger migration, say, rather than the whole program — say that plainly rather than implying broader ownership; a precise, honestly-scoped answer about the piece you actually owned holds up far better under follow-up than a vague claim to the whole project.</p>`},
+
+// ---------------- AUTOMATION ADDITIONS ----------------
+{src:'gaurav', c:'py', q:"Give an example of Lambda-based automation for an operational problem, and how it's different from a script you'd just run manually.",
+a:`<p>The shape that matters is event-driven, not scheduled-and-forgotten: a Lambda triggered by an EventBridge rule reacting to a specific event (a CloudTrail-sourced security-group change, an FIS experiment's alarm firing, an S3 upload) rather than a cron job polling on a schedule, since reacting to the actual event is both faster and cheaper. A concrete example: a Lambda subscribed to an EventBridge rule matching an EC2 instance-unhealthy state change, which automatically tags the instance for investigation, posts context to Slack, and — if it matches a known-safe pattern — triggers remediation, all within seconds rather than waiting for a human to notice a dashboard. The genuinely different engineering concern versus a manual script: Lambda executions are stateless and can be triggered concurrently, so idempotency isn't optional — EventBridge's at-least-once delivery makes "the same event arrives twice" a real, not theoretical, scenario the automation has to handle safely.</p>`},
+
+{src:'gaurav', c:'py', q:"How do you honestly frame the productivity impact of automation you've built, without just throwing out an unverifiable percentage?",
+a:`<p>The credible version ties the claim to something concrete and checkable rather than a bare number: "this used to be a 45-minute manual runbook step done by whoever was on-call, now it's a single Lambda invocation that runs in under a minute and doesn't depend on someone remembering the exact steps" is a specific, believable claim an interviewer can follow up on naturally. A bare "this saved 80% of the time" with nothing underneath it invites exactly the follow-up question that's hardest to answer well if the number wasn't something actually tracked. If there genuinely isn't a hard measured number for a piece of automation, it's stronger to describe the qualitative change — eliminated a category of human error, freed the on-call person from a repetitive task during an incident — than to reach for a number that isn't real.</p>`},
+
+// ---------------- OPENING / INTRO FRAMING ----------------
+{src:'gaurav', c:'beh', q:"How would you approach the \"introduce yourself, focusing on infrastructure deployment and observability\" opener?",
+a:`<p>Structure it as a short arc, not a chronological resume read-through: where your depth actually is today (lead with infra deployment and observability specifically, since that's what's being asked for, not a generic career summary), one or two concrete anchor points that back that up (a system you built or operated, a migration you were part of), and where you're currently focused — landing on why this specific role's shape fits that trajectory rather than reading as any open req. Keep it under two minutes — the moment it turns into a full resume narration, panels start checking email; a tight frame here lets their follow-up questions pull out the specific depth they actually want to probe.</p>`},
+];
+
+// ---- render + interaction ----
+const app = document.getElementById('app');
+const pillRow = document.getElementById('pillRow');
+const tabBar = document.getElementById('tabBar');
+const searchInput = document.getElementById('searchInput');
+const unreviewedToggle = document.getElementById('unreviewedToggle');
+const resetBtn = document.getElementById('resetProgress');
+const progressFill = document.getElementById('progressFill');
+const progressLabel = document.getElementById('progressLabel');
+
+let mastered = new Set();
+let activeCat = 'all';
+let activeTab = 'main';
+let unreviewedOnly = false;
+let storageOk = true;
+
+function catInfo(key){ return CATS.find(c => c.key === key); }
+
+function tabItems(){
+  return activeTab === 'gaurav' ? Q.filter(i => i.src === 'gaurav') : Q;
+}
+
+function buildTabs(){
+  const gauravCount = Q.filter(i => i.src === 'gaurav').length;
+  tabBar.innerHTML = `
+    <button class="tab-btn active" data-tab="main">Full Handbook <span class="count">(${Q.length})</span></button>
+    <button class="tab-btn" data-tab="gaurav">Gaurav <span class="count">(${gauravCount})</span></button>
+  `;
+  tabBar.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.tab === activeTab) return;
+      activeTab = btn.dataset.tab;
+      activeCat = 'all';
+      tabBar.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      buildPills();
+      render();
+    });
+  });
+}
+
+function buildPills(){
+  const base = tabItems();
+  const counts = {};
+  base.forEach(item => counts[item.c] = (counts[item.c]||0) + 1);
+  let html = `<button class="pill active" data-cat="all" style="background:var(--accent);color:#04140a;">All (${base.length})</button>`;
+  CATS.forEach(cat => {
+    if (!counts[cat.key]) return;
+    html += `<button class="pill" data-cat="${cat.key}" style="border-color:${cat.color}88;">${cat.label} (${counts[cat.key]})</button>`;
+  });
+  pillRow.innerHTML = html;
+  pillRow.querySelectorAll('.pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCat = btn.dataset.cat;
+      pillRow.querySelectorAll('.pill').forEach(b => {
+        const isActive = b === btn;
+        b.classList.toggle('active', isActive);
+        const c = b.dataset.cat === 'all' ? null : catInfo(b.dataset.cat).color;
+        b.style.background = isActive ? (c || 'var(--accent)') : 'var(--card)';
+        b.style.color = isActive ? '#04140a' : 'var(--text-dim)';
+      });
+      render();
+    });
+  });
+}
+
+function render(){
+  const term = searchInput.value.trim().toLowerCase();
+  let items = tabItems().map((item) => ({...item, idx: Q.indexOf(item)}));
+  if (activeCat !== 'all') items = items.filter(i => i.c === activeCat);
+  if (unreviewedOnly) items = items.filter(i => !mastered.has(i.idx));
+  if (term) items = items.filter(i =>
+    i.q.toLowerCase().includes(term) || i.a.toLowerCase().includes(term)
+  );
+
+  if (items.length === 0){
+    app.innerHTML = `<div class="empty-state">No questions match. Try clearing the search or filter.</div>`;
+  } else {
+    let bySection = {};
+    items.forEach(i => { (bySection[i.c] = bySection[i.c] || []).push(i); });
+    let html = '';
+    if (activeTab === 'gaurav'){
+      html += `<div class="tab-caption">Panel-style questions shared by Gaurav Gupta for this same process — Terraform &amp; EKS module design, ECS→EKS migration &amp; observability setup, plus a couple of automation/opener additions. Grouped by topic below.</div>`;
+    }
+    CATS.forEach(cat => {
+      const list = bySection[cat.key];
+      if (!list || !list.length) return;
+      html += `<div class="section-block"><div class="section-title"><span class="section-dot" style="background:${cat.color}"></span>${cat.label}</div>`;
+      list.forEach(item => {
+        const isMastered = mastered.has(item.idx);
+        html += `<div class="card ${isMastered?'mastered':''}" style="border-left-color:${cat.color}">
+          <div class="card-top">
+            <span class="tag" style="background:${cat.color}22;color:${cat.color}">${cat.label}</span>
+            <span class="mastery">
+              <input type="checkbox" id="m${item.idx}" data-idx="${item.idx}" ${isMastered?'checked':''}>
+              <label for="m${item.idx}">mastered</label>
+            </span>
+          </div>
+          <div class="q">${item.q}</div>
+          <div class="a">${item.a}</div>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+    app.innerHTML = html;
+    app.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', () => toggleMastery(parseInt(cb.dataset.idx)));
+    });
+  }
+  updateProgress();
+}
+
+function updateProgress(){
+  const pct = Q.length ? Math.round((mastered.size / Q.length) * 100) : 0;
+  progressFill.style.width = pct + '%';
+  progressLabel.textContent = `${mastered.size} / ${Q.length} mastered (${pct}%)`;
+}
+
+async function toggleMastery(idx){
+  if (mastered.has(idx)) mastered.delete(idx); else mastered.add(idx);
+  updateProgress();
+  const card = document.getElementById('m'+idx)?.closest('.card');
+  if (card) card.classList.toggle('mastered', mastered.has(idx));
+  await saveMastery();
+}
+
+async function saveMastery(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(Array.from(mastered)), false);
+  }catch(e){ storageOk = false; console.error('storage save failed', e); }
+}
+
+async function loadMastery(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if (res && res.value){
+      const arr = JSON.parse(res.value);
+      mastered = new Set(arr);
+    }
+  }catch(e){ /* no saved state yet, or storage unavailable — start fresh */ }
+  render();
+}
+
+searchInput.addEventListener('input', render);
+unreviewedToggle.addEventListener('click', () => {
+  unreviewedOnly = !unreviewedOnly;
+  unreviewedToggle.classList.toggle('on', unreviewedOnly);
+  unreviewedToggle.textContent = unreviewedOnly ? 'Showing unreviewed only' : 'Show unreviewed only';
+  render();
+});
+resetBtn.addEventListener('click', async () => {
+  if (!confirm('Clear all mastery progress on this device?')) return;
+  mastered = new Set();
+  await saveMastery();
+  render();
+});
+
+buildTabs();
+buildPills();
+loadMastery();
+</script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps — Complete Interview Guide</title>
+<style>
+:root{
+  --ink:#1b2430; --sub:#5a6472; --line:#e3e7ec; --bg:#f7f8fa; --card:#ffffff;
+  --accent:#2454a6; --accent-soft:#e9f0fc;
+  --scn:#a3441e; --scn-soft:#fbe9e0;
+  --qa:#1a6b6b; --qa-soft:#e2f2f2;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+header{background:var(--ink);color:#fff;padding:22px 24px 18px;}
+header h1{margin:0 0 4px;font-size:22px}
+header p{margin:0;color:#b9c2cd;font-size:13.5px}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px 60px}
+nav{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;margin-bottom:18px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;max-width:980px;margin:0 auto;padding:0 16px}
+.tab{border:1px solid var(--line);background:#fff;color:var(--sub);padding:8px 12px;border-radius:20px;font-size:12.5px;cursor:pointer;font-weight:600;white-space:nowrap}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.searchbar{max-width:980px;margin:12px auto 0;padding:0 16px}
+.searchbar input{width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--line);font-size:14px;background:#fff}
+section.pg{display:none}
+section.pg.active{display:block}
+.blk{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.blk h2{margin:0 0 12px;font-size:17px}
+.factrow{display:flex;gap:14px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.factrow:last-child{border-bottom:none}
+.factrow b{min-width:110px;flex:0 0 110px;color:var(--accent);font-weight:700;font-size:13px;padding-top:1px}
+ul.plain{margin:6px 0 0;padding-left:20px;font-size:14.5px;line-height:1.55}
+ul.plain li{margin-bottom:7px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.cbar{display:flex;align-items:flex-start;gap:12px;padding:14px 16px}
+.badge{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.4px;padding:4px 8px;border-radius:6px;text-transform:uppercase;margin-top:2px}
+.b-scn{background:var(--scn-soft);color:var(--scn)}
+.b-qa{background:var(--qa-soft);color:var(--qa)}
+.mark{flex:0 0 20px;width:20px;height:20px;border:2px solid var(--line);border-radius:6px;margin-left:auto;margin-top:2px;cursor:pointer}
+.mark.done{background:var(--accent);border-color:var(--accent);position:relative}
+.mark.done:after{content:'✓';position:absolute;inset:0;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center}
+.cbody{flex:1;min-width:0}
+.ctitle{font-weight:700;font-size:15px;margin:0 0 3px}
+.cdetail{padding:0 16px 16px 16px;border-top:1px solid var(--line)}
+.qprompt{background:#f2f4f6;border-radius:8px;padding:10px 13px;font-size:13.5px;color:var(--sub);margin:12px 0;font-style:italic}
+.seg{margin-bottom:11px}
+.seg h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--accent)}
+.seg p{margin:0;font-size:14.5px;line-height:1.6}
+.answerbox{background:#f4f7fb;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;margin-top:8px}
+.alabel{font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:5px}
+.answerbox p{font-size:15px;line-height:1.65;margin:0;color:var(--ink)}
+.answerbox ul{margin:0;padding-left:20px}
+.answerbox ul li{font-size:15px;line-height:1.6;margin-bottom:7px;color:var(--ink)}
+.answerbox ul li:last-child{margin-bottom:0}
+.codeblock{background:#161b22;color:#c9d1d9;border-radius:8px;padding:12px 14px;margin-top:8px;overflow-x:auto;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:12.5px;line-height:1.55;white-space:pre-wrap}
+.hint{background:var(--accent-soft);border:1px solid #c3d4f2;border-radius:10px;padding:12px 14px;font-size:13.5px;color:#1a3a68;margin-bottom:16px;line-height:1.5}
+.cs-table{width:100%;border-collapse:collapse;margin-bottom:20px}
+.cs-table td{padding:8px 10px;font-size:13.5px;border-bottom:1px solid var(--line);vertical-align:top}
+.cs-table td:first-child{font-family:var(--mono);font-weight:700;color:var(--accent);white-space:nowrap;width:230px}
+.progresswrap{max-width:980px;margin:0 auto;padding:14px 16px 0}
+.pbartrack{height:6px;background:var(--line);border-radius:4px;overflow:hidden}
+.pbarfill{height:100%;background:var(--accent);width:0%}
+.ptext{font-size:12px;color:var(--sub);margin-top:5px}
+.lifecyclegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+.lcbox{border:1.5px solid var(--accent);border-radius:8px;padding:8px 10px;background:var(--accent-soft)}
+.lcbox b{display:block;font-size:12.5px;color:var(--accent);margin-bottom:3px}
+.lcbox span{font-size:11.5px;color:var(--sub);line-height:1.4}
+@media(max-width:640px){.lifecyclegrid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>DevOps — Complete Interview Guide</h1>
+  <p>General-purpose master reference: culture, VCS, CI/CD, IaC, containers/K8s, config mgmt, GitOps, cloud, monitoring, DevSecOps, SRE, scripting, and process</p>
+</header>
+
+<div class="progresswrap">
+  <div class="pbartrack"><div class="pbarfill" id="pbarfill"></div></div>
+  <div class="ptext" id="ptext">0 of 0 reviewed</div>
+</div>
+
+<nav><div class="tabs" id="tabs"></div></nav>
+<div class="searchbar"><input id="search" placeholder="Search all questions and answers…"></div>
+
+<div class="wrap" id="pages"></div>
+
+<script id="data" type="application/json">{"overview": {"intro": "This is a general-purpose DevOps interview reference, not tied to one company's JD — built because most interviewers, regardless of the specific role, probe the same underlying DevOps lifecycle: how code gets from a developer's laptop to production safely, repeatably, and observably. Use this as the master reference; your company-specific guides layer on top of this foundation.", "what_they_test": ["Whether you understand DevOps as an end-to-end process (culture + practices + tools), not just a toolchain you can name.", "Depth in at least one area per lifecycle stage (source control, CI/CD, IaC, containers, monitoring) rather than shallow familiarity everywhere.", "Whether you can explain *why* a practice exists (e.g. why trunk-based development, why immutable infrastructure) not just *what* it is.", "Practical, hands-on fluency — most interviewers will ask you to write or read a config/script/manifest live, not just define terms.", "Process maturity: release management, rollback strategy, and incident response are process questions as much as technical ones."], "lifecycle": [["Plan", "Requirements, backlog, sprint planning — Agile ceremonies feed into what gets built next."], ["Code", "Version control, branching strategy, code review — the first quality gate."], ["Build", "Compile/package the artifact, run unit tests, static analysis — CI's core job."], ["Test", "Automated test suites (unit, integration, security scans) gating promotion to the next stage."], ["Release", "Artifact versioning, approval gates, release notes — deciding *what* ships and *when*."], ["Deploy", "Actually shipping to an environment — the deployment strategy (rolling/blue-green/canary) lives here."], ["Operate", "Running it in production — infrastructure, scaling, configuration."], ["Monitor", "Observability, alerting, SLIs/SLOs — closing the loop back into Plan via incident learnings."]]}, "culture": [["What is DevOps, in your own words?", "DevOps is a culture and set of practices that removes the traditional wall between development and operations, so the same people (or tightly collaborating teams) who build software are also accountable for running it reliably in production. The tooling (CI/CD, IaC, containers) is what makes that culture practical at scale — but the tools are a means, not the definition."], ["Explain the CALMS framework.", "Culture (shared ownership between dev and ops, blameless learning), Automation (removing manual toil from the delivery pipeline), Lean (small batch sizes, fast feedback, eliminating waste), Measurement (data-driven decisions — deployment frequency, MTTR, change failure rate), Sharing (knowledge and tooling shared across teams rather than siloed) — a useful framework for describing what 'good DevOps' actually looks like beyond just naming tools."], ["What's the difference between DevOps, SRE, and Platform Engineering?", "DevOps is the cultural/practice movement — breaking down dev/ops silos. SRE (Site Reliability Engineering) is Google's specific, more prescriptive implementation of DevOps principles, built around SLOs, error budgets, and treating operations as a software engineering problem. Platform Engineering is the more recent evolution — building internal developer platforms (self-service infrastructure, golden paths) so product teams can operate their own services without needing deep infra expertise for every task. They overlap heavily; the differences are more about emphasis and formality than fundamentally different goals."], ["What are the DORA metrics, and why do they matter?", "Four key metrics research has tied to high-performing engineering teams: Deployment Frequency (how often you ship), Lead Time for Changes (commit to production), Change Failure Rate (percentage of deploys causing a production issue), and Mean Time to Recovery (how fast you restore service after a failure). They matter because they measure the actual outcome of DevOps practices — speed and stability together — rather than proxy metrics like 'how many tools we use.'"], ["How do you balance moving fast with maintaining stability?", "Through the practices that make speed and stability compound rather than trade off — automated testing and small batch sizes reduce the risk of any single change, fast rollback mechanisms limit the blast radius when something does go wrong, and feature flags decouple deployment from release so you can ship code dark and turn it on separately from the deploy itself. The DORA data actually shows elite performers are fast *and* stable — they're not opposing forces once the right practices are in place."]], "vcs": [["Compare Gitflow, trunk-based development, and GitHub Flow.", "Gitflow uses long-lived develop/release/feature branches with a formal release process — good fit for scheduled releases (e.g. versioned software), but merge overhead and branch drift grow with team size. Trunk-based development has everyone committing to main frequently (often behind feature flags), with short-lived feature branches if any — optimized for continuous deployment and minimizing merge conflicts. GitHub Flow is a lightweight middle ground: a feature branch per change, PR review, merge to main, deploy from main — simpler than Gitflow, more structured than pure trunk-based."], ["What's the difference between merge and rebase, and when do you use each?", "Merge preserves the full history including the branch structure, creating a merge commit — non-destructive, shows exactly how history actually happened. Rebase replays your commits on top of the target branch, producing a linear history — cleaner to read, but rewrites commit hashes, which is dangerous on a shared/public branch since it breaks history for anyone else who's pulled it. Common practice: rebase your own feature branch before opening a PR (clean it up), merge (not rebase) when integrating into a shared branch."], ["How do you handle a merge conflict?", "Identify exactly which lines conflict (Git marks them clearly), understand the intent of both changes rather than blindly picking one side, resolve by hand or with a merge tool, then test before committing the resolution — a conflict resolution is itself a code change and deserves the same scrutiny as any other."], ["What's your branching strategy for a team practicing continuous deployment?", "Trunk-based, with short-lived feature branches (ideally under a day or two) merged behind feature flags — long-lived branches are the enemy of continuous deployment because they accumulate drift and produce painful merges. Feature flags let incomplete work merge to main safely without being user-visible yet."], ["How do you enforce code quality before merge?", "Required status checks on the PR — automated tests, lint, a security/dependency scan — plus mandatory human review (often via CODEOWNERS for sensitive paths), configured so the branch protection rule makes these non-optional rather than relying on discipline alone."], ["What's a monorepo vs. a polyrepo, and what are the tradeoffs?", "Monorepo: all services/projects in one repository — easier cross-project refactors and shared tooling/CI config, but requires more sophisticated build tooling (path-based CI triggers) to avoid rebuilding everything on every change. Polyrepo: one repo per service — cleaner ownership boundaries and independent versioning, but cross-cutting changes require coordinating PRs across many repos."]], "cicd": [["Explain CI, CD (Continuous Delivery), and Continuous Deployment as three distinct things.", "Continuous Integration: developers merge to main frequently, each merge automatically built and tested. Continuous Delivery: every change that passes the pipeline is automatically packaged into a releasable artifact, but a human still decides when to actually deploy it to production. Continuous Deployment: goes one step further — every change that passes the pipeline deploys to production automatically, no human gate at all. Delivery and Deployment are often conflated but are meaningfully different in terms of how much automation-trust a team has."], ["Walk through a typical CI/CD pipeline stage by stage.", "Checkout the code, install dependencies, lint/static analysis, run unit tests, build the artifact (compile or containerize), run integration tests against the built artifact, security/dependency scan, push the artifact to a registry, deploy to a lower environment automatically, run smoke tests there, then deploy to production either automatically (continuous deployment) or behind an approval gate (continuous delivery)."], ["What's the difference between rolling, blue/green, and canary deployment strategies?", "Rolling: instances/pods replaced gradually with the new version, no second environment needed, but a bad version is briefly live for whatever fraction has been updated when it's caught. Blue/green: two complete environments, traffic switches all at once from the old (blue) to new (green) — fast rollback (switch back), but doubles infrastructure cost while both exist. Canary: a small percentage of traffic routed to the new version first, gradually increased as confidence builds from real signals — smallest blast radius, but takes longer to reach full rollout and needs per-cohort monitoring to actually work."], ["How do you implement a safe rollback as part of every deployment, not an afterthought?", "The rollback path (previous image tag, previous Helm release, previous Terraform state) should be known and tested before a pipeline is considered production-ready — not discovered for the first time during an actual incident. Ideally it's a single command or an automated trigger tied to error-rate/latency SLO burn, not a manual multi-step recovery process someone has to improvise."], ["What's the difference between an artifact repository and a container registry, and why do you need one?", "An artifact repository (e.g. JFrog Artifactory, Nexus) stores build outputs — compiled binaries, packages, dependencies — with versioning. A container registry (ECR, GCR, Docker Hub, GHCR) specifically stores container images. Both exist so a build only happens once and the exact same tested artifact is what gets promoted through every environment, rather than rebuilding (and risking non-determinism) at each stage."], ["How do you handle secrets in a CI/CD pipeline securely?", "Never in the repo or as plaintext pipeline variables — pull from a secrets manager (Vault, AWS Secrets Manager, Azure Key Vault) at runtime with short-lived, scoped credentials. Prefer OIDC federation to cloud providers over long-lived static service account keys stored in the CI system, so there's no static credential to leak in the first place."], ["What makes a good CI/CD pipeline fast, and how do you keep it fast as the codebase grows?", "Parallelize independent stages (tests that don't depend on each other run concurrently), cache dependencies aggressively, use path-based triggers in a monorepo so unrelated services don't rebuild on every change, and periodically audit for tests/stages that have become redundant or slow relative to the value they add — pipeline speed directly affects how willing people are to ship small, safe changes frequently."], ["What's a deployment gate, and what should and shouldn't block a pipeline?", "An automated checkpoint a change must pass before proceeding to the next stage. Hard gates: failing tests, a critical-severity security finding, a failed health check post-deploy. Soft gates (warn, don't block): code coverage dips, non-critical lint issues — a human should see these, but they shouldn't block an urgent fix from shipping."], ["How do you handle database migrations as part of a CI/CD pipeline without causing downtime?", "Expand-contract pattern: migrations are additive/backward-compatible first (add a new column, dual-write, backfill), the application deploys and starts using the new schema, and only once the old code path is fully retired does a later migration drop the old column — never a single breaking schema change tied 1:1 to a deploy, since old and new application versions may run simultaneously during a rolling update."]], "iac": [["What is Infrastructure as Code, and why does it matter operationally?", "Defining infrastructure in version-controlled, declarative configuration files rather than manually clicking through a console or running ad hoc commands. It matters because it gives you a reviewable, auditable history of every infrastructure change (via Git), reproducibility across environments, and the ability to recover from a total environment loss by re-applying code rather than remembering/reconstructing manual steps."], ["What's the difference between declarative and imperative IaC tools?", "Declarative (Terraform, CloudFormation): you describe the desired end state, and the tool figures out what changes are needed to get there. Imperative (a plain shell script, older Chef-style recipes): you describe the specific steps to execute in order. Declarative tools are generally preferred for infrastructure because they're idempotent by design and handle drift detection naturally — re-running a declarative config against an already-correct state does nothing, while a naive imperative script might re-run destructive steps."], ["Explain the Terraform workflow.", "init downloads providers/modules and sets up the backend, validate checks syntax, plan shows exactly what would change without applying it (the critical review step), apply actually makes the change, destroy tears down managed resources. plan before apply is what makes Terraform safe to use on shared infrastructure — you review the diff before it's real."], ["What is Terraform state, and why does it need to be remote with locking?", "State is Terraform's record of what it believes exists and how it maps to your configuration. Remote storage (S3, Azure Storage) with locking (e.g. DynamoDB alongside S3) prevents two people or pipelines from applying concurrently and corrupting the state file — local state doesn't support team collaboration safely at all."], ["How do you structure Terraform for multiple environments without duplicating code?", "Shared modules define the actual resource patterns; environment-specific directories or workspaces hold only the variable values that differ (dev/staging/prod); remote state is kept separate per environment so a mistake in staging state can never touch production state."], ["What does it mean for infrastructure to be idempotent, and why does it matter?", "Applying the same configuration multiple times produces the same end result without unintended side effects or duplicate resources — critical because a pipeline might retry a failed step, or a human might re-run a script during an incident; if the operation isn't idempotent, a retry can make things worse instead of just confirming the correct state."], ["What's configuration drift, and how do you detect and prevent it?", "Drift is when the actual state of infrastructure no longer matches what's declared in code — usually caused by a manual change made outside the IaC pipeline (a console click during an emergency that never got backported to code). Detect it with scheduled terraform plan runs in CI that alert on any unexpected diff; prevent it by restricting console/manual write access to IaC-managed resources wherever practical, and treating a detected drift as worth investigating (why did someone bypass the pipeline), not just silently reverting it."], ["What is immutable infrastructure, and how does it change how you handle a bad configuration change?", "Rather than patching a running server/instance in place, you build a new image/instance with the fix and replace the old one entirely — the running instance is never modified after creation. This makes rollback trivial (redeploy the previous known-good image) and eliminates an entire class of 'it works on this server but not that one because someone patched it differently' problems."]], "containers_k8s": [["What problem do containers solve that VMs don't (or solve better)?", "Containers share the host OS kernel rather than virtualizing an entire OS per instance, making them dramatically lighter-weight and faster to start than VMs, while still providing process isolation and a consistent runtime environment (the same image runs identically from a laptop through to production). VMs still matter for stronger isolation boundaries (multi-tenant security) or running a genuinely different OS than the host."], ["Explain Docker image layers and why layer caching matters for build speed.", "Each Dockerfile instruction (RUN, COPY, etc.) creates a new layer, cached and reused if that instruction and everything before it hasn't changed. Ordering matters: put instructions that change rarely (installing dependencies) before instructions that change often (copying application code), so a code change doesn't invalidate the expensive dependency-install layer on every build."], ["What's a multi-stage Docker build, and why use one?", "Multiple FROM stages in one Dockerfile where a final stage copies only the built artifacts from an earlier build stage — keeps the final image small by excluding compilers/build tools that were needed to build the app but aren't needed to run it."], ["Describe Kubernetes architecture at a high level.", "Control plane: API server (the front door for every cluster operation), scheduler (assigns pods to nodes), controller manager (drives actual state toward desired state), etcd (the cluster's source-of-truth data store). Worker nodes: kubelet (talks to the API server, manages pods on its node), the container runtime, and kube-proxy (implements Service networking rules)."], ["Compare Deployment, StatefulSet, DaemonSet, Job, and CronJob.", "Deployment manages stateless, interchangeable pod replicas. StatefulSet is for workloads needing stable identity and persistent, ordered storage (databases). DaemonSet ensures one pod per node (or a subset) — node-level agents like log shippers. Job runs a pod to completion once. CronJob runs a Job on a schedule."], ["Explain the Kubernetes Service types and Ingress.", "ClusterIP (default): reachable only inside the cluster. NodePort: exposes a static port on every node's IP. LoadBalancer: provisions a cloud load balancer in front of a NodePort. Ingress is a separate Layer 7 object routing HTTP/HTTPS by host/path to internal Services — typically the actual production entry point rather than a raw NodePort/LoadBalancer per service, since it can also handle SSL termination and path-based routing in one place."], ["How does a rolling update achieve zero downtime, mechanically?", "New pods are created and must pass their readiness probe before receiving traffic; old pods are only terminated once enough new pods are confirmed healthy, controlled by maxSurge/maxUnavailable — so there's always a minimum serving capacity throughout, and a bad new version never receives 100% of traffic before being caught by the readiness gate."], ["What's the difference between a liveness probe and a readiness probe?", "Liveness determines whether the container should be restarted — it's deadlocked or unresponsive. Readiness determines whether the container should currently receive traffic — it can be alive but not ready (e.g. still warming up or briefly overloaded) without being restarted, just temporarily pulled from the Service's endpoint list."], ["Explain taints, tolerations, and affinity/anti-affinity.", "Taints repel pods from a node unless the pod has a matching toleration. Node affinity constrains which nodes a pod can go to based on node labels. Pod affinity/anti-affinity constrains placement relative to other pods — the standard production pattern is anti-affinity on replicas of the same app (with topologyKey: kubernetes.io/hostname) so a single node failure can't take out every replica at once."], ["How do you troubleshoot a pod that's CrashLoopBackOff?", "kubectl describe pod for events and the last termination reason, kubectl logs --previous for what the container printed right before dying, then check resource limits (OOMKilled), mounted Secrets/ConfigMaps, and health probe configuration in that order — cheapest, most informative checks first."], ["What's the difference between a ConfigMap and a Secret?", "A ConfigMap stores non-confidential configuration as key-value pairs. A Secret is meant for sensitive data and is base64-encoded (not encrypted by default) — for real production security, secrets should come from a dedicated secrets manager synced in via a CSI driver rather than relying on a bare Kubernetes Secret's default protection."], ["What is Helm, and what problem does it solve?", "A package manager for Kubernetes — charts template out the full set of manifests for an application with environment-specific values files, so you're not hand-maintaining dozens of near-duplicate YAML files per environment. It also gives you release versioning and rollback (helm rollback) as a built-in concept."]], "config_gitops": [["Compare Ansible, Chef, and Puppet at a high level.", "Ansible is agentless (SSH-based), uses YAML playbooks, and has a lower barrier to entry — often preferred for orchestration and one-off automation as much as steady-state config management. Chef and Puppet both use an agent running on managed nodes that periodically pulls configuration from a central server (a pull model) and use their own DSLs (Ruby-based for Chef, a custom declarative language for Puppet) — historically stronger for large fleets of long-lived servers needing continuous, enforced configuration state."], ["When would you use Ansible alongside Terraform rather than either alone?", "Terraform provisions the infrastructure (what exists); Ansible handles configuration management on top of it or orchestrates multi-step operational tasks — a common pattern is Terraform standing up a VM/cluster, then Ansible configuring software on it, especially for anything not fully containerized/cloud-native."], ["What is GitOps, and how does it differ from a traditional CI/CD push-based deploy?", "In traditional CI/CD, the pipeline pushes changes directly to the target environment (kubectl apply from CI) — the environment is passive and the pipeline holds deployment credentials. In GitOps, Git is the single source of truth for desired state, and an agent running inside the target environment (ArgoCD, Flux) continuously pulls and reconciles live state to match Git — no external system ever holds direct write credentials to the cluster, which is the core security benefit."], ["Explain ArgoCD's reconciliation loop and sync policy options.", "ArgoCD continuously diffs the manifests rendered from a Git repo against the live cluster state. Manual sync policy requires a human/pipeline to explicitly trigger applying a detected diff — common for production as a deliberate gate. Automated sync applies detected changes immediately — common for lower environments. Self-heal (optional, on top of automated) goes further and actively reverts manual, out-of-band cluster changes back to match Git."], ["What's the difference between policy-as-code and just documenting a standard?", "Policy-as-code (OPA/Conftest, Azure Policy, AWS Config rules) encodes a standard as an automated, enforced check — a non-compliant change simply can't merge or apply. A documented standard relies on people remembering and following it manually, which degrades under deadline pressure. The durable fix for 'raising standards across a team' is almost always codifying the standard into tooling, not just writing it down."]], "cloud": [["Compare the core compute/networking building blocks across AWS, Azure, and GCP.", "Managed Kubernetes: EKS / AKS / GKE. Load balancing + WAF: ALB+WAF / Application Gateway+WAF / Cloud Load Balancer+Cloud Armor. Secrets: Secrets Manager / Key Vault / Secret Manager. Identity for workloads: IAM roles (IRSA on EKS) / Managed Identity / Workload Identity. Network firewalling: Security Groups / NSGs / VPC Firewall Rules. The concepts transfer directly across clouds even when the product names differ."], ["Explain the standard 3-tier network isolation pattern in a VPC/VNet.", "A public subnet holds the internet-facing edge (load balancer, NAT gateway) behind an internet gateway; a private subnet holds the application/compute tier, reachable only from the load balancer's security group; an isolated data subnet holds the database, reachable only from the app tier's security group and never assigned a public IP at all. Each tier can only be reached from the layer directly in front of it — progressive isolation is the core principle, regardless of cloud."], ["What's the difference between a Security Group and a Network ACL (or NSG)?", "Security Groups (AWS) / NSGs (Azure) are typically stateful and apply at the instance/interface level — a rule allowing inbound traffic automatically allows the corresponding outbound response. Network ACLs (AWS) are stateless and apply at the subnet level — you need explicit rules for both directions. In practice, most day-to-day access control is done via Security Groups/NSGs; NACLs/subnet-level rules are a coarser secondary layer."], ["How do you approach cost optimization in a cloud environment?", "Tag/label every resource by team and environment from day one so cost is attributable, use the cloud's native cost tooling with scheduled reviews, right-size compute based on actual observed utilization rather than initial estimates, use spot/preemptible instances for fault-tolerant workloads, and treat an unexpected cost spike as an operational signal worth investigating, not just a finance problem."], ["What's the difference between horizontal and vertical scaling, and when do you use each?", "Vertical scaling increases the resources of a single instance (bigger CPU/RAM) — simple, but has a hard ceiling and usually requires downtime to resize. Horizontal scaling adds more instances — has effectively no ceiling and can often happen without downtime, but requires the application to actually support running multiple instances behind a load balancer (stateless, or externalized state)."], ["Explain multi-AZ vs. multi-region architecture, and when each is justified.", "Multi-AZ spreads redundancy across data centers within one region — protects against a single data-center failure, relatively cheap (low latency between AZs), and sufficient for most availability targets. Multi-region survives a full regional outage but adds real complexity (cross-region data replication, consistency tradeoffs, higher cost) — only justified once the required availability target genuinely can't be met by multi-AZ alone."]], "monitoring": [["What's the difference between monitoring and observability?", "Monitoring answers questions you already knew to ask — pre-built dashboards and alerts for known failure modes. Observability lets you answer questions you didn't anticipate, by having rich enough telemetry (metrics, logs, traces, correlated via IDs) to investigate an unknown failure mode after the fact, rather than being limited to what was pre-instrumented."], ["Explain the Four Golden Signals, RED, and USE methods, and when to use which.", "Four Golden Signals (latency, traffic, errors, saturation) is the general-purpose starting point for any service. RED (rate, errors, duration) is request/service-centric — good for APIs. USE (utilization, saturation, errors) is resource-centric — good for infrastructure (CPU, disk, network). RED for what your services are doing, USE for what your infrastructure is doing."], ["Describe a typical Prometheus + Grafana monitoring architecture.", "Exporters expose metrics from applications/infrastructure; Prometheus scrapes (pulls) and stores them as time series; Alertmanager evaluates alerting rules and routes notifications; Grafana queries Prometheus to render dashboards. In Kubernetes specifically, the Prometheus Operator manages this via CRDs (a ServiceMonitor tells Prometheus what to scrape, declaratively, instead of hand-editing static config)."], ["How do you define an SLI/SLO that actually reflects user experience, not just infrastructure health?", "Pick an indicator measured as close to the user's actual experience as possible — successful checkout completion rate, not raw CPU usage — since infra can look perfectly healthy while users are still having a bad experience one layer up. Set the SLO target from realistic historical performance, not an aspirational number that guarantees constant, unactionable breach alerts."], ["What's an error budget, and how does it change team behavior in practice?", "1 minus your SLO — the allowed room for failure over a window. Once it's exhausted, it's meant to be a real forcing function: team priority shifts from new feature work to reliability work until the budget recovers, rather than being a dashboard number nobody acts on."], ["How do you reduce alert noise without missing real problems?", "Alert on symptoms (SLO burn rate) rather than every underlying cause, require sustained breach (e.g. 5+ minutes, not a single data point) before paging, route low-urgency signals to a ticket instead of a page, and regularly review alerts that fired but weren't actionable, tuning or deleting them — a team that's been ignoring pages has already trained itself not to trust alerts, which is worse than having fewer alerts."], ["What's the difference between logs, metrics, and traces, and when do you reach for each?", "Metrics: numeric time series, cheap to store long-term, best for dashboards/alerting/trends. Logs: detailed, timestamped event records, best for deep investigation of a specific incident once you know roughly where to look. Traces: follow a single request across service boundaries, best for understanding where latency/errors originate in a distributed call chain. They're complementary — metrics tell you something's wrong, traces show you where, logs show you exactly why."]], "devsecops": [["What does 'shifting security left' actually mean in a DevOps pipeline?", "Integrating security checks early in the development/CI process (SAST, dependency scanning, secret detection at commit/PR time) rather than only at a late-stage security audit before release — catching an issue when it's a few lines of new code is far cheaper than catching it after it's been built on top of for months."], ["How do you integrate vulnerability scanning into CI/CD without making every commit painfully slow?", "Fast, cheap checks (dependency/secret scanning) on every commit as a required gate; slower checks (full container image scan, deep SAST) on merge to main or on a schedule. Block only on critical/high severity with an available fix; route lower-severity findings to a tracked, SLA'd backlog rather than blocking delivery on every single finding, which is what actually causes teams to bypass or ignore a security gate."], ["What does a container vulnerability scan (e.g. Trivy) actually check, and what does it output?", "Scans image layers and installed packages against known CVE databases, and checks for misconfigurations (e.g. an image running as root unnecessarily). Output is structured (JSON/table/SARIF): CVE ID, severity, affected package and installed version, and the fixed version if one exists — automatable as a pipeline gate by exiting non-zero on qualifying findings, which fails the pipeline step and blocks the image from being pushed or promoted."], ["How do you manage secrets across CI/CD and runtime securely?", "Never in source control or plaintext pipeline variables — pull from a vault (HashiCorp Vault, cloud-native secrets manager) at runtime with short-lived, scoped credentials rather than static long-lived ones. Prefer OIDC/workload identity federation over storing a cloud service account key anywhere."], ["What's the principle of least privilege, and how do you apply it to CI/CD service accounts?", "Grant only the specific permissions a given pipeline/service actually needs, scoped as narrowly as possible — e.g. a pipeline that only pushes to one specific ECR repo shouldn't have account-wide ECR push access. Reduces blast radius if a credential is ever compromised."], ["How do you approach supply chain security for software you ship?", "Verify provenance of dependencies and base images (signed images, SBOM generation), pin dependency versions rather than accepting floating ranges in production builds, and treat the CI/CD pipeline configuration itself as part of the attack surface — restrict who can modify pipeline definitions the same way you'd restrict production access."]], "incident_sre": [["Define SLI, SLO, and SLA and how they relate.", "SLI = the measured indicator (e.g. request success rate). SLO = the internal target for that indicator. SLA = the external, often contractual, commitment with consequences if breached — usually set looser than the SLO to leave margin, since you want to breach your own internal target before you breach a customer-facing contractual one."], ["What's the difference between MTTR and MTBF, and why do you need both?", "MTTR (Mean Time To Recovery) measures how fast you recover once something breaks. MTBF (Mean Time Between Failures) measures how often things break in the first place. A system can have excellent MTTR and still have a bad (low) MTBF — they're two different levers, and improving one doesn't automatically improve the other."], ["Walk through the incident management lifecycle end to end.", "Alert fires, an incident is declared and severity assigned, a bridge/war room starts for higher severities, investigation and mitigation happen in parallel with stakeholder communication on a fixed cadence, service is restored, and only after restoration does formal RCA and preventive action follow — restoration always comes before root-causing."], ["What's the difference between an Incident and a Problem in ITIL terms?", "An Incident is the unplanned disruption itself — restore service fast, don't worry about root cause yet. A Problem is the underlying root cause behind one or more incidents, tracked separately so it gets a proper investigation and permanent fix rather than being rushed under live-outage pressure."], ["How do you write a blameless postmortem, and what sections does it need?", "Focus on the system and process, not individual blame — a person doing what seemed reasonable at the time given the information they had is rarely the real root cause. Sections: timeline of events, customer impact, root cause (5-Whys or similar), corrective actions (fix the immediate issue) and preventive actions (stop this class of issue), each with an owner and a due date — action items without owners/dates rarely get done."], ["What is alert fatigue, and how do you fix it once it's already a problem?", "When alert volume is high enough that real, actionable alerts get lost in noise, and people start ignoring pages. Fix: audit which alerts actually led to action versus which were noise, tune thresholds and add sustained-duration requirements, route non-actionable signals off paging entirely, and require every remaining alert to map to a specific runbook step — an alert nobody knows how to act on should be deleted, not just left in place."], ["How do you calculate availability, and what does 99.9% actually mean in practice?", "Availability = Uptime ÷ (Uptime + Downtime) × 100. 99.9% ('three nines') allows about 43.2 minutes of downtime per month; 99.99% ('four nines') allows about 4.3 minutes — each additional nine is roughly a 10x tighter downtime budget, which is why moving from 99.9% to 99.99% is a much bigger engineering lift than the numbers alone suggest."]], "scripting": [["Write a shell one-liner to find and delete files older than N days.", "find with -mtime and -delete is the safe, standard pattern — answer the literal requirement (all matching files) rather than over-filtering by an assumed extension unless the question specifies one.", "find /var/log -type f -mtime +10 -delete"], ["Write a shell script to check if a service is running and restart it if not.", "Use the init system's own status check (systemctl is-active) rather than grepping ps output, which is fragile.", "#!/bin/bash\nSERVICE=\"nginx\"\nif ! systemctl is-active --quiet \"$SERVICE\"; then\n  echo \"$SERVICE is down, restarting...\"\n  systemctl restart \"$SERVICE\"\nfi"], ["Write a Python snippet to call a REST API and handle failure cases explicitly.", "Always set a timeout, check status code before parsing the body as JSON, and handle timeout/connection errors as distinct cases rather than a bare except.", "import requests\ntry:\n    resp = requests.get('https://api.example.com/health', timeout=5)\n    if resp.status_code == 200:\n        data = resp.json()\n    else:\n        print(f\"Unexpected status: {resp.status_code}\")\nexcept requests.exceptions.Timeout:\n    print(\"Request timed out\")\nexcept requests.exceptions.RequestException as e:\n    print(f\"Request failed: {e}\")"], ["What's your rule of thumb for when a manual step should become a script, and when a script should become a full automation/pipeline step?", "Second time you do a manual step, write it down as a documented step; second time you follow that documented step, script it; once a script is being run regularly by multiple people or triggered by an event, wire it into the actual pipeline/automation rather than leaving it as a script someone has to remember to run."], ["How do you make an automation script safe to run against production?", "Dry-run mode by default with an explicit flag required for the real/destructive action, idempotency (safe to re-run without duplicating effects), and logging every action taken so there's an audit trail if something needs to be manually reversed."]], "process_behavioral": [["What Agile ceremonies do you participate in, and what's the point of each?", "Sprint planning (agree what gets worked on), daily standup (surface blockers fast, not a status report), sprint review/demo (show working software to stakeholders), retrospective (what worked, what didn't, what to change) — the throughline is fast feedback loops at every level, from daily to per-sprint."], ["How do you handle a production incident that conflicts with a scheduled release/go-live?", "Customer-impacting production issues outrank scheduled work by default — make that tradeoff explicit to stakeholders rather than silently choosing, redirect capacity to the incident, and reschedule the planned work for the next safe window once things are stable."], ["Describe your approach to writing a runbook that's actually useful during a 2 AM page.", "Assume the reader is tired, stressed, and has no context — lead with the specific symptom it addresses, give exact commands (not vague descriptions), and keep it current by tying runbook review to actual incidents rather than letting it go stale until someone follows outdated steps under pressure."], ["How do you approach collaborating with a team whose priorities don't match yours (e.g. dev wants speed, you want stability)?", "Bring data rather than opinion — quantify the actual cost of the tradeoff each side is worried about (deployment friction vs. incident rate) — and look for the smaller, scoped version of what you're asking for rather than an all-or-nothing policy, since a scoped pilot is much easier to get buy-in for than a sweeping mandate."], ["What's the ITIL concept of a Change Advisory Board, and when is it worth the overhead?", "A CAB reviews higher-risk changes needing cross-team sign-off before implementation — worth it for changes touching shared infrastructure or with unclear blast radius. Low-risk, well-understood changes should go through a pre-approved 'standard change' path instead, so routine work isn't needlessly slowed by a process meant for genuinely risky changes."]], "scenarios": [{"id": "d1", "tag": "Scenario 1", "title": "A deployment succeeded but the application is throwing errors for new users only", "prompt": "The pipeline reports a successful deploy, but new user signups are failing while existing users are fine. Walk through your process.", "answer": [["Reframe", "A 'successful' pipeline only confirms the deploy mechanics worked — it says nothing about whether a new code path's dependencies (config, secrets, a downstream service) are actually correctly wired for this release specifically."], ["What to check", "Whether a new environment variable/secret the new code expects was actually added to this environment — extremely common when app code and config live in separate places and one gets updated without the other. Also check whether a downstream dependency (e.g. an email/verification service) needs a corresponding change that wasn't included."], ["Likely root cause", "A config/secret gap between what the new code expects and what's actually deployed, isolated to exactly the code path new users hit that existing users don't (e.g. account creation vs. login)."]]}, {"id": "d2", "tag": "Scenario 2", "title": "A Terraform apply partially failed midway through a production infrastructure change", "prompt": "Your terraform apply against production failed partway through. What's your recovery process?", "answer": [["Don't panic-retry", "Terraform state reflects what actually succeeded before the failure — re-running plan first shows exactly the remaining delta, rather than blindly re-running apply, which risks compounding the problem if the root cause (a quota limit, a naming conflict) isn't understood yet."], ["Fix the actual cause first", "Address whatever caused the failure (a quota limit, a dependency conflict, a config error) before re-applying — re-running the same broken config just fails again, possibly leaving state in a worse partial condition."], ["Recovery tools if state itself is inconsistent", "terraform import to sync a resource that was actually created but lost from state; terraform state rm as a last resort to remove a broken resource from state so it can be manually cleaned up and recreated fresh. Always back up state (terraform state pull) before any destructive state operation."]]}, {"id": "d3", "tag": "Scenario 3", "title": "Multiple teams claim an issue isn't theirs during an active outage", "prompt": "During a live Sev1, the app team, database team, and network team are each pointing at another team. How do you drive resolution?", "answer": [["Live-outage rule", "Table the ownership debate entirely during the active incident — whoever can execute the fastest workaround acts first, regardless of whose 'fault' it turns out to be."], ["Get to evidence fast", "Pull timestamp-correlated data from logs/metrics/Git history across all three layers — the actual data usually resolves the disagreement quickly, since it shows what changed and when, rather than three competing opinions."], ["After resolution", "Ownership gets resolved in the blameless postmortem using that same data, and a recurring ownership dispute between the same teams is itself a signal that architectural or process boundaries need clarifying — not just something to re-litigate every time it happens."]]}], "cheatsheet": {"DORA metrics": [["Deployment Frequency", "How often an org successfully releases to production"], ["Lead Time for Changes", "Time from commit to running in production"], ["Change Failure Rate", "Percentage of deployments causing a production failure"], ["Mean Time to Recovery (MTTR)", "How fast service is restored after a production failure"]], "Deployment strategy quick comparison": [["Rolling", "Gradual replacement, no extra infra, brief partial exposure to a bad version"], ["Blue/Green", "Full instant switch, fast rollback, double infra cost while both exist"], ["Canary", "Gradual traffic shift with per-cohort monitoring, smallest blast radius, slowest full rollout"]], "SRE fundamentals": [["SLI / SLO / SLA", "Measured indicator / internal target / external contractual commitment"], ["Error budget", "1 − SLO — the allowed room for failure before priority shifts to reliability work"], ["MTTD / MTTR / MTBF", "Time to detect / time to recover / time between failures — three distinct levers"], ["Availability formula", "Uptime ÷ (Uptime + Downtime) × 100"]], "Cloud service quick-mapping (AWS / Azure / GCP)": [["Managed Kubernetes", "EKS / AKS / GKE"], ["Load Balancer + WAF", "ALB + WAF / App Gateway + WAF / Cloud LB + Cloud Armor"], ["Secrets", "Secrets Manager / Key Vault / Secret Manager"], ["Workload identity", "IRSA / Managed Identity / Workload Identity"], ["Network firewall", "Security Groups / NSGs / VPC Firewall Rules"]]}}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const PAGES = [
+  {id:'overview', label:'0 · Overview & Lifecycle'},
+  {id:'culture', label:'1 · Culture & Fundamentals'},
+  {id:'vcs', label:'2 · Version Control & Git'},
+  {id:'cicd', label:'3 · CI/CD & Deployment'},
+  {id:'iac', label:'4 · Infrastructure as Code'},
+  {id:'containers_k8s', label:'5 · Containers & Kubernetes'},
+  {id:'config_gitops', label:'6 · Config Mgmt & GitOps'},
+  {id:'cloud', label:'7 · Cloud Platforms'},
+  {id:'monitoring', label:'8 · Monitoring & Observability'},
+  {id:'devsecops', label:'9 · DevSecOps'},
+  {id:'incident_sre', label:'10 · Incident Mgmt & SRE'},
+  {id:'scripting', label:'11 · Scripting & Automation'},
+  {id:'process_behavioral', label:'12 · Process & Behavioral'},
+  {id:'scenarios', label:'13 · Scenarios'},
+  {id:'cheatsheet', label:'14 · Cheat Sheet'}
+];
+let doneMap = {};
+try{ doneMap = JSON.parse(localStorage.getItem('devops_master_done')||'{}'); }catch(e){ doneMap={}; }
+function saveDone(){ localStorage.setItem('devops_master_done', JSON.stringify(doneMap)); updateProgress(); }
+let allCardIds = [];
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function splitAnswer(text){
+  if(!text) return [];
+  const protectedText = text
+    .replace(/\be\.g\./gi, 'e#g#')
+    .replace(/\bi\.e\./gi, 'i#e#')
+    .replace(/\betc\./gi, 'etc#')
+    .replace(/\bvs\./gi, 'vs#');
+  const parts = protectedText
+    .split(/\.\s+(?=[A-Z])/)
+    .map(p => p.trim())
+    .filter(Boolean)
+    .map(p => (p.endsWith('.') ? p : p + '.'))
+    .map(p => p.replace(/e#g#/g, 'e.g.').replace(/i#e#/g, 'i.e.').replace(/etc#/g, 'etc.').replace(/vs#/g, 'vs.'));
+  return parts;
+}
+function answerBoxHTML(text){
+  const sentences = splitAnswer(text);
+  let inner;
+  if(sentences.length >= 3){
+    inner = '<ul>' + sentences.map(s=>'<li>'+esc(s)+'</li>').join('') + '</ul>';
+  } else {
+    inner = '<p>'+esc(text)+'</p>';
+  }
+  return '<div class="answerbox"><span class="alabel">Answer</span>'+inner+'</div>';
+}
+
+function buildTabs(){
+  const tabWrap = document.getElementById('tabs');
+  PAGES.forEach((p,i)=>{
+    const b=document.createElement('button');
+    b.className='tab'+(i===0?' active':'');
+    b.textContent=p.label;
+    b.onclick=()=>showPage(p.id);
+    b.dataset.page=p.id;
+    tabWrap.appendChild(b);
+  });
+}
+function showPage(id){
+  document.querySelectorAll('section.pg').forEach(s=>s.classList.toggle('active', s.dataset.id===id));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.page===id));
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function makeCard(opts){
+  const card=document.createElement('div');
+  card.className='card';
+  card.dataset.id=opts.id;
+  card.dataset.text=(opts.searchText||'').toLowerCase();
+  allCardIds.push(opts.id);
+  const bar=document.createElement('div');
+  bar.className='cbar';
+  bar.innerHTML =
+    '<span class="badge '+opts.badgeClass+'">'+esc(opts.badge)+'</span>'+
+    '<div class="cbody"><p class="ctitle">'+esc(opts.title)+'</p>'+
+    '<div class="cdetail">'+opts.bodyHTML+'</div></div>'+
+    '<div class="mark" tabindex="0" role="checkbox" aria-checked="false"></div>';
+  card.appendChild(bar);
+  const mark = bar.querySelector('.mark');
+  if(doneMap[opts.id]) mark.classList.add('done');
+  mark.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    doneMap[opts.id] = !doneMap[opts.id];
+    mark.classList.toggle('done', doneMap[opts.id]);
+    saveDone();
+  });
+  return card;
+}
+
+function segHTML(label, text){
+  return '<div class="seg"><h4>'+esc(label)+'</h4><p>'+esc(text)+'</p></div>';
+}
+
+function renderQAList(container, list, badgePrefix, hintText){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = hintText;
+  container.appendChild(hint);
+  list.forEach((item,i)=>{
+    const id = badgePrefix+'_'+i;
+    let body = answerBoxHTML(item[1]);
+    let searchText = item[0]+' '+item[1];
+    if(item.length > 2 && item[2]){
+      body += '<div class="codeblock">'+esc(item[2])+'</div>';
+      searchText += ' '+item[2];
+    }
+    container.appendChild(makeCard({
+      id:id, badge:'Q'+(i+1), badgeClass:'b-qa',
+      title: item[0], bodyHTML: body, searchText: searchText
+    }));
+  });
+}
+
+function renderOverview(container){
+  const o = DATA.overview;
+  const b1=document.createElement('div'); b1.className='blk';
+  b1.innerHTML = '<h2>Why this document</h2><p style="font-size:14.5px;line-height:1.6;margin:0">'+esc(o.intro)+'</p>';
+  container.appendChild(b1);
+
+  const b2=document.createElement('div'); b2.className='blk';
+  b2.innerHTML = '<h2>What interviewers are actually testing</h2><ul class="plain">'+
+    o.what_they_test.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  container.appendChild(b2);
+
+  const b3=document.createElement('div'); b3.className='blk';
+  let html = '<h2>The DevOps lifecycle</h2><div class="lifecyclegrid">';
+  o.lifecycle.forEach(l=>{
+    html += '<div class="lcbox"><b>'+esc(l[0])+'</b><span>'+esc(l[1])+'</span></div>';
+  });
+  html += '</div>';
+  b3.innerHTML = html;
+  container.appendChild(b3);
+}
+
+function renderScenarios(container){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "General process/troubleshooting scenarios that show up across most DevOps interviews regardless of company. Each follows: reframe → what to check → likely root cause.";
+  container.appendChild(hint);
+  DATA.scenarios.forEach(sc=>{
+    let body = '<div class="qprompt">'+esc(sc.prompt)+'</div>';
+    sc.answer.forEach(pair=> body += segHTML(pair[0], pair[1]));
+    const searchText = sc.title+' '+sc.prompt+' '+sc.answer.map(a=>a[0]+' '+a[1]).join(' ');
+    container.appendChild(makeCard({
+      id:sc.id, badge:sc.tag, badgeClass:'b-scn',
+      title: sc.title, bodyHTML: body, searchText: searchText
+    }));
+  });
+}
+
+function renderCheatsheet(container){
+  Object.keys(DATA.cheatsheet).forEach(group=>{
+    const b=document.createElement('div'); b.className='blk';
+    let html = '<h2>'+esc(group)+'</h2><table class="cs-table">';
+    DATA.cheatsheet[group].forEach(row=>{
+      html += '<tr><td>'+esc(row[0])+'</td><td>'+esc(row[1])+'</td></tr>';
+    });
+    html += '</table>';
+    b.innerHTML = html;
+    container.appendChild(b);
+  });
+}
+
+function buildPages(){
+  const pagesWrap = document.getElementById('pages');
+  const renderers = {
+    overview: renderOverview,
+    culture: (c)=>renderQAList(c, DATA.culture, 'culture', "DevOps culture and fundamentals — often the opening questions, testing whether you understand DevOps as a practice, not just a toolchain."),
+    vcs: (c)=>renderQAList(c, DATA.vcs, 'vcs', "Version control and branching strategy — the first stage of the lifecycle, and a very common opening technical topic."),
+    cicd: (c)=>renderQAList(c, DATA.cicd, 'cicd', "CI/CD process, pipeline design, and deployment strategy — usually the single most-tested area in any DevOps interview."),
+    iac: (c)=>renderQAList(c, DATA.iac, 'iac', "Infrastructure as Code principles and practice — Terraform-centric but the concepts apply broadly."),
+    containers_k8s: (c)=>renderQAList(c, DATA.containers_k8s, 'k8s', "Containers and Kubernetes — expect both conceptual questions and live troubleshooting-style questions here."),
+    config_gitops: (c)=>renderQAList(c, DATA.config_gitops, 'cfg', "Configuration management tools and GitOps — the 'how does config actually get applied' layer."),
+    cloud: (c)=>renderQAList(c, DATA.cloud, 'cloud', "Cloud platform fundamentals, kept provider-agnostic where possible with AWS/Azure/GCP mappings."),
+    monitoring: (c)=>renderQAList(c, DATA.monitoring, 'mon', "Monitoring and observability — golden signals, SLI/SLO practice, and the logs/metrics/traces distinction."),
+    devsecops: (c)=>renderQAList(c, DATA.devsecops, 'sec', "Security integrated into the pipeline — increasingly a default expectation, not a specialist-only topic."),
+    incident_sre: (c)=>renderQAList(c, DATA.incident_sre, 'sre', "Incident management and SRE fundamentals — the 'how do you run this in production' half of DevOps."),
+    scripting: (c)=>renderQAList(c, DATA.scripting, 'script', "Scripting and automation — often tested live; practice writing these without looking them up."),
+    process_behavioral: (c)=>renderQAList(c, DATA.process_behavioral, 'proc', "Agile/ITSM process and behavioral questions — how you work with people and process, not just tools."),
+    scenarios: renderScenarios,
+    cheatsheet: renderCheatsheet
+  };
+  PAGES.forEach((p,i)=>{
+    const sec=document.createElement('section');
+    sec.className='pg'+(i===0?' active':'');
+    sec.dataset.id=p.id;
+    pagesWrap.appendChild(sec);
+    renderers[p.id](sec);
+  });
+}
+
+function updateProgress(){
+  const total = allCardIds.length;
+  const done = allCardIds.filter(id=>doneMap[id]).length;
+  document.getElementById('pbarfill').style.width = total? (done/total*100)+'%':'0%';
+  document.getElementById('ptext').textContent = done+' of '+total+' reviewed';
+}
+
+document.getElementById('search').addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('.card').forEach(card=>{
+    const match = !q || card.dataset.text.includes(q);
+    card.style.display = match? '' : 'none';
+  });
+});
+
+buildTabs();
+buildPages();
+updateProgress();
+</script>
+</body>
+</html>

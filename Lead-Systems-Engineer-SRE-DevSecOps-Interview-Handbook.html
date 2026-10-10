@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Systems Engineer — SRE / DevSecOps Interview Handbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0E14;
+    --bg-panel:#121822;
+    --bg-panel-2:#171F2B;
+    --bg-card:#0E141D;
+    --border:#232B38;
+    --border-soft:#1A212C;
+    --text:#DCE3EC;
+    --text-dim:#8592A6;
+    --text-faint:#4B5768;
+    --accent:#E8A33D;
+    --accent-soft:rgba(232,163,61,.14);
+    --accent-border:rgba(232,163,61,.4);
+    --ok:#3FE0A5;
+    --ok-soft:rgba(63,224,165,.14);
+    --radius:9px;
+    --mono:'IBM Plex Mono', ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace;
+    --sans:'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(232,163,61,.05), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(63,224,165,.04), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  ::selection{background:var(--accent-soft); color:var(--accent);}
+  a{color:var(--accent);}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;}
+
+  /* ---------- terminal header ---------- */
+  .termwrap{
+    max-width:1200px; margin:22px auto 0; padding:0 20px;
+  }
+  .term{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:12px 12px 0 0;
+    overflow:hidden;
+    box-shadow:0 20px 60px -30px rgba(0,0,0,.7);
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:11px 14px;
+    background:var(--bg-panel-2);
+    border-bottom:1px solid var(--border);
+  }
+  .dot{width:10px;height:10px;border-radius:50%;}
+  .dot.r{background:#FF5F56;} .dot.y{background:#FFBD2E;} .dot.g{background:#27C93F;}
+  .term-path{
+    margin-left:10px; font-family:var(--mono); font-size:12px; color:var(--text-faint);
+  }
+  .term-body{ padding:22px 26px 20px; }
+  .prompt-line{
+    font-family:var(--mono); font-size:13.5px; color:var(--ok); margin:0 0 10px;
+    display:flex; gap:8px; flex-wrap:wrap; align-items:baseline;
+  }
+  .prompt-line .p{color:var(--text-faint);}
+  .prompt-line .cmd{color:var(--text);}
+  .prompt-line .flag{color:var(--accent);}
+  h1{
+    font-family:var(--sans); font-weight:600; letter-spacing:-.01em;
+    font-size:clamp(22px,3.4vw,32px); margin:6px 0 6px; color:var(--text);
+  }
+  .subtitle{ color:var(--text-dim); font-size:14.5px; line-height:1.6; max-width:74ch; margin:0 0 20px;}
+  .statusbar{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--border); border:1px solid var(--border); border-radius:8px; overflow:hidden;
+  }
+  .stat{ background:var(--bg-card); padding:12px 16px; }
+  .stat .k{font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; color:var(--text-faint); text-transform:uppercase;}
+  .stat .v{font-family:var(--mono); font-size:20px; font-weight:600; color:var(--text); margin-top:3px;}
+  .stat .v.accent{color:var(--accent);}
+  .stat .v.ok{color:var(--ok);}
+  .progress-track{ height:6px; background:var(--bg); border-radius:4px; margin-top:8px; overflow:hidden; border:1px solid var(--border-soft);}
+  .progress-fill{ height:100%; background:linear-gradient(90deg,var(--accent),var(--ok)); width:0%; transition:width .4s ease; }
+
+  /* ---------- layout ---------- */
+  .layout{
+    max-width:1200px; margin:0 auto; padding:0 20px 60px;
+    display:grid; grid-template-columns:250px 1fr; gap:22px;
+    background:var(--bg-panel); border:1px solid var(--border); border-top:none;
+    border-radius:0 0 12px 12px; padding-top:0;
+  }
+  .layout-inner-pad{padding:20px 22px 40px;}
+  .sidebar{
+    border-right:1px solid var(--border-soft);
+    padding:18px 14px 30px 20px;
+    position:sticky; top:0; align-self:start; max-height:100vh; overflow:auto;
+  }
+  .side-title{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; color:var(--text-faint); text-transform:uppercase; margin:6px 0 10px;}
+  .toc{list-style:none; margin:0 0 20px; padding:0;}
+  .toc li{margin-bottom:2px;}
+  .toc button{
+    width:100%; text-align:left; background:none; border:none; color:var(--text-dim);
+    font-family:var(--sans); font-size:13px; padding:7px 9px; border-radius:6px; cursor:pointer;
+    display:flex; align-items:center; gap:9px; line-height:1.3;
+  }
+  .toc button:hover{background:var(--bg-card); color:var(--text);}
+  .toc button.active{background:var(--bg-card); color:var(--text); font-weight:500;}
+  .toc .dot2{width:8px;height:8px;border-radius:50%;flex:none;}
+  .toc .cnt{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--text-faint);}
+  .side-reset{
+    font-family:var(--mono); font-size:11px; color:var(--text-faint); background:none; border:1px solid var(--border);
+    padding:7px 10px; border-radius:6px; cursor:pointer; width:100%;
+  }
+  .side-reset:hover{color:var(--text-dim); border-color:var(--text-faint);}
+
+  .main{padding:20px 22px 40px 4px; min-width:0;}
+  .controls{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:22px;
+    position:sticky; top:0; background:var(--bg-panel); padding:12px 0 12px; z-index:5;
+  }
+  .search-wrap{ position:relative; flex:1; min-width:220px; }
+  .search-wrap svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); opacity:.5;}
+  #search{
+    width:100%; background:var(--bg-card); border:1px solid var(--border); color:var(--text);
+    font-family:var(--sans); font-size:14px; padding:10px 12px 10px 34px; border-radius:8px;
+  }
+  #search::placeholder{color:var(--text-faint);}
+  .toggle{
+    display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-dim);
+    background:var(--bg-card); border:1px solid var(--border); padding:9px 12px; border-radius:8px; cursor:pointer; user-select:none;
+    white-space:nowrap;
+  }
+  .toggle input{accent-color:var(--accent); width:15px; height:15px;}
+  .mobile-toc{display:none;}
+
+  .section{margin-bottom:34px;}
+  .section-head{
+    display:flex; align-items:baseline; gap:12px; margin:0 0 14px; padding-bottom:9px;
+    border-bottom:1px solid var(--border-soft);
+  }
+  .section-head .bar{width:4px; height:20px; border-radius:2px; flex:none;}
+  .section-head h2{font-size:16.5px; margin:0; font-weight:600; color:var(--text);}
+  .section-head .tagpill{
+    font-family:var(--mono); font-size:10px; letter-spacing:.08em; padding:2px 8px; border-radius:20px;
+    border:1px solid; text-transform:uppercase;
+  }
+  .section-head .n{margin-left:auto; font-family:var(--mono); font-size:12px; color:var(--text-faint);}
+
+  .card{
+    background:var(--bg-card); border:1px solid var(--border); border-left:3px solid var(--card-color,var(--accent));
+    border-radius:8px; padding:15px 16px 16px; margin-bottom:11px; transition:opacity .15s;
+  }
+  .card.mastered{opacity:.55;}
+  .card.hidden{display:none;}
+  .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:8px;}
+  .q{font-size:14.5px; font-weight:600; color:var(--text); line-height:1.5; margin:0;}
+  .qnum{font-family:var(--mono); color:var(--card-color,var(--accent)); font-weight:600; margin-right:7px;}
+  .mastery{
+    display:flex; align-items:center; gap:6px; flex:none; cursor:pointer; padding:4px 8px 4px 4px; border-radius:6px;
+  }
+  .mastery input{width:16px; height:16px; accent-color:var(--ok); cursor:pointer;}
+  .mastery span{font-family:var(--mono); font-size:10px; color:var(--text-faint); letter-spacing:.05em; text-transform:uppercase;}
+  .a{font-size:13.8px; color:var(--text-dim); line-height:1.68;}
+  .a p{margin:0 0 9px;}
+  .a p:last-child{margin-bottom:0;}
+  .a strong{color:var(--text); font-weight:600;}
+  .a code{
+    font-family:var(--mono); font-size:12.6px; background:var(--bg-panel-2); color:var(--ok);
+    padding:1px 5px; border-radius:4px; border:1px solid var(--border-soft);
+  }
+  .a pre{
+    background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:11px 13px;
+    overflow-x:auto; margin:9px 0;
+  }
+  .a pre code{
+    background:none; border:none; padding:0; color:#B9C3D4; font-size:12.3px; line-height:1.55; white-space:pre;
+  }
+  .a ul{margin:6px 0 9px; padding-left:19px;}
+  .a li{margin-bottom:4px;}
+
+  .empty{
+    text-align:center; padding:50px 20px; color:var(--text-faint); font-family:var(--mono); font-size:13px;
+  }
+
+  footer{
+    max-width:1200px; margin:0 auto; padding:18px 20px 50px; color:var(--text-faint);
+    font-family:var(--mono); font-size:11.5px; text-align:center;
+  }
+
+  @media (max-width:880px){
+    .layout{grid-template-columns:1fr;}
+    .sidebar{display:none;}
+    .mobile-toc{
+      display:flex; gap:7px; overflow-x:auto; padding-bottom:4px; margin-bottom:14px; -webkit-overflow-scrolling:touch;
+    }
+    .mobile-toc button{
+      flex:none; font-family:var(--mono); font-size:11px; padding:7px 11px; border-radius:20px;
+      border:1px solid var(--border); background:var(--bg-card); color:var(--text-dim); white-space:nowrap;
+    }
+    .mobile-toc button.active{color:var(--text); border-color:var(--text-faint);}
+    .statusbar{grid-template-columns:repeat(2,1fr);}
+    .controls{position:static;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="termwrap">
+  <div class="term">
+    <div class="term-bar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="term-path">~/interview-prep/lead-systems-engineer</span>
+    </div>
+    <div class="term-body">
+      <p class="prompt-line"><span class="p">$</span><span class="cmd">./interview-prep</span><span class="flag">--role="Lead Systems Engineer"</span><span class="flag">--org="GCOO/GTE/DMP/SRE"</span></p>
+      <h1>Lead Systems Engineer — SRE / DevSecOps Interview Handbook</h1>
+      <p class="subtitle">Built from the JD: Linux &amp; distributed systems, Python/Bash, CI/CD, IaC, Kubernetes, Prometheus/Grafana/ELK/OpenSearch, reliability engineering, resilience &amp; self-healing, and a security practice where vulnerability management and DevSecOps sit at the center of the role, not the edges — plus the tooling-standardization and cross-team leadership angle that comes with the "Lead" title.</p>
+      <div class="statusbar">
+        <div class="stat"><div class="k">Sections</div><div class="v" id="stat-sections">—</div></div>
+        <div class="stat"><div class="k">Questions</div><div class="v" id="stat-total">—</div></div>
+        <div class="stat"><div class="k">Mastered</div><div class="v ok" id="stat-mastered">—</div></div>
+        <div class="stat"><div class="k">Progress</div><div class="v accent" id="stat-pct">—</div></div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-title">Sections</div>
+    <ul class="toc" id="toc"></ul>
+    <button class="side-reset" id="reset-btn">Reset progress</button>
+  </aside>
+
+  <main class="main">
+    <div class="mobile-toc" id="mobile-toc"></div>
+    <div class="controls">
+      <div class="search-wrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8592A6" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input id="search" type="text" placeholder="Search questions, answers, tools…" autocomplete="off">
+      </div>
+      <label class="toggle"><input type="checkbox" id="unreviewed-toggle"> Show unmastered only</label>
+    </div>
+    <div id="content"></div>
+    <div class="empty" id="empty-state" style="display:none;">No questions match your search. Try different keywords.</div>
+  </main>
+</div>
+
+<footer>Progress saves automatically to this artifact · own storage key, separate from other handbooks</footer>
+
+<script>
+const STORAGE_KEY = 'lead-sysengineer-gcoo-sre-devsecops-mastery';
+
+const SECTIONS = [
+  {id:'linux-dist', name:'Linux &amp; Distributed Systems Fundamentals', color:'#E0B84D', tag:'LINUX / SYSTEMS'},
+  {id:'python-bash', name:'Python &amp; Bash Automation', color:'#4A9FDB', tag:'PYTHON / BASH'},
+  {id:'cicd', name:'CI/CD &amp; Zero-Manual-Ops Automation', color:'#22B8C4', tag:'CI/CD'},
+  {id:'iac', name:'Infrastructure as Code', color:'#9B6FD6', tag:'TERRAFORM / IAC'},
+  {id:'k8s', name:'Kubernetes &amp; Container Orchestration', color:'#4A7FE0', tag:'KUBERNETES'},
+  {id:'observability', name:'Observability — Prometheus, Grafana, ELK / OpenSearch', color:'#E67046', tag:'OBSERVABILITY'},
+  {id:'alerting', name:'Monitoring &amp; Alerting Design', color:'#F0954A', tag:'ALERTING'},
+  {id:'reliability', name:'Reliability Engineering &amp; Incident Management', color:'#45B26B', tag:'SRE'},
+  {id:'resilience', name:'Resilience &amp; Self-Healing Mechanisms', color:'#2FAE9A', tag:'RESILIENCE'},
+  {id:'devsecops', name:'DevSecOps &amp; Vulnerability Management', color:'#E0554D', tag:'SECURITY'},
+  {id:'standards', name:'Standardization, Runbooks &amp; Playbooks', color:'#4E9DE0', tag:'DOCS / STANDARDS'},
+  {id:'leadership', name:'Leading Change &amp; Scaling SRE Practices', color:'#CC6BB0', tag:'LEADERSHIP'},
+  {id:'scenarios', name:'Troubleshooting Scenario Bank', color:'#D6A33B', tag:'SCENARIO'},
+  {id:'behavioral', name:'Behavioral &amp; Closing Questions', color:'#6FA8DC', tag:'BEHAVIORAL'}
+];
+
+const QUESTIONS = [
+// ---------------- LINUX & DISTRIBUTED SYSTEMS ----------------
+{s:'linux-dist', q:'How do Linux cgroups and namespaces underpin container isolation, and why does that matter when you\'re troubleshooting a "noisy neighbor" problem?', a:`<p>Namespaces (pid, net, mnt, uts, ipc, user) give a process its own isolated view of the system; cgroups (v1 hierarchies, or the now-default unified v2 hierarchy) account for and cap the resources — cpu, memory, io, pids — a group of processes can use. Containers are really just processes wrapped in both.</p><p>For a noisy-neighbor problem, isolation only helps if limits are actually set — a container with no cpu/memory requests set can still starve others sharing the node. Diagnose with:</p><pre><code>systemd-cgtop
+cat /sys/fs/cgroup/&lt;path&gt;/cpu.stat
+cat /sys/fs/cgroup/&lt;path&gt;/memory.current</code></pre><p>then check whether the offending workload actually has limits enforced (in Kubernetes: <code>requests</code>/<code>limits</code> on the pod spec).</p>`},
+
+{s:'linux-dist', q:'A production host reports high load average but low CPU utilization. What\'s your diagnostic path?', a:`<p>Load average counts processes waiting on the CPU <strong>and</strong> processes in uninterruptible sleep (D state) — usually blocked on disk or network I/O, not CPU. High load with low CPU% almost always means I/O wait.</p><pre><code>vmstat 1 5        # watch the 'wa' column
+iostat -x 1 5      # per-device %util, await
+ps aux | awk '$8=="D"'   # who's stuck in D state
+free -m            # rule out swap thrash</code></pre><p>Common culprits: a hung NFS mount, a failing disk with retry storms, or heavy swapping. Fix the root cause, don't just restart the box.</p>`},
+
+{s:'linux-dist', q:'Walk through what happens when a systemd unit with Restart=on-failure keeps crash-looping — how do you stop the churn safely?', a:`<p>systemd applies its restart-rate limiting (<code>StartLimitIntervalSec</code> / <code>StartLimitBurst</code>) — once a unit exceeds the burst count inside the interval, systemd stops trying and marks it failed, so it won't spin forever by default.</p><pre><code>systemctl status myapp
+journalctl -u myapp -f --since "10 min ago"
+systemctl reset-failed myapp   # after fixing root cause</code></pre><p>If you need to stop the churn immediately while you investigate, <code>systemctl stop myapp</code> (or mask it) rather than letting it keep flapping. This is the same underlying pattern as Kubernetes CrashLoopBackOff — a bounded, backing-off retry, not infinite hammering.</p>`},
+
+{s:'linux-dist', q:'Explain the CAP theorem in practical infrastructure terms — what does it actually force you to decide?', a:`<p>A distributed system can only fully guarantee two of Consistency, Availability, and Partition tolerance at once. In the real world, network partitions <em>will</em> happen, so partition tolerance isn't optional — the real decision is what you do <strong>during</strong> a partition: stay consistent and refuse some requests (CP), or stay available and risk serving stale/divergent data (AP).</p><p>PACELC extends this: even with no partition, you're trading latency against consistency. Concretely — etcd is CP (it will reject writes rather than risk split-brain); DynamoDB/Cassandra lean AP with tunable consistency levels per query.</p>`},
+
+{s:'linux-dist', q:'Why does etcd use Raft consensus, and what does that mean for how many nodes you run?', a:`<p>Raft achieves consensus through leader election plus log replication, and requires a <strong>majority quorum</strong> to commit a write. Quorum = floor(n/2)+1, which is why clusters run odd numbers of members:</p><ul><li>3 nodes → quorum 2 → tolerates 1 failure</li><li>5 nodes → quorum 3 → tolerates 2 failures</li><li>4 nodes tolerates only 1 failure too, but wastes a node — even numbers add cost without added fault tolerance</li></ul><p>This matters directly for you because etcd backs the Kubernetes control plane's state — an etcd quorum loss means the API server can't accept writes, even if kubelets and workloads are still running fine.</p>`},
+
+{s:'linux-dist', q:'What\'s a split-brain scenario in a highly available cluster, and how do you prevent it?', a:`<p>A network partition leaves two sides of a cluster each believing <em>they</em> are the primary/leader. Both start accepting writes independently, and the data diverges — by the time the partition heals, you have two conflicting histories to reconcile, sometimes unrecoverably.</p><p>Prevention: quorum-based consensus (a minority partition simply can't elect a leader, per the Raft math above), fencing/STONITH ("shoot the other node in the head") in classic Pacemaker/Corosync-style HA clusters, and witness or tiebreaker nodes when you have an even split risk (e.g., exactly two data centers).</p>`},
+
+{s:'linux-dist', q:'You\'re wiring a batch job into an automated retry loop. What does making it idempotent actually require in practice?', a:`<p>Idempotent means running it twice has the same effect as running it once. In practice that means: an idempotency key on the operation (so a retried request is recognized as a duplicate), upsert semantics instead of blind insert/increment, and checking current state before acting rather than assuming a clean starting point.</p><p>Without this, "just retry on failure" is dangerous — a payment job retried after a timeout (when the first attempt actually succeeded server-side) can double-charge; a provisioning job can double-create resources. Automation without idempotency just automates the damage faster.</p>`},
+
+{s:'linux-dist', q:'How does clock skew quietly break distributed systems, and what\'s your first move if you suspect it?', a:`<p>Skewed clocks break TLS certificate validation, Kerberos ticket auth, distributed-tracing timelines (spans appearing to start before their parent), log correlation across hosts, and last-write-wins conflict resolution silently picking the wrong "winner."</p><pre><code>chronyc tracking
+timedatectl status
+chronyc sources -v</code></pre><p>Check NTP source health and drift first — it's a common, easy-to-miss root cause behind symptoms that look like application bugs.</p>`},
+
+{s:'linux-dist', q:'Explain at-least-once, at-most-once, and exactly-once delivery semantics, and where each is an acceptable default for a system you\'d operate.', a:`<p><strong>At-most-once</strong>: fire and forget, message can be lost, never duplicated — fine for best-effort metrics/telemetry. <strong>At-least-once</strong>: retried until acknowledged, so duplicates are possible — the common default, acceptable when the consumer is idempotent. <strong>Exactly-once</strong>: in real systems this is usually "effectively-once," built from at-least-once delivery plus idempotent processing (e.g., Kafka's transactional producer/consumer semantics), not a delivery guarantee that exists on the wire by itself.</p>`},
+
+{s:'linux-dist', q:'A downstream dependency starts timing out intermittently. How do circuit breakers and bulkheads limit the blast radius?', a:`<p>A <strong>circuit breaker</strong> tracks failure rate to a dependency and trips from closed → open once it crosses a threshold, failing fast instead of piling up slow/hanging calls; it periodically half-opens to test recovery. A <strong>bulkhead</strong> isolates the resource pool (threads, connections) used for that one dependency so its slowness can't exhaust resources shared with calls to healthy dependencies.</p><p>Without either, one flaky dependency causes thread/connection exhaustion that cascades into an outage of everything, not just the calls that actually depend on it — the classic thundering-herd failure. Envoy/Istio implement this at the mesh layer; resilience4j is a common in-app option.</p>`},
+
+// ---------------- PYTHON & BASH ----------------
+{s:'python-bash', q:'When do you reach for Bash vs Python for an SRE automation task — where\'s the line for you?', a:`<p>Bash for gluing existing CLI tools together, quick host-level checks, and short cron/systemd-timer jobs. Python once you need structured data (JSON/YAML parsing), real error handling beyond exit codes, API/SDK calls, unit tests, or the script will be maintained by more than just you. A script that starts as a 10-line bash check and grows conditionals and retries is usually a sign it should have been Python from the start.</p>`},
+
+{s:'python-bash', q:'Show a Bash snippet you\'d actually put in production for a disk-usage self-healing check, and explain the safety guards.', a:`<pre><code>#!/usr/bin/env bash
+set -euo pipefail
+THRESHOLD=85
+USAGE=$(df -h / | awk 'NR==2 {print $5}' | tr -d '%')
+if [ "$USAGE" -ge "$THRESHOLD" ]; then
+  logger "disk-check: usage at \${USAGE}%, rotating old logs"
+  find /var/log/myapp -name "*.log.*" -mtime +7 -print -delete
+fi</code></pre><p>Guards that matter: <code>set -euo pipefail</code> so it fails loudly instead of silently continuing on error; a narrowly scoped, explicit <code>find</code> path and <code>-mtime</code> filter rather than a blind <code>rm -rf</code>; logging the action so it's auditable; and testing with <code>-print</code> (no <code>-delete</code>) before trusting it in prod.</p>`},
+
+{s:'python-bash', q:'Describe a Python health-check script you\'d plug into a self-healing loop, and how you\'d guard against it making things worse.', a:`<pre><code>import requests, subprocess, sys
+
+def healthy(url, timeout=5):
+    try:
+        return requests.get(url, timeout=timeout).status_code == 200
+    except requests.RequestException:
+        return False
+
+def restart(service):
+    subprocess.run(["systemctl", "restart", service], check=True)
+
+if __name__ == "__main__":
+    if not healthy("http://localhost:8080/healthz"):
+        restart("myapp")
+        sys.exit(0 if healthy("http://localhost:8080/healthz") else 1)</code></pre><p>Guards: a max-retry/backoff ceiling before it stops self-remediating and pages a human instead (otherwise a restart storm on a genuinely broken deploy just burns the service faster), the restart action itself being idempotent, and an audit log of every automated action taken.</p>`},
+
+{s:'python-bash', q:'How do you handle secrets in a Python or Bash script that runs unattended (cron, systemd timer, CI job)?', a:`<p>Never hardcoded, never committed. Pull them at runtime from a secrets manager (Vault, AWS Secrets Manager, SSM Parameter Store) into environment variables scoped to that single execution, prefer short-lived/dynamic credentials or an IAM role over long-lived static keys, and treat <code>.env</code>-style files as a last resort — excluded via <code>.gitignore</code> and backstopped by secret-scanning (gitleaks/trufflehog) in case someone commits one anyway.</p>`},
+
+{s:'python-bash', q:'What\'s your approach to error handling and exit codes in a script triggered by an orchestrator like Rundeck, Jenkins, or cron?', a:`<p>Distinct non-zero exit codes per failure class so the orchestrator's alerting can distinguish "dependency unreachable" from "validation failed" from "partial success." <code>set -e</code> plus a <code>trap</code> handler in bash to catch unexpected exits cleanly; structured (JSON) logging in Python so downstream tooling can parse it, not just grep it. A script that swallows an error and exits 0 anyway is worse than one that fails loudly — it fails <em>open</em>, quietly, and you find out from a customer instead of a page.</p>`},
+
+{s:'python-bash', q:'How would you structure a Python script that talks to the Kubernetes API to auto-remediate pods stuck in a bad state — what matters for safety?', a:`<p>Use the official <code>kubernetes</code> Python client against a ServiceAccount scoped by RBAC to <em>only</em> the verbs/resources it needs — not cluster-admin. Build in a <code>--dry-run</code> mode you can run first, rate-limit the remediation itself (a circuit breaker on the automation, not just the app it's fixing) so a systemic problem doesn't trigger a restart storm across every affected pod at once, and log every action taken with the pod/namespace/reason for audit and postmortem.</p>`},
+
+// ---------------- CI/CD & ZERO-MANUAL-OPS ----------------
+{s:'cicd', q:'What does "zero manual ops" actually mean in practice, and where do you draw the line on what stays human-gated?', a:`<p>It means automating everything that's repeatable and well-understood — routine deploys, scaling, patching, and remediation of known failure modes — so humans aren't the execution mechanism for solved problems. It does <em>not</em> mean removing humans from decisions that are genuinely novel or carry high blast radius (a database failover, a first-time-seen failure mode). The line is: has this specific action been done safely enough times, with reversible-enough consequences, that a human approving it adds delay without adding safety? If yes, automate it; if no, keep a human in the loop and work toward automating it later once there's confidence.</p>`},
+
+{s:'cicd', q:'Design the stages of a CI/CD pipeline for a critical service in a regulated environment, from commit to production.', a:`<pre><code>commit → lint + unit tests
+      → SAST + dependency (SCA) scan
+      → build + container image scan
+      → deploy to staging
+      → integration / contract tests
+      → canary or blue-green to prod (small %)
+      → automated smoke tests + SLO check
+      → progressive rollout to 100%</code></pre><p>The regulated-environment adjustment isn't adding a human gate on every commit — it's placing the formal change-approval checkpoint where it actually adds value (the prod promotion decision), while everything before it runs automatically and fast, so the audit trail is the pipeline itself, not a ticket someone filled in after the fact.</p>`},
+
+{s:'cicd', q:'How do you keep CI/CD pipeline definitions themselves under the same rigor as application code?', a:`<p>Pipeline-as-code (Jenkinsfile, GitHub Actions YAML, GitLab CI YAML) version-controlled and peer-reviewed like any other change, linted (<code>actionlint</code> for GitHub Actions, similar tools elsewhere), and run with least-privilege, short-lived credentials — OIDC federation to the cloud provider instead of long-lived secrets sitting in the CI system. The pipeline is production infrastructure; it should be reviewed and secured like it.</p>`},
+
+{s:'cicd', q:'What\'s your strategy for rolling back a bad deploy fast, in a way that actually supports "reduction of incidents"?', a:`<p>Rollback should be triggered automatically off health signals — error-rate or latency SLO breach in the canary window — not wait on a human noticing and deciding. Blue-green or canary deployment makes rollback a traffic-shift (seconds) rather than a redeploy (minutes to an hour). If your rollback path still routes through a change ticket, you haven't actually reduced incident duration, you've just automated the deploy and left the recovery manual.</p>`},
+
+{s:'cicd', q:'How do you handle configuration drift between what\'s in Git and what\'s actually running, in an automation-first environment?', a:`<p>GitOps (Argo CD/Flux) continuously reconciles desired state from Git against live cluster state and self-corrects, with drift visible in the tool's UI/alerts rather than discovered during an incident. For infra, a scheduled <code>terraform plan</code> in CI catches drift on a cadence. Critically: treat an unexpected drift event as worth <em>investigating</em>, not just silently reverting — someone made an out-of-band change for a reason, and that reason might be an emergency fix that hasn't been reflected back into code yet.</p>`},
+
+{s:'cicd', q:'What role does policy-as-code play in an automation-first CI/CD pipeline?', a:`<p>It shifts governance left, from a manual reviewer catching a bad pattern to an automated gate blocking it at PR/build time — OPA/Conftest or Kyverno-style policies can block a Terraform plan that opens a security group to <code>0.0.0.0/0</code>, or a Dockerfile that runs as root, before it ever merges. This is what makes "zero manual ops" compatible with strong governance: the governance runs automatically too, instead of depending on a human catching it every time.</p>`},
+
+{s:'cicd', q:'A team wants to skip your pipeline\'s security gate "just this once" to hit a deadline. How do you handle it without becoming the blocker?', a:`<p>A silent bypass sets a precedent and removes visibility. Better: a documented, time-boxed risk-acceptance path — a named approver, a stated reason, and an expiry date after which the exception is automatically revoked and the finding re-blocks the pipeline. That gives the team their deadline, gives you (and security/audit) a paper trail, and keeps the exception from quietly becoming permanent.</p>`},
+
+// ---------------- INFRASTRUCTURE AS CODE ----------------
+{s:'iac', q:'A terraform apply fails halfway through against production. What\'s your recovery process?', a:`<p>Don't immediately re-apply and don't touch the console to "fix it manually" — that just creates drift on top of an already-uncertain state. First:</p><pre><code>terraform state list
+terraform show
+terraform plan   # see the real delta between state and desired config</code></pre><p>Reconcile what actually landed against what was intended, use <code>-target</code> for a careful, scoped re-apply if needed, and if the state file itself looks corrupted, restore from a versioned state backup (S3 versioning) rather than guessing your way forward.</p>`},
+
+{s:'iac', q:'How do you manage Terraform state locking, and what\'s changed recently in how teams do this on AWS?', a:`<p>The long-standing pattern is an S3 backend for state plus a DynamoDB table for locking, preventing two concurrent applies from corrupting the same state. Terraform 1.10 added native S3 state locking (<code>use_lockfile = true</code>) using S3's own conditional writes, so newer setups can drop the DynamoDB dependency entirely — worth knowing both, since plenty of existing environments still run the classic DynamoDB pattern and migrating isn't always a priority.</p>`},
+
+{s:'iac', q:'How do you detect and handle infrastructure drift at scale across many Terraform-managed accounts?', a:`<p>A scheduled drift-detection job — <code>terraform plan</code> run in CI on a cadence (not on every commit) across each environment, posting the diff somewhere visible rather than silently discarding it. Tools like driftctl or Terraform Cloud's built-in drift detection can do this at scale. The key discipline: drift is a signal someone made a change outside the pipeline, worth understanding <em>why</em> before you auto-revert it — it might be a legitimate emergency fix that needs to be pulled back into code, not just noise.</p>`},
+
+{s:'iac', q:'What\'s your module design philosophy for IaC meant to be reused across many teams, as part of standardizing tooling org-wide?', a:`<p>Thin, composable modules with sensible defaults but override-able inputs — not one giant module trying to cover every use case. Versioned/tagged releases (semver) through a private module registry so consumers pin a version instead of tracking a moving branch, validated in CI (<code>terraform validate</code>, <code>tflint</code>, policy checks) before publishing, and documented with real usage examples — a module nobody can figure out how to call doesn't get adopted, it gets forked.</p>`},
+
+{s:'iac', q:'How do you integrate security scanning into your IaC pipeline specifically, not just application code?', a:`<p>tfsec, Checkov, or Terrascan scan <code>.tf</code> files pre-apply for misconfigurations — open security groups, unencrypted storage, overly broad IAM policies — and fail the plan on critical findings, the same shift-left principle as SAST for application code. This catches the mistake before it ever provisions, instead of relying on a runtime scanner to notice the resource exists and is misconfigured after the fact.</p>`},
+
+// ---------------- KUBERNETES ----------------
+{s:'k8s', q:'Explain the Kubernetes reconciliation loop and why it\'s the actual mechanism behind "self-healing."', a:`<p>Every controller runs a continuous loop: read desired state from the API server (backed by etcd), compare it to observed cluster state, and act to converge the two. A ReplicaSet controller noticing 2 of 3 desired pods are gone simply creates a new one — not because "self-healing" was specially built in, but because reconciliation is the entire architecture. This is worth saying explicitly in an interview: self-healing isn't a feature you toggle, it's a property that falls out of the control-loop design.</p>`},
+
+{s:'k8s', q:'What\'s the difference between liveness, readiness, and startup probes, and what happens if you get them wrong?', a:`<pre><code>livenessProbe:
+  httpGet: {path: /healthz, port: 8080}
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+readinessProbe:
+  httpGet: {path: /ready, port: 8080}
+  periodSeconds: 5
+startupProbe:
+  httpGet: {path: /healthz, port: 8080}
+  failureThreshold: 30
+  periodSeconds: 5</code></pre><p><strong>Liveness</strong> failing → container restarted. <strong>Readiness</strong> failing → pod pulled out of Service endpoints but not restarted. <strong>Startup</strong> gates the other two until the app has actually finished booting. Get liveness too aggressive on a slow-starting app and you get a restart storm; get readiness wrong and a broken pod keeps receiving traffic.</p>`},
+
+{s:'k8s', q:'A node goes NotReady intermittently. Walk through your troubleshooting.', a:`<pre><code>kubectl describe node &lt;name&gt;      # check Conditions
+kubectl get events --field-selector involvedObject.name=&lt;name&gt;
+journalctl -u kubelet -f</code></pre><p>Check node Conditions specifically — MemoryPressure, DiskPressure, PIDPressure flip a node NotReady even when it's technically up. Then check container runtime health (containerd/CRI-O), CNI plugin errors in kubelet logs, and if deployed, the Node Problem Detector's reported conditions. Intermittent (vs. permanent) points toward resource pressure or a flaky network path more often than hardware failure.</p>`},
+
+{s:'k8s', q:'How do you design PodDisruptionBudgets and node maintenance so patching nodes doesn\'t cause an incident?', a:`<pre><code>apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata: {name: api-pdb}
+spec:
+  minAvailable: 2
+  selector: {matchLabels: {app: api}}</code></pre><p><code>kubectl drain</code> respects PDBs — it won't evict a pod if doing so would breach the budget, so a badly-set PDB (or none at all) is what turns routine node patching into an outage. Pair this with cordon-before-drain, and a rolling node-group replacement strategy so patches land node-by-node with health checks gating progression, not all at once.</p>`},
+
+{s:'k8s', q:'What\'s your approach to enforcing least-privilege RBAC in a cluster shared by multiple teams?', a:`<p>Namespace-per-team as the default isolation boundary, Roles/RoleBindings scoped to that namespace rather than reaching for ClusterRoles by default, and no wildcard verbs or resources in a Role unless there's a specific reason. Periodically audit actual grants:</p><pre><code>kubectl auth can-i --list --as=system:serviceaccount:team-a:deployer -n team-a</code></pre><p>This ties directly into the JD's "standardize tooling across the org" theme — a consistent namespace/RBAC convention is itself a piece of standardization, not just a security control.</p>`},
+
+{s:'k8s', q:'How do you prevent one misbehaving namespace from starving the rest of the cluster of resources?', a:`<p>ResourceQuotas cap total CPU/memory/object count per namespace; LimitRanges set sane default requests/limits for pods that don't specify their own (so one un-set pod can't consume unbounded resources); PriorityClasses protect critical workloads from being the ones evicted when the scheduler comes under pressure. Without these three together, a single team's misconfigured deploy can degrade every other team on the same cluster.</p>`},
+
+{s:'k8s', q:'How do you enforce a security baseline — no privileged containers, no root — across all workloads in the cluster?', a:`<p>Pod Security Admission, built into Kubernetes at the <code>restricted</code> level, covers the common baseline (it replaced PodSecurityPolicy, which was removed in 1.25). For more nuanced, custom rules, Kyverno or OPA Gatekeeper:</p><pre><code>apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata: {name: disallow-privileged}
+spec:
+  validationFailureAction: Enforce
+  rules:
+    - name: no-privileged-containers
+      match: {resources: {kinds: ["Pod"]}}
+      validate:
+        message: "Privileged containers are not allowed."
+        pattern:
+          spec: {containers: [{"=(securityContext)": {"=(privileged)": "false"}}]}</code></pre>`},
+
+{s:'k8s', q:'How do you approach Kubernetes upgrades in a large, multi-team shared-cluster environment, tying it back to reducing incidents?', a:`<p>Staged rollout — dev, then staging, then prod clusters — never prod-first. Run an API deprecation audit before upgrading (<code>kubectl deprecations</code> or <code>pluto</code>) since removed APIs are the most common upgrade breakage, not the kubelet/control-plane changes themselves. Where possible, run a canary node pool on the new version before the full fleet, communicate the upgrade window clearly to the teams whose workloads are affected, and gate progression on automated compatibility checks in CI against the target version rather than "we tested it once in staging."</p>`},
+
+// ---------------- OBSERVABILITY ----------------
+{s:'observability', q:'Explain Prometheus\'s pull-based scrape model — why did it win out for infra metrics, and where does push still make sense?', a:`<p>Pull means Prometheus itself controls scheduling and health of scraping — a target it can't reach is itself a meaningful signal ("target down"), and there's no risk of a flood of pushes overwhelming a central collector. It also keeps service discovery centralized rather than every app needing to know where to push to.</p><p>Push still matters for short-lived batch/cron jobs that finish before a scrape interval would ever catch them — that's what the Pushgateway exists for, used sparingly and only for that case, not as a general substitute for the pull model.</p>`},
+
+{s:'observability', q:'Write a PromQL alerting rule for an SLO-relevant error-rate breach, and explain each part.', a:`<pre><code>- alert: HighErrorRate
+  expr: |
+    sum(rate(http_requests_total{status=~"5.."}[5m])) by (service)
+      /
+    sum(rate(http_requests_total[5m])) by (service)
+      > 0.05
+  for: 10m
+  labels: {severity: critical}
+  annotations:
+    summary: "{{ $labels.service }} error rate above 5%"
+    runbook_url: "https://runbooks.internal/high-error-rate"</code></pre><p><code>rate()</code> over a 5m window smooths short-term noise; the ratio gives a percentage independent of absolute traffic volume; <code>for: 10m</code> requires the condition to hold, not just spike momentarily, before firing — preventing pages on transient blips; the <code>runbook_url</code> annotation is what turns this from "an alert fired" into "here's what to do," tying directly into the runbook-standardization part of the JD.</p>`},
+
+{s:'observability', q:'Prometheus is single-node with local storage by default — how do you handle long-term retention and HA at large-environment scale?', a:`<p>Thanos, Cortex, Mimir, or VictoriaMetrics extend Prometheus with object-storage-backed long-term retention and a global query layer across many Prometheus instances/clusters — you keep Prometheus itself simple and horizontally federate the storage/query problem instead of trying to make one Prometheus instance retain years of data. For HA at the scrape layer, run duplicate Prometheus pairs scraping the same targets rather than trying to cluster Prometheus itself, which isn't designed for that.</p>`},
+
+{s:'observability', q:'What\'s cardinality explosion in Prometheus, and how do you stop a well-meaning developer from taking down the monitoring stack?', a:`<p>Every unique combination of label values creates a new time series. A label with unbounded values — a raw user ID, a full URL path, a timestamp — multiplies series count combinatorially and can blow up memory/query latency across the entire Prometheus instance, not just that one metric.</p><p>Prevent it with label review in code/PR review, relabeling in the scrape config to drop known-bad high-cardinality labels before ingestion, and alerting on <code>prometheus_tsdb_symbol_table_size_bytes</code> or overall series-count growth so you catch it before it's an incident, not after.</p>`},
+
+{s:'observability', q:'How do Alertmanager\'s grouping, routing, and inhibition rules stop one root cause from paging someone 200 times?', a:`<p><strong>Grouping</strong> batches related firing alerts (same cluster/service) into a single notification instead of one page per series. <strong>Routing</strong> trees direct alerts to the right team/channel by label (severity, service owner). <strong>Inhibition</strong> suppresses downstream symptom alerts once a root-cause alert is already firing — e.g., don't page for every service's elevated latency once "node down" is already firing for the node they all run on. Without inhibition specifically, a single infrastructure failure fans out into dozens of individually-true-but-redundant pages.</p>`},
+
+{s:'observability', q:'Compare ELK and OpenSearch — why would an org run one over the other today, and what\'s the practical migration story?', a:`<p>ELK is Elasticsearch + Logstash + Kibana (with Beats for shipping). OpenSearch is the Apache 2.0 fork AWS and others created after Elastic moved Elasticsearch/Kibana to the SSPL/Elastic license in 2021. They stay close enough at the API level that many workloads migrate with modest effort, and the decision today is often licensing and cloud-vendor alignment rather than a hard feature gap — though it's worth checking current parity for anything niche you actually depend on rather than assuming, since the two projects have diverged incrementally since the fork.</p>`},
+
+{s:'observability', q:'How do you design a log pipeline so that during an incident, logs actually help instead of becoming another thing to troubleshoot?', a:`<p>Structured (JSON) logging with a consistent correlation/trace ID threaded through every service in a request's path — so you can pivot from "this trace is slow" straight to the relevant log lines instead of grepping blind. Sane log levels (not everything dumped at INFO), centralized shipping (Fluent Bit/Filebeat → Logstash/Fluentd → Elasticsearch/OpenSearch), and index lifecycle management so the hot tier stays fast for recent, incident-relevant data while older data ages out to cheaper storage instead of slowly degrading every query.</p>`},
+
+{s:'observability', q:'What are the three pillars of observability, and where does distributed tracing fit alongside Prometheus/Grafana/ELK?', a:`<p>Metrics, logs, and traces. Metrics tell you <em>that</em> something's wrong and roughly how much; logs tell you the detail of a specific event; tracing (Jaeger, Tempo, or increasingly OpenTelemetry as the common instrumentation layer feeding all three) tells you <em>where in a multi-service request path</em> the time went or the error originated — something neither metrics nor logs alone can reconstruct once a request crosses more than a couple of services.</p>`},
+
+{s:'observability', q:'How would you design Grafana dashboards and alerting so they\'re standardized across teams instead of everyone building their own from scratch?', a:`<p>Dashboard-as-code (JSON/Grafonnet, or the Grafana Terraform provider) versioned in a central repo rather than click-ops in the UI, with templated variables (<code>$cluster</code>, <code>$namespace</code>, <code>$service</code>) so one dashboard definition serves every team instead of each team hand-building their own. A golden-signals template (latency, traffic, errors, saturation) every service inherits by default, with Grafana-managed alerting used deliberately — Alertmanager for centrally-routed, cross-team alerting; Grafana alerts for team-owned, dashboard-adjacent ones — rather than the two overlapping unpredictably.</p>`},
+
+{s:'observability', q:'What\'s index lifecycle management in OpenSearch/Elasticsearch, and why does it matter at scale?', a:`<p>ILM automatically moves indices through phases — hot (actively written, fast SSD-backed nodes) → warm (read-only, cheaper) → cold/frozen (rarely queried, cheapest storage) → delete — on a policy you define, rather than every index living forever on your most expensive tier. Without it, log volume grows unchecked, hot-tier disk fills, and query performance for the recent data you actually need during an incident degrades because it's competing with years of cold data on the same nodes.</p>`},
+
+// ---------------- MONITORING & ALERTING ----------------
+{s:'alerting', q:'What makes an alert "actionable" versus noise, and how do you audit an existing alert set for fatigue?', a:`<p>An actionable alert maps to a clear response and has a real consequence if ignored — if you can't say what a human should <em>do</em> about it, it shouldn't page. Audit by tracking the alert-to-incident ratio (how often does this alert correspond to something that actually mattered), how often it's acknowledged-and-ignored, and how often it's silenced. Anything chronically ignored gets downgraded to a dashboard signal or removed — a noisy alert that nobody trusts trains people to ignore the real ones too.</p>`},
+
+{s:'alerting', q:'Symptom-based vs cause-based alerting — which do you page on, and why?', a:`<p>Page on symptoms — user-facing SLO burn, error rate, latency — because that's what actually reflects reliability from the customer's side. Cause-based signals (CPU%, disk%) are valuable for root-causing and lower-urgency tickets, but paging on every cause-level threshold crossing pages you for things that never actually affect users. The exception: a cause-level signal that's a reliable <em>leading indicator</em> of an imminent symptom breach (disk about to fill in an hour) earns a page too — but as a deliberate exception, not the default pattern.</p>`},
+
+{s:'alerting', q:'How do you design escalation policies so one missed page doesn\'t become a prolonged outage?', a:`<p>Tiered escalation with a timeout at each tier — primary on-call, then secondary, then team lead — across more than one channel (push notification, SMS, phone call) so a single missed or muted notification doesn't stall response. Scheduled rotations with clear handoff notes, and periodically <em>testing</em> the escalation path itself (a fire drill), rather than assuming it works because it's configured and has never been needed yet.</p>`},
+
+{s:'alerting', q:'What\'s the difference between synthetic monitoring and real-user monitoring, and when do you need both?', a:`<p>Synthetic monitoring runs scripted checks against your endpoints on a fixed schedule regardless of real traffic — it catches problems even during low-traffic windows and gives you clean, comparable data for SLA reporting. Real-user monitoring captures actual user sessions, catching real-world variance (geography, device, carrier network) that a synthetic probe from one region and one path can completely miss. You need both: synthetic for consistent baseline coverage, RUM for what's actually happening to real customers.</p>`},
+
+// ---------------- RELIABILITY & INCIDENT MANAGEMENT ----------------
+{s:'reliability', q:'Walk through how you\'d set an SLO for a critical service from scratch, including choosing the SLI.', a:`<p>Start with a user-centric SLI — successful-request ratio, or a latency percentile like p99 — measured from real traffic, not a proxy metric that's easy to collect but doesn't reflect actual user experience. Set the SLO target based on what the business/users actually tolerate (talk to product, don't just pick 99.99% because it sounds rigorous), then derive the error budget directly from it: 99.9% monthly means roughly 43 minutes of budget to spend. Instrument the SLI so it's continuously measurable, and only then start alerting on burn rate.</p>`},
+
+{s:'reliability', q:'Your error budget is exhausted for the quarter. What actually changes operationally?', a:`<p>Whatever was pre-agreed in the error-budget policy — typically feature releases pause or require extra scrutiny, and the team's priority shifts toward reliability work until the budget recovers. The critical word is <em>pre-agreed</em>: this needs to be a contract signed off by product and engineering leadership before the crisis, not something negotiated in the moment when a release is already planned and nobody wants to be the one who blocks it.</p>`},
+
+{s:'reliability', q:'Define MTTD, MTTR, and MTBF, and give one concrete lever for improving each.', a:`<p><strong>MTTD</strong> (mean time to detect) — improved by better alert coverage and observability, catching the symptom before a customer does. <strong>MTTR</strong> (mean time to recover) — improved by runbooks, automated rollback, and self-healing so recovery doesn't wait on a human's manual steps. <strong>MTBF</strong> (mean time between failures) — improved by HA design and chaos testing surfacing weaknesses before they cause a real outage, rather than discovering them during one.</p>`},
+
+{s:'reliability', q:'Describe how you\'d run a blameless postmortem — what makes it actually blameless in practice, not just in name?', a:`<p>Reconstruct a factual timeline first, before assigning any interpretation. Use a structured root-cause technique like 5 Whys to get past the first, easiest answer. Write action items with a named owner and a due date, not vague intentions. The "blameless" part is enforced in the room's tone as much as the document — explicitly separating "what happened in the system/process" from "who did it," and treating a human error as a signal the process allowed that error to reach production, not as the root cause itself.</p>`},
+
+{s:'reliability', q:'How do you classify incident severity, and who should be the incident commander?', a:`<p>Severity (SEV1–4 or similar) is tied to actual user impact and scope — how many users, how degraded, is data at risk — not to how stressed the on-call engineer feels in the moment. The incident commander role is about coordination and communication: keeping the timeline, managing who's doing what, deciding when to escalate or bring in more people. It's deliberately not always the same person as whoever is hands-on-keyboard fixing it — mixing the two roles under pressure is how both jobs get done worse.</p>`},
+
+{s:'reliability', q:'How do you validate that your DR plan\'s RTO/RPO targets are actually achievable, not just written down?', a:`<p>Scheduled DR drills that actually fail over — not tabletop exercises where everyone just talks through the steps — measuring real time-to-recover against the stated RTO, and testing an actual backup restore (not just confirming a backup job "succeeded") against the stated RPO. Treat a failed drill as valuable data you're glad you found in a controlled window, not a failure to quietly bury — that's the entire point of running it before you need it for real.</p>`},
+
+{s:'reliability', q:'This JD emphasizes automation-first, but regulated environments usually run a formal CAB process. How do you reconcile the two?', a:`<p>Automate the low-risk, well-understood, frequently-repeated changes under pre-approved standard-change templates, and reserve full CAB review for genuinely novel or high-risk changes. The goal is right-sizing governance to actual risk, not removing governance — and a track record of safe, automated standard changes is usually what earns the broader category pre-approval over time, rather than trying to argue the whole CAB process away at once.</p>`},
+
+{s:'reliability', q:'What\'s the relationship between chaos engineering and reliability engineering — nice-to-have, or core practice?', a:`<p>Chaos engineering validates the resilience design you believe you have, under a controlled steady-state hypothesis and a deliberately bounded blast radius. Without it, your HA/failover design is theoretical until a real incident tests it for you, at the worst possible time, with users watching. The difference chaos engineering buys you is <em>choosing</em> when and how you learn a design's actual weaknesses, instead of finding out during a live outage.</p>`},
+
+{s:'reliability', q:'What\'s a practical numbers-based example of implementing an SLI/SLO for a service you\'re responsible for?', a:`<p>Example: SLI = proportion of HTTP requests returning &lt;500ms and non-5xx, measured via a Prometheus histogram on the ingress. SLO = 99.5% over a rolling 30-day window. Error budget = 0.5% of requests, translated into an alerting burn-rate rule (fast-burn alert if you'd exhaust 2% of the monthly budget in 1 hour; slow-burn alert if you're on pace to exhaust it over several days) — this is the standard multi-window, multi-burn-rate alerting pattern popularized by Google's SRE workbook, and it avoids paging on a blip while still catching a slow, real degradation early.</p>`},
+
+// ---------------- RESILIENCE & SELF-HEALING ----------------
+{s:'resilience', q:'Define "self-healing" at three different layers of the stack, from process to platform.', a:`<p><strong>Process level</strong>: systemd <code>Restart=</code>, container <code>restartPolicy</code> — the simplest, most local form. <strong>Platform level</strong>: Kubernetes reconciliation, liveness/readiness probes, HPA/VPA, cloud auto-healing node groups replacing unhealthy instances. <strong>Application level</strong>: circuit breakers, retries with exponential backoff, graceful degradation/fallback responses when a dependency is down. A mature environment layers all three — platform self-healing catches what process-level restarts can't, and application-level resilience catches what neither infrastructure layer can see (a dependency that's technically "up" but returning bad data slowly).</p>`},
+
+{s:'resilience', q:'What\'s the difference between closed-loop auto-remediation and human-in-the-loop remediation, and how do you decide which failure modes get which?', a:`<p>Closed-loop: detect → diagnose → fix, fully automatically, for a well-understood failure mode with a bounded, reversible blast radius (restart a pod stuck in a known-bad state). Human-in-the-loop: the system detects and maybe diagnoses, but a person decides whether to act — reserved for anything novel or high-blast-radius (a database failover). The boundary between the two shouldn't be static — as confidence in a given automated remediation grows through track record, it can graduate from human-approved to fully closed-loop.</p>`},
+
+{s:'resilience', q:'Give an example of a runbook you\'d automate end-to-end versus one you\'d keep as documentation only, and why.', a:`<p><strong>Automate</strong>: "pod in namespace X stuck in CrashLoopBackOff for &gt;10 min with no recent deploy → restart it, log the action, alert if it recurs within an hour" — deterministic, low blast radius, and trivially reversible. <strong>Keep manual</strong>: "primary database is unreachable, consider failover to replica" — high blast radius, potential data-consistency risk, and it needs a human judgment call about the specific situation. The dividing line is reversibility and how well-understood the failure mode is, not how technically complex the steps are.</p>`},
+
+{s:'resilience', q:'How would you design multi-AZ or multi-region HA so a single zone failure doesn\'t become a customer-facing incident?', a:`<p>Active-active where the data layer allows it, health-check-driven DNS or load-balancer failover so traffic routes away from a bad zone automatically, and a deliberate audit for cross-AZ single points of failure — a shared NAT gateway, a single RDS instance with no standby, a control-plane dependency that isn't itself multi-AZ. None of this counts until you actually test the failover on a schedule; "it's configured for HA" and "it fails over correctly" are different claims.</p>`},
+
+{s:'resilience', q:'What\'s a bulkhead pattern, and how would you apply it to protect a critical service from a noisy, less-critical dependency?', a:`<p>Isolate the resource pools — connection pools, thread pools, rate limits — used per dependency, so a slow or failing dependency exhausts only its own allocation instead of resources shared with calls to healthy dependencies. Concretely: give each downstream API its own connection pool with its own timeout and its own circuit breaker, rather than one shared pool where a slow third-party integration can starve connections needed for a critical internal call.</p>`},
+
+{s:'resilience', q:'How does Kubernetes\' HPA/VPA/Cluster Autoscaler stack function as a form of self-healing under load, and where does it fall short?', a:`<p>HPA scales pod replica count on a metric (CPU, custom metric); VPA adjusts a pod's resource requests/limits over time; Cluster Autoscaler adds/removes nodes when pods can't be scheduled or nodes sit underused. Together they absorb load spikes without a human paged to scale manually. Where it falls short: scaling reacts to a metric with lag (a sudden spike can outrun scale-up time), and none of it helps if the bottleneck is a downstream stateful dependency — a database — that doesn't scale horizontally as easily as stateless pods do.</p>`},
+
+// ---------------- DEVSECOPS & VULNERABILITY MANAGEMENT ----------------
+{s:'devsecops', q:'Walk through your end-to-end process for identifying, assessing, and prioritizing a newly disclosed vulnerability across a large environment.', a:`<p><strong>Identify</strong>: continuous scanning (SCA, container image, IaC) plus direct vendor advisories and the CISA Known Exploited Vulnerabilities (KEV) catalog, so you're not solely dependent on your own scan cadence catching something new. <strong>Assess</strong>: is it network-reachable in your environment, is the vulnerable code path actually exercised, what compensating controls already reduce effective risk. <strong>Prioritize</strong>: CVSS as a starting point, but weighted heavily by EPSS score (likelihood of real-world exploitation in the next 30 days) and KEV membership (already being exploited), not CVSS severity alone — a "critical" CVSS score with no realistic exploit path is a very different priority than a "high" one that's actively being used in attacks.</p>`},
+
+{s:'devsecops', q:'CVSS gives you a severity score, but two "critical" CVEs can warrant very different urgency. What else do you factor in?', a:`<p>Exploitability in practice — does a public or weaponized exploit exist. Exposure — is the affected component internet-facing or air-gapped internal. Asset criticality and blast radius — a critical CVE on a disposable dev sandbox is not the same urgency as one on a payment-processing service. Compensating controls already in place — a WAF rule or network segmentation that meaningfully reduces the effective risk even though the CVSS number itself doesn't move. Treating CVSS as the whole answer is how teams either burn out patching low-risk criticals or miss a genuinely urgent high.</p>`},
+
+{s:'devsecops', q:'You don\'t own the code in a vulnerable service — how do you actually drive remediation with a team that doesn\'t report to you?', a:`<p>An org-wide SLA policy tied to severity, agreed in advance rather than invented ad hoc when you need it — so you're enforcing a shared standard, not your personal opinion. Ticketing with visibility up to their leadership, not just the individual engineer. Regular vulnerability review forums where open items get surfaced across teams. A defined escalation path for missed SLAs. And framing the conversation as shared risk ownership — "this is exposure the org carries" — rather than a compliance chore you're imposing on them from outside.</p>`},
+
+{s:'devsecops', q:'Where in a CI/CD pipeline do SAST, DAST, SCA, container image scanning, and IaC scanning each belong, and why does placement matter?', a:`<p>SAST, SCA, and IaC scanning run early — at commit/PR time — for fast feedback that blocks a bad pattern before it merges. Container image scanning runs at build, right after the image is produced. DAST runs later, against a running staging environment, because it needs a live app to actually attack. Placement matters because the cost of catching an issue scales with how far it traveled: minutes at commit time versus a full incident once it's in production.</p>`},
+
+{s:'devsecops', q:'A CI/CD security gate is flooding teams with findings, many of them low real-risk. How do you fix scanner fatigue without turning the gate off?', a:`<p>Tune the ruleset to your actual stack — disable rule categories that don't apply and are just generating noise. Gate on severity, not on every finding — block critical/high, warn on medium/low rather than treating all findings as equally deploy-blocking. Build a documented risk-acceptance/suppression workflow with a named approver and an expiry date, so exceptions are visible and time-boxed instead of silently ignored. And re-tune periodically as false-positive patterns emerge — a gate nobody trusts gets routed around, which is worse than no gate at all.</p>`},
+
+{s:'devsecops', q:'How do you approach base image and container hardening as vulnerability reduction, not just patching after the fact?', a:`<p>Minimal or distroless base images to shrink the attack surface before a single CVE is even scanned for. Non-root user, read-only root filesystem where the app allows it. Multi-stage builds so build tooling never ships in the final image. Image signing (cosign/Sigstore) and SBOM generation (Syft) so that the next time a widely-used library has a CVE, you can answer "are we affected, and where" in minutes by querying your SBOM inventory instead of re-scanning everything from scratch.</p>`},
+
+{s:'devsecops', q:'A critical, actively-exploited CVE — a "Log4Shell-style" event — is announced. Walk through your first two hours.', a:`<p><strong>First 30 minutes</strong>: confirm exposure — do you actually run the affected component, and where; this is exactly where a maintained SBOM turns a frantic manual audit into a quick query. <strong>Next hour</strong>: apply an immediate compensating control if a real patch will take longer — a WAF rule, disabling the affected feature, network restriction — then prioritize patching internet-facing and highest-criticality assets first, not alphabetically or by convenience. Communicate exposure status to leadership/security early, even before remediation is complete, rather than going quiet until it's "done." <strong>Beyond that</strong>: track remediation to full completion and verify with a re-scan — a deployed patch isn't confirmed fixed until you've checked.</p>`},
+
+{s:'devsecops', q:'How do you operationalize "maintaining active security watch" without it becoming an unstructured, exhausting feed of noise?', a:`<p>Subscribe to a small number of high-signal sources — CISA KEV, vendor advisories for the specific stack you actually run, an NVD feed filtered against your SBOM's components — instead of generic security news. Automate correlation against your own asset/SBOM inventory so what reaches you is pre-filtered to "does this affect us," not everything published that week. And run it on a defined weekly cadence rather than constant context-switching, with a clear escalation path for anything KEV-listed that jumps the queue immediately.</p>`},
+
+{s:'devsecops', q:'What\'s your patch management process for OS-level patching across a large fleet, balancing timely patching against not breaking production?', a:`<p>Tiered cadence — a genuine zero-day/emergency gets an out-of-band expedited path, everything else follows a regular monthly (or similar) cycle. Staged rollout — canary group, then a wave, then the full fleet — with automated health-check gating between stages so a bad patch is caught on a handful of hosts, not the whole fleet. Test in non-prod first, unless the emergency itself makes that infeasible. And a documented rollback plan agreed <em>before</em> starting the rollout, not improvised if something breaks.</p>`},
+
+{s:'devsecops', q:'How does secrets management fit into your DevSecOps practice, especially across CI/CD?', a:`<p>Centralized secrets manager (Vault, AWS Secrets Manager/SSM) instead of secrets living in environment variables or repos. Short-lived, dynamically issued credentials over static long-lived keys wherever the target system supports it. OIDC federation for CI/CD-to-cloud authentication instead of storing cloud credentials in the CI system at all. And secret-scanning (gitleaks/trufflehog) as a pipeline gate, catching the accidental commit that policy alone won't prevent.</p>`},
+
+{s:'devsecops', q:'How would you map your vulnerability and patch management practice to a compliance framework like PCI-DSS or SOC2 in a regulated organization?', a:`<p>PCI-DSS specifically requires defined patch timelines by severity and regular ASV (Approved Scanning Vendor) scans for in-scope systems. The practical translation: your internal SLA policy (severity → remediation deadline) needs to be defensible with evidence on demand — scan history, ticket closure times against SLA, documented exception approvals with expiry. Built this way from the start, an audit becomes "here's the evidence," rather than a scramble to reconstruct a compliance story after the fact.</p>`},
+
+{s:'devsecops', q:'What Kubernetes-specific controls do you put in place as part of a DevSecOps posture, beyond general vulnerability scanning?', a:`<p>Pod Security Admission or Kyverno policies blocking privileged/root containers at admission time. NetworkPolicies enforcing default-deny east-west traffic so a compromised pod can't freely reach everything else in the cluster. RBAC least privilege audited regularly, not just set once. Runtime threat detection (Falco) — because scanning only catches <em>known</em>-vulnerable code, not malicious behavior happening live in a running container. And admission-time image provenance checks, only permitting signed/verified images to run at all.</p>`},
+
+{s:'devsecops', q:'What\'s the difference between EPSS and CVSS, and why do serious vulnerability-management programs use both?', a:`<p>CVSS scores <em>severity</em> — how bad it would be if exploited — as a mostly static property of the vulnerability itself. EPSS (Exploit Prediction Scoring System, maintained by FIRST.org) scores <em>probability of exploitation</em> in the near term, updated continuously against real-world exploitation activity. A high-CVSS, low-EPSS vulnerability may be theoretically severe but not realistically being attacked yet; a moderate-CVSS, high-EPSS one may need faster action. Using both, alongside CISA's KEV catalog for confirmed active exploitation, is what turns a raw scan list into an actually risk-ordered backlog instead of "patch everything labeled critical, in whatever order the ticket queue landed."</p>`},
+
+// ---------------- STANDARDIZATION / RUNBOOKS ----------------
+{s:'standards', q:'What separates a genuinely useful runbook from documentation nobody trusts during an incident?', a:`<p>It's been actually run/tested, not just written and forgotten in a wiki. It's linked directly from the alert that triggers it — the <code>runbook_url</code> annotation pattern — instead of relying on someone to search for it while under pressure. It states preconditions and what to check <em>before</em> acting, not just a blind list of commands. And it has a clear owner and review cadence, so it doesn't quietly drift out of sync with the system it describes.</p>`},
+
+{s:'standards', q:'How do you drive tooling standardization across teams that have grown organically with different stacks, without a mandate to force it?', a:`<p>Start with a golden path that's genuinely easier than each team's current status quo — adoption follows when the paved road is actually faster, not because it's mandated. Get one or two credible, willing early-adopter teams to prove it out first, then use their real adoption data (fewer incidents, faster remediation) to build the case for everyone else. Reserve actual mandates for the genuinely non-negotiable items — security and compliance baselines — rather than trying to mandate every standardization effort equally.</p>`},
+
+{s:'standards', q:'What\'s the difference between a runbook and a playbook, as you use the terms — does the distinction matter operationally?', a:`<p>Usage varies by org, so it's worth confirming which convention a given team uses rather than assuming. A common split: a <strong>runbook</strong> is step-by-step for one specific, known scenario — "disk full on host class X, do this." A <strong>playbook</strong> is a broader decision framework for a class of situations — "how we handle a SEV1," including roles, communication cadence, and escalation, not just technical steps. Operationally the distinction matters because a playbook needs to flex to a novel situation, while a runbook should be executable close to verbatim.</p>`},
+
+{s:'standards', q:'How do you keep operational documentation from going stale as infrastructure evolves under an automation-first initiative?', a:`<p>Docs-as-code living next to the infrastructure/automation it describes — versioned together, reviewed in the same pull request as the change that affects it — rather than a separate wiki that nobody remembers to update. Automated staleness checks where feasible (a runbook referencing a command or tool that's since been deprecated). And making doc updates part of the actual definition-of-done for any change that alters a documented procedure, not an optional follow-up task that quietly never happens.</p>`},
+
+// ---------------- LEADERSHIP / SCALING ----------------
+{s:'leadership', q:'You want a team to adopt a new SRE standard — a scanning tool, an IaC module, a runbook format — but you have no formal authority over them. How do you actually move it forward?', a:`<p>Lead with the problem the team already feels, not the tool you want them to use — nobody adopts something because it's elegant, they adopt it because it fixes something that's actively annoying them. Pilot with a genuinely willing team first rather than trying for org-wide buy-in on day one. Make adoption strictly easier than the status quo alternative — friction kills adoption faster than any objection does. Bring data once you have it (fewer incidents, faster remediation), and if it's stalling purely on inertia rather than a real objection, get a visible sponsor to help unstick it.</p>`},
+
+{s:'leadership', q:'How do you prioritize when you\'re facing a large vulnerability backlog, active incidents, and pressure to deliver a big automation initiative, all at once?', a:`<p>Anything with active exploitation risk or a live incident wins by default over roadmap work — that's not really a judgment call, it's the baseline ordering. The actual skill is making the resulting tradeoff <em>explicit and visible</em> to stakeholders rather than silently absorbing it and quietly under-delivering on all three. Negotiate openly what slips and for how long, instead of trying to run all three at full speed and having each one suffer invisibly.</p>`},
+
+{s:'leadership', q:'A dev team pushes back hard when your security gate blocks their release right before a deadline. How do you handle that conversation?', a:`<p>Separate the relationship from the decision — acknowledge the deadline pressure is real and legitimate before getting into the risk itself. Explain the actual risk in business terms, not "policy says no." Offer the documented exception/risk-acceptance path if the situation genuinely warrants it. And treat <em>repeated</em> friction with the same gate as a signal worth investigating — maybe the gate's threshold or the SLA needs revisiting — rather than concluding every time that the team just needs to comply harder.</p>`},
+
+{s:'leadership', q:'How do you scale SRE practices from one team\'s success to org-wide adoption — what operating model do you lean toward?', a:`<p>In practice, a hybrid: a small central platform/center-of-excellence team builds and maintains the golden paths — CI/CD templates, observability defaults, IaC modules — while embedded engineers or nominated team champions apply and adapt them locally. A pure top-down central mandate stops scaling past a certain org size (the central team becomes the bottleneck); a pure fully-embedded model loses consistency across teams. The hybrid keeps the standard coherent while distributing the actual application of it.</p>`},
+
+{s:'leadership', q:'How do you actually "disseminate best practices across the organization" day to day, beyond writing a wiki page once?', a:`<p>Office hours or brown-bag sessions where teams bring real problems, not abstract lectures. Review comments that explain the reasoning behind a flagged issue, not just "fix this" — that's what actually teaches, not just corrects. A lightweight recurring digest of postmortem learnings across teams, so lessons don't stay siloed in the team that had the incident. Pairing during live incident response when possible. And treating adoption of good practice as something you actually measure — an internal scorecard or dashboard — rather than something you hope is happening.</p>`},
+
+// ---------------- TROUBLESHOOTING SCENARIOS ----------------
+{s:'scenarios', q:'A deploy just went out and 5xx errors spike immediately after. How do you confirm it\'s the deploy before rolling back, and how fast do you act?', a:`<p>Correlate the error-spike timestamp precisely against the deploy/canary event, and check whether the errors are isolated to the new version's pods versus baseline (a canary comparison makes this trivial; without one, check pod age/version labels against the error source). If the correlation is clear and users are actively affected, <strong>roll back first, investigate after</strong> — debugging in production while a known-bad version keeps serving traffic just extends the incident for the sake of root-causing something you can just as well root-cause from the rolled-back state.</p>`},
+
+{s:'scenarios', q:'Prometheus/Alertmanager didn\'t fire during a real outage — you found out from a customer instead. Walk through your investigation.', a:`<p>Check the <code>up</code> metric for the target at the time of the outage — was it even being scraped. Check Alertmanager for an accidental silence or a routing misconfiguration that swallowed the notification. Check whether the alert rule's <code>for:</code> duration was longer than the actual outage lasted — a brief-but-real outage can resolve before a 10-minute <code>for:</code> clause ever trips. Whatever the cause, this is postmortem-worthy on its own — a monitoring gap that let a real outage go unnoticed is itself the incident, separate from whatever caused the outage.</p>`},
+
+{s:'scenarios', q:'A terraform apply fails partway through against a production account and you\'re not sure what actually landed. What do you do, step by step?', a:`<pre><code>terraform state list
+terraform show
+terraform plan</code></pre><p>Don't immediately re-run apply, and don't fix it by hand in the console — either compounds the uncertainty about what state you're actually in. Use <code>state list</code>/<code>show</code> and <code>plan</code> to see the real delta between what's recorded and what's desired, cross-check against the cloud console for ground truth, reconcile deliberately, and if the state file itself looks corrupted, restore from a versioned backup rather than guessing forward from an uncertain baseline.</p>`},
+
+{s:'scenarios', q:'A host pages for disk-full at 2am on a system you don\'t know well. Walk through your first ten minutes.', a:`<pre><code>df -h
+du -sh /var/log/* 2>/dev/null | sort -rh | head
+docker system df    # if containers are involved</code></pre><p>Confirm and locate the full filesystem first, then find what's actually growing — check known culprits (logs, core dumps, container overlay layers) before anything exotic. Buy time safely — rotate, compress, or move data rather than blind-deleting anything you don't yet understand — then once stable, find out <em>why</em> it grew (a missing logrotate config, a runaway debug log level left on) so it doesn't page again next week.</p>`},
+
+{s:'scenarios', q:'A new CVE database update causes your scanner to flag hundreds of "critical" findings overnight across the fleet. How do you avoid both panic and complacency?', a:`<p>Don't mass-suppress the batch, and don't try to patch all of it by 9am either — both are overreactions to a scanner-config event, not a confirmed incident. Quickly triage for the subset that's internet-facing, on a high-criticality asset, and/or KEV/EPSS-flagged as actively exploited — that subset gets same-day attention. Communicate the situation and the triage plan early so stakeholders aren't blindsided by a scary dashboard number. And treat the batch as a useful prompt to double-check whether your scanning cadence and rule baseline are actually current, since a single database update shouldn't be capable of causing this much noise if tuning is healthy.</p>`},
+
+{s:'scenarios', q:'Your ELK/OpenSearch pipeline falls behind during an incident, so the logs you need aren\'t there yet. How do you diagnose and fix it, and what do you do about the incident meanwhile?', a:`<p>Check the ingest bottleneck — Logstash/ingest-pipeline CPU, Elasticsearch/OpenSearch indexing rate, rejected-execution errors, shard count/sizing relative to write volume. For the incident itself, don't wait on the pipeline to catch up — fall back to direct access (<code>kubectl logs</code>, <code>journalctl</code> on the affected hosts) so response isn't blocked by a secondary tooling failure. Afterward, right-size ingest capacity or shed lower-value log volume so the pipeline has headroom for exactly the kind of traffic spike an incident tends to generate.</p>`},
+
+{s:'scenarios', q:'A Kubernetes node is intermittently NotReady, correlating loosely with high pod density on that node. What\'s your hypothesis path?', a:`<p>Check kubelet-reported node conditions for MemoryPressure/DiskPressure first — the correlation with pod density points straight at resource exhaustion rather than a hardware issue. Look for a pod without resource limits set, consuming more than expected and starving the node. Check whether ResourceQuotas/LimitRanges are actually enforced in the relevant namespace (a policy that exists but isn't applied is as good as no policy). And check PriorityClasses — if critical pods aren't marked with appropriate priority, they may be the ones getting evicted first under pressure instead of the actual offender.</p>`},
+
+{s:'scenarios', q:'Two teams\' vulnerability remediation priorities directly conflict — one wants to patch now (a breaking change), the other needs stability through a compliance audit window. How do you resolve it?', a:`<p>Assess the vulnerability's actual exploitability and exposure against the audit window's real risk — is this KEV-listed and actively exploited, or a theoretical finding that can safely wait a defined, short window. Look for a compensating control that satisfies the urgency without the breaking change — a WAF rule or network restriction as a bridge until the audit window closes. And escalate the tradeoff explicitly to whoever owns shared risk for the org, rather than letting the two teams silently disagree and each assume their priority won.</p>`},
+
+{s:'scenarios', q:'A previously-reliable automated remediation script starts making an incident worse instead of better. What do you do in the moment, and after?', a:`<p>In the moment: disable the automation immediately (not just let it keep retrying) and switch to manual remediation while you stabilize — an automated action actively causing harm needs a kill switch you can hit fast, which is why every closed-loop remediation should have one designed in from the start, not added after this happens once. After: treat it exactly like a postmortem-worthy incident on its own — what changed in the environment that the automation's assumptions no longer held, and whether the blast-radius bound on that automation was actually as tight as intended.</p>`},
+
+// ---------------- BEHAVIORAL / CLOSING ----------------
+{s:'behavioral', q:'Tell me about a time you reduced incident volume through automation rather than more careful manual process. What was the actual mechanism?', a:`<p>Structure it as STAR: the <strong>situation</strong> — a recurring class of incident; the <strong>task</strong> — why manual handling wasn't sustainable; the <strong>action</strong> — specifically what you automated and, importantly, <em>why that particular failure mode was safe to automate</em> (bounded, reversible, well-understood); the <strong>result</strong> — a quantified reduction. Have one real, specific example ready with actual numbers rather than a generic "we automated some things" answer — interviewers on a role this automation-focused will usually ask a follow-up about exactly how you knew it was safe to automate.</p>`},
+
+{s:'behavioral', q:'Tell me about a time you had to push back on a deadline or a stakeholder because of an unresolved security or reliability risk.', a:`<p>STAR it, but put the emphasis on <em>how</em> you pushed back: framing the risk in business terms rather than pure technical language, offering an alternative or a mitigation instead of a flat no, and being honest about the actual outcome — including if it wasn't a clean win. An interviewer asking this wants to see judgment under pressure and how you communicate risk upward, not just that you were technically correct.</p>`},
+
+{s:'behavioral', q:'Tell me about a disagreement with another team over remediation priority or ownership. How did you resolve it?', a:`<p>Emphasize the resolution <em>mechanism</em> — data you brought to the conversation, an escalation path you used, a shared framework (like an SLA policy) you both deferred to — rather than framing it as "I was right and they eventually came around." The strongest version of this answer shows you changed the conversation from a personal disagreement into a shared, criteria-based decision.</p>`},
+
+{s:'behavioral', q:'How do you personally stay current on emerging threats and new practices in a field that moves this fast?', a:`<p>Name concrete, specific habits — particular feeds or advisories you actually follow, a practice environment or CTF-style exercise you use, a community or internal forum you're part of — rather than a vague "I read a lot" or "I follow security news." Interviewers asking this are checking for a real, repeatable system you actually run, not enthusiasm for the topic in the abstract.</p>`},
+
+{s:'behavioral', q:'What should you ask the interviewer, given this specific JD?', a:`<ul><li>"How is the tension between the automation-first mandate and existing manual change-approval processes handled today?"</li><li>"What does the vulnerability remediation SLA look like in practice, and how is compliance with it tracked across teams?"</li><li>"Is SRE tooling standardization driven by a central platform team today, or is it more grassroots — and where's this role positioned relative to that?"</li><li>"What's the current split between proactive reliability/security work and reactive incident response for this team?"</li><li>"What would success in this role look like at the 6-month mark?"</li></ul>`}
+];
+
+// ---------------- render logic ----------------
+const contentEl = document.getElementById('content');
+const tocEl = document.getElementById('toc');
+const mobileTocEl = document.getElementById('mobile-toc');
+let mastery = {};
+let activeSection = null;
+
+function sectionCounts(){
+  const counts = {};
+  QUESTIONS.forEach(q => counts[q.s] = (counts[q.s]||0) + 1);
+  return counts;
+}
+
+function buildToc(){
+  const counts = sectionCounts();
+  tocEl.innerHTML = '';
+  mobileTocEl.innerHTML = '';
+
+  const allLi = document.createElement('li');
+  const allBtn = document.createElement('button');
+  allBtn.textContent = 'All sections';
+  allBtn.className = 'active';
+  allBtn.onclick = () => setActiveSection(null);
+  allLi.appendChild(allBtn);
+  tocEl.appendChild(allLi);
+
+  const allChip = document.createElement('button');
+  allChip.textContent = 'All';
+  allChip.className = 'active';
+  allChip.onclick = () => setActiveSection(null);
+  mobileTocEl.appendChild(allChip);
+
+  SECTIONS.forEach(sec => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.innerHTML = `<span class="dot2" style="background:${sec.color}"></span><span>${sec.name}</span><span class="cnt">${counts[sec.id]||0}</span>`;
+    btn.onclick = () => setActiveSection(sec.id);
+    btn.dataset.sec = sec.id;
+    li.appendChild(btn);
+    tocEl.appendChild(li);
+
+    const chip = document.createElement('button');
+    chip.textContent = sec.tag;
+    chip.dataset.sec = sec.id;
+    chip.style.borderColor = sec.color + '55';
+    chip.onclick = () => setActiveSection(sec.id);
+    mobileTocEl.appendChild(chip);
+  });
+}
+
+function setActiveSection(id){
+  activeSection = id;
+  document.querySelectorAll('.toc button, .mobile-toc button').forEach(b => {
+    const match = (id === null && !b.dataset.sec) || b.dataset.sec === id;
+    b.classList.toggle('active', match);
+  });
+  if(id){
+    const target = document.getElementById('sec-' + id);
+    if(target) target.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'});
+  }
+  applyFilters();
+}
+
+function render(){
+  contentEl.innerHTML = '';
+  SECTIONS.forEach(sec => {
+    const qs = QUESTIONS.filter(q => q.s === sec.id);
+    if(!qs.length) return;
+    const secDiv = document.createElement('div');
+    secDiv.className = 'section';
+    secDiv.id = 'sec-' + sec.id;
+    secDiv.dataset.sec = sec.id;
+
+    const head = document.createElement('div');
+    head.className = 'section-head';
+    head.innerHTML = `<span class="bar" style="background:${sec.color}"></span>
+      <h2>${sec.name}</h2>
+      <span class="tagpill" style="color:${sec.color}; border-color:${sec.color}66; background:${sec.color}14;">${sec.tag}</span>
+      <span class="n">${qs.length} Q</span>`;
+    secDiv.appendChild(head);
+
+    qs.forEach((q, idx) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.setProperty('--card-color', sec.color);
+      card.dataset.id = q.id;
+      card.dataset.search = (q.q + ' ' + q.a + ' ' + sec.name + ' ' + sec.tag).toLowerCase();
+
+      const top = document.createElement('div');
+      top.className = 'card-top';
+      const qEl = document.createElement('p');
+      qEl.className = 'q';
+      qEl.innerHTML = `<span class="qnum">Q${idx+1}.</span>${q.q}`;
+      const label = document.createElement('label');
+      label.className = 'mastery';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = !!mastery[q.id];
+      cb.addEventListener('change', () => {
+        mastery[q.id] = cb.checked;
+        card.classList.toggle('mastered', cb.checked);
+        saveMastery();
+        updateStats();
+        applyFilters();
+      });
+      const span = document.createElement('span');
+      span.textContent = 'Got it';
+      label.appendChild(cb);
+      label.appendChild(span);
+      top.appendChild(qEl);
+      top.appendChild(label);
+
+      const aEl = document.createElement('div');
+      aEl.className = 'a';
+      aEl.innerHTML = q.a;
+
+      card.appendChild(top);
+      card.appendChild(aEl);
+      if(mastery[q.id]) card.classList.add('mastered');
+      secDiv.appendChild(card);
+    });
+
+    contentEl.appendChild(secDiv);
+  });
+}
+
+function applyFilters(){
+  const term = document.getElementById('search').value.trim().toLowerCase();
+  const unreviewedOnly = document.getElementById('unreviewed-toggle').checked;
+  let anyVisible = false;
+
+  document.querySelectorAll('.section').forEach(secDiv => {
+    let sectionHasVisible = false;
+    const secMatches = activeSection === null || secDiv.dataset.sec === activeSection;
+    secDiv.querySelectorAll('.card').forEach(card => {
+      const id = card.dataset.id;
+      const textMatch = !term || card.dataset.search.includes(term);
+      const reviewMatch = !unreviewedOnly || !mastery[id];
+      const visible = secMatches && textMatch && reviewMatch;
+      card.classList.toggle('hidden', !visible);
+      if(visible){ sectionHasVisible = true; anyVisible = true; }
+    });
+    secDiv.style.display = sectionHasVisible ? '' : 'none';
+  });
+
+  document.getElementById('empty-state').style.display = anyVisible ? 'none' : 'block';
+}
+
+function updateStats(){
+  const total = QUESTIONS.length;
+  const masteredCount = Object.values(mastery).filter(Boolean).length;
+  const pct = total ? Math.round((masteredCount/total)*100) : 0;
+  document.getElementById('stat-sections').textContent = SECTIONS.length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-mastered').textContent = masteredCount;
+  document.getElementById('stat-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+async function loadMastery(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res && res.value) mastery = JSON.parse(res.value);
+  }catch(e){
+    mastery = {};
+  }
+}
+
+async function saveMastery(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(mastery), false);
+  }catch(e){
+    console.error('Could not save progress', e);
+  }
+}
+
+document.getElementById('search').addEventListener('input', applyFilters);
+document.getElementById('unreviewed-toggle').addEventListener('change', applyFilters);
+document.getElementById('reset-btn').addEventListener('click', async () => {
+  mastery = {};
+  await saveMastery();
+  render();
+  updateStats();
+  applyFilters();
+});
+
+(async function init(){
+  buildToc();
+  await loadMastery();
+  render();
+  updateStats();
+  applyFilters();
+})();
+</script>
+</body>
+</html>

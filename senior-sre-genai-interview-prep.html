@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Senior SRE + GenAI Interview Prep</title>
+<style>
+:root{
+  --bg:#0f1117; --panel:#171a23; --panel2:#1e2230; --border:#2a2f3d;
+  --text:#e8e9ed; --muted:#9aa1b2; --accent:#5b8def; --accent2:#7ee3b3;
+  --warn:#f0b155; --gap:#e8735c;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.55;}
+header{padding:28px 20px 18px;max-width:1000px;margin:0 auto;}
+h1{font-size:1.6rem;margin:0 0 6px;}
+.sub{color:var(--muted);font-size:0.95rem;margin-bottom:14px;}
+.meta{display:flex;gap:14px;flex-wrap:wrap;font-size:0.85rem;color:var(--muted);margin-bottom:16px;}
+.meta span{background:var(--panel2);padding:4px 10px;border-radius:20px;border:1px solid var(--border);}
+#search{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:1rem;margin-bottom:12px;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.chip{padding:6px 14px;border-radius:20px;background:var(--panel2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:0.85rem;user-select:none;}
+.chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+main{max-width:1000px;margin:0 auto;padding:0 20px 60px;}
+.block{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;}
+.block h2{margin-top:0;font-size:1.15rem;}
+.fit-grid{display:grid;grid-template-columns:1fr;gap:10px;}
+.fit-item{background:var(--panel2);border-radius:10px;padding:12px 14px;border-left:3px solid var(--accent2);}
+.fit-item.gap{border-left-color:var(--gap);}
+.fit-item b{display:block;margin-bottom:4px;}
+ul.facts{padding-left:20px;margin:0;}
+ul.facts li{margin-bottom:8px;color:var(--text);}
+.section-title{font-size:1.2rem;margin:32px 0 6px;display:flex;align-items:center;gap:10px;}
+.section-note{color:var(--muted);font-size:0.88rem;margin-bottom:14px;}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;}
+.card-q{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600;}
+.card-q:hover{background:var(--panel2);}
+.card-a{padding:0 16px;max-height:0;overflow:hidden;transition:max-height 0.25s ease, padding 0.25s ease;color:var(--muted);}
+.card.open .card-a{padding:0 16px 16px;max-height:800px;}
+.arrow{transition:transform 0.2s;color:var(--accent);flex-shrink:0;}
+.card.open .arrow{transform:rotate(90deg);}
+.chk{margin-right:10px;flex-shrink:0;}
+.card.done .card-q{opacity:0.55;text-decoration:line-through;}
+.progress-wrap{position:sticky;top:0;background:var(--bg);padding:10px 20px;border-bottom:1px solid var(--border);z-index:10;max-width:1000px;margin:0 auto;}
+.progress-bar-outer{background:var(--panel2);border-radius:20px;height:8px;overflow:hidden;}
+.progress-bar-inner{background:var(--accent2);height:100%;width:0%;transition:width 0.3s;}
+.progress-text{font-size:0.8rem;color:var(--muted);margin-top:4px;}
+.star-item{background:var(--panel2);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+.star-item b{color:var(--accent);}
+.hidden{display:none !important;}
+.footer-note{color:var(--muted);font-size:0.8rem;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+
+<div class="progress-wrap">
+  <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+  <div class="progress-text" id="progressText">0 / 28 reviewed</div>
+</div>
+
+<header>
+  <h1>Senior SRE + GenAI Engineering — Interview Prep</h1>
+  <div class="sub">Built for tomorrow's interview. Covers your strong-fit SRE ground plus the GCP and GenAI stretch areas from the JD.</div>
+  <div class="meta">
+    <span>6 topic areas</span>
+    <span>28 Q&amp;A cards</span>
+    <span>Offline / single-file</span>
+    <span>Progress saved locally</span>
+  </div>
+  <input type="text" id="search" placeholder="Search questions, answers, tags...">
+  <div class="chips" id="chips"></div>
+</header>
+
+<main>
+
+  <div class="block" id="rolefit">
+    <h2>Role Fit — Where You're Strong, Where You Bridge</h2>
+    <p class="section-note">Read this first. Say the gaps out loud, honestly, before they ask — it lands better than being caught off guard.</p>
+    <h3 style="color:var(--accent2);font-size:0.95rem;">Strong fit — lead with these</h3>
+    <div class="fit-grid" id="strongFit"></div>
+    <h3 style="color:var(--gap);font-size:0.95rem;margin-top:18px;">Gaps to bridge honestly</h3>
+    <div class="fit-grid" id="gapFit"></div>
+  </div>
+
+  <div class="block" id="quickfacts">
+    <h2>Quick Facts — Lock These In</h2>
+    <ul class="facts" id="factsList"></ul>
+  </div>
+
+  <div id="sectionsContainer"></div>
+
+  <div class="block" id="star">
+    <h2>STAR Stories to Prep Tonight</h2>
+    <p class="section-note">One story per row. Practice saying each out loud once before tomorrow.</p>
+    <div id="starList"></div>
+  </div>
+
+  <div class="block" id="closing">
+    <h2>Closing Advice</h2>
+    <ul class="facts" id="closingList"></ul>
+  </div>
+
+  <div class="footer-note">Good luck tomorrow. Trust the depth you already have — the GCP/GenAI gaps are vocabulary, not competence.</div>
+
+</main>
+
+<script>
+const DATA = {"roleFit": {"strong_fit": [["SLIs/SLOs/Error Budgets", "You already own this end-to-end: 99.9% uptime maintenance, 35% MTTD reduction. Directly maps to 'Own SLIs, SLOs, and error budgets for critical services.'"], ["Incident Management", "45% recovery time improvement is a strong headline number for 'reduce MTTR' and 'senior escalation point for complex incidents.'"], ["Kubernetes", "Deep hands-on across clusters — resource tuning, autoscaling, rolling deploys map directly to the K8s bullet, even though your production experience is AKS/EKS not GKE."], ["Terraform / IaC", "Direct match for 'Build and manage Infrastructure as Code using Terraform.'"], ["CI/CD", "Jenkins + GitHub Actions + ArgoCD experience covers 'canary deployments, automated rollbacks, health checks' conceptually — GKE-specific tooling (Cloud Deploy, Argo Rollouts) is learnable fast."], ["Observability", "Prometheus/Grafana/Splunk/Dynatrace stack covers 'build end-to-end observability across infra, apps' directly. 40% alert noise reduction is your strongest 'actionable, low-noise alerts' proof point."], ["Chaos Engineering", "Gremlin experience directly supports 'load testing, chaos engineering' (listed as nice-to-have but often weighted heavily for senior SRE)."], ["Python Automation", "Strong Python/shell scripting covers 'develop automation tools and scripts (primarily in Python).'"]], "gaps_and_bridges": [["GCP (mandatory)", "You're Azure-certified (AZ-104/SC-300/SC-100) and AWS-experienced, not GCP-production. Bridge: the concepts transfer almost 1:1 — IAM, VPC, autoscaling, managed K8s are the same shape as Azure/AWS. Say directly: 'My production depth is Azure and AWS, but the architecture patterns — IAM least-privilege, VPC-native networking, managed K8s autoscaling — map directly onto GCP; I've been getting hands-on with GKE this week specifically for this interview.' Honest, not overclaimed."], ["LangChain / LangGraph / GenAI production", "No hands-on production LangChain/LangGraph experience on record. Bridge: frame it through the SRE lens you DO own — 'I haven't shipped a LangChain agent to production, but the reliability problem is the same one I've solved for any external API dependency: rate limiting, retries with backoff, circuit breakers, and fallback paths. I'd bring that resilience-engineering lens to hardening the LLM call path from day one.' This is honest and turns a gap into a demonstrated strength."], ["FastAPI specifically", "You have Python depth but not FastAPI-specifically on record. Bridge: FastAPI's reliability concerns (async timeouts, connection pooling, dependency injection) are the same category of problem you've solved with other Python services — say so plainly if asked."], ["Next.js / frontend reliability", "Not on your record. Bridge: frame as 'infra-side reliability for frontend' — CDN/edge caching, SSR error correlation with backend traces, RUM as a monitoring gap you'd close first."]]}, "quickFacts": ["GKE Autopilot = GCP manages nodes, you pay per pod resource request, no node pool ops.", "GKE Standard = you manage node pools — machine types, DaemonSets, privileged workloads possible.", "Workload Identity = K8s SA bound to GCP IAM SA — no service account key JSON in the cluster. Same shape as AWS IRSA / Azure AD Workload Identity.", "Google Managed Service for Prometheus (GMP) = fully managed Prometheus-compatible metrics on GKE — you keep PromQL/Grafana, GCP manages storage/scaling.", "Cluster Autoscaler = node count. HPA = pod count. VPA = right-size pod requests. NAP (Node Auto-Provisioning) = Autopilot auto-picks machine types.", "top_p (nucleus sampling) = keep smallest token set whose cumulative probability >= p. top_k = keep only the k highest-probability tokens. Both trade determinism for creativity — lower both for production-safe outputs.", "temperature scales the logits before softmax — near 0 = near-deterministic/greedy, near 1+ = more random.", "LangChain chain = fixed linear sequence (prompt -> LLM -> parser). LangChain agent = LLM decides which tool to call and in what order, at runtime.", "LangGraph = graph-based orchestration with explicit state — supports cycles, conditional branches, retries, human-in-the-loop checkpoints. Chains can't loop; graphs can.", "TTFT (time to first token) is the latency SLI that matters for streaming LLM UX — total completion time alone hides a bad user experience.", "Circuit breaker states: closed (calls flow) -> open (calls fail fast after threshold breaches) -> half-open (test traffic) -> closed or open again.", "Readiness probe failure = pod pulled from Service endpoints (no traffic). Liveness probe failure = pod killed and restarted. Getting these swapped is a classic K8s interview trap.", "Canary analysis (Argo Rollouts / Flagger) shifts a % of traffic, watches an SLO metric (error rate/latency), auto-promotes or auto-rolls-back — no human in the loop needed for the rollback decision.", "Error budget = 1 - SLO. If SLO is 99.9% over 30 days, budget is ~43.2 minutes of unavailability. Burn-rate alerting fires on how fast you're consuming that budget, not on raw error count."], "sections": [{"id": "gcp", "title": "GCP / GKE Essentials", "note": "Fastest-value prep block — you know these concepts on Azure/AWS, you just need GCP's names for them.", "cards": [["What's the difference between GKE Autopilot and Standard, and when would you pick each?", "Autopilot: Google manages nodes entirely, you're billed per pod resource request, no node pool maintenance, some workload restrictions (no privileged containers, limited DaemonSets). Standard: you manage node pools yourself — machine types, taints/tolerations, DaemonSets, GPU nodes. Pick Autopilot for most application workloads to cut ops overhead; pick Standard when you need privileged workloads, custom node configs, or fine-grained cost control via committed-use discounts on specific machine types."], ["Explain Workload Identity on GKE.", "Binds a Kubernetes service account to a GCP IAM service account via OIDC federation, so pods authenticate to GCP APIs (Cloud Storage, Vertex AI, etc.) without a downloaded service account key JSON sitting in the cluster as a secret. Same security model as AWS IRSA or Azure AD Workload Identity — eliminates long-lived credentials as an attack surface."], ["How does autoscaling work end-to-end on GKE?", "Four layers: HPA scales pod replica count based on metrics (CPU, memory, or custom Prometheus metrics via an adapter). VPA recommends/adjusts pod resource requests over time. Cluster Autoscaler adds/removes nodes based on unschedulable pods and node utilization. Node Auto-Provisioning (mainly Autopilot) automatically picks machine types/shapes rather than you pre-defining node pools."], ["How would you get Prometheus-style metrics on GKE without running your own Prometheus?", "Google Managed Service for Prometheus (GMP) — a fully managed, Prometheus-API-compatible backend. Same PodMonitor/ServiceMonitor-style scrape config and PromQL, same Grafana on top, but GCP handles storage, scaling, and retention. Good answer if asked 'have you used GCP-native observability' — shows you know the mapping even without hands-on GMP time."], ["What's the GCP equivalent of an Azure Resource Group / AWS Account for isolation?", "GCP Project is the closest analog — billing, IAM, and API enablement boundary. Projects roll up into Folders, which roll up into an Organization. IAM policies can be set at any level and inherit downward, same pattern as Azure management groups -> subscriptions -> resource groups."], ["How do you avoid storing long-lived GCP credentials in a GitHub Actions CI/CD pipeline?", "Workload Identity Federation for CI/CD — GitHub Actions' OIDC token is exchanged for a short-lived GCP access token via a configured identity pool/provider, no static service account key stored as a GitHub secret. Directly analogous to the AWS OIDC-to-IAM-role pattern you already use."], ["What's VPC-native networking on GKE and why does it matter?", "Pods and Services get IPs from secondary ranges (alias IPs) within the VPC itself, rather than an overlay network. This makes pod IPs routable/visible to other GCP resources directly, simplifies firewall rules and VPC peering, and is required for many GCP-native integrations (e.g., Private Service Connect)."]]}, {"id": "genai", "title": "GenAI / LLM Production Engineering", "note": "This is the block most likely to differentiate you — frame every answer through the SRE resilience lens, not as an ML engineer.", "cards": [["What's the difference between a LangChain chain and a LangChain agent?", "A chain is a fixed, linear sequence you define at build time — prompt template -> LLM call -> output parser, always in that order. An agent gives the LLM a set of tools and lets it decide at runtime which tool to call, in what order, and when it's done — the control flow is dynamic, decided by the model's own output at each step."], ["What problem does LangGraph solve that plain LangChain chains can't?", "Chains are directed acyclic sequences — no loops, no conditional branching back to an earlier step. LangGraph models the workflow as an explicit state graph: nodes are steps, edges can be conditional, and the graph can cycle (e.g., 'retry this step if validation fails' or 'loop until the agent decides it's done'). It also makes state explicit and inspectable, which matters for debugging and for human-in-the-loop checkpoints."], ["How would you rate-limit and circuit-break calls to an external LLM API (OpenAI/Gemini) to avoid cascading failures?", "Token-bucket rate limiting client-side to stay under the provider's RPM/TPM limits before you get 429s. Exponential backoff with jitter on retryable errors (429, 5xx), capped retry count for non-idempotent-feeling calls. A circuit breaker in front of the provider call: after N consecutive failures within a window, trip to open, fail fast (or fail over to a fallback model/cached response) for a cooldown period, then send half-open test traffic before fully closing again. This is the exact same pattern as protecting a service from a flaky downstream dependency — just the dependency is an LLM API instead of a database."], ["What are temperature, top_k, and top_p, and how do you use them for 'guardrails'?", "All three control sampling randomness at generation time. Temperature scales the probability distribution before sampling — near 0 is closer to always picking the highest-probability token (deterministic), higher values flatten the distribution (more random/creative). top_k restricts sampling to only the k highest-probability tokens. top_p (nucleus sampling) restricts sampling to the smallest set of tokens whose cumulative probability exceeds p. For production-safety-critical outputs (e.g., structured JSON, classification), you generally want low temperature and tight top_p/top_k to reduce variance and malformed-output rate."], ["What SLIs would you define for an LLM-powered API endpoint?", "Availability/success rate (did the call return a valid, parseable response — not just HTTP 200, since a 200 with a malformed or empty completion is still a failure from the user's perspective). Latency — both TTFT for streaming UX and full completion time. Token usage / cost per request as a cost SLI, since LLM spend can silently regress without an incident-shaped signal. Optionally, guardrail-violation rate if you have output validation/moderation in the path."], ["How do you control cost and prevent runaway LLM spend in production?", "Hard max_tokens caps per request type. Semantic/response caching for repeated or near-duplicate prompts. Model routing — cheaper/faster model for simple requests, escalate to a stronger model only when needed. Per-user/per-tenant rate limits and quota. Cost-per-request as a first-class dashboard metric and alert, not just a monthly billing surprise. Batch requests where the workflow allows it instead of one call per item."], ["How would you design an SLO for a GenAI chatbot feature end-to-end?", "Define the SLI first — e.g., 'percentage of chat completions that return within 3s TTFT and pass output validation.' Set the SLO target based on user tolerance and business criticality (e.g., 99% over 28 days), derive the error budget from that, and wire multi-window burn-rate alerts (fast burn on 1h window, slow burn on 3d window) so you page on budget consumption velocity, not on isolated errors. Explicitly carve out third-party LLM provider outages in your postmortem process, since that dependency isn't fully in your control — but don't exclude it from the SLO itself, or you lose the signal that matters to the user."], ["What's RAG and why might it matter for this role even though it's not explicit in the JD?", "Retrieval-Augmented Generation: before calling the LLM, you retrieve relevant context (often via vector embeddings + similarity search) and inject it into the prompt, so the model answers grounded in real data rather than only its training knowledge. Worth mentioning briefly if it comes up — a GenAI-production role touching LangChain almost always intersects with RAG pipelines even if the JD doesn't spell it out, and vector DB latency/availability becomes another dependency in your reliability chain."], ["How do you keep an LLM agent from looping forever or taking unsafe actions?", "Hard iteration/step caps on the agent loop (LangGraph makes this explicit as a graph property). Tool allow-lists — the agent can only call pre-approved, scoped functions, never arbitrary code execution. Human-in-the-loop checkpoints for high-stakes actions (e.g., anything that writes/deletes data). Timeout the whole agent run, not just individual LLM calls, since an agent can burn wall-clock time across many small calls without any single one timing out."]]}, {"id": "fullstack", "title": "Full-Stack (FastAPI / Next.js) Reliability", "cards": [["What reliability patterns would you enforce at the FastAPI layer for GenAI-backed endpoints?", "Explicit per-dependency timeouts (LLM call, DB call, vector store call each get their own timeout, not one global timeout). Retries with backoff only on idempotent operations. Connection pooling sized correctly for async workers so a slow LLM call doesn't exhaust the pool and block unrelated requests. Bulkhead isolation — separate connection/thread pools per external dependency so one slow dependency can't starve requests that don't even use it. Circuit breakers (e.g., via `tenacity` or a custom wrapper) around the LLM client specifically."], ["How do you handle a long-running LLM call in FastAPI without blocking the request thread or timing out the client?", "Use FastAPI's async endpoints with an async LLM client so the event loop isn't blocked. For genuinely long operations, don't hold the HTTP request open — kick off a background task (or a queue like Celery/Redis Streams) and either poll a status endpoint or stream partial results via Server-Sent Events / WebSocket for token-by-token output."], ["What's the reliability difference between Next.js SSR and CSR that an SRE needs to account for?", "SSR errors happen in the Node server process — they show up in your server error rate/latency metrics and correlate directly with backend traces via request IDs. CSR errors happen in the user's browser after the page has loaded — they're invisible to server-side monitoring entirely, so you need Real User Monitoring (RUM) / client-side error tracking (e.g., Sentry browser SDK) to see them at all. A dashboard that only shows server metrics can look perfectly healthy while users are seeing broken pages client-side."], ["How would you implement a canary deployment with automated rollback for one of these services?", "Shift a small percentage of traffic to the new version (via Argo Rollouts or Flagger on K8s), continuously evaluate an analysis template against live SLO metrics (error rate, P95 latency, and for GenAI specifically — token cost or guardrail-violation rate), auto-promote if metrics stay within threshold across the bake time, auto-rollback immediately if they breach — no human has to notice and react."]]}, {"id": "slo", "title": "SLOs, Error Budgets & Alerting", "cards": [["Walk through your process for defining an SLO from scratch for a new service.", "Start from user-facing symptoms, not internal signals — what does 'working' mean to the user (fast enough, correct enough, available)? Pick the smallest set of SLIs that capture that. Set the target based on actual business tolerance, not an arbitrary 99.99% — over-promising creates alert fatigue and wastes engineering time on unnecessary reliability work. Derive the error budget mathematically from the SLO. Implement multi-window, multi-burn-rate alerting so you catch both fast catastrophic burns and slow budget leaks. Tie the error budget to an explicit policy — e.g., freeze risky deploys when budget is exhausted."], ["What's a multi-window, multi-burn-rate alert and why not just alert on 'error rate > X%'?", "A raw threshold alert either fires too often on brief blips (alert fatigue) or misses slow, sustained degradation that eats the whole error budget quietly. Burn-rate alerting instead asks 'at this rate, how fast will we exhaust the 30-day budget?' — a fast-burn alert on a short window (e.g., 1 hour) catches sudden severe incidents, a slow-burn alert on a longer window (e.g., 3 days) catches gradual degradation, both computed against the same underlying SLI."], ["How would you generate SLO alerting rules without hand-writing PromQL for every service?", "Tools like Sloth or Pyrra take a simple YAML SLO spec (SLI query, target, time window) and generate the Prometheus recording rules and multi-window burn-rate alerting rules automatically — consistent math across every service, no copy-paste PromQL errors, and new services get correct SLO alerting the moment their spec is added."]]}, {"id": "incident", "title": "Incident Management & On-Call", "cards": [["You're the senior escalation point on a P1 spanning infra, application, and GenAI layers simultaneously — what's your first move?", "Establish a single incident commander (likely you) and stop parallel, uncoordinated investigation. Get a shared timeline/channel going immediately. Triage by blast radius and reversibility first — if a recent deploy correlates with onset, roll it back before root-causing, since restoring service beats explaining the cause in the moment. Delegate infra, app, and GenAI-layer investigation to separate people reporting back to you, rather than one person context-switching across all three."], ["What makes a postmortem 'blameless' in practice, not just in name?", "Focus the write-up on system and process conditions that allowed the failure, not on individual actions or decisions in isolation — 'the alert threshold was too high' rather than 'X didn't notice in time.' Every corrective action gets a named owner and a deadline, and the postmortem is reviewed for whether previous action items were actually completed — a blameless culture that never closes action items just becomes blame-free inaction."], ["How have you reduced MTTR in past roles, concretely?", "45% recovery time improvement — driven by better runbooks tied directly to alert context (the alert links straight to the relevant runbook section), dashboards that show the deploy marker alongside the metric spike so causation is obvious immediately, and reducing alert noise by 40% so on-call attention goes to real signals instead of getting desensitized by false positives."]]}, {"id": "cicd", "title": "CI/CD & Deployment Strategies", "cards": [["Readiness vs liveness probes — what's the actual difference and what happens when each fails?", "Readiness probe failing removes the pod from the Service's load-balanced endpoints — traffic stops routing to it, but the pod keeps running (useful during startup/warmup or temporary dependency unavailability). Liveness probe failing gets the pod killed and restarted by the kubelet — use it only for 'this process is truly stuck/deadlocked,' since a wrongly-aggressive liveness probe causes unnecessary restart storms."], ["How do canary + automated rollback actually decide to roll back without a human?", "The rollout controller (Argo Rollouts/Flagger) runs an analysis template during the bake period that queries the same metrics backend (Prometheus) for the canary's error rate/latency, compares against a defined threshold or against the baseline version's metrics, and if breached, shifts traffic back to the stable version and marks the rollout degraded automatically — the decision is entirely metric-driven."]]}], "starPrompts": [["Own SLIs/SLOs/error budgets", "Use your 40% alert noise reduction + 99.9% uptime story. Frame the situation/task/action/result explicitly, and be ready for a follow-up on 'what would you do differently.'"], ["Senior escalation point / incident response", "Use your 45% recovery time improvement story. Have the specific runbook/dashboard change you made ready as the concrete 'action,' not just the outcome number."], ["Reduce MTTR / alert fatigue via engineering improvements", "Same 40% alert noise story works here from a different angle — emphasize the engineering change (tuning, grouping, dedup) not just the process change."], ["GenAI reliability controls (guardrails, rate limiting, circuit breakers)", "You likely don't have a GenAI-specific story. Bridge honestly: pick your strongest 'protected a service from a flaky external dependency' story from your actual background and explicitly say 'I haven't done this for an LLM API specifically, but this is the same pattern I used for [X] — same failure mode, same fix.'"], ["GCP infrastructure design", "Bridge honestly: pick your strongest Azure/AWS infra design story, tell it straight, then add one sentence translating the key decision into GCP terms (e.g., 'the equivalent GCP construct would be...') to show you've done the mapping, not just memorized vocabulary."], ["Cost optimization for cloud/LLM inference", "If you have a cloud cost optimization story from past roles, use it and explicitly extend it: 'the same discipline — right-sizing, caching, and visibility into spend as a dashboarded metric — is exactly what I'd apply to LLM token cost.'"]], "closingAdvice": ["Lead every gap answer with what you DO know, then bridge — never open with 'I haven't done that.' Open with the transferable pattern, then be explicit about where your hands-on experience stops.", "If they ask a deep LangGraph/LangChain implementation question you can't answer precisely, say so directly and pivot to how you'd approach learning/debugging it operationally — that's still a legitimate senior-SRE answer.", "This JD blends two seniorities — deep SRE fundamentals (your strength) and hands-on GenAI dev (your stretch). Expect them to weight the interview toward whichever one the interviewer owns; read the room and lean into your strength when given the room to.", "Have one specific, honest question ready about the role's actual on-call load (24x5 is stated) and how GenAI-layer incidents get triaged versus infra incidents today — shows senior-level thinking about org design, not just technical depth."]};
+
+let doneSet = new Set(JSON.parse(localStorage.getItem('sreGenaiPrepDone') || '[]'));
+
+function saveDone(){
+  localStorage.setItem('sreGenaiPrepDone', JSON.stringify([...doneSet]));
+  updateProgress();
+}
+
+function updateProgress(){
+  const total = document.querySelectorAll('.card[data-id]').length;
+  const done = document.querySelectorAll('.card.done[data-id]').length;
+  document.getElementById('progressBar').style.width = (total? (done/total*100):0) + '%';
+  document.getElementById('progressText').textContent = done + ' / ' + total + ' reviewed';
+}
+
+// Role fit
+function renderFit(){
+  const strong = document.getElementById('strongFit');
+  DATA.roleFit.strong_fit.forEach(([title, body])=>{
+    const div = document.createElement('div');
+    div.className = 'fit-item';
+    div.innerHTML = '<b>'+title+'</b>'+body;
+    strong.appendChild(div);
+  });
+  const gap = document.getElementById('gapFit');
+  DATA.roleFit.gaps_and_bridges.forEach(([title, body])=>{
+    const div = document.createElement('div');
+    div.className = 'fit-item gap';
+    div.innerHTML = '<b>'+title+'</b>'+body;
+    gap.appendChild(div);
+  });
+}
+
+function renderFacts(){
+  const ul = document.getElementById('factsList');
+  DATA.quickFacts.forEach(f=>{
+    const li = document.createElement('li');
+    li.textContent = f;
+    ul.appendChild(li);
+  });
+}
+
+function renderStar(){
+  const wrap = document.getElementById('starList');
+  DATA.starPrompts.forEach(([title, body])=>{
+    const div = document.createElement('div');
+    div.className = 'star-item';
+    div.innerHTML = '<b>'+title+'</b><br>'+body;
+    wrap.appendChild(div);
+  });
+}
+
+function renderClosing(){
+  const ul = document.getElementById('closingList');
+  DATA.closingAdvice.forEach(f=>{
+    const li = document.createElement('li');
+    li.textContent = f;
+    ul.appendChild(li);
+  });
+}
+
+function renderSections(){
+  const container = document.getElementById('sectionsContainer');
+  const chips = document.getElementById('chips');
+  const allChip = document.createElement('div');
+  allChip.className = 'chip active';
+  allChip.textContent = 'All';
+  allChip.dataset.filter = 'all';
+  chips.appendChild(allChip);
+
+  DATA.sections.forEach(sec=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = sec.title;
+    chip.dataset.filter = sec.id;
+    chips.appendChild(chip);
+
+    const h = document.createElement('div');
+    h.className = 'section-title';
+    h.dataset.section = sec.id;
+    h.textContent = sec.title;
+    container.appendChild(h);
+
+    if(sec.note){
+      const note = document.createElement('div');
+      note.className = 'section-note';
+      note.dataset.section = sec.id;
+      note.textContent = sec.note;
+      container.appendChild(note);
+    }
+
+    sec.cards.forEach((c, idx)=>{
+      const [q, a] = c;
+      const id = sec.id + '-' + idx;
+      const card = document.createElement('div');
+      card.className = 'card' + (doneSet.has(id) ? ' done' : '');
+      card.dataset.id = id;
+      card.dataset.section = sec.id;
+      card.dataset.search = (q + ' ' + a).toLowerCase();
+      card.innerHTML =
+        '<div class="card-q">' +
+          '<span><input type="checkbox" class="chk" '+(doneSet.has(id)?'checked':'')+'> ' + q + '</span>' +
+          '<span class="arrow">▶</span>' +
+        '</div>' +
+        '<div class="card-a">' + a + '</div>';
+      container.appendChild(card);
+    });
+  });
+
+  chips.addEventListener('click', (e)=>{
+    if(!e.target.classList.contains('chip')) return;
+    [...chips.children].forEach(c=>c.classList.remove('active'));
+    e.target.classList.add('active');
+    const filter = e.target.dataset.filter;
+    document.querySelectorAll('[data-section]').forEach(el=>{
+      el.classList.toggle('hidden', filter !== 'all' && el.dataset.section !== filter);
+    });
+  });
+}
+
+document.addEventListener('click', (e)=>{
+  const card = e.target.closest('.card');
+  if(!card) return;
+  if(e.target.classList.contains('chk')){
+    card.classList.toggle('done', e.target.checked);
+    if(e.target.checked) doneSet.add(card.dataset.id); else doneSet.delete(card.dataset.id);
+    saveDone();
+    return;
+  }
+  if(e.target.closest('.card-q')){
+    card.classList.toggle('open');
+  }
+});
+
+document.getElementById('search').addEventListener('input', (e)=>{
+  const term = e.target.value.toLowerCase().trim();
+  document.querySelectorAll('.card[data-id]').forEach(card=>{
+    card.classList.toggle('hidden', term && !card.dataset.search.includes(term));
+  });
+});
+
+renderFit();
+renderFacts();
+renderSections();
+renderStar();
+renderClosing();
+updateProgress();
+</script>
+</body>
+</html>

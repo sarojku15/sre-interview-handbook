@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS &amp; Azure Solutions Architect — Scenario Design Handbook</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg:#0b0f14;
+  --surface:#131920;
+  --surface-2:#1a222c;
+  --border:#26313d;
+  --text:#e8edf2;
+  --text-dim:#8a97a6;
+  --text-faint:#5b6673;
+  --aws:#FF9900;
+  --aws-deep:#232F3E;
+  --aws-tint:rgba(255,153,0,0.09);
+  --az:#3AA0F3;
+  --az-deep:#0078D4;
+  --az-tint:rgba(58,160,243,0.09);
+  --good:#4ADE80;
+  --trap:#F2555A;
+  --radius:10px;
+  --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --sans:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} *{transition:none !important; animation:none !important;} }
+
+body{
+  margin:0; background:var(--bg); color:var(--text); font-family:var(--sans);
+  line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--az);}
+h1,h2,h3,h4{font-family:var(--mono); letter-spacing:-0.01em; margin:0 0 .5em;}
+p{margin:0 0 .7em;}
+.wrap{max-width:920px; margin:0 auto; padding:0 18px;}
+
+/* ---------- Header ---------- */
+header.top{
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg, #0d1219 0%, var(--bg) 100%);
+  padding:28px 0 20px;
+}
+.eyebrow{
+  font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--text-faint); margin-bottom:10px; display:flex; align-items:center; gap:8px;
+}
+.eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--good); display:inline-block;}
+h1.title{font-size:26px; font-weight:800; color:var(--text); margin-bottom:6px;}
+h1.title .amp{color:var(--text-faint); font-weight:400;}
+.subtitle{color:var(--text-dim); font-size:14.5px; max-width:640px;}
+
+/* ---------- Context / lesson recap ---------- */
+section.context{padding:22px 0 6px;}
+.context-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:18px 20px;
+}
+.context-card h2{font-size:14px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.08em;}
+.rating-row{display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 4px;}
+.rating-pill{
+  font-family:var(--mono); font-size:12px; padding:5px 10px; border-radius:100px;
+  border:1px solid var(--border); background:var(--surface-2); color:var(--text-dim);
+}
+.rating-pill b{color:var(--trap);}
+.rating-pill.ok b{color:var(--good);}
+.lesson-quote{
+  margin-top:14px; padding:12px 14px; border-left:3px solid var(--az);
+  background:var(--az-tint); border-radius:0 6px 6px 0; font-size:14px; color:var(--text);
+}
+.lesson-quote span{display:block; color:var(--text-faint); font-size:11.5px; font-family:var(--mono); margin-top:6px;}
+
+/* ---------- Framework flow (signature element) ---------- */
+section.framework{padding:26px 0 6px;}
+.section-label{font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:.1em; color:var(--text-faint); margin-bottom:10px;}
+.flow{
+  display:flex; align-items:stretch; gap:0; margin:14px 0 8px; flex-wrap:wrap;
+}
+.flow-node{
+  flex:1 1 200px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:14px 16px; position:relative; min-width:180px;
+}
+.flow-node .n{font-family:var(--mono); font-size:11px; color:var(--az); margin-bottom:6px;}
+.flow-node p{font-size:13.5px; color:var(--text); margin:0;}
+.flow-arrow{
+  display:flex; align-items:center; justify-content:center; color:var(--text-faint);
+  font-size:18px; padding:0 6px; flex:0 0 auto;
+}
+@media (max-width:720px){
+  .flow{flex-direction:column;}
+  .flow-arrow{transform:rotate(90deg); padding:2px 0;}
+}
+.flow-footer{
+  margin-top:10px; padding:12px 14px; border:1px dashed var(--border); border-radius:8px;
+  font-size:13.5px; color:var(--text-dim);
+}
+.flow-footer b{color:var(--text);}
+
+/* ---------- Checklist + template ---------- */
+.two-col{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0;}
+@media (max-width:720px){ .two-col{grid-template-columns:1fr;} }
+.box{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px;}
+.box h3{font-size:14px; color:var(--text);}
+.checklist{list-style:none; margin:0; padding:0;}
+.checklist li{
+  font-size:13.5px; color:var(--text-dim); padding:6px 0 6px 22px; position:relative; border-top:1px solid var(--border);
+}
+.checklist li:first-child{border-top:none;}
+.checklist li::before{content:"→"; position:absolute; left:0; color:var(--good); font-family:var(--mono);}
+.template-text{
+  font-family:var(--mono); font-size:12.5px; color:var(--text); background:var(--surface-2);
+  border:1px solid var(--border); border-radius:8px; padding:12px 14px; line-height:1.7;
+}
+.template-text em{color:var(--az); font-style:normal;}
+
+/* ---------- Decision matrices ---------- */
+section.matrix{padding:8px 0 6px;}
+.matrix-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;}
+@media (max-width:820px){ .matrix-grid{grid-template-columns:1fr;} }
+.matrix-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;}
+.matrix-card .mh{padding:12px 16px; font-family:var(--mono); font-size:13px; font-weight:700;}
+.matrix-card.aws .mh{background:var(--aws-tint); color:var(--aws); border-bottom:1px solid var(--border);}
+.matrix-card.az .mh{background:var(--az-tint); color:var(--az); border-bottom:1px solid var(--border);}
+table.dm{width:100%; border-collapse:collapse; font-size:12.5px;}
+table.dm th{text-align:left; padding:9px 12px; color:var(--text-faint); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em; border-bottom:1px solid var(--border);}
+table.dm td{padding:9px 12px; border-bottom:1px solid var(--border); color:var(--text-dim); vertical-align:top;}
+table.dm tr:last-child td{border-bottom:none;}
+table.dm td.strong{color:var(--text); font-weight:600;}
+
+/* ---------- Controls ---------- */
+.controls{
+  position:sticky; top:0; z-index:20; background:rgba(11,15,20,0.92); backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--border); padding:12px 0; margin-top:20px;
+}
+.controls-inner{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+#search{
+  flex:1 1 220px; background:var(--surface); border:1px solid var(--border); color:var(--text);
+  padding:10px 14px; border-radius:8px; font-family:var(--sans); font-size:14px; outline:none;
+}
+#search:focus{border-color:var(--az);}
+.progress-wrap{flex:0 0 auto; font-family:var(--mono); font-size:11.5px; color:var(--text-dim); text-align:right; min-width:190px;}
+.progress-bar{height:5px; background:var(--surface-2); border-radius:4px; margin-top:5px; overflow:hidden;}
+.progress-fill{height:100%; background:linear-gradient(90deg, var(--az), var(--good)); width:0%; transition:width .3s ease;}
+
+/* ---------- Cloud section headers ---------- */
+.cloud-header{padding:26px 0 10px; display:flex; align-items:center; gap:12px;}
+.cloud-header h2{font-size:19px; margin:0;}
+.cloud-header.aws h2{color:var(--aws);}
+.cloud-header.az h2{color:var(--az);}
+.cloud-mark{
+  width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-weight:800; font-size:12px; flex:0 0 auto;
+}
+.cloud-header.aws .cloud-mark{background:var(--aws-tint); color:var(--aws); border:1px solid var(--aws);}
+.cloud-header.az .cloud-mark{background:var(--az-tint); color:var(--az); border:1px solid var(--az);}
+.cloud-sub{color:var(--text-faint); font-size:12.5px; margin-left:auto; font-family:var(--mono);}
+
+.chips{display:flex; gap:7px; flex-wrap:wrap; margin:6px 0 18px;}
+.chip{
+  font-family:var(--mono); font-size:11.5px; padding:6px 11px; border-radius:100px; cursor:pointer;
+  border:1px solid var(--border); background:var(--surface); color:var(--text-dim); user-select:none;
+}
+.chip:hover{border-color:var(--text-faint);}
+.chip.active.aws{background:var(--aws-tint); border-color:var(--aws); color:var(--aws);}
+.chip.active.az{background:var(--az-tint); border-color:var(--az); color:var(--az);}
+
+/* ---------- Scenario cards ---------- */
+.cards{display:flex; flex-direction:column; gap:10px; margin-bottom:10px;}
+.card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;}
+.card[data-cloud="aws"]{border-left:3px solid var(--aws);}
+.card[data-cloud="azure"]{border-left:3px solid var(--az);}
+.card-head{
+  width:100%; text-align:left; background:none; border:none; color:var(--text); cursor:pointer;
+  padding:14px 16px 6px; display:flex; align-items:flex-start; gap:10px; flex-wrap:wrap; font-family:var(--sans);
+}
+.card-head:focus-visible{outline:2px solid var(--az); outline-offset:2px;}
+.badge{font-family:var(--mono); font-size:10.5px; font-weight:700; padding:3px 7px; border-radius:4px; flex:0 0 auto;}
+.badge.aws{background:var(--aws-tint); color:var(--aws);}
+.badge.azure{background:var(--az-tint); color:var(--az);}
+.cat-tag{font-family:var(--mono); font-size:10.5px; color:var(--text-faint); flex:0 0 auto; align-self:center;}
+.card-title{font-weight:600; font-size:14.5px; flex:1 1 260px; align-self:center;}
+.chevron{color:var(--text-faint); font-size:13px; flex:0 0 auto; align-self:center;}
+.prompt{padding:0 16px 12px 16px; font-size:13.5px; color:var(--text-dim); font-style:italic;}
+.card-body{padding:2px 16px 14px; border-top:1px solid var(--border);}
+.block{padding:12px 0; border-bottom:1px solid var(--border);}
+.block:last-child{border-bottom:none; padding-bottom:4px;}
+.block h4{font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-dim); margin-bottom:6px;}
+.block.trap h4{color:var(--trap);}
+.block p, .block li{font-size:13.5px; color:var(--text);}
+.block ul, .block ol{margin:0; padding-left:20px;}
+.block li{margin-bottom:4px;}
+.script-text{
+  font-family:var(--mono); font-size:12.5px; background:var(--surface-2); border:1px solid var(--border);
+  border-radius:6px; padding:10px 12px; line-height:1.65; color:var(--text);
+}
+.mastery{
+  display:flex; align-items:center; gap:7px; padding:10px 16px 14px; font-size:12.5px; color:var(--text-dim);
+  cursor:pointer; font-family:var(--mono);
+}
+.mastery input{accent-color:var(--good); width:15px; height:15px; cursor:pointer;}
+.card.is-mastered{opacity:.55;}
+.card.is-mastered .card-title{text-decoration:line-through; text-decoration-color:var(--text-faint);}
+
+footer.close{padding:30px 0 50px; border-top:1px solid var(--border); margin-top:30px;}
+footer.close p{color:var(--text-faint); font-size:12.5px;}
+
+.visually-hidden{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0);}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span> Interview Handbook · Solutions Architecture</div>
+    <h1 class="title">AWS <span class="amp">&amp;</span> Azure Solutions Architect</h1>
+    <p class="subtitle">Scenario-based design practice — built to train the muscle the Aug 7 Quantiphi screening found missing: designing from first principles under a customer's constraints, not reciting the list of services you've used.</p>
+  </div>
+</header>
+
+<section class="context">
+  <div class="wrap">
+    <div class="context-card">
+      <h2>What the last interview actually scored</h2>
+      <div class="rating-row">
+        <span class="rating-pill ok">Communication <b>8/10</b></span>
+        <span class="rating-pill ok">Production Support <b>9/10</b></span>
+        <span class="rating-pill ok">Kubernetes <b>7/10</b></span>
+        <span class="rating-pill ok">AWS Operations <b>7/10</b></span>
+        <span class="rating-pill ok">Terraform <b>6/10</b></span>
+        <span class="rating-pill">AWS Architecture <b>4/10</b></span>
+        <span class="rating-pill">Networking <b>4/10</b></span>
+        <span class="rating-pill">Integration Design <b>4/10</b></span>
+        <span class="rating-pill">Customer-facing Design <b>3/10</b></span>
+      </div>
+      <div class="lesson-quote">
+        The expected mindset was: given a business problem, design the architecture from first principles — not list the AWS services you've operated. The turning-point question (Lambda in one account calling a private API in another) called for the simplest viable path — Lambda joins a VPC, then VPC Peering, security groups, an IAM role. Three heavier options got proposed before that.
+        <span>Everything below is drilled the same way: the trap, the clarifying questions a real architect asks first, the simplest correct design, and a spoken answer you can actually say out loud.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="framework">
+  <div class="wrap">
+    <div class="section-label">The reusable framework</div>
+    <div class="flow">
+      <div class="flow-node"><div class="n">01 · Locate</div><p>Where does this start and end? Same VPC/VNet? Same account/subscription? Same region? Does on-prem enter the picture?</p></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node"><div class="n">02 · Shape</div><p>Who's involved, and does it repeat? A one-off 1:1 link, a hub with many spokes, or one service exposed to many outside consumers?</p></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node"><div class="n">03 · Start simple</div><p>Say the smallest design that satisfies both answers above — out loud, first, before any acronym-heavy option.</p></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node"><div class="n">04 · Layer + justify</div><p>Add network security and identity every time. Add complexity only when a named requirement forces it — and say which one.</p></div>
+    </div>
+    <div class="flow-footer"><b>The one habit that fixes most of this:</b> ask one clarifying question before designing anything, even when you're fairly sure of the answer. It's the single strongest signal of architect-level thinking — more than knowing the service name.</div>
+  </div>
+</section>
+
+<section class="framework">
+  <div class="wrap two-col">
+    <div class="box">
+      <h3>Interview delivery checklist</h3>
+      <ul class="checklist">
+        <li>Ask 1–2 clarifying questions before proposing anything</li>
+        <li>State the simplest viable design first, out loud</li>
+        <li>Justify every added piece of complexity with a named requirement</li>
+        <li>Mention security — network layer and identity layer — every time</li>
+        <li>Close with one trade-off or cost line</li>
+        <li>If the platform team owned it: "they owned the design, I owned operating and evolving it" — never "I didn't do that"</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>60-second answer template</h3>
+      <div class="template-text">"This needs to move from <em>A</em> to <em>B</em>. First — same account/subscription, same region, sync or async? Given that, and given <em>[the scale/security requirement]</em>, the simplest design that satisfies it is <em>[X]</em>. I'd secure it with <em>[security groups/NSGs]</em> at the network layer and <em>[IAM role/managed identity]</em> at the identity layer — no long-lived credentials. I'd only move to <em>[heavier option]</em> if <em>[specific trigger]</em> — otherwise it's cost and operational overhead without a matching requirement."</div>
+    </div>
+  </div>
+</section>
+
+<section class="matrix">
+  <div class="wrap">
+    <div class="section-label">Quick-reference decision matrices</div>
+    <div class="matrix-grid">
+      <div class="matrix-card aws">
+        <div class="mh">AWS networking</div>
+        <table class="dm">
+          <tr><th>Situation</th><th>Start with</th><th>Escalate when</th></tr>
+          <tr><td>Same VPC</td><td class="strong">Security Groups only</td><td>—</td></tr>
+          <tr><td>2 VPCs, 1:1</td><td class="strong">VPC Peering</td><td>3+ VPCs need mutual access</td></tr>
+          <tr><td>Many VPCs, hub-spoke</td><td class="strong">Transit Gateway</td><td>Peering isn't transitive — mesh doesn't scale</td></tr>
+          <tr><td>Expose 1 service to many outside accounts</td><td class="strong">PrivateLink</td><td>Never needs full peering</td></tr>
+          <tr><td>On-prem, moderate traffic, fast timeline</td><td class="strong">Site-to-Site VPN</td><td>Sustained high throughput or strict latency</td></tr>
+          <tr><td>On-prem, that condition met</td><td class="strong">Direct Connect</td><td>+ VPN as failover</td></tr>
+          <tr><td>Lambda needs private VPC access</td><td class="strong">Attach Lambda to VPC first</td><td>Then apply the rows above</td></tr>
+        </table>
+      </div>
+      <div class="matrix-card az">
+        <div class="mh">Azure networking</div>
+        <table class="dm">
+          <tr><th>Situation</th><th>Start with</th><th>Escalate when</th></tr>
+          <tr><td>Same VNet</td><td class="strong">NSG only</td><td>—</td></tr>
+          <tr><td>2 VNets, 1:1</td><td class="strong">VNet Peering</td><td>3+ VNets need mutual access</td></tr>
+          <tr><td>Many VNets, hub-spoke</td><td class="strong">Virtual WAN / hub VNet</td><td>Peering isn't transitive here either</td></tr>
+          <tr><td>Expose 1 service to many outside tenants</td><td class="strong">Private Link Service</td><td>Never needs full peering</td></tr>
+          <tr><td>On-prem, moderate traffic, fast timeline</td><td class="strong">Site-to-Site VPN Gateway</td><td>Sustained high throughput or compliance need</td></tr>
+          <tr><td>On-prem, that condition met</td><td class="strong">ExpressRoute</td><td>+ VPN as failover</td></tr>
+          <tr><td>Function needs private VNet access</td><td class="strong">Regional VNet Integration first</td><td>Then apply the rows above</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="controls">
+  <div class="wrap controls-inner">
+    <input id="search" type="text" placeholder="Search scenarios, services, keywords…" aria-label="Search scenarios">
+    <div class="progress-wrap">
+      <div id="progress-text">0/0 mastered</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <div class="cloud-header aws">
+    <div class="cloud-mark">AWS</div>
+    <h2>AWS Solutions Architect Scenarios</h2>
+    <span class="cloud-sub" id="aws-count"></span>
+  </div>
+  <div class="chips" id="aws-chips"></div>
+  <div class="cards" id="aws-cards"></div>
+
+  <div class="cloud-header az">
+    <div class="cloud-mark">AZ</div>
+    <h2>Azure Solutions Architect Scenarios</h2>
+    <span class="cloud-sub" id="az-count"></span>
+  </div>
+  <div class="chips" id="az-chips"></div>
+  <div class="cards" id="az-cards"></div>
+
+</main>
+
+<footer class="close">
+  <div class="wrap">
+    <p>Mastery progress is saved automatically to this device. Categories mirror deliberately across both clouds — the same clarifying question that gets AWS Category 1 right (same account? 1:1 or many?) is the same question for Azure Category 1.</p>
+  </div>
+</footer>
+
+<script>
+const SCENARIOS = [
+// ============================= AWS =============================
+// ---- Category 1: Cross-Account & Cross-VPC Private Communication ----
+{
+  id:"aws-1-1", cloud:"aws", category:"Cross-Account & Cross-VPC Networking",
+  title:"Lambda (Account A) → private API on EC2 (Account B)",
+  prompt:"A Lambda function in Account A needs to call a REST API hosted on an EC2 instance in Account B. Traffic must stay private, no internet. Design it.",
+  trap:"Reaching for PrivateLink, VPC Peering, and Transit Gateway all at once, without first noticing that Lambda isn't in any VPC yet — that's the step that actually unlocks the rest.",
+  questions:["Just these two accounts, or will more join later?","Same region?","What's the traffic pattern — occasional calls or sustained volume?"],
+  design:[
+    "Attach the Lambda function to private subnets in a VPC (it isn't in your VPC by default — this is the step that gets missed).",
+    "Since it's two accounts, one-to-one: start with VPC Peering, not Transit Gateway.",
+    "Add route table entries on both sides pointing the peer CIDR at the peering connection.",
+    "Security group on the EC2 instance allows inbound from the Lambda's security group on the API port only.",
+    "Attach the AWSLambdaVPCAccessExecutionRole so the function can create the ENIs it needs — no special cross-account IAM is required for the network path itself, peering is routing, not identity."
+  ],
+  script:"First I'd confirm it's just these two accounts talking one-to-one — if so, I don't reach for Transit Gateway or PrivateLink, those solve a different shape of problem. Lambda isn't in a VPC by default, so step one is attaching it to private subnets with a security group. Then a straightforward VPC peering connection, route table entries on both sides, and a security group rule on the EC2 side allowing only the Lambda's security group on the API port. That's private, minimal, and doesn't touch the internet.",
+  escalate:"If a third VPC needs the same access, stop using peering — it isn't transitive, so a mesh of pairwise connections becomes unmanageable fast. That's when Transit Gateway earns its cost. If Account B is really a third party exposing one service to many outside accounts, that's PrivateLink instead of peering.",
+  followups:[{q:"What if that EC2 API needs to be reachable by 50 different customer accounts?", a:"PrivateLink — peering 50 VPCs is unmanageable and exposes more of the network than the one service actually needs."}]
+},
+{
+  id:"aws-1-2", cloud:"aws", category:"Cross-Account & Cross-VPC Networking",
+  title:"3 business units, 3 accounts, one shared database service",
+  prompt:"Three business units, each with their own AWS account and VPC, all need private connectivity to a shared-services VPC hosting a central database. More business units will onboard over the next year. Design the connectivity.",
+  trap:"Standing up individual VPC Peering connections per business unit because it works today — it stops scaling the moment a fourth or fifth spoke shows up, and peering doesn't route transitively between spokes anyway.",
+  questions:["Will spokes ever need to talk to each other, or only to the hub?","Does traffic between spokes need central inspection or firewalling?"],
+  design:[
+    "Use a hub-and-spoke topology built on Transit Gateway.",
+    "Attach the shared-services VPC to the TGW as the hub.",
+    "Attach each business unit's VPC to the TGW as a spoke.",
+    "Give each spoke its own TGW route table containing only a route to the hub — that isolates spokes from each other by default.",
+    "If traffic needs inspection, route it through a dedicated inspection VPC with AWS Network Firewall attached to the TGW."
+  ],
+  script:"Since more business units are coming, I wouldn't build pairwise VPC peering — it doesn't scale and doesn't route transitively, so spoke A could never reach the hub through spoke B anyway. I'd put a Transit Gateway in the middle, attach the shared-services VPC as the hub and each business unit as a spoke, and give each spoke a route table that only points to the hub, so spokes stay isolated from each other unless there's a reason not to.",
+  escalate:"If this is confirmed to stay at exactly two or three VPCs forever with no growth, plain peering is still cheaper and simpler — Transit Gateway has an hourly and per-GB cost that isn't justified for a permanently small, static topology.",
+  followups:[{q:"How do you stop BU1 and BU2 talking to each other, only to the hub?", a:"Separate TGW route tables per spoke — each spoke's route table has a route to the hub only, not to other spokes' CIDRs."}]
+},
+{
+  id:"aws-1-3", cloud:"aws", category:"Cross-Account & Cross-VPC Networking",
+  title:"SaaS API exposed to hundreds of customer VPCs",
+  prompt:"You're building a SaaS product on AWS. Customers want to reach your API privately from their own VPCs, no public internet, and you expect hundreds of customers. How do you expose the service?",
+  trap:"Proposing VPC peering per customer — operationally impossible at that count, and it exposes your entire VPC's CIDR to every customer instead of just the one service.",
+  questions:["Does access need to be bidirectional, or only customer-to-you?","Any CIDR overlap risk across customer VPCs?"],
+  design:[
+    "Put a Network Load Balancer in front of your service.",
+    "Create a VPC Endpoint Service backed by that NLB.",
+    "Share the service name with customers.",
+    "Each customer creates an Interface VPC Endpoint in their own VPC pointing at your service — no route table changes on either side, no CIDR overlap concern."
+  ],
+  script:"At that scale I wouldn't touch peering at all — PrivateLink is built for exactly this shape. I'd front the service with a Network Load Balancer, publish it as a VPC Endpoint Service, and each customer creates an Interface Endpoint in their own VPC. Traffic stays on the AWS backbone, nobody's exposing more of their network than the one API, and there's no CIDR planning headache across hundreds of customers.",
+  escalate:"PrivateLink is one-directional — the customer initiates to you. If customers ever needed bidirectional, peer-level network access, that's not what PrivateLink is for.",
+  followups:[{q:"How is this different from a public ALB with IP allowlisting?", a:"PrivateLink never touches the public internet and avoids maintaining IP allowlists per customer — access is controlled by endpoint connections, not by IP ranges that change."}]
+},
+// ---- Category 2: Hybrid Connectivity ----
+{
+  id:"aws-2-1", cloud:"aws", category:"Hybrid Connectivity",
+  title:"On-prem ERP needs AWS access in two weeks",
+  prompt:"Finance needs their on-prem ERP to reach a new AWS-hosted reporting service within two weeks. Traffic is moderate, a few Mbps. Design the connectivity.",
+  trap:"Defaulting to Direct Connect because it 'sounds more enterprise' — it takes weeks for the physical cross-connect and doesn't fit a two-week deadline.",
+  questions:["Is this traffic level expected to grow significantly?","Is there already a VPN device on-prem?"],
+  design:[
+    "Stand up a Site-to-Site VPN: a customer gateway on-prem, a virtual private gateway (or Transit Gateway VPN attachment) in AWS.",
+    "Provisioning is hours, not weeks — it fits the deadline.",
+    "IPsec encryption over the internet is sufficient for moderate throughput.",
+    "Each VPN connection gets two tunnels by default for redundancy."
+  ],
+  script:"Given the two-week window, Direct Connect is off the table regardless of how the traffic grows later — the physical provisioning alone usually takes longer than that. A Site-to-Site VPN stands up in hours: customer gateway on their side, virtual private gateway on ours, two tunnels for redundancy out of the box. That comfortably covers a few Mbps.",
+  escalate:"If throughput needs grow past what a VPN reliably sustains, or latency becomes strict, that's the trigger to add Direct Connect later — keeping the VPN in place as the backup path.",
+  followups:[{q:"What if Finance says throughput will 10x in six months?", a:"Start the Direct Connect provisioning process now in parallel — it's slow — while the VPN carries traffic today; cut over once it's ready."}]
+},
+{
+  id:"aws-2-2", cloud:"aws", category:"Hybrid Connectivity",
+  title:"Permanent, high-throughput, low-latency link for DB replication",
+  prompt:"A customer needs a permanent, high-throughput, low-latency connection between their data center and AWS for continuous database replication. Cost is secondary to reliability.",
+  trap:"Proposing VPN alone for a permanent, latency-sensitive, high-throughput workload — it's capped in practice and rides the public internet, which is exactly what this requirement is trying to avoid.",
+  questions:["Is there a Direct Connect location or partner near their data center?","Does this need multi-VPC or multi-region reach?"],
+  design:[
+    "Provision AWS Direct Connect — a dedicated private connection via a Direct Connect location or partner.",
+    "Add a Site-to-Site VPN as a failover path for resilience (Direct Connect + VPN hybrid).",
+    "Use a Direct Connect Gateway if multiple VPCs or regions need to share the connection."
+  ],
+  script:"Since reliability matters more than cost and this is permanent, I'd go straight to Direct Connect rather than starting with VPN and migrating later — a dedicated connection avoids the public internet entirely and gives consistent low latency and throughput. I'd still keep a Site-to-Site VPN as an automatic failover path, and use a Direct Connect Gateway if this needs to reach more than one VPC or region.",
+  escalate:"If timeline pressure ever trumps the reliability requirement, fall back to VPN first and run Direct Connect provisioning in parallel — that's the two-week scenario's answer, applied as an interim step here.",
+  followups:[{q:"Why not just a bigger VPN?", a:"VPN throughput is effectively capped per tunnel and it still traverses the public internet — it doesn't meet a hard low-latency, high-throughput requirement the way a dedicated connection does."}]
+},
+{
+  id:"aws-2-3", cloud:"aws", category:"Hybrid Connectivity",
+  title:"Lambda + EC2 both reaching an on-prem database over VPN",
+  prompt:"A Lambda function and an EC2 instance both need to reach a database that lives on-premises, over a VPN. Walk through the design, including routing.",
+  trap:"Treating this as a brand-new problem instead of recognizing it's the same 'put Lambda in the VPC first' step from the cross-account scenario, now combined with standard hybrid routing.",
+  questions:["Is this one VPC or several that need the on-prem route?"],
+  design:[
+    "Attach the Lambda function to the same private subnets as the EC2 instance (it needs an ENI in the VPC to reach anything private, including on-prem).",
+    "Connect the VPC to on-prem via Site-to-Site VPN through a virtual private gateway (or Transit Gateway if multiple VPCs need the route).",
+    "Route tables in the private subnets point the on-prem CIDR at the VGW/TGW; the on-prem router points the VPC CIDR back through its VPN device.",
+    "Security group egress on Lambda and EC2 must allow the DB port outbound; the on-prem firewall must allow inbound from the AWS side CIDR."
+  ],
+  script:"This is really the same first move as the cross-account Lambda question — Lambda has to join the VPC before it can reach anything private, on-prem included. Once it's in the same subnets as the EC2 instance, it's a standard hybrid routing problem: VPN to on-prem through a virtual private gateway, route table entries both directions, and security group egress allowing the DB port out.",
+  escalate:"If more than one VPC needs the same on-prem route, move the VPN attachment to a Transit Gateway instead of a per-VPC virtual private gateway — every attached VPC then shares one route to on-prem instead of duplicating VPN infrastructure.",
+  followups:[{q:"Any gotcha with Lambda at higher concurrency here?", a:"Each concurrent execution can consume an IP from the subnet — undersized subnets can hit IP exhaustion under high concurrency, so size subnets with that in mind."}]
+},
+// ---- Category 3: Multi-Tier Application Architecture ----
+{
+  id:"aws-3-1", cloud:"aws", category:"Multi-Tier Application Architecture",
+  title:"Standard 3-tier web application",
+  prompt:"Design a standard 3-tier web application on AWS: public-facing, with an application layer and a database layer.",
+  trap:"Putting the application or database tier in a public subnet 'to keep it simple' — it works, but it's not the design you'd defend to a security-conscious customer.",
+  questions:["Any existing VPC/network standards to follow?"],
+  design:[
+    "Public subnets host an internet-facing Application Load Balancer.",
+    "Private subnets host the application tier (EC2/ECS/EKS) registered in the ALB's target group.",
+    "Isolated private subnets host RDS — no route to the internet at all.",
+    "A NAT Gateway in the public subnet gives the app tier outbound-only internet access for patches and package installs.",
+    "Security groups chain layer to layer: ALB SG allows 443 from the internet; app SG allows the app port only from the ALB SG; DB SG allows the DB port only from the app SG."
+  ],
+  script:"Public subnet for the ALB only. App tier sits in private subnets behind it, database tier in isolated private subnets with no internet route at all. Outbound-only access for the app tier comes from a NAT Gateway. And I'd chain the security groups — ALB accepts from the internet, app tier only accepts from the ALB's security group, database only accepts from the app tier's security group — so nothing skips a layer.",
+  escalate:"This is already the right baseline for most cases; the escalation is usually adding resilience (next scenario) rather than adding more network complexity here.",
+  followups:[{q:"Why isolated subnets for RDS instead of just 'private'?", a:"Isolated subnets have no route to a NAT Gateway or internet gateway at all — it removes an entire class of exfiltration risk even if the DB security group were ever misconfigured."}]
+},
+{
+  id:"aws-3-2", cloud:"aws", category:"Multi-Tier Application Architecture",
+  title:"Make the 3-tier app resilient to an AZ failure and traffic spikes",
+  prompt:"Take that 3-tier architecture and make it resilient to an Availability Zone failure and able to handle traffic spikes.",
+  trap:"Adding compute capacity everywhere without addressing the actual failure domain — an AZ outage isn't fixed by more instances in the same AZ.",
+  questions:["What's the acceptable failover time if an AZ goes down?"],
+  design:[
+    "Spread public, private, and DB subnets across at least two, ideally three, Availability Zones.",
+    "Put the app tier in an Auto Scaling Group spanning those AZs, with a target-tracking scaling policy on CPU or request count.",
+    "The ALB load balances across AZs automatically once targets exist in each.",
+    "Enable RDS Multi-AZ for a synchronous standby in a second AZ with automatic failover.",
+    "Rely on ALB and ASG health checks for self-healing — unhealthy targets are pulled and replaced automatically."
+  ],
+  script:"Resilience here is mostly about spreading the existing tiers across AZs rather than adding new components. Subnets in at least two AZs for every tier, the app tier in an Auto Scaling Group across those AZs so it can both survive an AZ loss and scale out under load, and RDS Multi-AZ for a synchronous standby with automatic failover. Health checks at the ALB and ASG level handle the self-healing.",
+  escalate:"If the business needs protection against a full regional failure, not just an AZ, that's a different, heavier conversation — cross-region DR, covered separately.",
+  followups:[]
+},
+{
+  id:"aws-3-3", cloud:"aws", category:"Multi-Tier Application Architecture",
+  title:"Read-heavy app, slow static assets globally",
+  prompt:"The application is read-heavy and static assets load slowly for users outside your primary region. What do you add?",
+  trap:"Scaling the database vertically to handle read load instead of addressing the access pattern with caching.",
+  questions:["Is the read load on hot, repeated queries, or broad and varied?"],
+  design:[
+    "Add ElastiCache (Redis or Memcached) in front of RDS for hot, frequently-read data — cuts direct database load.",
+    "Add CloudFront in front of the ALB and any S3-hosted assets for edge caching of static content.",
+    "Set sensible TTLs and an invalidation strategy for content that changes."
+  ],
+  script:"Two separate problems, two separate caches. For the read-heavy database load, ElastiCache in front of RDS absorbs the hot, repeated queries so they don't hit the database every time. For slow static assets globally, CloudFront caches them at edge locations close to the user instead of every request round-tripping to the origin region.",
+  escalate:"If the read pattern is broad rather than hot-key concentrated, caching helps less — that's when read replicas for horizontal read scaling become the better lever instead of, or alongside, caching.",
+  followups:[{q:"How do you avoid serving stale cached content after a deploy?", a:"Short TTLs on frequently-changing content plus explicit invalidation on deploy, versioned asset filenames for static assets so old cached copies simply stop being referenced."}]
+},
+// ---- Category 4: Migration Architecture ----
+{
+  id:"aws-4-1", cloud:"aws", category:"Migration Architecture",
+  title:"End-to-end migration of an on-prem monolith",
+  prompt:"A customer wants to migrate a monolithic on-prem Java application to AWS. Walk through your approach end-to-end.",
+  trap:"Answering entirely in operations and deployment language — 'we'd set up EC2, deploy the app, configure monitoring' — without covering discovery, the architecture decision, ownership, or the business outcome the customer actually cares about.",
+  questions:["What's the downtime tolerance for cutover?","Any compliance or data residency constraints?"],
+  design:[
+    "Discovery and assessment first — inventory dependencies, data volume, and compliance constraints (AWS Application Discovery Service or a manual inventory).",
+    "Decide per component using the 6 R's — rehost, replatform, repurchase, refactor, retain, or retire — and justify the choice against the constraints (a tight deadline often means rehost first, refactor later, and that's a legitimate answer).",
+    "Design the target architecture — typically the 3-tier pattern above, plus hybrid connectivity for the cutover period.",
+    "Execute in waves: pilot a low-risk component first using AWS MGN for rehost and DMS for the database, then move the rest.",
+    "Cut over using Route 53 weighted routing for a gradual traffic shift, with a defined rollback plan.",
+    "Validate with performance and functional testing, and where feasible a parallel run before decommissioning on-prem."
+  ],
+  script:"I'd start with discovery, not architecture — mapping dependencies, data volume, and any compliance constraints, because that's what the 6 R's decision actually depends on. For a monolith on a tight deadline, rehost first and refactor later is often the right, defensible call. Target architecture follows the standard 3-tier pattern with hybrid connectivity during cutover. I'd pilot with the lowest-risk component, migrate in waves using MGN and DMS, shift traffic gradually with Route 53 weighted routing, and validate before decommissioning anything on-prem. And I'd frame the outcome in the customer's terms — cost, agility, reduced on-prem burden — not just 'it's running on EC2 now.'",
+  escalate:"For a large, tightly-coupled estate with many interdependencies, the discovery phase alone can justify bringing in AWS Application Discovery Service for automated dependency mapping rather than a manual inventory.",
+  followups:[{q:"Who owns the account and network foundation versus the app migration itself?", a:"The platform or landing-zone team owns account structure, networking, and central IAM guardrails; the app team owns the application-level migration decisions within that foundation — worth stating explicitly rather than implying you owned all of it."}]
+},
+{
+  id:"aws-4-2", cloud:"aws", category:"Migration Architecture",
+  title:"Database migration with minimal downtime",
+  prompt:"How do you migrate a production database to AWS with minimal downtime?",
+  trap:"Proposing a straight dump-and-restore for a production database — it works for small, low-change-rate data, but implies a downtime window most production systems can't tolerate.",
+  questions:["What's the actual acceptable downtime window?"],
+  design:[
+    "Use AWS DMS for continuous replication — a full load followed by ongoing change data capture from source to target (RDS or Aurora).",
+    "Validate data consistency between source and target while replication is running.",
+    "Cut over in a short window once replication lag is near zero — repoint the application's connection string.",
+    "Keep the source running read-only for a period as a rollback path until confidence is established."
+  ],
+  script:"DMS handles this well — full load to get the bulk of the data across, then continuous change data capture so the target stays current while the source keeps serving production traffic. Once replication lag is effectively zero, the actual cutover is just repointing the connection string in a short window. I'd keep the source available read-only afterward as a rollback path rather than decommissioning it immediately.",
+  escalate:"For a heterogeneous migration — different source and target engines — add the AWS Schema Conversion Tool ahead of DMS to handle schema and code translation before replication starts.",
+  followups:[]
+},
+{
+  id:"aws-4-3", cloud:"aws", category:"Migration Architecture",
+  title:"Dividing ownership between platform team and application teams",
+  prompt:"In a migration project, how do you divide responsibility between the platform or landing-zone team and the application teams?",
+  trap:"Implying you personally designed every layer, including the account structure and network foundation, when in most organizations that's a separate, dedicated function.",
+  questions:[],
+  design:[
+    "Platform team owns: AWS Organizations structure, account vending, the network foundation (VPC/Transit Gateway/hybrid connectivity), central IAM guardrails (SCPs), and central logging/security tooling.",
+    "Application team owns: the application's architecture within the provided landing zone, app-specific IAM roles scoped to least privilege within the guardrails, CI/CD for their service, and the specifics of their own data migration."
+  ],
+  script:"I'd draw the line where most organizations actually draw it: the platform team owns the guardrails and shared infrastructure — account structure, networking, central security tooling — and my role is designing and operating within that framework. For example, I'd own the application architecture, the app-specific IAM roles, and the migration approach for that service, while working inside the account and network foundation the platform team provides. That's a more accurate answer than claiming ownership of the whole stack, and it's the honest one.",
+  escalate:"—",
+  followups:[]
+},
+// ---- Category 5: Event-Driven & Integration Architecture ----
+{
+  id:"aws-5-1", cloud:"aws", category:"Event-Driven & Integration Architecture",
+  title:"Decouple one producer from several downstream consumers",
+  prompt:"Service A needs to notify multiple downstream services when an order is placed, without A needing to know who's listening.",
+  trap:"Having Service A call each downstream service directly — it couples A to every consumer's availability and makes adding a new consumer a code change in A.",
+  questions:["How many event types, and do consumers need content-based filtering?"],
+  design:[
+    "Publish to an SNS topic from Service A — A knows nothing about who's subscribed.",
+    "Each downstream service subscribes via its own SQS queue (the SNS fan-out to SQS pattern) for durability and independent retry.",
+    "If there are many event types and consumers need content-based routing rules, use EventBridge instead — it adds a schema registry and rule-based filtering."
+  ],
+  script:"SNS fan-out to SQS is the straightforward answer here — A publishes once to a topic, and every downstream service gets its own queue with independent processing and retry, without A ever knowing who's subscribed. If this grows into many event types with consumers that need to filter by content rather than just by topic, I'd reach for EventBridge instead, since it adds rule-based routing and a schema registry on top of the same fan-out idea.",
+  escalate:"EventBridge over SNS/SQS specifically when there are many distinct event sources or types and routing needs to be content-based rather than just topic-based.",
+  followups:[]
+},
+{
+  id:"aws-5-2", cloud:"aws", category:"Event-Driven & Integration Architecture",
+  title:"EC2 stops → cleanup, notify on-call, and audit log",
+  prompt:"When an EC2 instance stops, automatically trigger a Lambda to do cleanup. Now extend it: also notify the on-call team and log to a central audit trail.",
+  trap:"Building a Lambda that does the cleanup and then also calls Slack and writes the audit log itself — one function doing three jobs instead of using EventBridge's native fan-out.",
+  questions:[],
+  design:[
+    "One EventBridge rule matching the EC2 state-change event (source aws.ec2, detail-type EC2 Instance State-change Notification, state stopped).",
+    "Target 1: a Lambda scoped only to cleanup — deregistering from a service registry, nothing else.",
+    "Target 2: an SNS topic that fans out to a Slack webhook for on-call notification.",
+    "Target 3: rely on CloudTrail plus the same rule (or a scheduled aggregation) for the audit trail, rather than the cleanup Lambda writing audit logs itself.",
+    "Scope the Lambda's execution role to exactly what cleanup requires — nothing broader."
+  ],
+  script:"One rule, multiple targets — EventBridge supports fan-out natively, so I wouldn't build one Lambda that does cleanup and notification and logging. The rule matches the EC2 stopped state-change event and fans out to three targets: a cleanup Lambda scoped to just that job, an SNS topic feeding a Slack webhook for on-call visibility, and CloudTrail handling the audit trail on its own. Each piece stays single-purpose and independently testable.",
+  escalate:"—",
+  followups:[]
+},
+{
+  id:"aws-5-3", cloud:"aws", category:"Event-Driven & Integration Architecture",
+  title:"Synchronous API call or async event flow?",
+  prompt:"A front-end needs order status. Should that be a synchronous API call or an asynchronous event-driven flow?",
+  trap:"Defaulting to 'everything should be event-driven' as a general best practice, without checking whether the caller actually needs an immediate answer.",
+  questions:["Does the caller need the result to render something right now?"],
+  design:[
+    "If the front-end needs an immediate value to render the UI: synchronous — API Gateway plus Lambda, or a direct service call.",
+    "If a backend service just needs to react to a state change without blocking the caller: asynchronous — EventBridge or SQS, which also survives downstream outages via retry and backoff."
+  ],
+  script:"The test I'd apply: if the caller needs an answer to proceed, it's synchronous — API Gateway and Lambda for order status makes sense because the UI is waiting on a value. If it's a backend service that just needs to know something happened and doesn't need to block on a response, that's async — EventBridge or SQS, which is also more resilient because it naturally retries if a downstream service is temporarily down.",
+  escalate:"—",
+  followups:[]
+},
+// ---- Category 6: IAM & Security Architecture ----
+{
+  id:"aws-6-1", cloud:"aws", category:"IAM & Security Architecture",
+  title:"Cross-account S3 access with no shared credentials",
+  prompt:"An application in Account A needs to read from an S3 bucket in Account B. No long-lived credentials should be shared. Design the access.",
+  trap:"Creating an IAM user with an access key in Account B and handing the key to Account A — exactly the long-lived-credential pattern the requirement rules out.",
+  questions:[],
+  design:[
+    "Create an IAM role in Account B with a trust policy allowing Account A's role or service to assume it via sts:AssumeRole.",
+    "Add a resource-based bucket policy on the S3 bucket in Account B also allowing that specific principal from Account A — S3 cross-account access needs both the identity-based and resource-based side.",
+    "The application in Account A calls AssumeRole to get short-lived credentials — nothing long-lived changes hands."
+  ],
+  script:"No access keys change hands here at all. I'd create a role in Account B with a trust policy naming Account A's role as a trusted principal, add a bucket policy on the S3 bucket that also allows that principal — both sides matter for cross-account S3 — and have the application in Account A call AssumeRole to get short-lived, automatically-expiring credentials.",
+  escalate:"—",
+  followups:[]
+},
+{
+  id:"aws-6-2", cloud:"aws", category:"IAM & Security Architecture",
+  title:"Least-privilege Lambda: one bucket, one table",
+  prompt:"A Lambda function needs to read from one specific S3 bucket and write to one specific DynamoDB table — nothing else. Design the IAM.",
+  trap:"Reusing a broad, shared execution role 'because it already has the permissions' — it's fast but violates least privilege and widens blast radius if the function is ever compromised.",
+  questions:[],
+  design:[
+    "Give the function its own dedicated execution role, not a shared one.",
+    "Scope the policy to s3:GetObject on the specific bucket ARN, not a wildcard resource.",
+    "Scope dynamodb:PutItem and UpdateItem to the specific table ARN only.",
+    "No unrelated actions — no s3:DeleteBucket, no dynamodb:* wildcards."
+  ],
+  script:"A dedicated role for this function, not a shared one — that alone prevents scope creep. The policy names the exact bucket ARN for GetObject and the exact table ARN for PutItem and UpdateItem, nothing wildcarded, nothing broader than what the function actually does. I'd also run IAM Access Analyzer against real usage to validate the policy isn't over- or under-scoped.",
+  escalate:"—",
+  followups:[]
+},
+{
+  id:"aws-6-3", cloud:"aws", category:"IAM & Security Architecture",
+  title:"Centralizing security visibility across an AWS Organization",
+  prompt:"How do you centralize security visibility across a multi-account AWS Organization?",
+  trap:"Enabling Security Hub and GuardDuty independently in every account with no aggregation — findings exist, but nobody has one place to see them all.",
+  questions:[],
+  design:[
+    "Designate a dedicated Security/Audit account (not the management account) as the delegated administrator for Security Hub and GuardDuty.",
+    "AWS Organizations integration auto-enrolls member accounts and aggregates their findings into that account.",
+    "Send org-wide CloudTrail and VPC Flow Logs to a dedicated logging account's S3 bucket with restricted access.",
+    "Use SCPs at the OU level to enforce guardrails — e.g., deny disabling GuardDuty, deny leaving the organization, restrict regions."
+  ],
+  script:"I'd centralize this in a dedicated Security account acting as delegated administrator for both Security Hub and GuardDuty, with AWS Organizations auto-enrolling every member account so findings roll up automatically instead of living scattered per account. Logging goes to a separate dedicated logging account. And I'd back it with SCPs at the OU level so member accounts can't disable GuardDuty or wander out of the guardrails.",
+  escalate:"—",
+  followups:[]
+},
+// ---- Category 7: Resilience, HA & DR ----
+{
+  id:"aws-7-1", cloud:"aws", category:"Resilience, HA & DR",
+  title:"Multi-AZ vs Read Replica vs cross-region — when each applies",
+  prompt:"When would you use Multi-AZ versus a Read Replica versus a cross-region setup?",
+  trap:"Treating all three as interchangeable 'resilience' options instead of mapping each to a specific failure domain and RTO/RPO target.",
+  questions:[],
+  design:[
+    "Multi-AZ: HA for the primary within a region — synchronous standby, automatic failover, protects against an AZ failure. RTO roughly 60–120 seconds, RPO near zero.",
+    "Read Replica: scales reads, not failover protection by default — asynchronous, can be same-region or cross-region, can be manually promoted if needed.",
+    "Cross-region (cross-region read replica or Aurora Global Database): DR against a full regional failure — async replication, promoted manually or via a documented runbook, RPO depends on replication lag."
+  ],
+  script:"Each one answers a different question. Multi-AZ is about surviving an AZ failure with automatic failover and near-zero data loss — that's an availability answer, same region. A read replica is about scaling read traffic, not failover — it's asynchronous and would need manual promotion if used for recovery. Cross-region is the actual DR answer for a full regional outage, typically a cross-region read replica or Aurora Global Database, with RPO tied to however far behind replication lag is at the moment of failure.",
+  escalate:"—",
+  followups:[]
+},
+{
+  id:"aws-7-2", cloud:"aws", category:"Resilience, HA & DR",
+  title:"DR design: RTO 1 hour, RPO 15 minutes, secondary region",
+  prompt:"Design DR for the 3-tier app with an RTO of 1 hour and an RPO of 15 minutes, secondary region.",
+  trap:"Jumping straight to full active-active across regions — it technically satisfies the numbers but is far more cost and complexity than the target actually requires.",
+  questions:[],
+  design:[
+    "Warm standby pattern — not full active-active, not a cold backup-only approach.",
+    "App tier: a scaled-down copy running in the DR region, Auto Scaling Group held at minimum capacity.",
+    "Database tier: Aurora Global Database or a cross-region read replica, asynchronous replication, monitored to stay under the 15-minute RPO.",
+    "Route 53 health checks with a failover routing policy redirect traffic to the DR region on primary failure.",
+    "A documented runbook scales up the DR region's ASG and promotes the database replica during an actual failover."
+  ],
+  script:"A one-hour RTO and 15-minute RPO points to warm standby, not full active-active — active-active would meet the numbers but costs and complicates far more than the target requires, and a cold backup-only approach wouldn't meet either number. So: a scaled-down app tier already running in the DR region, Aurora Global Database or a cross-region replica for the data with replication lag monitored against the 15-minute target, Route 53 health checks doing the failover routing, and a runbook to scale up and promote during an actual event.",
+  escalate:"For VM-heavy or lift-and-shift workloads specifically, AWS Elastic Disaster Recovery (DRS) is worth knowing about too — continuous block-level replication with orchestrated failover, a managed alternative to hand-building this pattern.",
+  followups:[]
+},
+// ---- Category 8: Observability & Monitoring Design ----
+{
+  id:"aws-8-1", cloud:"aws", category:"Observability & Monitoring Design",
+  title:"Design monitoring and alerting for a new service from scratch",
+  prompt:"A new microservice just went to production. Design its monitoring and alerting strategy from scratch — which metrics, what thresholds, manual or automated?",
+  trap:"Naming CloudWatch as the tool without a framework behind it — technically correct but exactly the 'generally correct but lacking detailed implementation' feedback pattern.",
+  questions:["What's the SLA or acceptable latency/error target for this service?"],
+  design:[
+    "Use the four golden signals as the mental model: latency, traffic, errors, saturation.",
+    "Latency: track p50/p90/p99 response time; alert if p99 breaches the SLA threshold for 5 consecutive minutes.",
+    "Traffic: request count/RPS — useful for capacity planning and spotting anomalies (a sudden drop usually means something upstream broke).",
+    "Errors: alert if the 5xx rate exceeds roughly 1% of requests, or a concrete count such as more than 10 5xx errors in 5 minutes.",
+    "Saturation: CPU or memory sustained above 80%, DB connections approaching max, queue depth growing — these predict failures before they happen.",
+    "Wire CloudWatch Alarms to SNS, routed to PagerDuty or Slack — separate a non-paging warning tier from a paging critical tier, and consider composite alarms (e.g., only page if errors AND latency are both elevated) to cut noise.",
+    "Define every alarm as code alongside the service (Terraform/CloudFormation) rather than clicking them in manually."
+  ],
+  script:"I'd anchor this in the four golden signals rather than just naming CloudWatch. Latency as p99 against the SLA, traffic for capacity and anomaly detection, errors as a concrete threshold like more than 10 5xx in 5 minutes, and saturation — CPU, memory, connection counts — because that's what predicts a failure before it happens rather than reporting one after the fact. Alarms route through SNS to PagerDuty for anything paging, Slack for warnings, and I'd use composite alarms so a single noisy metric doesn't page someone at 3 AM. And all of it defined as code next to the service, not clicked together manually.",
+  escalate:"For a service with tight SLAs or many dependencies, add composite/anomaly-detection alarms and dependency-level tracing (X-Ray) on top of the golden-signals baseline.",
+  followups:[{q:"How do you decide what pages someone versus what just posts to Slack?", a:"Page for anything that's actively breaking the user experience right now or trending toward an outage (error rate, saturation); route to Slack for anything informational or trending but not yet urgent."}]
+},
+{
+  id:"aws-8-2", cloud:"aws", category:"Observability & Monitoring Design",
+  title:"CloudWatch alerts: manual vs automated, and what triggers them",
+  prompt:"How do you create CloudWatch alerts — what metrics, manual or automated, what thresholds?",
+  trap:"Listing metric names without concrete thresholds — the exact gap the interviewer called out: 'generally correct but lacking detailed implementation.'",
+  questions:[],
+  design:[
+    "Always automated, defined as code alongside the resource it monitors — not created by hand in the console.",
+    "Concrete thresholds, not vague ones: CPU above 80% sustained for 5 minutes, more than 10 5xx errors in 5 minutes, RDS connections above roughly 80% of max_connections, p99 latency above the SLA target, pod/container restarts above zero in a short window.",
+    "Use CloudWatch composite alarms to combine related signals and reduce false pages."
+  ],
+  script:"Automated and defined as code every time — an alarm that only exists because someone clicked it in the console doesn't survive the next environment rebuild. And I'd always give concrete numbers rather than naming a metric in the abstract: CPU above 80% for 5 minutes, more than 10 5xx errors in a 5-minute window, RDS connections past about 80% of max_connections, pod restarts above zero in a short window. Composite alarms where it makes sense, so related signals don't each fire their own page.",
+  escalate:"—",
+  followups:[]
+},
+// ============================= AZURE =============================
+// ---- Category 1: Cross-Subscription & Cross-VNet Private Communication ----
+{
+  id:"azure-1-1", cloud:"azure", category:"Cross-Subscription & Cross-VNet Networking",
+  title:"Function (Subscription A) → private API on a VM (Subscription B)",
+  prompt:"An Azure Function in Subscription A needs to call an API hosted on a VM in Subscription B, privately. Design it.",
+  trap:"The same over-engineering instinct as the AWS version — reaching for ExpressRoute or a full hub-spoke build when it's a simple one-to-one case.",
+  questions:["Just these two subscriptions, or will more join later?","Same region, or does this cross regions too?"],
+  design:[
+    "Give the Function App Regional VNet Integration so its outbound traffic routes through a VNet (Functions aren't in a VNet by default, same first move as the AWS Lambda case).",
+    "Peer the two VNets — VNet Peering works across subscriptions, and even across Entra ID tenants if configured; use global peering if the regions differ.",
+    "NSG on the VM's subnet or NIC allows inbound only from the Function's VNet/subnet on the API port.",
+    "No manual route table step needed for the basic case — VNet Peering auto-creates the system routes between the two VNets, unlike AWS where you add the route table entries yourself."
+  ],
+  script:"Same shape of problem as the AWS version, so the same discipline applies: confirm it's really just two subscriptions talking one-to-one before reaching for anything heavier. The Function needs Regional VNet Integration first since it isn't in a VNet by default, then a straightforward VNet Peering connection between the two VNets — that works fine across subscriptions and even across tenants. One difference worth knowing: Azure peering creates the routing automatically, so there's no manual route table step the way there is in AWS.",
+  escalate:"Three or more VNets needing mutual access — move to a hub VNet with peering to each spoke, or Virtual WAN if it needs to scale across regions. One service exposed to many outside tenants without full peering — that's Private Link Service instead.",
+  followups:[{q:"Does peering route transitively in Azure the way it doesn't in AWS?", a:"No — VNet Peering isn't transitive either. Spoke-to-spoke through a hub still needs a hub VNet with a firewall/NVA, or Virtual WAN."}]
+},
+{
+  id:"azure-1-2", cloud:"azure", category:"Cross-Subscription & Cross-VNet Networking",
+  title:"3 business units, 3 subscriptions, one shared service",
+  prompt:"Three business units, each with their own subscription and VNet, all need private connectivity to a shared-services VNet. More business units will onboard over the next year.",
+  trap:"Individual VNet peering per business unit — same scaling problem as AWS, plus no way to centrally inspect traffic between spokes without extra work.",
+  questions:["Does spoke traffic need central inspection or firewalling?"],
+  design:[
+    "Hub-and-spoke: a hub VNet holding shared services, with Azure Firewall or an NVA for centralized inspection.",
+    "Each business unit's VNet peers to the hub as a spoke.",
+    "User Defined Routes (UDRs) on the spokes force traffic through the firewall in the hub rather than going direct.",
+    "If this needs to scale across many regions and branches, move the hub to Azure Virtual WAN instead of a hand-built hub VNet."
+  ],
+  script:"Same reasoning as the AWS hub-spoke case: with more business units coming, pairwise peering doesn't scale and isn't transitive anyway. I'd build a hub VNet for shared services with Azure Firewall for inspection, peer each business unit in as a spoke, and use UDRs to force spoke traffic through the firewall instead of routing direct. If this needs to span many regions, I'd reach for Virtual WAN instead of a hand-built hub — that's Azure's answer to hub-spoke at real scale.",
+  escalate:"Virtual WAN specifically once the hub-and-spoke needs to span multiple regions or many branch/VPN connections — a hand-built hub VNet stops being the efficient answer at that point.",
+  followups:[]
+},
+{
+  id:"azure-1-3", cloud:"azure", category:"Cross-Subscription & Cross-VNet Networking",
+  title:"SaaS API exposed to hundreds of customer VNets",
+  prompt:"You're building a SaaS product on Azure. Customers want to reach your API privately from their own VNets, and you expect hundreds of customers.",
+  trap:"Proposing VNet peering per customer — the direct Azure analogue of the AWS PrivateLink trap, and it fails for the same reasons: doesn't scale, over-exposes the network.",
+  questions:[],
+  design:[
+    "Put a Standard Load Balancer in front of your service.",
+    "Create a Private Link Service referencing that load balancer.",
+    "Each customer creates a Private Endpoint in their own VNet connecting to your Private Link Service.",
+    "By default, connection requests need your approval — you can auto-approve specific subscriptions if that fits the onboarding flow."
+  ],
+  script:"This is Private Link Service, the direct equivalent of AWS PrivateLink — a Standard Load Balancer in front of the service, published as a Private Link Service, and each customer connects in via a Private Endpoint in their own VNet. One Azure-specific detail worth mentioning: connections need approval by default, which is a useful control point for onboarding, though it can be set to auto-approve for known subscriptions.",
+  escalate:"—",
+  followups:[]
+},
+// ---- Category 2: Hybrid Connectivity ----
+{
+  id:"azure-2-1", cloud:"azure", category:"Hybrid Connectivity",
+  title:"On-prem ERP needs Azure access in two weeks",
+  prompt:"Finance needs their on-prem ERP to reach a new Azure-hosted reporting service within two weeks. Traffic is moderate.",
+  trap:"Reaching for ExpressRoute because it sounds more robust — same timeline mismatch as the AWS case, provisioning takes far longer than two weeks.",
+  questions:[],
+  design:[
+    "Site-to-Site VPN via a VPN Gateway, deployed into the reserved GatewaySubnet.",
+    "On-prem side needs a compatible VPN device.",
+    "Provisioning is hours, not the weeks ExpressRoute would take."
+  ],
+  script:"Same call as AWS and for the same reason — ExpressRoute doesn't fit a two-week deadline regardless of how the workload might grow later. A Site-to-Site VPN through a VPN Gateway in the GatewaySubnet stands up in hours and comfortably handles moderate traffic.",
+  escalate:"If throughput or latency requirements tighten later, add ExpressRoute alongside the VPN — Azure explicitly supports ExpressRoute and VPN coexistence, so the VPN doesn't need to be torn out.",
+  followups:[]
+},
+{
+  id:"azure-2-2", cloud:"azure", category:"Hybrid Connectivity",
+  title:"Permanent, high-throughput, low-latency, compliance-sensitive link",
+  prompt:"A customer needs a permanent, high-throughput, low-latency, compliance-sensitive connection between their data center and Azure. Cost is secondary to reliability.",
+  trap:"Defaulting to VPN because it's simpler to set up, when the requirement explicitly rules that out (public-internet transit, capped throughput).",
+  questions:[],
+  design:[
+    "Provision ExpressRoute — a private, dedicated connection that never traverses the public internet.",
+    "Keep a Site-to-Site VPN as a failover path (ExpressRoute + VPN coexistence).",
+    "Use an ExpressRoute Gateway sized to the throughput requirement."
+  ],
+  script:"Given reliability and compliance both point away from the public internet, this is ExpressRoute from the start rather than starting with VPN — a dedicated private connection with consistent throughput and latency. I'd still layer a Site-to-Site VPN as an automatic failover path, since Azure explicitly supports running both together.",
+  escalate:"—",
+  followups:[]
+},
+{
+  id:"azure-2-3", cloud:"azure", category:"Hybrid Connectivity",
+  title:"Function + VM both reaching an on-prem database over VPN",
+  prompt:"An Azure Function and a VM both need to reach a database that lives on-premises, over a VPN. Walk through the design, including routing.",
+  trap:"Treating the Function's networking as a separate problem from the VM's, instead of recognizing that Regional VNet Integration puts it on the same footing as the VM once it's done.",
+  questions:[],
+  design:[
+    "Give the Function Regional VNet Integration into the same VNet as the VM.",
+    "Connect that VNet to on-prem via a VPN Gateway in the GatewaySubnet.",
+    "Configure UDRs if traffic needs to pass through an NVA or firewall rather than routing direct.",
+    "NSGs on the relevant subnets allow the DB port outbound; the on-prem firewall allows inbound from the Azure-side address range."
+  ],
+  script:"Same first move as the cross-subscription Function scenario — Regional VNet Integration puts the Function in the same VNet as the VM, and from there it's a standard hybrid routing problem: a VPN Gateway in the GatewaySubnet connecting to on-prem, UDRs if traffic needs to go through a firewall, and NSGs allowing the DB port outbound.",
+  escalate:"—",
+  followups:[]
+},
+// ---- Category 3: Multi-Tier Application Architecture ----
+{
+  id:"azure-3-1", cloud:"azure", category:"Multi-Tier Application Architecture",
+  title:"Standard 3-tier web application",
+  prompt:"Design a standard 3-tier web application on Azure: public-facing, with an application layer and a database layer.",
+  trap:"Putting the app or database tier on a public IP directly instead of layering subnets the way you would on AWS — the same discipline applies across clouds.",
+  questions:[],
+  design:[
+    "Application Gateway (with WAF) in a public-facing subnet.",
+    "App Service with Regional VNet Integration, or a VMSS in a private subnet, behind the Application Gateway.",
+    "Azure SQL Database reached via a Private Endpoint in a data subnet — no public endpoint at all.",
+    "NSGs chain the same way as AWS security groups: Gateway subnet accepts from the internet, app subnet accepts only from the Gateway, data subnet accepts only from the app subnet."
+  ],
+  script:"Structurally identical discipline to the AWS 3-tier answer, translated into Azure's building blocks: Application Gateway with WAF at the edge, App Service or VMSS behind it in a private subnet reached via Regional VNet Integration, and Azure SQL reached through a Private Endpoint rather than a public connection string. NSGs chain layer to layer the same way security groups do on AWS.",
+  escalate:"—",
+  followups:[{q:"Application Gateway or Front Door here?", a:"Application Gateway is regional and VNet-integrated, the right fit for this single-region 3-tier design; Front Door is global, edge-based, and comes in once there's a multi-region or global-latency requirement."}]
+},
+{
+  id:"azure-3-2", cloud:"azure", category:"Multi-Tier Application Architecture",
+  title:"Make the 3-tier app resilient to a zone failure and traffic spikes",
+  prompt:"Take that 3-tier architecture and make it resilient to an Availability Zone failure and able to handle traffic spikes.",
+  trap:"Scaling out without zone-awareness — more instances that all happen to sit in the same zone doesn't survive a zone failure.",
+  questions:[],
+  design:[
+    "Deploy Application Gateway v2, VMSS, and Azure SQL in a zone-redundant configuration across Availability Zones.",
+    "VMSS autoscale rules on CPU or queue length handle traffic spikes.",
+    "Azure SQL failover groups add automatic or manual regional failover if that's needed beyond zone redundancy."
+  ],
+  script:"Zone-redundant configuration across the stack — Application Gateway v2, VMSS, and Azure SQL all support it — handles the zone-failure requirement, and VMSS autoscale rules on CPU or queue length handle the traffic-spike requirement. If the business also needs protection against a full regional outage, that's Azure SQL failover groups layered on top, which is really the DR conversation rather than the zone-resilience one.",
+  escalate:"—",
+  followups:[]
+},
+{
+  id:"azure-3-3", cloud:"azure", category:"Multi-Tier Application Architecture",
+  title:"Read-heavy app, slow static assets globally",
+  prompt:"The application is read-heavy and static assets load slowly for users outside your primary region. What do you add?",
+  trap:"Reaching for a bigger Azure SQL tier to absorb read load instead of addressing the access pattern with caching, same trap as the AWS version.",
+  questions:[],
+  design:[
+    "Azure Cache for Redis in front of Azure SQL for hot, frequently-read data.",
+    "Azure Front Door in front of Application Gateway for global edge caching, routing, and WAF at the edge.",
+    "Sensible TTLs and cache invalidation for content that changes."
+  ],
+  script:"Two caches for two problems, same as the AWS answer: Azure Cache for Redis absorbs the hot read traffic in front of Azure SQL, and Azure Front Door handles the global static-asset problem by caching at the edge close to the user instead of every request reaching back to the primary region. Front Door is the right call here specifically because it's global and edge-based, versus Application Gateway which is regional.",
+  escalate:"—",
+  followups:[]
+},
+// ---- Category 4: Migration Architecture ----
+{
+  id:"azure-4-1", cloud:"azure", category:"Migration Architecture",
+  title:"End-to-end migration of an on-prem monolith",
+  prompt:"A customer wants to migrate a monolithic on-prem Java application to Azure. Walk through your approach end-to-end.",
+  trap:"Same trap as the AWS version — staying in deployment language instead of covering discovery, the architecture decision, ownership, and the business outcome.",
+  questions:["What's the downtime tolerance for cutover?","Any compliance or data residency constraints?"],
+  design:[
+    "Discovery and assessment first, using Azure Migrate for dependency mapping and right-sizing recommendations.",
+    "Decide per component using the same 6 R's framework — rehost, replatform, repurchase, refactor, retain, retire.",
+    "Design an Azure landing zone (management group hierarchy, policy, networking) as the target foundation.",
+    "Execute with Azure Migrate: Server Migration for rehost candidates, Azure Database Migration Service for the data layer.",
+    "Cut over using Traffic Manager or Front Door weighted routing for a gradual shift, with a rollback plan.",
+    "Validate with performance and functional testing before decommissioning on-prem."
+  ],
+  script:"Same structure as the AWS answer, Azure-native tools: Azure Migrate for discovery and dependency mapping first, then the same 6 R's decision per component — rehost first on a tight deadline is just as defensible here. Target architecture sits inside a proper Azure landing zone rather than an ad-hoc subscription. Execution uses Azure Migrate: Server Migration and DMS for the database, cutover via Traffic Manager or Front Door weighted routing, and validation before anything on-prem gets decommissioned. And I'd close with the business outcome, not just the technical steps.",
+  escalate:"—",
+  followups:[{q:"Who owns the landing zone versus the app migration?", a:"The platform team owns the management group hierarchy, policy, and central networking; the app team owns the application-level migration decisions within that landing zone — the same ownership split as the AWS answer."}]
+},
+{
+  id:"azure-4-2", cloud:"azure", category:"Migration Architecture",
+  title:"Database migration with minimal downtime",
+  prompt:"How do you migrate a production database to Azure with minimal downtime?",
+  trap:"A straight export/import for a production database — implies a downtime window most production systems can't accept.",
+  questions:[],
+  design:[
+    "Azure Database Migration Service for online (continuous sync) migration to Azure SQL or a managed instance.",
+    "Validate data consistency while sync is running.",
+    "Cut over in a short window once replication lag is near zero."
+  ],
+  script:"Azure DMS in online mode does the same job as AWS DMS here — continuous sync keeps the target current while the source keeps serving production traffic, and the actual cutover is a short window once lag is near zero.",
+  escalate:"—",
+  followups:[]
+},
+{
+  id:"azure-4-3", cloud:"azure", category:"Migration Architecture",
+  title:"Dividing ownership between platform team and application teams",
+  prompt:"In a migration project, how do you divide responsibility between the platform team and the application teams on Azure?",
+  trap:"Implying personal ownership of the whole landing zone when that's typically a dedicated platform function.",
+  questions:[],
+  design:[
+    "Platform team owns: management group hierarchy, Azure Policy, central networking (hub VNet, ExpressRoute/VPN), and central identity (Entra ID, Conditional Access).",
+    "Application team owns: their resource group, app-specific RBAC scoped to least privilege, CI/CD for their service, and their own migration specifics."
+  ],
+  script:"Same honest framing as the AWS answer: the platform team owns the management group hierarchy, policy, central networking, and identity; my role is designing and operating within that — the application architecture, the app-specific RBAC, the CI/CD, and the migration approach for that specific service.",
+  escalate:"—",
+  followups:[]
+},
+// ---- Category 5: Event-Driven & Integration Architecture ----
+{
+  id:"azure-5-1", cloud:"azure", category:"Event-Driven & Integration Architecture",
+  title:"Decouple one producer from several downstream consumers",
+  prompt:"Service A needs to notify multiple downstream services when an order is placed, without A needing to know who's listening.",
+  trap:"Having A call each downstream service directly, coupling it to every consumer's availability — same trap as the AWS version.",
+  questions:[],
+  design:[
+    "Publish to a Service Bus Topic from Service A.",
+    "Each downstream service gets its own Subscription on that topic, optionally with its own filter — durable, independent processing per consumer.",
+    "This is a genuine Azure difference worth naming: Service Bus Topics and Subscriptions give you pub/sub with per-consumer filtering natively in one service, where AWS combines SNS for pub/sub with SQS for durability to get the same effect."
+  ],
+  script:"Service Bus Topics with per-consumer Subscriptions — A publishes once, each downstream service has its own subscription with independent processing and, if needed, its own filter on which messages it cares about. Worth mentioning as a genuine cross-cloud difference: this is one service doing what AWS needs SNS and SQS together to do.",
+  escalate:"—",
+  followups:[]
+},
+{
+  id:"azure-5-2", cloud:"azure", category:"Event-Driven & Integration Architecture",
+  title:"VM deallocated → cleanup, notify on-call, and audit log",
+  prompt:"When a VM is deallocated, automatically trigger a Function to do cleanup. Now extend it: also notify the on-call team and log to a central audit trail.",
+  trap:"Building the cleanup Function to also handle notification and logging itself, instead of using Azure Monitor's native fan-out to an Action Group.",
+  questions:[],
+  design:[
+    "An Activity Log Alert watching for the VM deallocate operation (Microsoft.Compute/virtualMachines/deallocate/action).",
+    "The alert fires an Action Group with multiple actions: one calls the cleanup Function, another posts to Teams/Slack via a webhook or Logic App.",
+    "Route the Activity Log to a Log Analytics workspace via diagnostic settings for the audit trail, rather than having the Function write audit logs itself."
+  ],
+  script:"The Azure-native pattern here is an Activity Log Alert watching for the VM deallocate operation, firing an Action Group that fans out to multiple actions — the cleanup Function is one action, a Teams or Slack webhook is another. The audit trail comes from routing the Activity Log itself to Log Analytics via diagnostic settings, so the cleanup Function stays scoped to just cleanup, same single-responsibility idea as the AWS EventBridge answer.",
+  escalate:"For custom application-level events rather than resource state changes, Event Grid with custom topics is the better fit than Activity Log Alerts — Activity Log is specifically for control-plane operations on Azure resources.",
+  followups:[]
+},
+{
+  id:"azure-5-3", cloud:"azure", category:"Event-Driven & Integration Architecture",
+  title:"Synchronous API call or async event flow?",
+  prompt:"A front-end needs order status. Should that be a synchronous API call or an asynchronous event-driven flow?",
+  trap:"Defaulting to 'event-driven is always better' without checking whether the caller needs an immediate answer — same trap as AWS.",
+  questions:[],
+  design:[
+    "Immediate value needed to render the UI: synchronous, API Management in front of a Function or App Service.",
+    "Backend reacting to a state change without blocking the caller: asynchronous, Event Grid or Service Bus."
+  ],
+  script:"Same test as the AWS answer: does the caller need a value to proceed right now? If yes, synchronous — API Management in front of a Function for order status. If it's a backend service just reacting to something happening, async via Event Grid or Service Bus, which also tolerates a downstream outage better through retry.",
+  escalate:"—",
+  followups:[]
+},
+// ---- Category 6: IAM & Security Architecture ----
+{
+  id:"azure-6-1", cloud:"azure", category:"IAM & Security Architecture",
+  title:"Cross-subscription access with no shared credentials",
+  prompt:"An application in Subscription A needs to read from a Storage Account in Subscription B. No long-lived credentials should be shared. Design the access.",
+  trap:"Generating a Storage Account access key or a service principal secret and handing it to Subscription A — exactly the long-lived-credential pattern the requirement excludes.",
+  questions:[],
+  design:[
+    "Enable a Managed Identity (system- or user-assigned) on the resource in Subscription A.",
+    "Assign that identity an RBAC role — Storage Blob Data Reader, scoped to the specific storage account — in Subscription B.",
+    "No secrets are created, stored, or rotated at any point; Azure manages the identity's credential lifecycle entirely."
+  ],
+  script:"This is genuinely simpler than the AWS equivalent — a Managed Identity on the Subscription A resource, given an RBAC role scoped to the specific storage account in Subscription B. There's no secret to create or rotate, and no separate trust-policy document to author the way AWS needs — it's one role assignment.",
+  escalate:"—",
+  followups:[{q:"How does this compare to AWS AssumeRole?", a:"Same goal, less ceremony — Managed Identity removes credential management entirely rather than issuing short-lived credentials via a trust policy and an explicit assume-role call."}]
+},
+{
+  id:"azure-6-2", cloud:"azure", category:"IAM & Security Architecture",
+  title:"Least-privilege Function: one storage container, one Cosmos DB",
+  prompt:"A Function needs to read from one Blob container and write to one Cosmos DB container — nothing else. Design the identity.",
+  trap:"Assigning Contributor at the subscription or resource group scope because it's fast — the same over-broad-role trap as reusing a shared IAM role on AWS.",
+  questions:[],
+  design:[
+    "A user-assigned Managed Identity dedicated to this Function.",
+    "Storage Blob Data Reader scoped to the specific storage account (or container, via a custom role if that granularity is needed).",
+    "Cosmos DB Data Contributor scoped to the specific Cosmos account/container, not the subscription."
+  ],
+  script:"A dedicated Managed Identity for this Function, with Storage Blob Data Reader scoped to the exact storage account and Cosmos DB Data Contributor scoped to the exact Cosmos account — never Owner or Contributor at a broader scope just because it's convenient.",
+  escalate:"—",
+  followups:[]
+},
+{
+  id:"azure-6-3", cloud:"azure", category:"IAM & Security Architecture",
+  title:"Centralizing security visibility across an Azure tenant",
+  prompt:"How do you centralize security visibility across a multi-subscription Azure tenant?",
+  trap:"Enabling Defender for Cloud independently per subscription with no tenant-wide policy or central aggregation.",
+  questions:[],
+  design:[
+    "Enable Microsoft Defender for Cloud tenant-wide via Azure Policy, so new subscriptions are auto-enrolled rather than manually configured.",
+    "Aggregate findings and logs centrally through Microsoft Sentinel as the SIEM, fed by a Log Analytics workspace.",
+    "Enforce guardrails with Azure Policy at the management group level — for example, denying public IPs or requiring encryption."
+  ],
+  script:"Tenant-wide Defender for Cloud enabled via Azure Policy so it's automatic for new subscriptions rather than something each team remembers to turn on, with Microsoft Sentinel aggregating everything centrally through a Log Analytics workspace as the SIEM layer. Guardrails come from Azure Policy at the management group level — deny public IPs, require encryption, that kind of enforcement rather than just visibility.",
+  escalate:"This is genuinely a strong area to lean into confidently given the SC-300 background — Entra ID, Conditional Access, and this exact security-governance pattern are certified ground, not a gap.",
+  followups:[]
+},
+// ---- Category 7: Resilience, HA & DR ----
+{
+  id:"azure-7-1", cloud:"azure", category:"Resilience, HA & DR",
+  title:"Availability Zones vs geo-replication vs Azure Site Recovery",
+  prompt:"When would you use zone redundancy versus geo-replication versus Azure Site Recovery?",
+  trap:"Treating all three as interchangeable 'resilience,' the same trap as the AWS Multi-AZ/Read Replica/cross-region question.",
+  questions:[],
+  design:[
+    "Availability Zones: HA within a region, protects against a datacenter-level failure — the Azure analogue of AWS Multi-AZ.",
+    "Geo-replication (Azure SQL active geo-replication, Cosmos DB multi-region): read scaling plus DR, asynchronous.",
+    "Azure Site Recovery: managed DR orchestration specifically for VM-based workloads — continuous replication to a secondary region plus orchestrated, tested failover and failback."
+  ],
+  script:"Same mapping exercise as the AWS version. Availability Zones handle a datacenter-level failure within a region, directly comparable to Multi-AZ. Geo-replication is about read scaling and DR together, asynchronous, comparable to a cross-region read replica. Azure Site Recovery is the one without a tidy one-line AWS parallel — it's a managed DR-orchestration product specifically for VM workloads, closest to AWS Elastic Disaster Recovery, and it's worth knowing both exist rather than hand-building DR with snapshots and scripts.",
+  escalate:"—",
+  followups:[]
+},
+{
+  id:"azure-7-2", cloud:"azure", category:"Resilience, HA & DR",
+  title:"DR design: RTO 1 hour, RPO 15 minutes, secondary region",
+  prompt:"Design DR for the 3-tier app with an RTO of 1 hour and an RPO of 15 minutes, secondary region.",
+  trap:"Jumping to full active-active across regions when warm standby satisfies the actual numbers at far lower cost and complexity.",
+  questions:[],
+  design:[
+    "Warm standby: VM-based tiers replicated continuously via Azure Site Recovery into the secondary region, scaled down until failover.",
+    "Azure SQL auto-failover group for the database tier — asynchronous geo-replication, monitored to stay under the 15-minute RPO.",
+    "Traffic Manager or Front Door for DNS-level failover routing to the secondary region.",
+    "A tested runbook to scale up the secondary region and trigger the failover group during an actual event."
+  ],
+  script:"Same reasoning as the AWS answer — a 1-hour RTO and 15-minute RPO calls for warm standby, not full active-active. Azure Site Recovery keeps the VM tier continuously replicated but scaled down in the secondary region, an Azure SQL auto-failover group handles the database side within the RPO target, and Traffic Manager or Front Door does the failover routing. All of it backed by a tested runbook, not a plan that's only ever been read, never run.",
+  escalate:"—",
+  followups:[]
+},
+// ---- Category 8: Azure Monitor / Observability Design ----
+{
+  id:"azure-8-1", cloud:"azure", category:"Azure Monitor / Observability Design",
+  title:"Design monitoring and alerting for a new service from scratch",
+  prompt:"A new service just went to production. Design its monitoring and alerting strategy from scratch.",
+  trap:"Naming Azure Monitor as the tool without a framework — same gap the interviewer flagged on the AWS side.",
+  questions:["What's the SLA or acceptable latency/error target for this service?"],
+  design:[
+    "Same four golden signals as the AWS answer: latency, traffic, errors, saturation.",
+    "Application Insights gives p50/p95/p99 latency and failure rate natively for the app tier, plus dependency tracking.",
+    "Errors: alert on a concrete threshold, e.g. failure rate above roughly 1% over 5 minutes.",
+    "Saturation: CPU/memory sustained above 80%, connection pool near max — the same predictive signals as AWS.",
+    "Azure Monitor Alerts — metric alerts plus log alerts written as KQL queries against Log Analytics — route to Action Groups (email, SMS, webhook, ITSM, Logic App).",
+    "Consider Dynamic Thresholds on metric alerts — an ML-based alternative to hand-picking static numbers, worth mentioning as an Azure-specific capability."
+  ],
+  script:"Same golden-signals framework as the AWS answer, Azure-native tools underneath: Application Insights gives latency percentiles and failure rate on the app tier out of the box, plus dependency tracking. Errors and saturation get concrete thresholds, not vague ones. Alerts — metric-based or KQL log queries against Log Analytics — route through Action Groups, and I'd mention Dynamic Thresholds specifically, since it's an ML-based alternative to static numbers that Azure offers natively.",
+  escalate:"—",
+  followups:[{q:"Azure Monitor Workbooks — what are they for here?", a:"Dashboarding on top of the same data — useful for a team-facing view of the golden signals, separate from the alerting pipeline itself."}]
+},
+{
+  id:"azure-8-2", cloud:"azure", category:"Azure Monitor / Observability Design",
+  title:"Azure Monitor alerts: manual vs automated, and what triggers them",
+  prompt:"How do you create Azure Monitor alerts — what metrics, manual or automated, what thresholds?",
+  trap:"Same gap as AWS — naming metrics without concrete thresholds or without saying how they're deployed.",
+  questions:[],
+  design:[
+    "Automated, defined as code (Bicep/Terraform) alongside the resource, not clicked together in the portal.",
+    "Concrete thresholds: CPU above 80% for 5 minutes, failure rate above roughly 1% over 5 minutes, connection pool near max, p99 latency above the SLA target.",
+    "Use Dynamic Thresholds where a static number is hard to pick confidently, and action group severity tiers to separate paging from informational alerts."
+  ],
+  script:"Automated and defined as code every time, same principle as AWS — an alert that only exists because someone clicked it into the portal doesn't survive a redeploy. Concrete numbers, not vague metric names: CPU above 80% for 5 minutes, failure rate above roughly 1%, p99 against the SLA. And I'd use Dynamic Thresholds where a static number is genuinely hard to pick with confidence, with action group severities separating what pages someone from what's just informational.",
+  escalate:"—",
+  followups:[]
+}
+];
+
+const STORAGE_KEY = "sa-scenario-handbook-mastery-v1";
+let masteredIds = new Set();
+const state = { query:"", catAws:"all", catAz:"all" };
+
+function cardHTML(s){
+  const qList = s.questions.map(q => "<li>" + q + "</li>").join("");
+  const dList = s.design.map(d => "<li>" + d + "</li>").join("");
+  const fList = s.followups.map(f => "<p><strong>Q:</strong> " + f.q + "<br><strong>A:</strong> " + f.a + "</p>").join("");
+  const questionsBlock = s.questions.length ? '<div class="block q"><h4>\u{1F3AF} Ask First</h4><ul>' + qList + "</ul></div>" : "";
+  const followBlock = s.followups.length ? '<div class="block follow"><h4>\u{1F4A1} Likely Follow-Up</h4>' + fList + "</div>" : "";
+  const escalateBlock = (s.escalate && s.escalate !== "\u2014") ? '<div class="block escalate"><h4>\u2696\uFE0F When Complex IS Correct</h4><p>' + s.escalate + "</p></div>" : "";
+  const cloudLabel = s.cloud === "aws" ? "AWS" : "Azure";
+  return '<article class="card" data-id="' + s.id + '" data-cloud="' + s.cloud + '" data-cat="' + s.category + '">' +
+    '<button class="card-head" data-toggle="' + s.id + '" aria-expanded="false">' +
+      '<span class="badge ' + s.cloud + '">' + cloudLabel + '</span>' +
+      '<span class="cat-tag">' + s.category + '</span>' +
+      '<span class="card-title">' + s.title + '</span>' +
+      '<span class="chevron">\u25BE</span>' +
+    '</button>' +
+    '<p class="prompt">\u201C' + s.prompt + '\u201D</p>' +
+    '<div class="card-body" id="body-' + s.id + '" hidden>' +
+      '<div class="block trap"><h4>\u{1F6A9} The Trap</h4><p>' + s.trap + '</p></div>' +
+      questionsBlock +
+      '<div class="block design"><h4>\u2705 First-Principles Design</h4><ol>' + dList + '</ol></div>' +
+      '<div class="block script"><h4>\u{1F5E3}\uFE0F How to Say It</h4><p class="script-text">' + s.script + '</p></div>' +
+      escalateBlock +
+      followBlock +
+    '</div>' +
+    '<label class="mastery"><input type="checkbox" data-mastery="' + s.id + '"> Mark mastered</label>' +
+  '</article>';
+}
+
+function uniqueCategoriesInOrder(cloud){
+  const seen = new Set(); const out = [];
+  SCENARIOS.filter(s => s.cloud === cloud).forEach(s => {
+    if(!seen.has(s.category)){ seen.add(s.category); out.push(s.category); }
+  });
+  return out;
+}
+
+function renderChips(cloud, containerId){
+  const cats = uniqueCategoriesInOrder(cloud);
+  const container = document.getElementById(containerId);
+  let html = '<span class="chip active ' + cloud + '" data-cloud="' + cloud + '" data-cat="all">All</span>';
+  cats.forEach(c => { html += '<span class="chip" data-cloud="' + cloud + '" data-cat="' + c + '">' + c + '</span>'; });
+  container.innerHTML = html;
+}
+
+function renderAll(){
+  document.getElementById("aws-cards").innerHTML = SCENARIOS.filter(s => s.cloud === "aws").map(cardHTML).join("");
+  document.getElementById("az-cards").innerHTML = SCENARIOS.filter(s => s.cloud === "azure").map(cardHTML).join("");
+  renderChips("aws", "aws-chips");
+  renderChips("azure", "az-chips");
+  const awsTotal = SCENARIOS.filter(s => s.cloud === "aws").length;
+  const azTotal = SCENARIOS.filter(s => s.cloud === "azure").length;
+  document.getElementById("aws-count").textContent = awsTotal + " scenarios";
+  document.getElementById("az-count").textContent = azTotal + " scenarios";
+}
+
+function applyFilters(){
+  let visible = 0;
+  document.querySelectorAll(".card").forEach(card => {
+    const cloud = card.dataset.cloud;
+    const cat = card.dataset.cat;
+    const activeCat = cloud === "aws" ? state.catAws : state.catAz;
+    const matchesCat = activeCat === "all" || cat === activeCat;
+    const matchesQuery = !state.query || card.textContent.toLowerCase().includes(state.query);
+    const show = matchesCat && matchesQuery;
+    card.style.display = show ? "" : "none";
+    if(show) visible++;
+  });
+}
+
+function updateProgress(){
+  const total = SCENARIOS.length;
+  const awsTotal = SCENARIOS.filter(s => s.cloud === "aws").length;
+  const azTotal = SCENARIOS.filter(s => s.cloud === "azure").length;
+  let doneAws = 0, doneAz = 0;
+  masteredIds.forEach(id => { if(id.indexOf("aws-") === 0) doneAws++; else if(id.indexOf("azure-") === 0) doneAz++; });
+  const done = masteredIds.size;
+  document.getElementById("progress-text").textContent = done + "/" + total + " mastered \u00B7 AWS " + doneAws + "/" + awsTotal + " \u00B7 Azure " + doneAz + "/" + azTotal;
+  document.getElementById("progress-fill").style.width = (total ? (done/total*100) : 0) + "%";
+}
+
+function updateAllMasteryUI(){
+  document.querySelectorAll(".card").forEach(card => {
+    const id = card.dataset.id;
+    const cb = card.querySelector('[data-mastery]');
+    const isMastered = masteredIds.has(id);
+    if(cb) cb.checked = isMastered;
+    card.classList.toggle("is-mastered", isMastered);
+  });
+}
+
+async function loadMastery(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res && res.value){
+      masteredIds = new Set(JSON.parse(res.value));
+    }
+  }catch(e){
+    masteredIds = new Set();
+  }
+  updateAllMasteryUI();
+  updateProgress();
+}
+
+async function toggleMastery(id, checked){
+  if(checked) masteredIds.add(id); else masteredIds.delete(id);
+  const card = document.querySelector('.card[data-id="' + id + '"]');
+  if(card) card.classList.toggle("is-mastered", checked);
+  updateProgress();
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(Array.from(masteredIds)), false);
+  }catch(e){
+    console.error("Failed to save progress", e);
+  }
+}
+
+function wireEvents(){
+  document.addEventListener("click", (e) => {
+    const toggleBtn = e.target.closest("[data-toggle]");
+    if(toggleBtn){
+      const id = toggleBtn.dataset.toggle;
+      const body = document.getElementById("body-" + id);
+      const isHidden = body.hasAttribute("hidden");
+      if(isHidden){ body.removeAttribute("hidden"); } else { body.setAttribute("hidden",""); }
+      const chevron = toggleBtn.querySelector(".chevron");
+      if(chevron) chevron.textContent = isHidden ? "\u25B4" : "\u25BE";
+      toggleBtn.setAttribute("aria-expanded", isHidden ? "true" : "false");
+      return;
+    }
+    const chip = e.target.closest(".chip");
+    if(chip){
+      const cloud = chip.dataset.cloud;
+      const cat = chip.dataset.cat;
+      if(cloud === "aws") state.catAws = cat; else state.catAz = cat;
+      const containerId = cloud === "aws" ? "aws-chips" : "az-chips";
+      document.querySelectorAll("#" + containerId + " .chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      applyFilters();
+      return;
+    }
+  });
+
+  document.addEventListener("change", (e) => {
+    if(e.target.matches("[data-mastery]")){
+      toggleMastery(e.target.dataset.mastery, e.target.checked);
+    }
+  });
+
+  document.getElementById("search").addEventListener("input", (e) => {
+    state.query = e.target.value.trim().toLowerCase();
+    applyFilters();
+  });
+}
+
+async function init(){
+  renderAll();
+  wireEvents();
+  await loadMastery();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

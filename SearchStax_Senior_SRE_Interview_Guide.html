@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SearchStax Senior SRE — Interview Guide</title>
+<style>
+:root{
+  --ink:#1b2430; --sub:#5a6472; --line:#e3e7ec; --bg:#f7f8fa; --card:#ffffff;
+  --accent:#0f6e5f; --accent-soft:#e4f3ef;
+  --scn:#a34e00; --scn-soft:#fdf0e2;
+  --qa:#2454a6; --qa-soft:#e9f0fc;
+  --warn:#8a3b3b; --warn-soft:#fbeaea;
+  --gap:#7a5b12; --gap-soft:#faf1dc;
+  --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);}
+header{background:var(--ink);color:#fff;padding:22px 24px 18px;}
+header h1{margin:0 0 4px;font-size:22px;letter-spacing:.2px}
+header p{margin:0;color:#b9c2cd;font-size:13.5px}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px 60px}
+nav{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;margin-bottom:18px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;max-width:980px;margin:0 auto;padding:0 16px}
+.tab{border:1px solid var(--line);background:#fff;color:var(--sub);padding:8px 13px;border-radius:20px;font-size:13px;cursor:pointer;font-weight:600;white-space:nowrap}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.searchbar{max-width:980px;margin:12px auto 0;padding:0 16px}
+.searchbar input{width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--line);font-size:14px;background:#fff}
+section.pg{display:none}
+section.pg.active{display:block}
+.blk{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.blk h2{margin:0 0 12px;font-size:17px}
+.factrow{display:flex;gap:14px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.factrow:last-child{border-bottom:none}
+.factrow b{min-width:150px;flex:0 0 150px;color:var(--sub);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.3px;padding-top:2px}
+ul.plain{margin:6px 0 0;padding-left:20px;font-size:14.5px;line-height:1.55}
+ul.plain li{margin-bottom:7px}
+.gapbox{background:var(--gap-soft);border:1px solid #ecd9a5;border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.gapbox b{color:var(--gap);display:block;margin-bottom:4px;font-size:13.5px}
+.gapbox p{margin:0;font-size:14px;line-height:1.5;color:#3a3226}
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.cbar{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;cursor:pointer}
+.badge{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.4px;padding:4px 8px;border-radius:6px;text-transform:uppercase;margin-top:2px}
+.b-scn{background:var(--scn-soft);color:var(--scn)}
+.b-qa{background:var(--qa-soft);color:var(--qa)}
+.mark{flex:0 0 20px;width:20px;height:20px;border:2px solid var(--line);border-radius:6px;margin-left:auto;margin-top:2px;cursor:pointer}
+.mark.done{background:var(--accent);border-color:var(--accent);position:relative}
+.mark.done:after{content:'✓';position:absolute;inset:0;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center}
+.cbody{flex:1;min-width:0}
+.ctitle{font-weight:700;font-size:15px;margin:0 0 3px}
+.cprev{color:var(--sub);font-size:13.5px;line-height:1.45}
+.cdetail{display:none;padding:0 16px 16px 16px;border-top:1px solid var(--line)}
+.card.open .cdetail{display:block}
+.card.open .cprev{display:none}
+.qprompt{background:#f2f4f6;border-radius:8px;padding:10px 13px;font-size:13.5px;color:var(--sub);margin:12px 0;font-style:italic}
+.seg{margin-bottom:11px}
+.seg h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--accent)}
+.seg p{margin:0;font-size:14.5px;line-height:1.58}
+.ansline{font-size:14.5px;line-height:1.6;margin:0}
+.qtext{font-weight:700;font-size:14.5px;margin:0 0 6px}
+.chip{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--sub);border-radius:5px;padding:2px 7px;margin-bottom:10px}
+.groupname{font-size:13px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.groupname:first-child{margin-top:0}
+.hint{background:var(--accent-soft);border:1px solid #bfe0d6;border-radius:10px;padding:12px 14px;font-size:13.5px;color:#0f4a3f;margin-bottom:16px;line-height:1.5}
+.cs-table{width:100%;border-collapse:collapse;margin-bottom:20px}
+.cs-table td{padding:8px 10px;font-size:13.5px;border-bottom:1px solid var(--line);vertical-align:top}
+.cs-table td:first-child{font-family:var(--mono);font-weight:700;color:var(--accent);white-space:nowrap;width:210px}
+.progresswrap{max-width:980px;margin:0 auto;padding:14px 16px 0}
+.pbartrack{height:6px;background:var(--line);border-radius:4px;overflow:hidden}
+.pbarfill{height:100%;background:var(--accent);width:0%}
+.ptext{font-size:12px;color:var(--sub);margin-top:5px}
+.closingq{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:14.5px;line-height:1.5}
+@media(max-width:640px){.factrow{flex-direction:column;gap:2px}.factrow b{min-width:0}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>SearchStax — Senior SRE Interview Guide</h1>
+  <p>Reports to Wolfgang Kandek · Infra dept · Remote, 6:30 PM–3:30 AM IST Mon–Fri · Built for Saroj Kumar Nayak</p>
+</header>
+
+<div class="progresswrap">
+  <div class="pbartrack"><div class="pbarfill" id="pbarfill"></div></div>
+  <div class="ptext" id="ptext">0 of 0 reviewed</div>
+</div>
+
+<nav><div class="tabs" id="tabs"></div></nav>
+<div class="searchbar"><input id="search" placeholder="Search all questions and answers…"></div>
+
+<div class="wrap" id="pages"></div>
+
+<script id="data" type="application/json">{"snapshot": {"role_facts": [["Company", "SearchStax — California-based, fully managed cloud search service built on Apache Solr, running across AWS, Azure and GCP. Also ships AI/conversational search modules."], ["Role", "Senior Site Reliability Engineer, SearchStax India Pvt Ltd"], ["Reports to", "Wolfgang Kandek, Infrastructure department"], ["Work mode", "Remote / WFH, 5x9-hour shifts, 6:30 PM – 3:30 AM IST, Mon–Fri (built to overlap US Pacific business hours)"], ["Team size signal", "Small, focused infra org — expect broad individual ownership rather than deep specialization silos"]], "what_they_test": ["Whether you can hold a full incident lifecycle in your head — detect, triage, investigate, fix, prevent recurrence — and narrate it clearly.", "Linux and AWS depth used as a diagnostic instrument, not trivia.", "Automation instinct: do you reach for a script/runbook after the second time you do something manually?", "SLI/SLO thinking — can you translate 'the service feels slow' into a measurable, actionable signal?", "Composure and structured thinking when data is incomplete (question 5 is explicitly testing this).", "Communication — this is a 24x7 remote role reporting to a US-hours leader; they need someone who over-communicates by default."], "strengths_to_lean_on": ["Kubernetes + AWS/Azure production operations across multiple employers", "Observability stack ownership: Prometheus, Grafana, Splunk, Dynatrace, New Relic", "Automation track record: 60% deployment automation improvement, 40% alert-noise reduction", "Incident/reliability metrics: 45% recovery-time improvement, 35% MTTD reduction, 99.9% uptime maintained", "Chaos engineering exposure (Gremlin) — directly answers Q4-style 'resilience vs. speed' tradeoff questions", "IaC and automation depth: Terraform, Ansible, Python, Shell"], "gaps_to_bridge": [["Apache Solr specifics", "You haven't run Solr in production. Bridge: Solr's reliability concerns — sharding, replication, ZooKeeper as a coordination dependency, JVM heap/GC pressure, query latency under index growth — map directly onto patterns you already own in Kubernetes/DB reliability work. Say so plainly, then pivot to the transferable pattern. Cheat-sheet chapter has a Solr crash course — spend 30 minutes on it before the interview."], ["Multi-cloud production ownership", "Your production depth is strongest in AWS/Azure; SearchStax also touches GCP. Bridge: the reliability primitives (health checks, autoscaling, load balancing, IAM) are conceptually portable — name the AWS equivalent, then say you'd ramp on GCP-specific tooling quickly."], ["Small-company / high-ownership pace", "If your recent roles had more org structure around you, be ready to speak to times you personally owned something end-to-end without a large team behind you."]], "closing_notes": "Speak in first person: 'I investigated', 'I designed', 'I configured' — even when the work was collaborative, name your specific contribution and credit the team explicitly if asked. Don't overclaim Solr or GCP experience — flag the gap once, briefly, then bridge to the pattern. That combination (a little humility, immediately followed by demonstrated depth) reads as senior; overclaiming reads as junior."}, "scenarios": [{"id": "s1", "tag": "Q1", "title": "Production Incident & Wrong Assumption", "prompt": "Describe a real production incident where your first understanding of the problem turned out to be incorrect — initial symptoms, why you suspected the wrong component, what changed your direction, the actual root cause, and the follow-up improvements.", "preview": "High-CPU / high-latency alert right after a deploy looked like an app-code regression — turned out to be a database index dropped during a schema migration.", "answer": [["Situation", "Prometheus fired a High Response Time alert on a customer-facing API roughly 15 minutes after a routine release. CPU on the pods had jumped from ~40% to ~90%, and pods were showing elevated restart counts."], ["Initial assumption", "Everything pointed at the new release: CPU spike immediately after deploy, latency climbing in lockstep, no infrastructure-level alerts firing. I assumed a memory leak or an inefficient code path shipped in the release."], ["What changed my thinking", "I went through kubectl top pod, kubectl describe pod, kubectl logs, and kubectl get events — no OOM kills, no exceptions, no crash loops. The application itself was healthy. That ruled out the code-regression theory, so I widened the search to dependencies and checked Prometheus metrics for the database tier, which showed connection-pool saturation."], ["Root cause", "A schema migration bundled with the release had silently dropped an index. A query that normally ran in ~20ms was now taking several seconds, backing up the connection pool, which back-pressured the app and looked like a CPU/app problem from the outside."], ["Fix", "Recreated the missing index. Latency and CPU normalized within minutes — no application rollback needed."], ["Prevention", "Added slow-query alerting, made index changes part of migration review/checklist, and added a synthetic post-deploy check that specifically watches DB query latency for the first 30 minutes after any release — not just app-level metrics."], ["Lesson", "Correlation isn't causation. 'It happened right after the deploy' pointed at the app, but the actual signal — connection pool saturation — was one layer deeper. Now I always validate app, infra, and dependency metrics as three separate hypotheses before committing to a root cause."]]}, {"id": "s2", "tag": "Q2", "title": "Building Reliability from Scratch (First 30 Days)", "prompt": "You join as the first SRE. No structured monitoring, no meaningful dashboards, inconsistent alerting, frequent complaints about instability. Walk through your first 30 days.", "preview": "Week 1: listen and inventory. Week 2: instrument the four golden signals and kill noisy alerts. Weeks 3-4: define SLIs/SLOs on the highest-complaint service and socialize a lightweight runbook culture.", "answer": [["Days 1–7 — Listen before instrumenting", "I wouldn't touch tooling in week one. I'd interview on-call engineers and support/product about where the pain actually is — which service gets escalated most, what a 'bad day' looks like, what people currently do manually to check health. In parallel, I'd inventory what exists: any metrics being collected but unused, existing alert rules and their noise/false-positive rate, and recent incident history if any postmortems exist. Goal: a prioritized list of the top 3-5 reliability risks, backed by what people actually experience, not by what looks technically interesting to me."], ["Days 8–14 — Instrument the golden signals, cut alert noise", "For the top 1-2 services identified, stand up the four golden signals (latency, traffic, errors, saturation) in Prometheus/Grafana — even a rough dashboard beats none. At the same time, I'd audit existing alerts and kill or tune anything that's fired more than it's mattered; a team that's been ignoring pages for months has already trained itself not to trust alerts, and that has to be fixed before adding more signals."], ["Days 15–21 — Define SLIs/SLOs where it matters most", "Rather than boiling the ocean, I'd pick the single most customer-visible service and define one or two SLIs (e.g. request success rate, p95 latency) with a realistic SLO based on historical behavior, not an aspirational number. This gives leadership a measurable, defensible way to talk about reliability instead of 'it feels flaky.'"], ["Days 22–30 — Runbook culture and visible progress", "Write the first 2-3 runbooks for the most common incident types identified in week 1, and start a lightweight weekly reliability review — what fired, what didn't, what changed. I'd close the 30 days with a short writeup to leadership: risks found, what's now measured, what's fixed, and a prioritized backlog for the next quarter."], ["Balancing immediate vs. long-term", "Immediate firefighting (killing noisy pages, fixing the most complained-about issue) buys credibility and calm fast; the SLO/runbook work is what compounds. I'd timebox firefighting deliberately so it doesn't eat the whole 30 days — the goal isn't to be a hero, it's to leave behind a system that's more observable and more predictable than the one I found."], ["Lesson", "The fastest way to lose trust as the first SRE is to show up with a big monitoring rollout before anyone believes you understand their pain. Visibility work has to follow listening, not precede it."]]}, {"id": "s3", "tag": "Q3", "title": "Deep Technical Troubleshooting", "prompt": "Describe the most technically challenging Linux/infra/production issue you've personally investigated — what made it hard, what misled you, what worked, what didn't, and what you learned.", "preview": "Intermittent pod-to-pod timeouts that looked like an application bug turned out to be DNS resolution exhaustion under load — a classic 'the graphs look fine' problem.", "answer": [["Situation", "A service began throwing intermittent upstream-timeout errors under load — not constant, maybe 2-3% of requests, and only during peak traffic windows. CPU, memory, and pod counts all looked completely normal, which made it genuinely confusing."], ["What was hard about it", "Nothing in the standard dashboards pointed anywhere. No resource exhaustion, no error spikes at the LB, no obvious pattern by pod or node. My first instinct — that it was a downstream service being slow — was wrong; the downstream service's own latency metrics were clean."], ["What misled me initially", "Because the errors were timeouts, I spent time chasing network policy and service mesh timeout configs, assuming a misconfigured retry/timeout budget. That ruled itself out once I found the timeouts weren't correlated with any specific route or service pair."], ["What narrowed it down", "I used tcpdump and strace on an affected pod during a live occurrence and noticed the delay was happening before the outbound connection was even established — pointing at DNS resolution rather than the network call itself. Checking kube-dns/CoreDNS metrics showed a spike in query latency and a rising count of dropped/retried queries that exactly tracked the peak traffic windows."], ["Root cause", "Under peak load, the number of concurrent DNS lookups from application pods exceeded CoreDNS's configured capacity (and conntrack table pressure on the nodes was compounding it), causing intermittent resolution delays that surfaced as upstream timeouts several layers up the stack."], ["Fix", "Scaled CoreDNS replicas, enabled NodeLocal DNSCache to cut cross-node DNS traffic, and tuned conntrack limits on the affected node pool."], ["Lesson", "The layer where a symptom appears (application timeout) is often several hops away from the layer where the cause lives (DNS/conntrack). When the obvious metrics are all clean, that's a signal to go one level lower in the stack — packet capture, syscall trace — rather than re-checking the same dashboards."]]}, {"id": "s4", "tag": "Q4", "title": "Engineering Judgment & Disagreement", "prompt": "Describe a time you strongly disagreed with a technical/architectural/operational decision — why, how you raised it, the tradeoffs, the outcome, and what it taught you.", "preview": "Pushed back on skipping chaos/failover testing before a major release to hit a deadline — proposed a scoped, time-boxed test instead of an all-or-nothing gate, and it caught a real failover gap.", "answer": [["Situation", "Ahead of a major release, the team wanted to skip the planned resilience/failover testing to protect the ship date — the reasoning was that the changes were 'low risk' and testing could happen after launch if needed."], ["Why I disagreed", "The release touched a component that fed into failover logic, which is exactly the kind of change where 'looks low risk' and 'is low risk' diverge. Skipping the one test designed to catch failover regressions felt like removing the safety net specifically for the release most likely to need it."], ["How I raised it", "I didn't just say 'no' — I brought a scoped alternative: instead of the full test suite, a targeted chaos experiment (using Gremlin) against just the failover path, time-boxed to a few hours, run in a lower environment first. I framed it in terms the team already cared about: cost of a production failover failure vs. cost of a few hours of testing time."], ["Tradeoffs / outcome", "Leadership agreed to the scoped test rather than the full suite — a compromise on scope, not on doing it at all. The test caught a real gap: a timeout value that hadn't been updated to match the new component's startup time, which would have caused failover to fail during exactly the kind of event it exists to handle. We fixed it before release."], ["Lesson", "Disagreement lands better as a scoped counter-proposal than as a blocker. 'Here's a smaller version of what I'm asking for, and here's the specific risk it addresses' gets a yes far more often than 'we can't ship without full testing.' It also taught me that resilience testing isn't a checkbox — it's most valuable exactly when a team feels pressure to skip it."]]}, {"id": "s5", "tag": "Q5", "title": "Major Outage Without Visibility", "prompt": "A critical outage is happening, but dashboards/logging/monitoring are also unavailable. Walk through the first 15-20 minutes.", "preview": "Fall back to first-principles checks — cloud provider status page, LB/health-check state via CLI, raw log tail via SSH — while declaring an incident and keeping stakeholders updated even with imperfect information.", "answer": [["First 60 seconds — declare and orient", "I'd declare the incident immediately rather than waiting to understand it — that starts the clock on communication and gets the right people looking. I'd post a short, honest status: 'Investigating a customer-impacting outage; observability tooling is also degraded, using fallback methods, updates every 10-15 min.' Setting that expectation early prevents a flood of 'any update?' pings."], ["Minutes 1–5 — cheapest signals first", "Before touching anything internal, I'd check the cloud provider's status page and any third-party dependency status pages — a chunk of 'our monitoring is down' incidents are actually a shared upstream provider issue, and this is the fastest way to rule that in or out."], ["Minutes 5–10 — validate the edge", "With dashboards unreliable, I'd go straight to the load balancer / ingress layer via CLI or cloud console — target health checks, 5xx rate at the LB if it's still reporting, and current connection counts. That tells me whether the problem is 'nothing is reaching the backend' vs. 'backend is reachable but failing,' which splits the investigation in two very different directions."], ["Minutes 10–15 — raw signals over dashboards", "I'd fall back to direct log tailing (SSH/kubectl logs/journalctl on affected hosts or pods) rather than the centralized logging UI, and basic OS-level tools — top, vmstat, ss, df -h — on a representative host to rule out resource exhaustion. Even without Grafana, the raw signals are still there; only the aggregation layer is down."], ["Minutes 15–20 — narrow blast radius, start the war room", "By this point I'd have a rough hypothesis (edge vs. backend vs. dependency vs. resource exhaustion) and would pull in whoever owns that area, spin up a dedicated incident channel/bridge, and assign one person to own customer/stakeholder comms so the responders can stay heads-down on the fix. I'd also explicitly note in the channel which normal signals are unavailable, so nobody wastes time trying to pull up a dashboard that isn't there."], ["Lesson", "Losing observability tooling during an outage is really two incidents at once. Treat it that way: the missing tooling is itself worth flagging for a fast-follow fix, but in the moment, fall back to the layer below the dashboard — the CLI, the raw logs, the provider status page — because the actual signals rarely all disappear at once, only the convenient view of them does."]]}], "technical": {"Linux": [["A process is consuming high CPU but you don't know which thread — how do you find out?", "top -H -p <pid> to see per-thread CPU, then convert the thread ID to hex and cross-reference with /proc/<pid>/task/<tid>/stack or use `perf top -p <pid>` to see which function is hot."], ["How does the OOM killer decide which process to kill?", "It computes an oom_score per process (based on memory usage, adjusted by oom_score_adj) and kills the highest scorer. You can protect critical processes by setting oom_score_adj lower, or move them to a separate cgroup with a memory limit so they fail predictably instead of taking the node down."], ["Disk usage shows 100% full but `du` doesn't add up — what's going on?", "Classic deleted-but-open-file-handle issue: a process still has a file descriptor open on a deleted file, so the space isn't released. Find it with `lsof +L1` or `lsof | grep deleted`, then restart or signal the owning process to release the handle."], ["Explain the difference between load average and CPU utilization.", "CPU utilization is percent of CPU time used; load average is the number of processes runnable or in uninterruptible sleep (e.g. waiting on disk I/O) averaged over 1/5/15 minutes. High load with low CPU usually points to I/O wait, not compute pressure."], ["How do you debug a service that won't start under systemd?", "`systemctl status <service>` for the immediate error, `journalctl -u <service> -xe` for full logs, and if it's silent, run the unit's ExecStart command manually in the foreground to see stdout/stderr directly."], ["What causes TIME_WAIT socket buildup and why does it matter?", "Happens on the side that initiates connection close, holding the socket for 2xMSL to handle stray packets. Under high connection churn it can exhaust ephemeral ports. Mitigate with connection pooling/keep-alive, tuning net.ipv4.tcp_tw_reuse, or widening the ephemeral port range."], ["How do you check what's holding a file or port open?", "`lsof -i :<port>` for ports, `lsof <path>` for files, `fuser -v <path>` as an alternative."], ["Walk through diagnosing a sudden spike in disk I/O wait.", "`iostat -x 1` to see per-device %util and await, `pidstat -d 1` to find the offending process, then `iotop` for a live ranked view. Cross-check against recent deploys/cron jobs/log rotation that might explain the timing."]], "AWS": [["How would you design multi-AZ high availability for a stateless API?", "ALB across at least 2-3 AZs, target group with health checks, ASG spanning the same AZs, and no single-AZ dependency in the data path (e.g. RDS Multi-AZ or a managed cache cluster spanning AZs)."], ["EC2 instance is unreachable and you've lost the SSH key — how do you get in?", "SSM Session Manager if the instance has the agent and an IAM role with the right policy — no key, no open port 22 needed. If SSM isn't set up, detach the root EBS volume, attach it to a rescue instance to fix/inject a new key, then reattach."], ["How do you access S3 privately from a subnet with no internet route?", "VPC Gateway Endpoint for S3 (no NAT cost, route table entry only) or an Interface Endpoint if you need it reachable from on-prem/other VPCs too; lock it down further with an S3 bucket policy conditioned on aws:sourceVpce."], ["What's the tradeoff between an ALB and an NLB?", "ALB operates at L7 — path/host routing, WAF integration, but adds latency and doesn't preserve client IP by default. NLB operates at L4 — ultra-low latency, preserves source IP, static IP support, but no content-based routing."], ["How do you detect and prevent Terraform state drift in AWS?", "`terraform plan` on a schedule (CI job) to catch drift, remote state with locking (S3 + DynamoDB) to prevent concurrent writes, and IAM policies that block manual console changes to Terraform-managed resources where practical."], ["Explain IAM role vs. IAM user for a workload running on EC2/EKS.", "Roles are assumed temporarily via STS with short-lived credentials — no long-lived secrets to leak, easy least-privilege scoping per workload (IRSA on EKS). Users have long-lived credentials and are for humans/external systems, not workloads."], ["How would you right-size an over-provisioned Auto Scaling Group?", "Pull CloudWatch CPU/memory/network utilization over a representative window (include peak, not just average), use Compute Optimizer recommendations as a starting point, then adjust scaling policies to target utilization rather than a flat instance count."], ["Cost spiked overnight with no traffic change — how do you investigate?", "Cost Explorer filtered by service and day-over-day, cross-reference with CloudTrail for what changed (new resource type, region, or a misconfigured autoscaling policy that over-scaled), and check for orphaned resources like unattached EBS volumes or idle NAT gateways."]], "Automation (Python / Bash)": [["What's your approach to deciding when a manual runbook step should become a script?", "Rule of thumb: second time I do the same manual step during an incident, I write it down as a runbook step; second time I follow that exact runbook step, I automate it. Automating too early wastes time on something that might change; automating too late costs incident minutes repeatedly."], ["How do you make an automation script safe to run against production?", "Dry-run mode by default, explicit --confirm/--yes flag for destructive actions, idempotency (safe to re-run), and logging every action taken so there's an audit trail if something needs to be reversed."], ["How would you write a health-check script that avoids false positives from transient blips?", "Check N times with a short interval and require M consecutive failures before alerting (e.g. 3 of 3 or 2 of 3), rather than alerting on a single failed check — mirrors how Kubernetes/ALB health checks avoid flapping."], ["Describe a Python automation script you've built for on-call/reliability work.", "Example pattern: a script polling the Prometheus API for a given alert's series, correlating the timestamp against recent deploys pulled from the CI system's API, and posting a summary to the incident channel — cuts the first 5 minutes of 'was this us?' triage."], ["How do you handle retries and backoff in automation that calls external APIs (AWS SDK, etc.)?", "Exponential backoff with jitter, a capped max-retry count, and distinguishing retryable errors (throttling, 5xx) from non-retryable ones (4xx/auth) so you're not retrying something that will never succeed."], ["What's your pattern for a Bash script that needs to be safe under `set -e` with pipelines?", "`set -euo pipefail` at the top, explicit exit-code checks after external commands, and trap on EXIT/ERR to clean up temp files or release locks even if the script dies mid-way."]], "CI/CD": [["How do you design a deployment pipeline to minimize blast radius of a bad release?", "Canary or rolling deploy with automated health-check gates between stages, feature flags to decouple deploy from release, and an automatic rollback trigger tied to error-rate/latency SLO burn rather than requiring a human to notice first."], ["What belongs in a pipeline as a hard gate vs. a soft warning?", "Hard gate: failing tests, failed security scan on critical severity, failed health check post-deploy. Soft warning: code coverage dip, non-critical lint issues — things a human should see but that shouldn't block an urgent fix."], ["How do you handle secrets in a CI/CD pipeline?", "Never in the repo or plaintext env vars in the pipeline config — pull from a secrets manager (AWS Secrets Manager/Vault) at runtime with short-lived credentials scoped to that pipeline's IAM role."], ["Describe rolling back a bad deployment under pressure.", "Prefer a tested one-command rollback (previous image tag / previous Helm release) over manual patching — manual fixes under pressure are how a bad deploy becomes a bad rollback. Automated rollback tied to SLO burn-rate alerts is the senior-level answer."], ["What's the difference between blue-green and canary deployment, and when would you pick one over the other?", "Blue-green: full traffic switch between two complete environments, fast rollback (switch back), but doubles resource cost and doesn't catch issues that only show under partial traffic. Canary: gradual traffic shift with monitoring at each step, catches issues earlier with smaller blast radius, but takes longer to fully roll out."], ["How do you validate a pipeline change itself, before it affects production deploys?", "Test pipeline changes against a non-production pipeline/branch first, and keep pipeline config in version control with review just like application code — a broken pipeline blocking all deploys during an incident is its own outage."]], "Observability": [["Explain the four golden signals and why they're the starting point for any dashboard.", "Latency, traffic, errors, saturation. They're the minimum set that answers 'is the service healthy' without needing deep domain knowledge of the specific service — a good starting dashboard for any new service before deeper instrumentation exists."], ["How do you cut alert noise without missing real incidents?", "Alert on symptoms (user-facing SLO burn) rather than every underlying cause; require sustained breach (e.g. 5 minutes over threshold, not one data point); route low-urgency signals to a dashboard/ticket instead of paging; review paged-but-not-actionable alerts weekly and tune or delete them."], ["What's a burn-rate alert and why is it better than a static threshold alert?", "It alerts based on how fast you're consuming your error budget relative to your SLO window — e.g. a fast burn rate pages immediately even if the raw error count is still 'low,' because at that rate you'll blow the monthly budget in hours. Static thresholds miss slow, sustained degradation and over-alert on brief spikes."], ["How would you define an SLI for a search API?", "Something like the percentage of search requests returning within a target latency (e.g. p95 < 300ms) and successfully (non-5xx) — measured from the client-facing edge, not an internal component, so it reflects actual user experience."], ["Prometheus scrape target is intermittently missing data — how do you debug it?", "Check the target's /metrics endpoint directly for latency/errors, check Prometheus's own scrape duration/timeout settings against the target's response time, and check for cardinality explosion or the target being OOM-killed right as it's scraped."], ["What's the difference between monitoring and observability?", "Monitoring answers known questions with pre-defined dashboards/alerts ('is CPU high'). Observability lets you answer questions you didn't anticipate, by having rich enough telemetry (metrics + logs + traces, correlated) to explore an unknown failure mode after the fact."], ["How do you avoid dashboard sprawl where nobody trusts any dashboard?", "One canonical service-health dashboard per service, owned and reviewed regularly, with golden signals only at the top level — deeper diagnostic dashboards linked from there rather than everything crammed onto one screen."], ["How would you instrument a new service from zero for observability?", "Start with the four golden signals via existing framework middleware/exporters, add structured logging with a correlation/request ID, then layer in tracing once there are enough downstream calls that a single trace materially helps debugging."]], "Database (pick your strongest — MySQL / Postgres / MongoDB / Redis)": [["How do you diagnose a sudden spike in database connection usage?", "Check for a connection leak (app not releasing connections, e.g. after a slow query timeout) vs. a genuine traffic spike vs. a stuck long-running query holding connections — `SHOW PROCESSLIST` / `pg_stat_activity` to see what's actually held open and for how long."], ["A previously fast query suddenly got slow — what's your process?", "Check if the query plan changed (stale statistics, a dropped or unused index — as in the Q1 scenario), check table growth/bloat, and check for lock contention from a concurrent long-running transaction."], ["How do you approach capacity planning for a database tier?", "Track growth trend on the metrics that matter (connections, IOPS, storage, query latency percentiles) over weeks/months, project forward against expected traffic growth, and set an alert threshold well before the resource actually becomes a bottleneck rather than reacting at 100%."], ["Explain read replicas vs. sharding, and when each is the right tool.", "Read replicas scale read throughput and provide failover targets but don't help write throughput or dataset size. Sharding splits data across multiple primaries to scale writes/storage but adds real complexity (cross-shard queries, rebalancing) — only reach for it once read replicas and vertical scaling are genuinely insufficient."], ["How do you safely run a schema migration on a live production database?", "Backward-compatible, additive-first changes (add column, backfill, then switch reads, then drop old column) rather than a single breaking change; run during low-traffic windows for anything with lock implications; always confirm indexes survive the migration — directly the failure mode from the Q1 scenario."], ["Redis is your cache layer and it goes down — what's your failure mode and how do you design for it?", "Design the application to degrade gracefully to the source-of-truth database on cache miss/unavailability rather than hard-failing; use a circuit breaker so a Redis outage doesn't cascade into overwhelming the DB with the full uncached load."]], "Apache Solr basics (gap area — worth 20 minutes before the interview)": [["What is a Solr collection, and how does it relate to shards and replicas?", "A collection is the logical index (like a table). It's split into shards for horizontal scale, and each shard has replicas for redundancy and read throughput — conceptually parallel to how you'd think about partitions and replicas in any distributed data system."], ["What role does ZooKeeper play in SolrCloud, and what happens if it's degraded?", "ZooKeeper holds cluster state, shard/replica assignments, and leader election for SolrCloud. If ZooKeeper is degraded, Solr can't do leader election or config updates reliably — it's a critical coordination dependency, similar in spirit to etcd for Kubernetes."], ["What are common reliability concerns specific to running Solr at scale?", "JVM heap sizing and GC pause tuning (Solr is JVM-based and large heaps can cause long GC pauses that look like latency spikes), index/segment merge overhead affecting write throughput, and query latency degrading as index size grows without adequate sharding."], ["How would you monitor Solr health?", "JVM metrics (heap usage, GC pause time) alongside Solr-specific metrics (query latency, indexing rate, replica sync status) — exactly the golden-signals pattern applied to a JVM-based search engine instead of a typical web service."]]}, "behavioral": [["Tell me about a time you were self-aware enough to recognize you were wrong mid-incident.", "Point back to Q1's pattern: state the initial hypothesis, the moment the data contradicted it, and that you changed direction without ego attachment to being right. The self-awareness signal is in how fast you let go of a wrong theory, not in never having one."], ["Describe how you handle disagreement with a teammate during a live incident.", "In the moment, defer to whoever has the clearest current evidence and keep moving — incidents aren't the place to win an argument. Raise process disagreements afterward, in the postmortem, where they can be resolved calmly and turned into a documented decision."], ["How do you perform under sustained on-call pressure, especially on a shift with limited overlap with the rest of the team (this role is 6:30 PM–3:30 AM IST)?", "Be concrete: you default to declaring incidents early and over-communicating status rather than trying to resolve silently and report later, specifically because a remote/off-hours setup means nobody can look over your shoulder. Mention keeping a written incident log in real time so a handoff or escalation doesn't lose context."], ["Tell me about a time you had to learn an unfamiliar technology quickly under pressure.", "Use a real example from your stack growth (e.g. picking up a new observability tool or cloud service on a deadline) — structure: what you needed to accomplish, how you scoped learning to just what was needed for the task, and what you verified before trusting it in production."], ["How do you decide what to prioritize when everything feels urgent?", "Anchor to customer/business impact and blast radius first, then reversibility — an urgent but easily-reversible issue can wait behind an urgent, hard-to-reverse one. Say you make this explicit rather than going by gut feel, especially when coordinating with people in a different timezone who can't easily weigh in live."], ["Describe a time you had to explain a technical incident to a non-technical stakeholder.", "Lead with customer impact and current status, not root cause mechanics; save the technical detail for engineers. Structure: what broke (plain language), what we're doing, when we'll know more — repeated on a cadence, not just once."], ["What does 'ownership' mean to you in an SRE role, concretely?", "Point to the JD's own language — identifying parts of the system that don't scale, documenting remediation, seeing it through to long-term resolution, not just filing a ticket. Give a real example where you carried something from 'noticed a problem' to 'shipped the fix' without being asked."], ["How do you share knowledge with adjacent dev/ops teams (explicitly called out in the JD)?", "Concrete mechanisms: runbooks that non-SREs can follow, a short postmortem summary that goes beyond just the SRE team, or pairing with a developer during an incident so they learn the debugging path, not just the fix."]], "cheatsheet": {"SRE formulas": [["Availability", "Uptime / (Uptime + Downtime) — e.g. 99.9% = ~43.8 minutes downtime/month allowed"], ["Error budget", "1 − SLO — e.g. 99.9% SLO = 0.1% error budget over the window"], ["MTTD", "Time from failure occurring to it being detected"], ["MTTR", "Time from detection to full resolution"], ["MTBF", "Average time between failures — reliability trend indicator, not an incident-response metric"], ["Burn rate", "How fast you're consuming error budget relative to the SLO window — a burn rate of 10x means you'll exhaust a 30-day budget in 3 days at current error rate"]], "Linux quick commands": [["top -H -p <pid>", "per-thread CPU for a process"], ["iostat -x 1", "per-device disk I/O with %util and await"], ["ss -tulnp", "listening ports and owning process"], ["journalctl -u <svc> -xe", "recent logs + explanations for a systemd unit"], ["lsof +L1", "find deleted-but-open files eating disk space"], ["dmesg -T | tail", "check for OOM kills / hardware errors with human-readable timestamps"], ["vmstat 1", "quick read on CPU, memory, swap, and I/O wait pressure"], ["strace -p <pid> -f", "see what syscalls a hung process is actually making"]], "AWS quick reference": [["SSM Session Manager", "shell access without SSH keys or open port 22"], ["VPC Gateway Endpoint", "private route to S3/DynamoDB from a private subnet, no NAT cost"], ["ALB vs NLB", "L7 content routing vs. L4 low-latency/static-IP/source-IP-preserving"], ["IRSA (EKS)", "IAM Role for Service Account — pods get scoped temporary AWS credentials, no static secrets"], ["Multi-AZ RDS", "synchronous standby in a second AZ for automatic failover, not a read scaling feature"]], "Solr crash course": [["Collection", "the logical index — think 'table'"], ["Shard", "a horizontal partition of a collection, for scale"], ["Replica", "a copy of a shard, for redundancy and read throughput"], ["ZooKeeper", "cluster coordination — config, shard state, leader election. Critical dependency, similar role to etcd in Kubernetes"], ["JVM heap / GC", "since Solr runs on the JVM, oversized heaps or poor GC tuning cause latency spikes that look like app slowness"]]}, "closing_questions": ["What does the on-call rotation actually look like day to day — how many people, how often does someone get paged overnight?", "What's the current state of SLIs/SLOs at SearchStax — defined and tracked, or still informal?", "Since the role reports into Infrastructure under Wolfgang — how does the SRE function collaborate with the core Solr/search engineering team on reliability-affecting changes?", "What's the biggest reliability challenge the team is dealing with right now?", "How is success measured for this role in the first 6 months?", "Given the multi-cloud footprint (AWS/Azure/GCP) — is a given customer's deployment usually on one cloud, or does the SRE team operate across all three regularly?", "What does the incident postmortem process look like today?"]}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const PAGES = [
+  {id:'snapshot', label:'0 · Role & Strategy'},
+  {id:'scenarios', label:'1 · Scenario Answers'},
+  {id:'technical', label:'2 · Technical Q&A'},
+  {id:'behavioral', label:'3 · Behavioral'},
+  {id:'cheatsheet', label:'4 · Cheat Sheet'},
+  {id:'closing', label:'5 · Ask Them'}
+];
+let doneMap = {};
+try{ doneMap = JSON.parse(localStorage.getItem('ss_sre_done')||'{}'); }catch(e){ doneMap={}; }
+function saveDone(){ localStorage.setItem('ss_sre_done', JSON.stringify(doneMap)); updateProgress(); }
+let allCardIds = [];
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function buildTabs(){
+  const tabWrap = document.getElementById('tabs');
+  PAGES.forEach((p,i)=>{
+    const b=document.createElement('button');
+    b.className='tab'+(i===0?' active':'');
+    b.textContent=p.label;
+    b.onclick=()=>showPage(p.id);
+    b.dataset.page=p.id;
+    tabWrap.appendChild(b);
+  });
+}
+function showPage(id){
+  document.querySelectorAll('section.pg').forEach(s=>s.classList.toggle('active', s.dataset.id===id));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.page===id));
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function makeCard(opts){
+  const card=document.createElement('div');
+  card.className='card'+(opts.alwaysOpen? ' open':'');
+  card.dataset.id=opts.id;
+  card.dataset.text=(opts.searchText||'').toLowerCase();
+  allCardIds.push(opts.id);
+  const bar=document.createElement('div');
+  bar.className='cbar';
+  const prevHTML = opts.noPreview ? '' : '<p class="cprev">'+esc(opts.preview)+'</p>';
+  bar.innerHTML =
+    '<span class="badge '+opts.badgeClass+'">'+esc(opts.badge)+'</span>'+
+    '<div class="cbody"><p class="ctitle">'+esc(opts.title)+'</p>'+
+    prevHTML+
+    '<div class="cdetail">'+opts.bodyHTML+'</div></div>'+
+    (opts.noCheck ? '' : '<div class="mark" tabindex="0" role="checkbox" aria-checked="false"></div>');
+  card.appendChild(bar);
+  if(!opts.alwaysOpen){
+    bar.addEventListener('click', (e)=>{
+      if(e.target.classList.contains('mark')) return;
+      card.classList.toggle('open');
+    });
+  } else {
+    bar.style.cursor='default';
+  }
+  if(!opts.noCheck){
+    const mark = bar.querySelector('.mark');
+    if(doneMap[opts.id]) mark.classList.add('done');
+    mark.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      doneMap[opts.id] = !doneMap[opts.id];
+      mark.classList.toggle('done', doneMap[opts.id]);
+      saveDone();
+    });
+  }
+  return card;
+}
+
+function segHTML(label, text){
+  return '<div class="seg"><h4>'+esc(label)+'</h4><p>'+esc(text)+'</p></div>';
+}
+
+function renderSnapshot(container){
+  const s = DATA.snapshot;
+  const b1=document.createElement('div'); b1.className='blk';
+  b1.innerHTML = '<h2>Role at a glance</h2>' + s.role_facts.map(f=>
+    '<div class="factrow"><b>'+esc(f[0])+'</b><span>'+esc(f[1])+'</span></div>').join('');
+  container.appendChild(b1);
+
+  const b2=document.createElement('div'); b2.className='blk';
+  b2.innerHTML = '<h2>What this interview is actually testing</h2><ul class="plain">'+
+    s.what_they_test.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  container.appendChild(b2);
+
+  const b3=document.createElement('div'); b3.className='blk';
+  b3.innerHTML = '<h2>Strengths to lean on</h2><ul class="plain">'+
+    s.strengths_to_lean_on.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  container.appendChild(b3);
+
+  const b4=document.createElement('div'); b4.className='blk';
+  let gapHtml = '<h2>Gaps — flag honestly, then bridge</h2>';
+  s.gaps_to_bridge.forEach(g=>{
+    gapHtml += '<div class="gapbox"><b>'+esc(g[0])+'</b><p>'+esc(g[1])+'</p></div>';
+  });
+  b4.innerHTML = gapHtml;
+  container.appendChild(b4);
+
+  const b5=document.createElement('div'); b5.className='blk';
+  b5.innerHTML = '<h2>Closing note</h2><p class="ansline">'+esc(s.closing_notes)+'</p>';
+  container.appendChild(b5);
+}
+
+function renderScenarios(container){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "All five are expanded in full below. Each follows Situation → what you first believed → what changed your mind → root cause → fix → lesson. Swap in your own exact numbers/service names wherever it'd make it more specific to a real incident you've lived through. Tap the checkmark once you've rehearsed one out loud.";
+  container.appendChild(hint);
+  DATA.scenarios.forEach(sc=>{
+    let body = '<div class="qprompt">'+esc(sc.prompt)+'</div>';
+    sc.answer.forEach(pair=> body += segHTML(pair[0], pair[1]));
+    const searchText = sc.title+' '+sc.prompt+' '+sc.answer.map(a=>a[0]+' '+a[1]).join(' ');
+    container.appendChild(makeCard({
+      id:sc.id, badge:sc.tag, badgeClass:'b-scn',
+      title: sc.title, preview: sc.preview, bodyHTML: body, searchText: searchText,
+      alwaysOpen: true, noPreview: true
+    }));
+  });
+}
+
+function renderTechnical(container){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "Organized by the JD's own required-skills list. Every question and its full answer is shown directly below — no need to expand. Tap the checkmark once you've got one down cold.";
+  container.appendChild(hint);
+  let qi=0;
+  Object.keys(DATA.technical).forEach(group=>{
+    const gname=document.createElement('div'); gname.className='groupname'; gname.textContent=group;
+    container.appendChild(gname);
+    DATA.technical[group].forEach(pair=>{
+      qi++;
+      const id='tech_'+qi;
+      const body = '<p class="ansline">'+esc(pair[1])+'</p>';
+      container.appendChild(makeCard({
+        id:id, badge:'Q'+qi, badgeClass:'b-qa',
+        title: pair[0], bodyHTML: body, searchText: pair[0]+' '+pair[1],
+        alwaysOpen: true, noPreview: true
+      }));
+    });
+  });
+}
+
+function renderBehavioral(container){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "The JD explicitly calls out self-awareness, teamwork, problem-solving, and communication. These map straight to those lines. Full answers shown directly below.";
+  container.appendChild(hint);
+  DATA.behavioral.forEach((pair,i)=>{
+    const id='beh_'+i;
+    const body = '<p class="ansline">'+esc(pair[1])+'</p>';
+    container.appendChild(makeCard({
+      id:id, badge:'Q'+(i+1), badgeClass:'b-qa',
+      title: pair[0], bodyHTML: body, searchText: pair[0]+' '+pair[1],
+      alwaysOpen: true, noPreview: true
+    }));
+  });
+}
+
+function renderCheatsheet(container){
+  Object.keys(DATA.cheatsheet).forEach(group=>{
+    const b=document.createElement('div'); b.className='blk';
+    let html = '<h2>'+esc(group)+'</h2><table class="cs-table">';
+    DATA.cheatsheet[group].forEach(row=>{
+      html += '<tr><td>'+esc(row[0])+'</td><td>'+esc(row[1])+'</td></tr>';
+    });
+    html += '</table>';
+    b.innerHTML = html;
+    container.appendChild(b);
+  });
+}
+
+function renderClosing(container){
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = "Pick 2-3 of these to actually ask — asking all of them reads as a checklist, not curiosity.";
+  container.appendChild(hint);
+  DATA.closing_questions.forEach(q=>{
+    const d=document.createElement('div'); d.className='closingq'; d.textContent=q;
+    container.appendChild(d);
+  });
+}
+
+function buildPages(){
+  const pagesWrap = document.getElementById('pages');
+  const renderers = {
+    snapshot: renderSnapshot,
+    scenarios: renderScenarios,
+    technical: renderTechnical,
+    behavioral: renderBehavioral,
+    cheatsheet: renderCheatsheet,
+    closing: renderClosing
+  };
+  PAGES.forEach((p,i)=>{
+    const sec=document.createElement('section');
+    sec.className='pg'+(i===0?' active':'');
+    sec.dataset.id=p.id;
+    pagesWrap.appendChild(sec);
+    renderers[p.id](sec);
+  });
+}
+
+function updateProgress(){
+  const total = allCardIds.length;
+  const done = allCardIds.filter(id=>doneMap[id]).length;
+  document.getElementById('pbarfill').style.width = total? (done/total*100)+'%':'0%';
+  document.getElementById('ptext').textContent = done+' of '+total+' reviewed';
+}
+
+document.getElementById('search').addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('.card').forEach(card=>{
+    const match = !q || card.dataset.text.includes(q);
+    card.style.display = match? '' : 'none';
+    if(q && match) card.classList.add('open');
+  });
+});
+
+buildTabs();
+buildPages();
+updateProgress();
+</script>
+</body>
+</html>

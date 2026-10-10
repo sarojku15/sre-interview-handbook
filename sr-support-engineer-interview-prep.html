@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sr. Support Engineer — Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0d12; --panel:#10151c; --panel-2:#141b24;
+    --border:#1f2937; --border-soft:rgba(255,255,255,.07);
+    --text:#e6edf3; --text-dim:#8b98a5; --text-faint:#4d5661;
+    --cyan:#4fd1e5; --violet:#a78bfa; --blue:#58a6ff; --amber:#d29922; --green:#3fb950; --red:#f85149;
+    --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-family:var(--sans);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  :focus-visible{outline:2px solid var(--cyan); outline-offset:2px; border-radius:3px}
+  a{color:var(--cyan)}
+  .wrap{max-width:760px; margin:0 auto; padding:0 16px 64px}
+
+  /* ---- header ---- */
+  header{padding:28px 0 18px}
+  .live-badge{display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11px;
+    letter-spacing:.08em; color:var(--red); text-transform:uppercase; margin-bottom:14px}
+  .live-dot{width:7px; height:7px; border-radius:50%; background:var(--red); animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  @media (prefers-reduced-motion:reduce){.live-dot{animation:none}}
+  h1{font-size:clamp(22px,6vw,30px); line-height:1.2; margin:0 0 12px; font-weight:800; letter-spacing:-.01em}
+  .meta-row{display:flex; flex-wrap:wrap; gap:8px 16px; font-family:var(--mono); font-size:12.5px; color:var(--text-dim); margin-bottom:22px}
+  .meta-row span{display:flex; align-items:center; gap:6px}
+  .meta-row b{color:var(--text)}
+
+  .progress-wrap{margin-bottom:22px}
+  .progress-label{display:flex; justify-content:space-between; font-family:var(--mono); font-size:11.5px; color:var(--text-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:.06em}
+  #progressLabel{color:var(--cyan)}
+  .progress-track{height:6px; background:var(--panel-2); border-radius:4px; overflow:hidden; border:1px solid var(--border-soft)}
+  .progress-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--cyan),var(--green)); border-radius:4px; transition:width .35s ease}
+
+  .note{background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--amber); border-radius:8px; padding:14px 16px; font-size:14px; color:var(--text-dim); margin-bottom:28px}
+  .note b{color:var(--amber); font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; display:block; margin-bottom:6px}
+  .note strong{color:var(--text)}
+
+  /* ---- JD coverage grid ---- */
+  .jd-heading{font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint); margin:0 0 10px}
+  .jd-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:28px}
+  @media(min-width:520px){.jd-grid{grid-template-columns:repeat(4,1fr)}}
+  .jd-tile{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 12px; cursor:pointer; text-align:left; font-family:var(--sans); transition:border-color .15s, background .15s}
+  .jd-tile:hover{background:var(--panel-2); border-color:#2d3948}
+  .jd-tile-top{display:flex; align-items:center; gap:6px; margin-bottom:5px}
+  .jd-dot{width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex-shrink:0}
+  .jd-dot.partial{background:var(--amber)}
+  .jd-dot.done{background:var(--green)}
+  .jd-label{font-size:12.5px; font-weight:600; color:var(--text)}
+  .jd-hint{font-size:10.5px; color:var(--text-faint); font-family:var(--mono)}
+  .jd-count{font-size:10.5px; color:var(--text-dim); font-family:var(--mono); margin-top:4px}
+
+  /* ---- sticky controls ---- */
+  .controls{position:sticky; top:0; z-index:20; background:rgba(10,13,18,.92); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding:12px 0; border-bottom:1px solid var(--border); margin-bottom:24px}
+  .search-row{display:flex; gap:8px; margin-bottom:10px}
+  #searchInput{flex:1; background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-family:var(--sans); font-size:14px}
+  #searchInput::placeholder{color:var(--text-faint)}
+  #expandBtn{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text-dim); font-family:var(--mono); font-size:11.5px; cursor:pointer; white-space:nowrap}
+  #expandBtn:hover{color:var(--text); border-color:#2d3948}
+  .pills{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none}
+  .pills::-webkit-scrollbar{display:none}
+  .pill{flex-shrink:0; background:transparent; border:1px solid var(--border); color:var(--text-dim); font-family:var(--mono); font-size:11.5px; padding:6px 12px; border-radius:20px; cursor:pointer; white-space:nowrap; transition:all .15s}
+  .pill.active{background:var(--cyan); border-color:var(--cyan); color:#04222a; font-weight:600}
+  .pill:hover:not(.active){border-color:#2d3948; color:var(--text)}
+
+  /* ---- sections ---- */
+  .section{margin-bottom:36px}
+  .section.section-empty{display:none}
+  .section-head{display:flex; align-items:baseline; gap:10px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border)}
+  .section-eyebrow{font-family:var(--mono); font-size:11px; color:var(--sec-accent); letter-spacing:.08em}
+  .section-title{font-size:17px; font-weight:700; margin:0}
+  .section-count{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--text-faint)}
+  .sec-kpi{--sec-accent:var(--cyan)}
+  .sec-cicd{--sec-accent:var(--violet)}
+  .sec-k8s{--sec-accent:var(--blue)}
+  .sec-itil{--sec-accent:var(--amber)}
+  .sec-scenario{--sec-accent:var(--green)}
+
+  .qa-card{background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--sec-accent); border-radius:8px; margin-bottom:8px; overflow:hidden}
+  .qa-head{width:100%; display:flex; align-items:center; gap:10px; background:none; border:0; padding:13px 14px; text-align:left; cursor:pointer; color:var(--text); font-family:var(--sans)}
+  .qa-head:hover{background:var(--panel-2)}
+  .qa-num{font-family:var(--mono); font-size:11px; color:var(--sec-accent); flex-shrink:0; width:20px}
+  .qa-q{flex:1; font-size:14.5px; font-weight:600; line-height:1.4}
+  .qa-chev{font-size:16px; color:var(--text-faint); transition:transform .2s; flex-shrink:0}
+  .qa-card.open .qa-chev{transform:rotate(90deg); color:var(--sec-accent)}
+  .qa-body{max-height:0; overflow:hidden; transition:max-height .28s ease}
+  .qa-card.open .qa-body{max-height:900px}
+  .qa-body-inner{padding:0 14px 16px 44px}
+  .qa-answer{font-size:14px; color:var(--text-dim); margin:0 0 10px}
+  .qa-points{margin:0 0 12px; padding-left:18px; font-size:13px; color:var(--text-dim)}
+  .qa-points li{margin-bottom:5px}
+  .qa-mark{display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11px; color:var(--text-faint); cursor:pointer; text-transform:uppercase; letter-spacing:.05em}
+  .qa-mark input{accent-color:var(--green); width:14px; height:14px; cursor:pointer}
+  code{background:rgba(79,209,229,.1); color:var(--cyan); padding:1px 6px; border-radius:4px; font-family:var(--mono); font-size:.92em}
+  strong{color:var(--text); font-weight:600}
+
+  #noResults{display:none; text-align:center; padding:40px 20px; color:var(--text-faint); font-family:var(--mono); font-size:13px}
+
+  /* ---- cheat sheet ---- */
+  .cheat-card{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:12px}
+  .cheat-card h3{font-size:13px; font-family:var(--mono); text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim); margin:0 0 12px}
+  .formula{font-family:var(--mono); font-size:13px; color:var(--cyan); background:var(--panel-2); padding:8px 10px; border-radius:6px; margin-bottom:8px}
+  .formula span{color:var(--text-faint)}
+  table{width:100%; border-collapse:collapse; font-size:13px}
+  th,td{text-align:left; padding:7px 8px; border-bottom:1px solid var(--border-soft)}
+  th{color:var(--text-faint); font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:500}
+  td{color:var(--text-dim)}
+  td.hi{color:var(--text); font-weight:600}
+  .glossary{display:grid; gap:8px}
+  .glossary div{font-size:13px; color:var(--text-dim)}
+  .cmd-group{margin-bottom:12px}
+  .cmd-group h4{font-size:11.5px; color:var(--text-faint); margin:0 0 6px; font-weight:600}
+  .cmd-group code{display:block; margin-bottom:4px; font-size:12px; padding:5px 8px}
+
+  footer{text-align:center; color:var(--text-faint); font-family:var(--mono); font-size:11px; margin-top:40px; padding-top:20px; border-top:1px solid var(--border-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="live-badge"><span class="live-dot"></span> Interview scheduled</div>
+    <h1>Sr. Support Engineer — Interview Readiness</h1>
+    <div class="meta-row">
+      <span>📅 <b>Sun, Jul 19 · Tomorrow</b></span>
+      <span>🎯 <b>6–9 yr band</b></span>
+      <span>25 Q&amp;A · every JD line covered</span>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Readiness</span><span id="progressLabel">0 / 25 reviewed</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="note">
+      <b>Playbook note — read once</b>
+      This role is scoped 6–9 years; you're at 14+. Don't open with the full 14 — open with the chapters that map directly: <strong>Technical Support Engineer</strong> at Flyingedge (L1/L2, 24/7 SLA, P1/P2 tickets) and <strong>DevOps/Application Support</strong> at Orange Business Services (L2, SLA compliance) are literal support-engineer experience, not a stretch. Layer your SRE depth — SLO ownership, CI/CD built from scratch, a real alert-noise reduction — on top as the differentiator most candidates at this level won't have.
+    </div>
+
+    <div class="jd-heading">Service health — JD coverage (tap a tile to jump)</div>
+    <div class="jd-grid" id="jdGrid"></div>
+  </header>
+
+  <div class="controls">
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="Search questions & answers…">
+      <button id="expandBtn" onclick="toggleExpandAll()">Expand all</button>
+    </div>
+    <div class="pills" id="pillsRow"></div>
+  </div>
+
+  <div id="sections"></div>
+  <div id="noResults">No matches. Try clearing the search.</div>
+
+  <!-- ================= CHEAT SHEET (static reference) ================= -->
+  <div class="section">
+    <div class="section-head" style="--sec-accent:var(--text-dim)">
+      <span class="section-eyebrow" style="color:var(--text-faint)">REF</span>
+      <h2 class="section-title">Quick-reference cheat sheet</h2>
+    </div>
+
+    <div class="cheat-card">
+      <h3>Formulas</h3>
+      <div class="formula">MTTA = <span>Σ(ack time − alert time) / incidents</span></div>
+      <div class="formula">MTTR = <span>Σ(restore time − ack/detect time) / incidents</span></div>
+      <div class="formula">MTBF = <span>average time between failures (system reliability, not response speed)</span></div>
+      <div class="formula">Error budget = <span>100% − SLO&nbsp;·&nbsp;e.g. 99.9% SLO → 0.1% budget</span></div>
+    </div>
+
+    <div class="cheat-card">
+      <h3>Typical severity / response targets <span style="font-weight:400;color:var(--text-faint)">(illustrative — confirm their actual numbers)</span></h3>
+      <table>
+        <tr><th>Sev</th><th>Response</th><th>Restore target</th></tr>
+        <tr><td class="hi">P1 · Critical</td><td>~15 min</td><td>1–4 hrs</td></tr>
+        <tr><td class="hi">P2 · High</td><td>30–60 min</td><td>4–8 hrs</td></tr>
+        <tr><td class="hi">P3 · Medium</td><td>Same business day</td><td>1–3 days</td></tr>
+        <tr><td class="hi">P4 · Low</td><td>Next business day</td><td>Best effort</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-card">
+      <h3>Impact × Urgency → Priority</h3>
+      <table>
+        <tr><th></th><th>Urgency: High</th><th>Urgency: Low</th></tr>
+        <tr><td class="hi">Impact: High</td><td>P1</td><td>P2 (workaround exists)</td></tr>
+        <tr><td class="hi">Impact: Low</td><td>P3</td><td>P4</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-card">
+      <h3>ITIL glossary, fast</h3>
+      <div class="glossary">
+        <div><strong>Incident Mgmt</strong> — restore service fast, workaround is fine</div>
+        <div><strong>Problem Mgmt</strong> — find & fix root cause, prevent recurrence</div>
+        <div><strong>Change Enablement</strong> (v4) / Change Mgmt (v3) — standard / normal (CAB) / emergency</div>
+        <div><strong>KEDB</strong> — known error database: root cause + workaround, searched first</div>
+        <div><strong>CAB</strong> — Change Advisory Board, reviews higher-risk normal changes</div>
+        <div><strong>RCA / Five Whys</strong> — blameless, iterate to systemic causes not "who"</div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <h3>Command muscle memory</h3>
+      <div class="cmd-group">
+        <h4>Kubernetes</h4>
+        <code>kubectl describe pod &lt;pod&gt;</code>
+        <code>kubectl logs &lt;pod&gt; --previous</code>
+        <code>kubectl get events --sort-by=.lastTimestamp</code>
+        <code>kubectl top pods --sort-by=memory</code>
+      </div>
+      <div class="cmd-group">
+        <h4>Docker</h4>
+        <code>docker logs &lt;container&gt;</code>
+        <code>docker exec -it &lt;container&gt; sh</code>
+        <code>docker inspect &lt;container&gt;</code>
+        <code>docker stats</code>
+      </div>
+      <div class="cmd-group">
+        <h4>Git</h4>
+        <code>git revert &lt;sha&gt;</code>
+        <code>git cherry-pick &lt;sha&gt;</code>
+        <code>git bisect start</code>
+        <code>git reflog</code>
+      </div>
+    </div>
+  </div>
+
+  <footer>Built from your KPI + tooling JD · good luck tomorrow</footer>
+</div>
+
+<script>
+const DATA = [
+  {id:"m1",section:"kpi",jd:"mta",q:"What is MTTA, and why do interviewers ask about it separately from MTTR?",
+   a:"MTTA is the average time between an alert firing and someone actually acknowledging it and starting work — pure responsiveness, before any diagnosis or fix happens. It's tracked separately from MTTR because the two have different root causes and different fixes: a bad MTTA is an alerting or on-call routing problem, while a bad MTTR is a diagnosis or tooling problem. Naming that distinction up front signals you understand incident metrics as a system, not just as vocabulary.",
+   points:["Chain: <strong>MTTD</strong> (detect) → <strong>MTTA</strong> (acknowledge) → <strong>MTTR</strong> (restore)","MTTA problems = alerting &amp; routing. MTTR problems = diagnosis &amp; fix tooling.","Keep the two causally separate in your answer — interviewers listen for this."]},
+  {id:"m2",section:"kpi",jd:"mta",q:"How would you actually bring MTTA down on a team?",
+   a:"Start with noise: engineers stop reacting fast to alerts that cry wolf, so tune thresholds and dedupe before anything else. Then fix routing — service-ownership maps so the right on-call gets paged the first time, not a shared queue. Add tiered escalation so an unacknowledged P1 auto-escalates after a few minutes, and make sure paging actually reaches people through mobile push or SMS, not just email. Cite a real number if you have one — cutting alert noise by around 40% through fatigue remediation is exactly the kind of concrete result that lands better than the theory.",
+   points:["Cut noise/dedupe first — usually the fastest lever","Ownership-based routing beats one shared alert queue","Tiered auto-escalation for unacknowledged P1s","<strong>Your ammunition:</strong> ~40% alert-noise reduction through fatigue remediation"]},
+  {id:"r1",section:"kpi",jd:"mtr",q:"What is MTTR, and what are the real levers that reduce it?",
+   a:"MTTR is the average time from acknowledgment, or sometimes detection, to full restoration. The biggest lever most people miss is decoupling restore from diagnose — roll back first and understand later, rather than debugging live in production while it's still down. Beyond that: better observability so root cause is fast to isolate, runbooks for known failure modes so diagnosis doesn't start from zero, automated one-command rollback, and blameless postmortems that actually turn into fixes instead of just documentation.",
+   points:["<strong>MTTD → MTTA → MTTR</strong> is a chain; MTBF is a different thing entirely (reliability, not response)","'Roll back first, understand later' is the single biggest lever","Runbooks + automation + postmortems that produce owned action items"]},
+  {id:"r2",section:"kpi",jd:"mtr",q:"Tell me about a specific time you reduced MTTR.",
+   a:"Use a real one if you have it. Standing up an SRE practice and CI/CD pipeline from scratch where none existed is a strong story — recovery went from ad hoc and slow to a repeatable, automated rollback path. Or point to shrinking deployment cycle time through CI/CD streamlining, since that shrinks the window incidents can even occur in. Structure it as Situation — what was slow and why — then Action — the specific runbook, automation, or rollback you built — then Result, always a number, even an approximate one like 'roughly halved' or 'down from over half a day to under two hours.'",
+   points:["Pick <strong>one</strong> concrete story, not a general philosophy","Always land on a number, even approximate","'Established X from scratch' is a strong opener if it's true for you"]},
+  {id:"s1",section:"kpi",jd:"sla",q:"How do you ensure SLA compliance?",
+   a:"Keep the three terms straight: SLA is the external commitment, such as 99.9% uptime, SLO is your internal target, often tighter than the SLA as a buffer, and SLI is the actual measured indicator. Compliance is mostly proactive — dashboards tracking SLI against SLO in real time, an error-budget policy so you know how much risk you can spend on releases before endangering the SLA, and escalating when you're trending toward breach rather than waiting until it happens. If you've owned SLOs for a production service, say so directly with the number — for example, maintaining a 99.9% uptime target.",
+   points:["<strong>SLA</strong> = external contract, <strong>SLO</strong> = internal target, <strong>SLI</strong> = the measurement","Error budget = 'how much risk can we spend on this release'","Proactive trend-watching beats reactive breach response","<strong>Your ammunition:</strong> owned a 99.9% uptime SLO target"]},
+  {id:"s2",section:"kpi",jd:"sla",q:"A P1 SLA promises a 4-hour response time, but your team's actual MTTR is averaging 6 hours. How do you close that gap?",
+   a:"Don't guess — break the 6 hours down by phase first: how much is detection, how much is escalation, how much is diagnosis, how much is the actual fix. That tells you where to invest. Common fixes from there: improve alerting fidelity so real P1s aren't buried in noise, build runbooks for the top recurring incident types to cut diagnosis time, review whether on-call is overwhelmed or under-equipped, and run game days to rehearse the response so the process itself isn't the bottleneck under pressure.",
+   points:["Break the total time into phases <strong>before</strong> proposing fixes — shows diagnosis, not guessing","Four usual suspects: alerting fidelity, runbooks, on-call load, rehearsal"]},
+  {id:"i1",section:"kpi",jd:"inc",q:"What does 'accuracy' mean in incident handling, beyond just speed?",
+   a:"Accuracy means getting it right the first time: correct severity classification, since not everything is a P1 and inflating severity burns trust and wastes responders, routing to the right team without a bounce, and diagnosing the actual root cause instead of a fast guess that lets the same incident recur next week. Fast-but-wrong usually costs more than slightly-slower-but-right, because it creates rework and erodes confidence in the process.",
+   points:["Right severity, right team, right root cause — three separate ways to be 'accurate'","Fast-but-wrong is more expensive than it looks: rework + trust"]},
+  {id:"i2",section:"kpi",jd:"inc",q:"What's the difference between Impact, Urgency, Severity, and Priority?",
+   a:"Impact is scope — how many users or business functions are affected. Urgency is time-sensitivity — how fast it needs fixing given any workaround. Severity is usually technical criticality, how badly something is actually broken. Priority is the business call on queue order, typically Impact × Urgency: high impact plus high urgency is a P1, high impact with a workaround is P2, low impact but time-critical is P3, low impact and low urgency is P4. Keeping that matrix consistent matters, otherwise priority becomes whoever escalates loudest, which is its own operational risk.",
+   points:["<strong>Impact</strong> = scope · <strong>Urgency</strong> = time pressure · <strong>Severity</strong> = technical criticality · <strong>Priority</strong> = the business decision","P1 = high/high · P2 = high impact + workaround exists · P3 = low impact + urgent · P4 = low/low","Consistency prevents 'loudest voice wins' prioritization"]},
+  {id:"i3",section:"kpi",jd:"inc",q:"Walk me through the full incident lifecycle, start to finish.",
+   a:"Detect, via a monitoring alert or a user report, then log it fully in the ITSM tool, categorize and prioritize, run initial diagnosis at L1 or L2, escalate if needed either technically to a specialist or hierarchically to management, investigate and apply a workaround to restore service fast, confirm resolution, then close it out with the business — updating the known-error database if it's a new recurring pattern. For anything above a certain severity, a post-incident review follows: timeline, root cause, corrective actions, and a linked Problem record if it's systemic.",
+   points:["Detect → log → categorize → diagnose → escalate → workaround → resolve → close → PIR","A workaround is a legitimate resolution for the <strong>incident</strong> itself — root cause is Problem Management's job"]},
+  {id:"i4",section:"kpi",jd:"inc",q:"When do you actually declare a Major Incident, a P1?",
+   a:"Typical triggers: multiple business units or customer segments affected, revenue or regulatory impact, no viable workaround exists, an SLA breach is imminent, or there's already clear executive visibility. Once any of those thresholds is crossed, you declare formally, which kicks off the major-incident process — a bridge call opens, an incident commander is assigned, and a fixed communication cadence starts immediately, for example updates every 15 to 30 minutes, instead of waiting for someone to ask.",
+   points:["Multiple objective triggers, not just 'it feels bad'","Declaring formally kicks off IC role + bridge + comms cadence","Set the update cadence proactively — don't wait to be asked"]},
+
+  {id:"c1",section:"cicd",jd:"cicd",q:"Walk me through a Jenkins pipeline you've built or supported.",
+   a:"Typical shape: checkout, build, unit tests, static analysis or a security scan, a Docker build tagged with the Git SHA rather than 'latest' so every deploy is traceable, push to a registry, deploy to staging, integration and smoke tests, a gate — manual approval or an automated threshold check — then deploy to prod, ideally canary or blue/green with automatic rollback tied to error-rate thresholds. If you've paired a scanning tool like JFrog Xray or Trivy into that pipeline, especially coming from a regulated or PCI-DSS environment, name it explicitly — scanning as a real gate rather than an afterthought is exactly what senior interviewers listen for.",
+   points:["SHA-based image tags, never 'latest'","A real gate before prod, not just 'then it deploys'","<strong>Your ammunition:</strong> PCI-DSS-adjacent scanning experience (Xray/Trivy) signals maturity most 6–9yr candidates won't have"]},
+  {id:"c2",section:"cicd",jd:"cicd",q:"A build is failing intermittently. How do you troubleshoot it?",
+   a:"First separate flaky from consistently broken by rerunning it once before doing anything else. If it's genuinely intermittent, suspect test isolation or shared state, agent or node resource contention, or a dependency and artifact repository having a bad moment. If it's consistently broken, go straight to the console log for the actual failure point and correlate against recent commits — 'what changed?' is almost always the fastest path to the answer.",
+   points:["Rerun once to classify flaky vs consistent — different investigation paths","Flaky → test isolation / shared state / agent contention","Consistent → console log + 'what changed'"]},
+  {id:"c3",section:"cicd",jd:"cicd",q:"What branching strategy do you use, and how do you hotfix production?",
+   a:"A protected main branch with short-lived feature branches merged through a reviewed pull request, so main stays always-deployable. For a hotfix, branch directly off the production release tag rather than off main, which might already be ahead of what's actually deployed, fix forward with the smallest possible change, and cherry-pick that same commit back into main afterward so the fix doesn't quietly vanish on the next release. Coming from SLA-bound production support, keeping that hotfix path short and untangled from whatever half-finished feature work is sitting in main matters more than which named branching model is on the whiteboard.",
+   points:["Branch the hotfix off the <strong>release tag</strong>, not off main","Cherry-pick back into main so the fix isn't lost next release","The practical outcome matters more than correctly naming GitFlow vs trunk-based"]},
+  {id:"c4",section:"cicd",jd:"cicd",q:"git revert vs git reset — which do you use during a live incident, and why?",
+   a:"<code>git revert</code> creates a new commit that undoes a previous one — history stays intact, it's safe on shared branches, and it flows through your normal CI/CD pipeline like any other change. That's the incident answer. <code>git reset</code> moves the branch pointer backward and, on a pushed branch, needs a force-push, which is rightly blocked on protected branches in most regulated environments. So: revert for anything already published, reset only for local cleanup before you've pushed. <code>git reflog</code> is the safety net if a reset ever does go wrong.",
+   points:["<code>revert</code> = safe, auditable, goes through CI/CD — the incident answer","<code>reset</code> = local-only, needs force-push on shared branches — usually blocked by policy","<code>reflog</code> is the recovery net"]},
+  {id:"c5",section:"cicd",jd:"cicd",q:"A secret got committed and pushed to the repo. What are your steps?",
+   a:"Rotate first, clean up second — the exposed credential is compromised the moment it's pushed, whether or not you can scrub history, so revoke and rotate it immediately. Then check audit logs for any use of that credential during the exposure window. Only after rotation do you deal with the repo itself — purge it from history with a tool like BFG or filter-repo and force-push with the team's awareness, since it rewrites SHAs. Prevention afterward: pre-commit secret scanning such as git-secrets, truffleHog, or gitleaks, and moving to short-lived, workload-issued credentials instead of long-lived ones wherever that's viable.",
+   points:["Rotate immediately — don't wait for history cleanup","Check audit logs for actual misuse during the exposure window","History rewrite is cleanup, not the fix; pre-commit scanning is the actual prevention"]},
+
+  {id:"k1",section:"k8s",jd:"k8s",q:"Walk me through diagnosing a CrashLoopBackOff.",
+   a:"<code>kubectl logs &lt;pod&gt; --previous</code> first — the current container may not have logged anything useful yet, but the previous, crashed instance usually did. Then <code>kubectl describe pod</code> for the exit code and events. Exit code 137 means OOMKilled, so raise memory limits or go find the leak; exit 1 or other application-specific codes mean check the stack trace in the logs. If the app itself looks healthy but still keeps restarting, suspect an overly aggressive liveness probe relative to actual startup time — a <code>startupProbe</code> usually fixes that class of false-positive restart.",
+   points:["<code>--previous</code> is the flag most people forget","Exit 137 = OOMKilled","Don't rule out a misconfigured probe when the app 'looks fine' but still restarts"]},
+  {id:"k2",section:"k8s",jd:"k8s",q:"What's the difference between ImagePullBackOff and CrashLoopBackOff, and how do you resolve each?",
+   a:"ImagePullBackOff means Kubernetes can't even pull the image — a wrong name or tag, a missing imagePullSecret for a private registry, node-level network issues, or registry rate limiting. Check <code>kubectl describe pod</code> and the Events section for the exact reason, then verify the image actually exists and that the pull secret is attached. CrashLoopBackOff means the image pulled fine but the container keeps starting and dying — that's an application, config, or resource problem, not a registry problem, so the investigation moves to logs and exit codes instead.",
+   points:["ImagePullBackOff = can't get the image (registry/auth/network)","CrashLoopBackOff = image is fine, the container itself is failing","Either way, start with <code>kubectl describe pod</code> Events"]},
+  {id:"k3",section:"k8s",jd:"k8s",q:"A pod is stuck in Pending state. How do you debug it?",
+   a:"<code>kubectl describe pod</code> and read the Events section — the scheduler writes the exact reason there, no need to guess. In rough priority order: insufficient resources, where requested CPU or memory exceeds what any node has free, so check whether cluster-autoscaler should be scaling out and isn't; node affinity or taints where the pod's requirements don't match any available node; an unbound PVC from a StorageClass or availability-zone mismatch; or a ResourceQuota or LimitRange in the namespace blocking scheduling even though cluster capacity exists.",
+   points:["Events section has the literal reason — read it before guessing","Four usual suspects: resources, affinity/taints, PVC binding, namespace quotas"]},
+  {id:"k4",section:"k8s",jd:"k8s",q:"What Docker fundamentals matter for day-to-day support work?",
+   a:"Images are the immutable blueprint, built in layers, which is why layer caching matters for build speed; containers are the running instance. For support, the commands that matter most are <code>docker logs</code> for output, <code>docker exec -it &lt;container&gt; sh</code> to get a shell into a running container, <code>docker inspect</code> for config, mount, and network detail, and <code>docker stats</code> for a fast read on CPU and memory pressure. <code>docker-compose</code> is worth knowing too, for reproducing a multi-container issue locally rather than only debugging it live in the cluster.",
+   points:["<code>logs</code> / <code>exec</code> / <code>inspect</code> / <code>stats</code> are the four you reach for constantly","Layer caching is why build speed varies run to run","<code>docker-compose</code> for local repro of multi-container bugs"]},
+
+  {id:"t1",section:"itil",jd:"itil",q:"What ITIL processes do you work in day to day, and how do they differ?",
+   a:"Incident Management is about restoring service as fast as possible — a workaround is a perfectly good outcome here. Problem Management is about finding and permanently fixing the underlying root cause so the incident doesn't recur, usually worked after the fact via root cause analysis, often linked to a pattern of repeat incidents. Change Management, which ITIL v4 calls Change Enablement though most shops still say 'Change Management,' governs how changes get introduced in a controlled way — standard pre-approved low-risk changes skip heavy review, normal changes go through a CAB, and emergency changes get an expedited path because the risk of not fixing something outweighs the process overhead. As a support engineer you live mostly in the first two.",
+   points:["<strong>Incident</strong> = restore fast, workaround is fine","<strong>Problem</strong> = root cause, prevents recurrence","<strong>Change</strong> = controlled introduction, standard/normal/emergency tiers","Know both the v3 'Change Management' and v4 'Change Enablement' naming"]},
+  {id:"t2",section:"itil",jd:"itil",q:"What's a Known Error Database, and how do you actually use it?",
+   a:"It stores the root cause and workaround for problems that are understood but not yet permanently fixed. In practice, L1 and L2 search it first against a recurring symptom so they can apply the documented workaround immediately instead of re-diagnosing from zero — arguably the single biggest lever for cutting MTTR on a support desk, because it turns 'investigate from scratch' into 'look it up.' Every time a new root cause is confirmed, it should get written back into the KEDB, or the next engineer pays the same diagnosis cost again.",
+   points:["KEDB = confirmed root cause + workaround for known problems","Searching it first is a major MTTR lever","Feeding new findings back in matters as much as using it"]},
+  {id:"t3",section:"itil",jd:"itil",q:"What's a CAB, and when do you actually need one?",
+   a:"A Change Advisory Board reviews and approves higher-risk normal changes before they hit production, weighing risk, business impact, and the rollback plan. Standard changes — pre-approved, low-risk, done before — skip CAB entirely, which is the point of pre-approval. Emergency changes go through an expedited approval path, because the risk of leaving something broken outweighs the process overhead of a full board review. Knowing which tier a change falls into, and not routing everything through the heaviest process by default, is itself a sign of process maturity.",
+   points:["CAB = normal, higher-risk changes only","Standard changes are pre-approved — skip it by design","Emergency = expedited, not skipped entirely","Over-using CAB for everything is itself a maturity red flag"]},
+
+  {id:"b1",section:"scenario",jd:"inc",q:"Tell me about a time you handled a major incident under pressure.",
+   a:"Pick one real story and structure it tightly: Situation — what broke and what the business impact was; Task — what you specifically owned, not 'the team,' you; Action — the actual diagnostic steps and the call you made, especially if it was a judgment call under uncertainty; Result — a number, downtime avoided, customers affected, time to restore. If you've stood up an SRE practice or CI/CD pipeline from scratch somewhere, that story doubles well here too — it shows the 'before' state that made incidents worse and the concrete thing you built to fix it structurally, not just once.",
+   points:["One tight story beats three vague ones","'Task' should be what <strong>you</strong> owned, not the team","Always land on a number","A 'built the fix so it stops recurring' ending is stronger than 'and then it was resolved'"]},
+  {id:"b2",section:"scenario",jd:"inc",q:"How do you prioritize when multiple incidents or SLAs are at risk at the same time?",
+   a:"Impact and severity first — customer-facing or revenue-impacting beats internal every time. Then proximity to SLA breach. Then ease of quick mitigation, since sometimes you clear the fast one first specifically to free up capacity for the harder one. The part people forget: communicate what's being deprioritized and why, so stakeholders aren't surprised later. Silence during triage reads as incompetence even when the prioritization itself was correct.",
+   points:["Order: impact/severity → SLA proximity → quick-win-to-free-capacity","Communicating the deprioritization is part of the job, not an afterthought"]},
+  {id:"b3",section:"scenario",jd:"inc",q:"How do you handle a frustrated stakeholder during an ongoing outage?",
+   a:"Acknowledge the impact honestly, give a factual status without promising a fix time you're not confident in, and commit to a specific next-update time — then actually hit it. Reliability of communication de-escalates people far more than technical detail they can't parse in the middle of a crisis anyway. If you don't have an answer yet, 'I don't know yet, next update at X' is a completely legitimate thing to say, and it's far better than guessing just to make someone feel better in the moment.",
+   points:["Facts over false reassurance","Commit to a specific next-update time and hit it","'I don't know yet, here's when I'll know more' is a valid, professional answer"]}
+];
+
+const SECTIONS = [
+  {key:"kpi", label:"KPIs they'll grill you on", eyebrow:"§1"},
+  {key:"cicd", label:"CI/CD — Jenkins & Git", eyebrow:"§2"},
+  {key:"k8s", label:"Docker & Kubernetes", eyebrow:"§3"},
+  {key:"itil", label:"ITIL processes", eyebrow:"§4"},
+  {key:"scenario", label:"Scenario & behavioral — tying it together", eyebrow:"§5"}
+];
+
+const JD_TILES = [
+  {key:"mta", label:"MTTA", hint:"Alert → acknowledge"},
+  {key:"mtr", label:"MTTR", hint:"Acknowledge → restore"},
+  {key:"sla", label:"SLA", hint:"Compliance & error budget"},
+  {key:"inc", label:"Incident handling", hint:"Accuracy & response time"},
+  {key:"cicd", label:"CI/CD", hint:"Jenkins & Git"},
+  {key:"k8s", label:"Docker / K8s", hint:"Containers & orchestration"},
+  {key:"itil", label:"ITIL", hint:"Incident · Problem · Change"}
+];
+
+let reviewed = new Set();
+let state = {q:"", section:"all", jd:null};
+
+function escapeAttr(s){return s.replace(/"/g,"&quot;")}
+
+function renderPills(){
+  const row = document.getElementById("pillsRow");
+  let html = '<button class="pill active" data-sec="all" onclick="setSection(\'all\')">All</button>';
+  SECTIONS.forEach(s=>{
+    html += '<button class="pill" data-sec="'+s.key+'" onclick="setSection(\''+s.key+'\')">'+s.label.split(" — ")[0].split(" they")[0]+'</button>';
+  });
+  row.innerHTML = html;
+}
+
+function renderJDGrid(){
+  const grid = document.getElementById("jdGrid");
+  grid.innerHTML = JD_TILES.map(t=>{
+    return '<button class="jd-tile" id="tile-'+t.key+'" onclick="filterByJD(\''+t.key+'\')">'
+      +'<div class="jd-tile-top"><span class="jd-dot" id="dot-'+t.key+'"></span><span class="jd-label">'+t.label+'</span></div>'
+      +'<div class="jd-hint">'+t.hint+'</div>'
+      +'<div class="jd-count" id="count-'+t.key+'">0/0</div>'
+      +'</button>';
+  }).join("");
+}
+
+function renderSections(){
+  const container = document.getElementById("sections");
+  let html = "";
+  SECTIONS.forEach(sec=>{
+    const items = DATA.filter(d=>d.section===sec.key);
+    html += '<div class="section sec-'+sec.key+'" id="sec-'+sec.key+'">';
+    html += '<div class="section-head"><span class="section-eyebrow">'+sec.eyebrow+'</span><h2 class="section-title">'+sec.label+'</h2><span class="section-count">'+items.length+' Q&amp;A</span></div>';
+    items.forEach((item,idx)=>{
+      const searchBlob = (item.q+" "+item.a).toLowerCase().replace(/"/g,"'");
+      html += '<div class="qa-card" id="card-'+item.id+'" data-section="'+item.section+'" data-jd="'+item.jd+'" data-search="'+escapeAttr(searchBlob)+'">';
+      html += '<button class="qa-head" onclick="toggleCard(\''+item.id+'\')">';
+      html += '<span class="qa-num">'+String(idx+1).padStart(2,"0")+'</span>';
+      html += '<span class="qa-q">'+item.q+'</span>';
+      html += '<span class="qa-chev">›</span>';
+      html += '</button>';
+      html += '<div class="qa-body"><div class="qa-body-inner">';
+      html += '<p class="qa-answer">'+item.a+'</p>';
+      html += '<ul class="qa-points">'+item.points.map(p=>'<li>'+p+'</li>').join("")+'</ul>';
+      html += '<label class="qa-mark"><input type="checkbox" onchange="toggleReviewed(\''+item.id+'\', this.checked)"> Reviewed</label>';
+      html += '</div></div></div>';
+    });
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function toggleCard(id){
+  document.getElementById("card-"+id).classList.toggle("open");
+}
+
+function toggleExpandAll(){
+  const btn = document.getElementById("expandBtn");
+  const shouldOpen = btn.textContent.indexOf("Expand") === 0;
+  document.querySelectorAll(".qa-card").forEach(c=>c.classList.toggle("open", shouldOpen));
+  btn.textContent = shouldOpen ? "Collapse all" : "Expand all";
+}
+
+function toggleReviewed(id, checked){
+  if(checked){reviewed.add(id)}else{reviewed.delete(id)}
+  updateProgress();
+}
+
+function updateProgress(){
+  const total = DATA.length;
+  const done = reviewed.size;
+  document.getElementById("progressFill").style.width = (done/total*100)+"%";
+  document.getElementById("progressLabel").textContent = done+" / "+total+" reviewed";
+
+  JD_TILES.forEach(t=>{
+    const items = DATA.filter(d=>d.jd===t.key);
+    const doneCount = items.filter(d=>reviewed.has(d.id)).length;
+    const dot = document.getElementById("dot-"+t.key);
+    dot.classList.remove("partial","done");
+    if(doneCount===items.length && items.length>0){dot.classList.add("done")}
+    else if(doneCount>0){dot.classList.add("partial")}
+    document.getElementById("count-"+t.key).textContent = doneCount+"/"+items.length;
+  });
+}
+
+function setSection(key){
+  state.section = key; state.jd = null;
+  document.querySelectorAll(".pill").forEach(p=>p.classList.toggle("active", p.dataset.sec===key));
+  applyFilters();
+}
+
+function filterByJD(key){
+  state.section = "all"; state.jd = key; state.q = "";
+  document.getElementById("searchInput").value = "";
+  document.querySelectorAll(".pill").forEach(p=>p.classList.toggle("active", p.dataset.sec==="all"));
+  applyFilters();
+  const firstCard = document.querySelector('.qa-card[data-jd="'+key+'"]');
+  if(firstCard){firstCard.scrollIntoView({behavior:"smooth", block:"center"})}
+}
+
+function applyFilters(){
+  let anyVisible = false;
+  SECTIONS.forEach(sec=>{
+    let sectionHasVisible = false;
+    document.querySelectorAll('.qa-card[data-section="'+sec.key+'"]').forEach(card=>{
+      const secOk = state.section==="all" || card.dataset.section===state.section;
+      const jdOk = !state.jd || card.dataset.jd===state.jd;
+      const qOk = !state.q || card.dataset.search.indexOf(state.q)!==-1;
+      const visible = secOk && jdOk && qOk;
+      card.style.display = visible ? "" : "none";
+      if(visible){sectionHasVisible = true; anyVisible = true}
+    });
+    document.getElementById("sec-"+sec.key).classList.toggle("section-empty", !sectionHasVisible);
+  });
+  document.getElementById("noResults").style.display = anyVisible ? "none" : "block";
+}
+
+document.getElementById("searchInput").addEventListener("input", function(e){
+  state.q = e.target.value.toLowerCase();
+  state.jd = null;
+  applyFilters();
+});
+
+renderPills();
+renderJDGrid();
+renderSections();
+updateProgress();
+</script>
+</body>
+</html>

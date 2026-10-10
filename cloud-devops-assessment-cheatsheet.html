@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SRE / Cloud Assessment — Field Reference</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+  :root{
+    --paper:#F6F7F9;
+    --card:#FFFFFF;
+    --ink:#1A1D23;
+    --muted:#5B6472;
+    --faint:#96A0AF;
+    --rule:#DEE2E9;
+    --green:#136B37;
+    --green-bg:#E4F5E8;
+    --azure:#0A6FB0;
+    --aws:#B4530C;
+    --gcp:#1A6FE0;
+    --k8s:#2F5FCE;
+    --mon:#C1462A;
+    --sdet:#6D4FBE;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+    font-size:13px;
+    line-height:1.42;
+    padding:20px 24px 16px;
+  }
+  .mono{font-family:'IBM Plex Mono',ui-monospace,'SF Mono',monospace;}
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+    border-bottom:2.5px solid var(--ink);
+    padding-bottom:9px;
+    margin-bottom:13px;
+  }
+  header .title-block h1{
+    font-size:19px;
+    margin:0 0 3px;
+    letter-spacing:-.01em;
+    font-weight:700;
+  }
+  header .title-block p{
+    margin:0;
+    font-size:10.5px;
+    color:var(--muted);
+  }
+  .status-strip{
+    display:flex;
+    gap:5px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  .chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:8.5px;
+    font-weight:600;
+    letter-spacing:.05em;
+    color:#fff;
+    background:var(--c);
+    padding:4px 7px;
+    border-radius:4px;
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    white-space:nowrap;
+  }
+  .chip b{font-size:9.5px;}
+
+  .print-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    font-weight:600;
+    background:var(--ink);
+    color:#fff;
+    border:none;
+    border-radius:4px;
+    padding:5px 10px;
+    cursor:pointer;
+    letter-spacing:.03em;
+  }
+  .print-btn:hover{opacity:.85;}
+  .toolbar{display:flex;flex-direction:column;align-items:flex-end;gap:7px;}
+
+  .board{
+    column-count:3;
+    column-gap:16px;
+  }
+  .card{
+    break-inside:avoid;
+    -webkit-column-break-inside:avoid;
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-top:3px solid var(--accent);
+    border-radius:7px;
+    padding:9px 12px 10px;
+    margin:0 0 12px;
+    box-shadow:0 1px 3px rgba(20,24,32,.06);
+  }
+  .card-head{
+    display:flex;
+    align-items:baseline;
+    gap:7px;
+    margin-bottom:6px;
+    padding-bottom:5px;
+    border-bottom:1px solid var(--rule);
+  }
+  .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:8.5px;
+    font-weight:600;
+    letter-spacing:.06em;
+    color:var(--accent);
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+  .card h2{
+    font-size:12.5px;
+    margin:0;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .ctx{
+    font-size:9.5px;
+    color:var(--muted);
+    margin:0 0 6px;
+    font-style:italic;
+  }
+  .qa{margin-top:7px;}
+  .qa:first-of-type{margin-top:0;}
+  .q{
+    font-size:10.8px;
+    color:var(--ink);
+    margin:0 0 3px;
+    font-weight:500;
+  }
+  .q::before{content:"Q";color:var(--faint);font-weight:700;margin-right:4px;}
+  .a{margin:0;font-size:10.8px;line-height:1.55;}
+  .pill{
+    display:inline-block;
+    background:var(--green-bg);
+    color:var(--green);
+    font-weight:600;
+    padding:1px 6px;
+    border-radius:3px;
+    font-size:10.3px;
+    margin:1px 3px 1px 0;
+    white-space:nowrap;
+  }
+  .note{
+    display:block;
+    color:var(--muted);
+    font-size:9.3px;
+    margin-top:2px;
+    line-height:1.45;
+  }
+  .bullets{margin:0;padding:0;list-style:none;}
+  .bullets li{font-size:10.8px;margin:0 0 4px;}
+  .bullets li:last-child{margin-bottom:0;}
+  .bullets b.pill{font-weight:600;}
+  code{
+    font-family:'IBM Plex Mono',monospace;
+    background:#EEF0F5;
+    padding:0 4px;
+    border-radius:2px;
+    font-size:9.8px;
+  }
+
+  footer{
+    margin-top:6px;
+    font-size:8.8px;
+    color:var(--faint);
+    text-align:center;
+  }
+
+  @media (max-width:1000px){.board{column-count:2;}}
+  @media (max-width:620px){.board{column-count:1;} header{flex-direction:column;align-items:flex-start;} .status-strip{justify-content:flex-start;}}
+
+  @media print{
+    @page{ size: landscape; margin:10mm; }
+    body{ padding:0; background:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .toolbar{display:none;}
+    .card{box-shadow:none;}
+    .board{column-count:3;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-block">
+    <h1>SRE / Cloud Assessment — Field Reference</h1>
+    <p>Azure · AWS · GCP · Kubernetes · Observability · CI Practice — answer key with rationale</p>
+  </div>
+  <div class="toolbar">
+    <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
+    <div class="status-strip">
+      <span class="chip" style="--c:var(--azure)">AZURE <b>2</b></span>
+      <span class="chip" style="--c:var(--aws)">AWS <b>1</b></span>
+      <span class="chip" style="--c:var(--gcp)">GCP <b>2</b></span>
+      <span class="chip" style="--c:var(--k8s)">K8S <b>1</b></span>
+      <span class="chip" style="--c:var(--mon)">MON <b>1</b></span>
+      <span class="chip" style="--c:var(--sdet)">SDET <b>1</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="board">
+
+  <article class="card" style="--accent:var(--azure)">
+    <div class="card-head"><span class="tag">Azure</span><h2>Ransomware Exposure &amp; SMBv1</h2></div>
+    <div class="qa">
+      <p class="q">Protocol that leaves Azure VMs vulnerable to ransomware?</p>
+      <p class="a"><span class="pill">✓ SMB v1</span><span class="note">Not plain "SMB" or v2/v3 — only v1 lacks signing &amp; encryption hardening.</span></p>
+    </div>
+    <div class="qa">
+      <p class="q">True of SMB protocol generally? (select all)</p>
+      <p class="a"><span class="pill">✓ Network file-sharing protocol</span><span class="pill">✓ Runs at Application layer</span><span class="note">✗ Not "a CIFS protocol" — CIFS names the legacy SMBv1 dialect specifically. ✗ Not transport layer (SMB rides over TCP/445).</span></p>
+    </div>
+    <div class="qa">
+      <p class="q">Is SMBv1 disabled by default on new Azure VMs?</p>
+      <p class="a"><span class="pill">✓ Yes</span></p>
+    </div>
+  </article>
+
+  <article class="card" style="--accent:var(--azure)">
+    <div class="card-head"><span class="tag">Azure</span><h2>PowerShell Disk Inventory → CSV</h2></div>
+    <p class="ctx">Get-AzDisk across every subscription → Name / Status / ResourceGroup / Size, appended to disklist.csv</p>
+    <ul class="bullets">
+      <li><code>foreach($sub in $subscriptions.<b class="pill">Name</b>)</code></li>
+      <li><code>$Status = $disk.<b class="pill">State</b></code><span class="note">As tested; the live cmdlet property is <code>DiskState</code>.</span></li>
+      <li><code>$size = $disk.<b class="pill">DiskSizeGB</b></code></li>
+    </ul>
+  </article>
+
+  <article class="card" style="--accent:var(--aws)">
+    <div class="card-head"><span class="tag">AWS</span><h2>CodeBuild BuildSpec</h2></div>
+    <div class="qa">
+      <p class="q">ECR login — missing region variable?</p>
+      <p class="a"><code>--region</code> <span class="pill">✓ $AWS_DEFAULT_REGION</span></p>
+    </div>
+    <div class="qa">
+      <p class="q">Install phase — runtime version &amp; build command?</p>
+      <p class="a"><span class="pill">✓ nodejs: 10</span><span class="pill">✓ npm install</span></p>
+    </div>
+  </article>
+
+  <article class="card" style="--accent:var(--gcp)">
+    <div class="card-head"><span class="tag">GCP</span><h2>Cloud SDK Components</h2></div>
+    <ul class="bullets">
+      <li><b class="pill">gcloud</b> → main CLI (GA + Preview-level commands)</li>
+      <li><b class="pill">bq</b> → BigQuery data tool</li>
+      <li><b class="pill">gsutil</b> → Cloud Storage tool</li>
+      <li><b class="pill">core</b> → internal libraries shared by SDK tools</li>
+    </ul>
+  </article>
+
+  <article class="card" style="--accent:var(--gcp)">
+    <div class="card-head"><span class="tag">GCP</span><h2>gsutil Commands</h2></div>
+    <ul class="bullets">
+      <li><b class="pill">perfdiag</b> → run diagnostics on a bucket</li>
+      <li><b class="pill">mb</b> → make (create) a bucket</li>
+      <li><b class="pill">rb</b> → remove (delete) a bucket</li>
+    </ul>
+  </article>
+
+  <article class="card" style="--accent:var(--k8s)">
+    <div class="card-head"><span class="tag">Kubernetes</span><h2>CronJob Spec — every minute</h2></div>
+    <ul class="bullets">
+      <li><code>kind:</code> <b class="pill">CronJob</b></li>
+      <li><code>schedule:</code> <b class="pill">"*/1 * * * *"</b></li>
+      <li>key before container list → <b class="pill">containers:</b></li>
+      <li>key paired with <code>: OnFailure</code> → <b class="pill">restartPolicy</b></li>
+    </ul>
+    <p class="note" style="margin-top:5px">apiVersion shown as <code>batch/v1beta1</code> is deprecated — use <code>batch/v1</code> (v1beta1 removed in K8s 1.25+).</p>
+  </article>
+
+  <article class="card" style="--accent:var(--mon)">
+    <div class="card-head"><span class="tag">Monitoring</span><h2>Prometheus Alerting Pipeline</h2></div>
+    <div class="qa">
+      <p class="q">Which component sends notifications based on alerts?</p>
+      <p class="a"><span class="pill">✓ Alertmanager</span><span class="note">Prometheus Server evaluates &amp; fires rules; Grafana only visualizes; Pushgateway stages short-lived job metrics.</span></p>
+    </div>
+  </article>
+
+  <article class="card" style="--accent:var(--sdet)">
+    <div class="card-head"><span class="tag">SDET / CI</span><h2>CI Observability Gap</h2></div>
+    <div class="qa">
+      <p class="q">CI failure gives no actionable data — what MUST be added?</p>
+      <p class="a"><span class="pill">✓ Request/response logs</span><span class="pill">✓ Screenshots/videos</span><span class="pill">✓ Correlation IDs</span><span class="pill">✓ Structured test metadata</span><span class="note">✗ Console prints alone aren't enough — not searchable or correlated across runs.</span></p>
+    </div>
+  </article>
+
+</div>
+
+<footer>Compiled answer key — 8 questions across 6 domains · verify against your own source before an exam</footer>
+
+</body>
+</html>
